@@ -231,7 +231,7 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "";
 				HEADER_SEARCH_PATHS = "";
-				INSTALL_PATH = "$(HOME)/Applications";
+				INSTALL_PATH = Applications;
 				LIBRARY_SEARCH_PATHS = "";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
@@ -245,7 +245,7 @@
 			);
 			isa = PBXApplicationTarget;
 			name = OSXvnc;
-			productInstallPath = "$(HOME)/Applications";
+			productInstallPath = Applications;
 			productName = OSXvnc;
 			productReference = 17587328FF379C6511CA2CBB;
 			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
