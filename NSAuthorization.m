@@ -59,9 +59,8 @@
                                                   copyArguments, 
                                                   (sync ? &communicationStream : NULL)); // FILE HANDLE for I/O
 
-	if (sync) {
-		while (!feof(communicationStream)) {
-			fgets(outputString, 1024, communicationStream);
+	if (!myStatus && sync) {
+		while (fgets(outputString, 1024, communicationStream)) {
 			if (strlen(outputString) > 1)
 				NSLog(@"NSAuthorization: %s",outputString);
 		}
