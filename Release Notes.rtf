@@ -1,8 +1,8 @@
 {\rtf1\mac\ansicpg10000\cocoartf102
-\readonlydoc1{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fswiss\fcharset77 Helvetica-BoldOblique;
-}
-{\colortbl;\red255\green255\blue255;\red25\green35\blue255;}
-\vieww12900\viewh10380\viewkind0
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fswiss\fcharset77 Helvetica-BoldOblique;
+\f3\fnil\fcharset77 Monaco;}
+{\colortbl;\red255\green255\blue255;\red25\green35\blue255;\red137\green19\blue21;}
+\vieww21660\viewh19320\viewkind0
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\qc
 
 \f0\b\fs36 \cf0 OSXvnc \
@@ -12,21 +12,70 @@ Release Notes\
 \f1\b0\fs24 \cf0 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f0\b \cf0 Version 1.2, Released 5/7/2003:\
-	* Modified by Jonathan Gillaspie for Redstone Software, Inc.\
+\f0\b \cf0 Still to do:\
+	
+\f1\b0 Try keeping CGS connection around to improve performance\
+	Whole screen has problem in 256 color mode\
+	Problem with 3.7 authentication scheme\
+\
+	Test pressMods for keys with Foreign Keyboard\
+		Works but not for sticky key - make this loading a selected behavior\
+\
+	Move Disable Logic To Puma Bundle - Necessary or move to main app?\
+	Add GUI to disable Mod Key Swtiching (including GUI)\
+	Add GUI to set for Startup Up\
+	Make GUI more Pref Pane Like\
+\
+
+\f0\b Version 1.3, NOT YET RELEASED:\
+	Modified by Jonathan Gillaspie for Redstone Software, Inc.\
+	( osxvnc@redstonesoftware.com )\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 \
+	On OS X 10.2 and higher added support for Keyboard Detection, OSXvnc should now  be able to hit any SINGLE key that is present in the users currently selected keyboard\
+\
+	Added Cursor Support\
+		Added RichCursorSupport (RFB 3.7) \
+		Added CursorPositionUpdate Support (Tight)\
+		Dynamic Screen Sizing (Clients need no longer reconnect after a screen size change)\
+	\
+	Fixed an occasional problem sending a rectangle without having accounted for it\
+	Fixed a rare bug where it was occasionally possible for clients to miss a copy event which occurred on the server.
+\f0\b \
+	
+\f1\b0 Fixed problem with Shift-Tab (sent from OS X) being ignored as an End Of Medium character, when it didn't crash the whole server
+\f0\b \
+	
+\f1\b0 Fixed crashing bug where certain unknown keys would crash OSXvnc
+\f0\b \
+	
+\f1\b0 Fixed problem with OSXvnc causing machine interruptions when no clients connected by disabling poll for ScreenUpdates (Bug-770661)\
+	Fixed so that scroll wheel events don't leak by adding NSAutoreleasePool (Bug-760383)\
+	Now Attempting to pass the CGCharCode, reports that this improves stability (no crashing during key events like Return).\
+	Added BUNDLE to hopefully allow OSXvnc to run on 10.0\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 	
+\f1\b0 Minor Performance improvements for delay between thread notifications\
+\
+
+\f0\b Version 1.2, Released 5/7/2003:\
+	Modified by Jonathan Gillaspie for Redstone Software, Inc.\
 	( osxvnc@redstonesoftware.com )
 \f1\b0 \
 	Improvements to StartupItems script for Startup on System Boot\
-	Fix so that client keys which are being held down by a client will be released when the client disconnects\
-	Fix to Server Cut Text being sent only in response to screen updates and sometimes within an RFB\
-	Fix where server sometimes says it needs to restart when nothing changed\
-                        Fixed an occassional Crash on Disconnect in 10.1\
+	Fixed so that client keys which are being held down by a client will be released when the client disconnects\
+	Fixed pasteboard bug where Server Cut Text event was being sent only in response to screen updates and sometimes within an RFB\
+	Fixed problem where server sometimes says it needs to restart when nothing changed\
+	Fixed an occassional Crash on Disconnect in 10.1\
 	Fixed a problem with lossy conversion to CStrings for clipboard contents with non-roman characters.\
 	Setup run-loop to only poll screen when clients are connected, for improved performance.\
+	Change to place temporary files in /tmp if the application package is not writable. (10.2 only)\
 	
 \f0\b \
 Version 1.11, Released 1/18/2003:\
-	* Modified by Jonathan Gillaspie for Redstone Software, Inc.\
+	Modified by Jonathan Gillaspie for Redstone Software, Inc.\
 	( osxvnc@redstonesoftware.com )\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
@@ -43,16 +92,16 @@ Version 1.11, Released 1/18/2003:\
                         Updated FAQ with lots of useful information\
 	Enhanced Keyboard Mapping Performance\
                         Now compatible with all versions of Chicken of the VNC\
-        	Fix which caused pointer events to be locked out and occasionally not recognized\
-                        Fix to a problem when multiple clients were using encodings that use Zlib compression\
-                        Fix to a problem where changing screen resolution didn't work if launched command line\
-                        Fix to the Zero Size Rect\
-	Fix to the default keymapping for ~ and ` keys\
+        	Fixed which caused pointer events to be locked out and occasionally not recognized\
+                        Fixed to a problem when multiple clients were using encodings that use Zlib compression\
+                        Fixed to a problem where changing screen resolution didn't work if launched command line\
+                        Fixed to the Zero Size Rect\
+	Fixed to the default keymapping for ~ and ` keys\
 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f0\b \cf0 Version 1.0, Released 9/26/2002;\
-	* Modified by Jonathan Gillaspie & Doug Simons for Redstone Software, Inc.
+	Modified by Jonathan Gillaspie & Doug Simons for Redstone Software, Inc.
 \f1\b0 	VNC Server will restart if the screen resolution Changes\
 	Now sends updates on request as per protocol\
                 	Now Handles Pasteboard events\
@@ -73,7 +122,7 @@ Version 1.11, Released 1/18/2003:\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f0\b \cf0 Version 0.7, Released 4/23/2002:\
-	* Modified by Mahmud Haque mahmud@bcm.tmc.edu\
+	Modified by Mahmud Haque mahmud@bcm.tmc.edu\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\b0 \cf0 	Add support for zlib and tight encoding ( codes from Tightvnc source).\
@@ -84,11 +133,10 @@ Version 1.11, Released 1/18/2003:\
 \f0\b \cf0 Version 0.6, Released 5/14/2001:	\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f1\b0 \cf0 	* Add support for controlling display dimming and sleep based on\
+\f1\b0 \cf0 	Add support for controlling display dimming and sleep based on\
 	patch submitted by Jed Davis <jldavis@cs.oberlin.edu>.  A dimmed\
 	display now wakes up when there is VNC input.\
-\
-	* Various minor UI fixes: remove console debugging output; add\
+	Various minor UI fixes: remove console debugging output; add\
 	0 to the list of display numbers; change default display name\
 	to "Mac OS X"; don't leave the UI disabled when the server dies\
 	unexpectedly.\
@@ -98,40 +146,83 @@ Version 1.11, Released 1/18/2003:\
 \f0\b \cf0 Version 0.5, released 4/25/2001:\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f1\b0 \cf0 	* Initial release.\
+\f1\b0 \cf0 	Initial release.\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f0\b \cf0 \
-Still to do:\
+\
+\
+Things To Do:\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\b0 \cf0 \
-CoRRE bug? - Yes\
+Mouse Cursor:\
+	Problems with non 32bit color modes\
+	Occasional cursor artifacts (disabling cursor display didn't seem to help)\
+	Problem with partial transparency on cursors - how should we display?\
 \
-Optionally, make mouse cursor appear\
-	-- umm.  how?\
+Fix problem where pasteboard isn't shared when run as StartupItem\
+	Tricky, the loginserver specifically disconnects our port to the pbs, could try something with -LoginHook to reconnect it.\
 \
-security of stored password is lame use hash like /etc/passwd?\
+Add Server Side Scaling\
+	See UltraVNC\
 \
-security issues re: running it from the command line (no icon shows up)\
+Fix so that server doesn't die when user logs out \
+	Tried using demonize, didn't seem to fix it, I think it needs to be the run loop which shuts down\
 \
-installer that sets it up as a StartupItem for you (optionally with ssh-forwarded port as well)\
+Fix so server runs under 10.0\
+	Beta testing\
 \
-how to send force quit over the link?\
-	-- option key mapped to X 'left logo'/'right logo'\
-		keys-- more convenient mapping?\
-	-- otherwise it would work.\
+Add Preference Pane for Configuring For System Startup\
 \
-what about international keyboards?\
+Display IP of current machine on OSXvnc panel\
 \
-make reverse mode work\
+Add Rendezvous/zeroconf advertising\
 \
-disable the screen-blanking/screen-saver while people are connected\
-	(how?)\
+Update Dock Icon with Badging As Users Connect\
+	When server is started show badge with 0\
 \
-emacs glitch still happens when delay time is 0 (lower bound\
-	where it works is what?)\
+Option to set background to Black on Connect\
+	(
+\f3\fs20 /System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine -background -module "" &)\
+
+\f1\fs24 \
+Panther:\
+	See if Panther allows us to run multiple virtual desktops\
+	Fix Compile problems\
 \
-try updating everything enclosed by the current region\
-	to work around window-moving bug?\
+Add Reverse Connection Ability\
+\
+Improved International Keyboard Support:\
+	Figure out how to work with Sticky keys\
+	Dynamicall Determine \
+\
+Disable the screen-blanking/screen-saver while people are connected\
+	It does some of this, must verify\
+\
+Fix bug in CoRRE\
+\
+Support For Multiple Physical Displays\
+	Have some basics in but haven't resolved dealing with the multiple screens as part of a larger screen area (need to translate events, etc.)\
+	\
+Figure out if we can make headless displays work\
+\
+Ability to wake up the OSXvnc system that is asleep when incomming vnc connections come in\
+\
+Replace -localhost
+\f3\fs20 \cf3 \CocoaLigature0  
+\f1\fs24 \cf0 \CocoaLigature1 with full -vncauth file\
+\
+Add inetd/xinetd support\
+	So OSXvnc will startup when a request comes in	\
+	Look  in RealVNC 4.0 for example\
+\
+Add "Send Full Screen" Mode - Useful for things like Keynote which bypasses CGRemoteOperations API\
+	Possibly Detect when machine enters such a mode - ie starts running Keynote\
+\
+Paint in Local Mouse Cursor\
+	Make It An Option\
+	Try using the rfbLocalBuffer logic - BUT instead of running the whole screen through that \
+	Just send an update for cursor position when cursor moves. Or when other updates go out.\
+\
 }
