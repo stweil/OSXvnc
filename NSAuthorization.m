@@ -37,9 +37,15 @@
 }
 
 - (BOOL) executeCommand:(NSString *) command withArgs: (NSArray *) argumentArray {
+	[self executeCommand:(NSString *) command withArgs: (NSArray *) argumentArray synchronous:TRUE];
+}
+		
+- (BOOL) executeCommand:(NSString *) command withArgs: (NSArray *) argumentArray synchronous: (BOOL) sync {
+	FILE *communicationStream = NULL;
     char **copyArguments = NULL;
     int i;
     OSStatus myStatus;
+	char outputString[1024];
         
     copyArguments = malloc(sizeof(char *) * ([argumentArray count]+1));
     for (i=0;i<[argumentArray count];i++) {
@@ -51,13 +57,17 @@
                                                   [command lossyCString], 
                                                   kAuthorizationFlagDefaults,
                                                   copyArguments, 
-                                                  NULL); // FILE HANDLE for I/O
-    
-    // What would be better would be to get the I/O handle and block until it is closed
-    // sigh, but for now...
-    
-    usleep(400000); // We need to give the process time to finish
+                                                  (sync ? &communicationStream : NULL)); // FILE HANDLE for I/O
 
+	if (sync) {
+		while (!feof(communicationStream)) {
+			fgets(outputString, 1024, communicationStream);
+			if (strlen(outputString) > 1)
+				NSLog(@"NSAuthorization: %s",outputString);
+		}
+		fclose(communicationStream);
+	}
+	
     free(copyArguments);
     
     if (myStatus != errAuthorizationSuccess)
