@@ -7,6 +7,9 @@
 # 
 # Modification Log:
 #
+# 1.4
+# Uses proper -lt and checks for less than 200 rather than more than 0 since process only return unsigned shorts
+#
 # 1.33
 # Modified so that keepalive only shuts down on unrecoverable errors
 #
@@ -20,13 +23,13 @@ RESULT=15
 ls -l
 # OS X will send a SIGINT or SIGTERM to shutdown OSXvnc-server
 # On a negative SIGNAL we'll stop properly (this is what the server returns internally when an error occurs)
-while [[ "$RESULT" < "200" ]]
+while [[ "$RESULT" -lt "200" ]]
 do
 	echo "$0: Starting Server"
 	"$@" # Run our parameters
 	RESULT=$? # Record Result
 	echo $RESULT
-	sleep 6
+	sleep 5
 done
 
 echo "$0 Shutdown with exit status " $RESULT

@@ -21,3 +21,7 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef);
 + (void) registerRendezvous;
 
 @end
+
+@interface RendezvousDelegate : NSObject
+
+@end

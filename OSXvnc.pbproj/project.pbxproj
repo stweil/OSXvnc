@@ -57,8 +57,7 @@
 //103
 //104
 		1058C7A1FEA54F0111CA2CBB = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
+			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
 			name = Cocoa.framework;
 			path = /System/Library/Frameworks/Cocoa.framework;
@@ -83,8 +82,7 @@
 //174
 		17587328FF379C6511CA2CBB = {
 			explicitFileType = wrapper.application;
-			fallbackIsa = PBXFileReference;
-			isa = PBXApplicationReference;
+			isa = PBXFileReference;
 			path = OSXvnc.app;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -368,8 +366,6 @@
 //4A3
 //4A4
 		4A9504D3FFE6A4CB11CA0CBA = {
-			buildRules = (
-			);
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -384,8 +380,6 @@
 			name = Development;
 		};
 		4A9504D4FFE6A4CB11CA0CBA = {
-			buildRules = (
-			);
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
 				DEPLOYMENT_LOCATION = YES;
@@ -540,8 +534,7 @@
 		};
 		AB3598E604BF8A3D00A80117 = {
 			explicitFileType = wrapper.cfbundle;
-			fallbackIsa = PBXFileReference;
-			isa = PBXBundleReference;
+			isa = PBXFileReference;
 			path = JaguarBundle.bundle;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
@@ -586,8 +579,7 @@
 			};
 		};
 		AB41881F04C5986E00A80117 = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
+			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
 			name = ApplicationServices.framework;
 			path = /System/Library/Frameworks/ApplicationServices.framework;
@@ -635,9 +627,8 @@
 			};
 		};
 		ABCCC8B203D9C60A00A80117 = {
-			fallbackIsa = PBXFileReference;
 			includeInIndex = 1;
-			isa = PBXFolderReference;
+			isa = PBXFileReference;
 			lastKnownFileType = folder;
 			path = OSXvnc;
 			refType = 4;
@@ -704,8 +695,7 @@
 			};
 		};
 		ABEE28F804C8745B00A80117 = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
+			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
 			name = Security.framework;
 			path = /System/Library/Frameworks/Security.framework;
@@ -719,8 +709,7 @@
 			};
 		};
 		ABF191B704E447A400A80117 = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXFrameworkReference;
+			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
 			name = Carbon.framework;
 			path = /System/Library/Frameworks/Carbon.framework;
@@ -1375,27 +1364,24 @@
 			sourceTree = "<group>";
 		};
 		F538E04102F9812A01A80186 = {
-			fallbackIsa = PBXFileReference;
 			fileEncoding = 30;
-			isa = PBXExecutableFileReference;
+			isa = PBXFileReference;
 			lastKnownFileType = text.script.sh;
 			path = config.guess;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		F538E04202F9812A01A80186 = {
-			fallbackIsa = PBXFileReference;
 			fileEncoding = 30;
-			isa = PBXExecutableFileReference;
+			isa = PBXFileReference;
 			lastKnownFileType = text.script.sh;
 			path = config.sub;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		F538E04302F9812A01A80186 = {
-			fallbackIsa = PBXFileReference;
 			fileEncoding = 30;
-			isa = PBXExecutableFileReference;
+			isa = PBXFileReference;
 			lastKnownFileType = text.script.sh;
 			path = configure;
 			refType = 4;
@@ -1433,9 +1419,8 @@
 			sourceTree = "<group>";
 		};
 		F538E04802F9812A01A80186 = {
-			fallbackIsa = PBXFileReference;
 			fileEncoding = 30;
-			isa = PBXExecutableFileReference;
+			isa = PBXFileReference;
 			lastKnownFileType = text.script.sh;
 			path = "install-sh";
 			refType = 4;
@@ -2063,9 +2048,8 @@
 			sourceTree = "<group>";
 		};
 		F538E09702F9812A01A80186 = {
-			fallbackIsa = PBXFileReference;
 			fileEncoding = 30;
-			isa = PBXExecutableFileReference;
+			isa = PBXFileReference;
 			lastKnownFileType = text.script.sh;
 			path = ltconfig;
 			refType = 4;
@@ -2610,9 +2594,8 @@
 			sourceTree = "<group>";
 		};
 		F538E0D802F9812B01A80186 = {
-			fallbackIsa = PBXFileReference;
 			fileEncoding = 30;
-			isa = PBXExecutableFileReference;
+			isa = PBXFileReference;
 			lastKnownFileType = text.script.sh;
 			path = configure;
 			refType = 4;
@@ -2651,8 +2634,7 @@
 			sourceTree = "<group>";
 		};
 		F538E0DF02F9812B01A80186 = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXExecutableFileReference;
+			isa = PBXFileReference;
 			lastKnownFileType = "compiled.mach-o.executable";
 			path = example;
 			refType = 4;
@@ -2827,8 +2809,7 @@
 			sourceTree = "<group>";
 		};
 		F538E0FE02F9812B01A80186 = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXExecutableFileReference;
+			isa = PBXFileReference;
 			lastKnownFileType = "compiled.mach-o.executable";
 			path = minigzip;
 			refType = 4;
@@ -3078,8 +3059,7 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F538E4B402F9B73F01A80186 = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXExecutableFileReference;
+			isa = PBXFileReference;
 			lastKnownFileType = "compiled.mach-o.executable";
 			name = "OSXvnc-server";
 			path = "OSXvnc-server/OSXvnc-server";
@@ -3483,8 +3463,7 @@
 			sourceTree = "<group>";
 		};
 		F5F3AB0C03B3CB7C01A80117 = {
-			fallbackIsa = PBXFileReference;
-			isa = PBXExecutableFileReference;
+			isa = PBXFileReference;
 			lastKnownFileType = "compiled.mach-o.executable";
 			name = storepasswd;
 			path = "OSXvnc-server/storepasswd";

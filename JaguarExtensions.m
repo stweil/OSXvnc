@@ -261,7 +261,7 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 												   type:@"_vnc._tcp." 
 												   name:[NSString stringWithCString:theServer->desktopName]
 												   port:(int) theServer->rfbPort];
-		[service setDelegate:theServer->vncServer];		
+		[service setDelegate:[[RendezvousDelegate alloc] init]];		
 
 		if (![service publish])
 			NSLog(@"An error occurred publishing the Rendezvous Net Service");
@@ -294,6 +294,27 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 		[service stop];
 }
 
+@end
+
+@implementation RendezvousDelegate
+
+// Sent when the service is about to publish
+
+- (void)netServiceWillPublish:(NSNetService *)netService {
+	NSLog(@"Registering Rendezvous Service - %@", [netService name]);
+}
+
+// Sent if publication fails
+- (void)netService:(NSNetService *)netService didNotPublish:(NSDictionary *)errorDict {
+    NSLog(@"An error occurred with service %@.%@.%@, error code = %@",		  
+		  [netService name], [netService type], [netService domain], [errorDict objectForKey:NSNetServicesErrorCode]);
+}
+
+// Sent when the service stops
+- (void)netServiceDidStop:(NSNetService *)netService {	
+	NSLog(@"Disabling Rendezvous Service - %@", [netService name]);
+    // You may want to do something here, such as updating a user interfac
+}
 
 
 @end
