@@ -1,0 +1,32 @@
+/* Localized versions of Messages */
+/* Use: LocalizedString( ) */
+
+"Host Names:" = "Noms du poste:";
+"IP Addresses:" = "Addresses IP:";
+"Screen Resolution changed - Server Reinitialized"="Résolution d'affichage modifiée - Serveur réinitialisé";
+"Server Running"="Le serveur est activé";
+"The server is not running."="Le serveur est arrêté.";
+"Start Server"="Démarrer";
+"The server is stopped."="Le serveur est arrêté.";
+/* "Probably because the OSXvnc server is already running as a Startup Item." */
+/* "Probably because another VNC is already using this port." */
+"The server has stopped running. See Log (%d)\n"="Le serveur s'est arrêté. Consultez le fichier Log (%d)\n";
+"The server has stopped running."="Le serveur est arrêté.";
+"Need a valid Port or Display Number"="Numéro de port / d'affichage non valide";
+"Problem - Unable to store password to %@"="Problème - Impossible d'enregistrer le mot de passe dans %@";
+"Server Running -\n   Option Change Requires a Restart"="Serveur actif -\n   Redémarrer le serveur pour enregistrer les changements";
+"Restart Server"="Redémarrer";
+"Error: No Authorization"="Erreur: Pas d'autorisation";
+"Error: Unable to setup StartupItems folder"="Erreur: Impossible de créer le dossier StartupItems";
+"Error: Unable to copy OSXvnc folder"="Erreur: Impossible de copier le dossier OSXvnc";
+"Error: Unable To Read in OSXvnc script File"="Erreur: Impossible de lire le script OSXvnc";
+"Error: Unable To Setup Password File"="Erreur: Impossible d'initialiser le fichier de mot de passe";
+"Error: Unable To Replace OSXvnc Script File"="Erreur: Impossible de remplacer le fichier script OSXvnc";
+"Error: Unable To Write out Temporary Script File"="Erreur: Impossible d'écrire le fichier script temporaire";
+"Startup Item Configured (Started)"="Service de démarrage configuré (Démarrer)"
+"Startup Item Disabled (Stopped)"="Service de démarrage désactivé (Arrêté)";
+"Error: Unabled to remove startup item"="Erreur: Impossible de supprimer le service de démarrage";
+
+
+
+

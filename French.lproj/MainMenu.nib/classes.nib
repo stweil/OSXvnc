@@ -1,0 +1,65 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {optionChanged = id; }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {
+            ACTIONS = {
+                changeDisplayName = id; 
+                changeDisplayNumber = id; 
+                changePassword = id; 
+                changePort = id; 
+                changeSharing = id; 
+                installAsService = id; 
+                loadUserDefaults = id; 
+                openFile = id; 
+                openLog = id; 
+                optionChanged = id; 
+                removeService = id; 
+                saveUserDefaults = id; 
+                startServer = id; 
+                stopServer = id; 
+            }; 
+            CLASS = VNCController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                allowDimmingCheckbox = NSButton; 
+                allowKeyboardLoading = NSButton; 
+                allowPressModsForKeys = NSButton; 
+                allowRendezvousCheckbox = NSButton; 
+                allowSleepCheckbox = NSButton; 
+                disableRemoteEventsCheckbox = NSButton; 
+                disableStartupButton = NSButton; 
+                displayNameField = NSTextField; 
+                displayNumberField = NSPopUpButton; 
+                dontDisconnectCheckbox = NSButton; 
+                hostNamesField = NSTextField; 
+                hostNamesLabel = NSTextField; 
+                ipAddressesField = NSTextField; 
+                ipAddressesLabel = NSTextField; 
+                limitToLocalConnections = NSButton; 
+                optionsTabView = NSTabView; 
+                passwordField = NSTextField; 
+                portField = NSTextField; 
+                serverKeepAliveCheckbox = NSButton; 
+                setStartupButton = NSButton; 
+                sharingMatrix = NSMatrix; 
+                startServerButton = NSButton; 
+                startServerMenuItem = NSMenuItem; 
+                startServerOnLaunchCheckbox = NSButton; 
+                startupItemStatusMessageField = NSTextField; 
+                statusMessageField = NSTextField; 
+                stopServerButton = NSButton; 
+                stopServerMenuItem = NSMenuItem; 
+                swapMouseButtonsCheckbox = NSButton; 
+                terminateOnFastUserSwitch = NSButton; 
+                window = NSWindow; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}
