@@ -17,16 +17,17 @@
 # Initial version
 
 RESULT=15
-
+ls -l
 # OS X will send a SIGINT or SIGTERM to shutdown OSXvnc-server
 # On a negative SIGNAL we'll stop properly (this is what the server returns internally when an error occurs)
-while [ "$RESULT" > "0" ]
+while [[ "$RESULT" < "200" ]]
 do
-	echo "OSXVNC: Starting Server"
-	"$@"
-	RESULT=$?
+	echo "$0: Starting Server"
+	"$@" # Run our parameters
+	RESULT=$? # Record Result
+	echo $RESULT
 	sleep 6
 done
 
-echo "OSXVNC Shutdown with exit status" $RESULT
+echo "$0 Shutdown with exit status " $RESULT
 
