@@ -23,18 +23,34 @@
 static int lastCursorSeed = 0;
 static CGPoint lastCursorPosition;
 
+// Is the CGSConnection thread safe? or should each client have one...
+static CGSConnectionRef sharedConnection = NULL;
+
+CGPoint currentCursorLoc() {
+    CGPoint cursorLoc;
+
+    if (!sharedConnection) {
+        if (CGSNewConnection(NULL, &sharedConnection) != kCGErrorSuccess)
+            rfbLog("Error obtaining CGSConnection\n");
+    }
+    if (CGSGetCurrentCursorLocation(sharedConnection, &cursorLoc) != kCGErrorSuccess)
+        rfbLog("Error obtaining cursor location\n");
+    
+    return cursorLoc;
+}
+
 void GetCursorInfo() {
-    CGError				err;
-    CGSConnectionRef	connection;
+    CGSConnectionRef connection;
+    CGError err = noErr;
     int cursorDataSize, depth, components, bitsPerComponent, cursorRowSize;
     unsigned char*		cursorData;
     CGPoint				location, hotspot;
     CGRect				cursorRect;
     int i, j;
 
-
+    err = CGSNewConnection(NULL, &connection);
     //printf("get active connection returns: %d, %d, %d\n", CGSGetActiveConnection(&temp, &connection), temp, connection);
-    printf("new connection (err %d) = %d\n", CGSNewConnection(NULL, &connection), connection);
+    printf("new connection (err %d) = %d\n", err, connection);
 
     err = CGSGetCurrentCursorLocation(connection, &location);
     printf("location (err %d) = %d, %d\n", err, (int)location.x, (int)location.y);
@@ -86,15 +102,7 @@ void GetCursorInfo() {
 // We call this to see if we have a new cursor and should notify clients to do an update
 // Or if cursor has moved
 void rfbCheckForCursorChange() {
-    CGSConnectionRef connection;
-    CGPoint cursorLoc;
-
-    if (CGSNewConnection(NULL, &connection) != kCGErrorSuccess ||
-        CGSGetCurrentCursorLocation(connection, &cursorLoc) != kCGErrorSuccess) {
-        rfbLog("Error obtaining cursor data - cursor position not sent\n");
-        return;
-    }
-    CGSReleaseConnection(connection);
+    CGPoint cursorLoc = currentCursorLoc();
 
     //rfbLog("Check For Cursor Change");
     // First Let's see if we have new info on the pasteboard - if so we'll send an update to each client
@@ -126,24 +134,42 @@ Bool rfbShouldSendNewPosition(rfbClientPtr cl) {
     if (!cl->enableCursorPosUpdates)
         return FALSE;
     else {
-        CGSConnectionRef connection;
-        CGPoint cursorLoc;
-
-        if (CGSNewConnection(NULL, &connection) != kCGErrorSuccess ||
-            CGSGetCurrentCursorLocation(connection, &cursorLoc) != kCGErrorSuccess) {
-            rfbLog("Error obtaining cursor data - cursor position not sent\n");
-            return FALSE;
-        }
-        CGSReleaseConnection(connection);
-
-        return (!CGPointEqualToPoint(cl->clientCursorLocation,cursorLoc));
+        return (!CGPointEqualToPoint(cl->clientCursorLocation,currentCursorLoc()));
     }
 }
+
+Bool rfbSendCursorPos(rfbClientPtr cl) {
+    rfbFramebufferUpdateRectHeader rect;
+
+    if (cl->ublen + sz_rfbFramebufferUpdateRectHeader > UPDATE_BUF_SIZE) {
+        if (!rfbSendUpdateBuf(cl))
+            return FALSE;
+    }
+
+    cl->clientCursorLocation = currentCursorLoc();
+
+    rect.encoding = Swap32IfLE(rfbEncodingPointerPos);
+    rect.r.x = Swap16IfLE((CARD16)cl->clientCursorLocation.x);
+    rect.r.y = Swap16IfLE((CARD16)cl->clientCursorLocation.y);
+    rect.r.w = 0;
+    rect.r.h = 0;
+
+    memcpy(&cl->updateBuf[cl->ublen], (char *)&rect, sz_rfbFramebufferUpdateRectHeader);
+    cl->ublen += sz_rfbFramebufferUpdateRectHeader;
+
+    cl->rfbRectanglesSent[rfbStatsCursorPosition]++;
+    cl->rfbBytesSent[rfbStatsCursorPosition] += sz_rfbFramebufferUpdateRectHeader;
+
+    if (!rfbSendUpdateBuf(cl))
+        return FALSE;
+
+    return TRUE;
+}
+
 /* Still To Do
 
 Problems with occasional artifacts - turning off the cursor didn't seem to help
-Problems in formats besides 32bit (local)
-Problem with Alpha channel
+    Perhaps if we resend the area where the cursor just was..
 
 */
 
@@ -170,13 +196,18 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
     //rfbLog("Sending Cursor To Client");
     //GetCursorInfo();
 
-    if (CGSNewConnection(NULL, &connection) != kCGErrorSuccess ||
-        CGSGetGlobalCursorDataSize(connection, &cursorDataSize) != kCGErrorSuccess) {
+    if (!sharedConnection) {
+        if (CGSNewConnection(NULL, &sharedConnection) != kCGErrorSuccess) {
+            rfbLog("Error obtaining CGSConnection - cursor not sent\n");
+            return FALSE;
+        }
+    }
+    connection = sharedConnection;
+    
+    if (CGSGetGlobalCursorDataSize(connection, &cursorDataSize) != kCGErrorSuccess) {
         rfbLog("Error obtaining cursor data - cursor not sent\n");
         return FALSE;
     }
-
-    // For This We Don't send location just the cursor shape (and Hot Spot)
 
     cursorData = (unsigned char*)malloc(sizeof(unsigned char) * cursorDataSize);
     err = CGSGetGlobalCursorData(connection,
@@ -189,13 +220,13 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
                                  &components,
                                  &cursorBitsPerComponent);
 
-    CGSReleaseConnection(connection);
-
+    //CGSReleaseConnection(connection);
     if (err != kCGErrorSuccess) {
         rfbLog("Error obtaining cursor data - cursor not sent\n");
         return FALSE;
     }
 
+    // For This We Don't send location just the cursor shape (and Hot Spot)
     cursorFormat.depth = cursorDepth;
     cursorFormat.bitsPerPixel = cursorDepth;
     cursorFormat.bigEndian = TRUE;
@@ -304,169 +335,3 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
 
     return TRUE;
 }
-
-Bool rfbSendCursorPos(rfbClientPtr cl) {
-    rfbFramebufferUpdateRectHeader rect;
-    CGSConnectionRef connection;
-
-    if (cl->ublen + sz_rfbFramebufferUpdateRectHeader > UPDATE_BUF_SIZE) {
-        if (!rfbSendUpdateBuf(cl))
-            return FALSE;
-    }
-
-    if (CGSNewConnection(NULL, &connection) != kCGErrorSuccess ||
-        CGSGetCurrentCursorLocation(connection, &cl->clientCursorLocation) != kCGErrorSuccess) {
-        rfbLog("Error obtaining cursor data - cursor position not sent\n");
-        return FALSE;
-    }
-    CGSReleaseConnection(connection);
-
-    rect.encoding = Swap32IfLE(rfbEncodingPointerPos);
-    rect.r.x = Swap16IfLE((CARD16)cl->clientCursorLocation.x);
-    rect.r.y = Swap16IfLE((CARD16)cl->clientCursorLocation.y);
-    rect.r.w = 0;
-    rect.r.h = 0;
-
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&rect, sz_rfbFramebufferUpdateRectHeader);
-    cl->ublen += sz_rfbFramebufferUpdateRectHeader;
-
-    cl->rfbRectanglesSent[rfbStatsCursorPosition]++;
-    cl->rfbBytesSent[rfbStatsCursorPosition] += sz_rfbFramebufferUpdateRectHeader;
-
-    if (!rfbSendUpdateBuf(cl))
-        return FALSE;
-
-    return TRUE;
-}
-
-/*
-
- void rfbRefreshMouse(int x, int y) {
-#pragma unused (x, y)
-     if (rfbLocalBuffer) {
-         refreshCallback(0, NULL, NULL);
-     }
-
-     int					rectCount = 0;
-     CGRect				updateRects[2];
-     CGSConnectionRef	connection;
-     int					cursorDataSize, depth, componentCount, bitsPerComponent, unknown;
-     CGPoint				hotspot;
-     CGRect				cursorRect;
-
-     if (!CGRectEqualToRect(gCurrentMouseRect, CGRectZero))
-         updateRects[rectCount++] = gCurrentMouseRect;
-
-     if (CGSNewConnection(NULL, &connection) == kCGErrorSuccess &&
-         CGSGetGlobalCursorDataSize(connection, &cursorDataSize) == kCGErrorSuccess)
-     {
-         if (cursorDataSize != gLastCursorDataSize || gLastCursorDataSize == 0)
-         {
-             if (gCursorData)
-                 free(gCursorData);
-             gCursorData = (unsigned char*)malloc(sizeof(unsigned char) * cursorDataSize);
-             gLastCursorDataSize = cursorDataSize;
-         }
-
-         if (CGSGetGlobalCursorData(connection, gCursorData, &cursorDataSize, &unknown,
-                                    &cursorRect, &hotspot, &depth, &componentCount, &bitsPerComponent) == kCGErrorSuccess)
-         {
-             gCurrentMouseRect.origin.x = x - hotspot.x;
-             gCurrentMouseRect.origin.y = y - hotspot.y;
-             gCurrentMouseRect.size.width = cursorRect.size.width;
-             gCurrentMouseRect.size.height = cursorRect.size.height;
-
-             updateRects[rectCount++] = gCurrentMouseRect;
-
-             if (rfbScreen.bitsPerPixel != 8) // there's probably a better way to see if hardware cursor are enabled
-             {
-                 GWorldPtr		saveGW, cursorGW, maskGW;
-                 PixMapHandle	savePix, cursorPix, maskPix, devicePix;
-                 Rect			saveGWRect, targetRect;
-                 GDHandle		mainDevice;
-                 char			deviceState;
-                 int				dataX, dataY, oldDefer;
-
-                 SAVECOLORS;
-
-                 SetRect(&saveGWRect, 0, 0, cursorRect.size.width, cursorRect.size.height);
-                 targetRect = saveGWRect;
-                 OffsetRect(&targetRect, x - hotspot.x, y - hotspot.y);
-
-                 NewGWorld(&saveGW, 32, &saveGWRect, NULL, NULL, 0);
-                 savePix = GetGWorldPixMap(saveGW);
-                 LockPixels(savePix);
-
-                 NewGWorld(&cursorGW, 32, &saveGWRect, NULL, NULL, 0);
-                 cursorPix = GetGWorldPixMap(cursorGW);
-                 LockPixels(cursorPix);
-
-                 NewGWorld(&maskGW, 8, &saveGWRect, GetCTable(40), NULL, 0);
-                 maskPix = GetGWorldPixMap(maskGW);
-                 LockPixels(maskPix);
-
-                 mainDevice = GetMainDevice();
-                 deviceState = HGetState((Handle)mainDevice);
-
-                 HLock((Handle)mainDevice);
-
-                 devicePix = (**mainDevice).gdPMap;
-
-                 CopyBits((BitMap*)*devicePix, (BitMap*)*savePix,
-                          &targetRect, &saveGWRect,
-                          srcCopy, NULL);
-
-                 for (dataY = 0; dataY < saveGWRect.bottom; dataY++)
-                     memcpy(&(**cursorPix).baseAddr[dataY * GetPixRowBytes(cursorPix)],
-                            &gCursorData[dataY * unknown],
-                            unknown);
-
-                 for (dataX = 0; dataX < saveGWRect.right; dataX++)
-                     for (dataY = 0; dataY < saveGWRect.bottom; dataY++)
-                         (**maskPix).baseAddr[dataY * GetPixRowBytes(maskPix) + dataX] =
-                             gCursorData[dataY * unknown + dataX * depth/8];
-
-                 CopyDeepMask((BitMap*)*cursorPix, (BitMap*)*maskPix, (BitMap*)*devicePix,
-                              &saveGWRect, &saveGWRect, &targetRect,
-                              srcCopy, NULL);
-
-                 //CopyBits((BitMap*)*cursorPix, (BitMap*)*devicePix, &saveGWRect, &targetRect, srcCopy, NULL);
-
-                 updateCount = rfbClientCount();
-
-                 oldDefer = rfbDeferUpdateTime;
-                 rfbDeferUpdateTime = 0;
-
-                 refreshCallback(rectCount, updateRects, NULL);
-
-                 rfbDeferUpdateTime = oldDefer;
-
-                 while (updateCount) {;} // spin lock, inefficient
-
-                 CopyBits((BitMap*)*savePix, (BitMap*)*devicePix,
-                          &saveGWRect, &targetRect,
-                          srcCopy, NULL);
-
-                 RESTORECOLORS;
-
-                 HSetState((Handle)mainDevice, deviceState);
-
-                 UnlockPixels(maskPix);
-                 DisposeGWorld(maskGW);
-
-                 UnlockPixels(cursorPix);
-                 DisposeGWorld(cursorGW);
-
-                 UnlockPixels(savePix);
-                 DisposeGWorld(saveGW);
-
-                 return;
-             }
-         }
-     }
-
-     refreshCallback(rectCount, updateRects, NULL);
-
- }*/
-
-
