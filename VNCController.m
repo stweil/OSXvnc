@@ -297,7 +297,7 @@ static void terminateOnSignal(int signal) {
     else
         [statusMessageField setStringValue:@"The server has stopped running"];
 
-    if (!userStopped && [serverKeepAliveCheckbox state] && [controller terminationStatus] > 1)
+    if (!userStopped && [serverKeepAliveCheckbox state] && [controller terminationStatus] != 1)
         relaunchServer = YES;
     
     [controller release];
