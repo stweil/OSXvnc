@@ -7,6 +7,9 @@
 # 
 # Modification Log:
 #
+# 1.5
+# Replace spurious ls -l entry with a much more appropriate pwd
+#
 # 1.4
 # Uses proper -lt and checks for less than 200 rather than more than 0 since process only return unsigned shorts
 #
@@ -20,7 +23,7 @@
 # Initial version
 
 RESULT=15
-ls -l
+pwd
 # OS X will send a SIGINT or SIGTERM to shutdown OSXvnc-server
 # On a negative SIGNAL we'll stop properly (this is what the server returns internally when an error occurs)
 while [[ "$RESULT" -lt "200" ]]
