@@ -179,9 +179,13 @@ rdr::MemOutStream* mos = (rdr::MemOutStream*)cl->mosData;
 
 void FreeZrleData(rfbClientPtr cl)
 {
-    delete (rdr::ZlibOutStream*)cl->zrleData;
-    cl->zrleData = NULL;
-    delete (rdr::MemOutStream*)cl->mosData;
-    cl->mosData = NULL;
+    if (cl->zrleData) {
+        delete (rdr::ZlibOutStream*)cl->zrleData;
+        cl->zrleData = NULL;
+    }
+    if (cl->mosData) {
+        delete (rdr::MemOutStream*)cl->mosData;
+        cl->mosData = NULL;
+    }
 }
 
