@@ -27,16 +27,14 @@
 #include <stdlib.h>
 #include "rfb.h"
 
-static char* encNames[] = {
-    "raw", "copyRect", "RRE", "[encoding 3]", "CoRRE", "hextile",
-    "zlib", "tight", "zlibhex", "[encoding 9]", NULL, NULL, NULL, NULL, NULL,
-    NULL, "zrle"
+char* encNames[] = {
+    "Raw", "CopyRect", "RRE", "[encoding 3]", "CoRRE", "Hextile",
+    "Zlib", "Tight", "ZlibHextile", "[encoding 9]",
+    "Cursor Shape Updates", "Cursor Position Updates", "Screen Resize",
+    NULL, NULL, NULL, "ZRLE"
 };
 
-
-void
-rfbResetStats(rfbClientPtr cl)
-{
+void rfbResetStats(rfbClientPtr cl) {
     int i;
     for (i = 0; i < MAX_ENCODINGS; i++) {
         cl->rfbBytesSent[i] = 0;
