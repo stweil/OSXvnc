@@ -325,7 +325,7 @@ extern int WriteExact(rfbClientPtr cl, char *buf, int len);
 
 /* cutpaste.c */
 
-extern void rfbSetXCutText(char *str, int len);
+extern void rfbSetCutText(rfbClientPtr cl, char *str, int len);
 extern void rfbCheckForPasteboardChange();
 extern void rfbClientUpdatePasteboard(rfbClientPtr cl);
 

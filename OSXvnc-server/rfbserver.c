@@ -731,7 +731,7 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                     return;
                 }
 
-                rfbSetXCutText(str, msg.cct.length);
+                rfbSetCutText(cl, str, msg.cct.length);
 
                 xfree(str);
             }

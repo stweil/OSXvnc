@@ -29,7 +29,7 @@
 #include <pthread.h>
 #include "rfb.h"
 
-// Currently there is a problem when OSXvnc is run PRIOR to the pbs (which happens when a user logs in)
+// Currently there is a problem when OSXvnc is run PRIOR to the pbs (which starts when a user logs in)
 // the OSXvnc process is NOT connected to the pbs port - this is an OS X security measure which we aren't certain
 // how to work around
 
@@ -42,15 +42,16 @@ int pasteBoardLastChangeCount=-1;
 NSStringEncoding pasteboardStringEncoding = 0;
 
 // This notifies us that the VNCclient set some new pasteboard
-void rfbSetXCutText(char *str, int len)
-{
+void rfbSetCutText(rfbClientPtr cl, char *str, int len) {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSString *clientCutText = [[NSString alloc] initWithCString:str length:len];
 
     [[NSPasteboard generalPasteboard] declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil];
     [[NSPasteboard generalPasteboard] setString:clientCutText forType:NSStringPboardType];
 
-    pasteBoardLastChangeCount = [[NSPasteboard generalPasteboard] changeCount]; // Don't need to send it back
+    //pasteBoardLastChangeCount = [[NSPasteboard generalPasteboard] changeCount]; // Don't need to send it back
+    cl->pasteBoardLastChange = [[NSPasteboard generalPasteboard] changeCount]; // Don't need to send it back to same client (only others)
+    //NSLog(@"Got PB:%s, %d", str, pasteBoardLastChangeCount);
     [pool release];
 }
 
@@ -65,6 +66,8 @@ void rfbCheckForPasteboardChange() {
 
         // Record first in case another event comes in after notifying clients
         pasteBoardLastChangeCount = [[NSPasteboard generalPasteboard] changeCount];
+
+        //NSLog(@"New PB notify clients to send %d", [[NSPasteboard generalPasteboard] changeCount]);
 
         // Notify each client
         while ((cl = rfbClientIteratorNext(iterator)) != NULL) {
@@ -97,6 +100,8 @@ void rfbClientUpdatePasteboard(rfbClientPtr cl)
 
         if (pbString)
             length = strlen(pbString);
+
+        //NSLog(@"Sending New PB %s %d", pbString, [[NSPasteboard generalPasteboard] changeCount]);
 
         rfbSendServerCutText(cl, (char *) pbString, length);
 
