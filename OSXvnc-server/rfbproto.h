@@ -307,10 +307,17 @@ typedef struct {
 
    Special Encodings
 
-   0x80000000 -- Immediate Update
+   rfbImmediateUpdate
+    Sending this encoding asks the server to respond immediately 
+    upon seeing a FBU request and not wait to consolidate events
+    and not to wait for an update to occur
+   rfbPasteboardError
+    Asks that OSXvnc should send an error message (in the form of a cut message)
+    if the pasteboard is not accessible.
 
 */
-#define rfbImmediateUpdate 0x80000000
+#define rfbImmediateUpdate   0x80000000
+#define rfbPasteboardError   0x80010000
 
 /* TightVNC
  *
