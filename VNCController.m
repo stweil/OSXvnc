@@ -109,7 +109,7 @@ static void terminateOnSignal(int signal) {
 
 // This is sent when the server's screen params change, the server can't handle this right now so we'll restart
 - (void)applicationDidChangeScreenParameters:(NSNotification *)aNotification {
-    [statusMessageField setStringValue:@"Screen Resolution changed - Server Reinitializing"];
+    [statusMessageField setStringValue:@"Screen Resolution changed - Server Reinitialized"];
 }
 
 - (void)windowWillClose:(NSNotification *)aNotification {
