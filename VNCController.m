@@ -506,7 +506,7 @@ static void terminateOnSignal(int signal) {
 
         if ([[passwordField stringValue] length]) {
             if (vncEncryptAndStorePasswd((char *)[[passwordField stringValue] cString], (char *)[passwordFile cString]) != 0) {
-                [statusMessageField setStringValue:@"Problem - Unable to store password."];
+                [statusMessageField setStringValue:[NSString stringWithFormat:@"Problem - Unable to store password to %@", passwordFile]];
                 [passwordField setStringValue:nil];
             }
             else
