@@ -13,6 +13,7 @@
                 changePassword = id; 
                 changePort = id; 
                 changeSharing = id; 
+                installAsService = id; 
                 loadUserDefaults = id; 
                 openFile = id; 
                 openLog = id; 
