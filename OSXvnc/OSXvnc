@@ -4,17 +4,19 @@
 #
 # OSXvnc
 # 
-# The OSXvnc application will OVERWRITE this file if you ask it to Setup the Startup Item
+# The OSXvnc application will OVERWRITE this file if you ask it to Configure the Startup Item
 #
 
-VNCPATH="/Applications/OSXvnc.app"
+VNCPATH="/Library/StartupItems/OSXvnc"
 VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnect"
 
 #
 # Modification Log:
 #
 # 1.5
+# Switched VNCPath to /Library/StartupItems/OSXvnc by default, we now copy in the executable 
 # Added -f option to log move so it won't hang when started up (when run as authenticated/non-root user)
+# Set the kill operations to use the -KILL flag, seems to help on 10.1.5
 #
 # 1.33
 # Added Resources directory with English.lproj for Localization lookup
@@ -43,34 +45,28 @@ VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnec
 #
 ##
 
-if [ ${1:-noset} == "setpassword" ]; then
-    $VNCPATH/storepasswd "$2" $VNCPATH/.osxvncauth
-    echo "Password set at path " $VNCPATH/.osxvncauth
-    exit 0
-fi
-
 if [ ${1:-noset} == "stop" ] || [ ${1:-noset} == "restart" ]; then
     ConsoleMessage "Stopping OSXvnc KeepAlive"
-    OSXVNCPID=`/bin/ps auxwwww | /usr/bin/awk '/[O]SXvnc-keepalive/ && NR > 2 {print $2}'`
+    OSXVNCPID=`/bin/ps auxwwww | /usr/bin/awk '[O]SXvnc-keepalive/ && NR > 2 {print $2}'`
     if [ "${OSXVNCPID:=""}" ]; then
-        kill $OSXVNCPID
+        kill -KILL $OSXVNCPID
         sleep 1
     fi
     # make sure it's dead
-    OSXVNCPID=`/bin/ps -auxwwww | /usr/bin/awk '/[O]SXvnc-keepalive/ && NR > 2 {print $2}'`
+    OSXVNCPID=`/bin/ps -auxwwww | /usr/bin/awk '[O]SXvnc-keepalive/ && NR > 2 {print $2}'`
     if [ "${OSXVNCPID:=""}" != "" ]; then
         ConsoleMessage "OSXvnc $1: problem stopping OSXvnc-keepalive"
         exit -1
     fi
 
     ConsoleMessage "Stopping OSXvnc Server"
-    OSXVNCPID=`/bin/ps -auxwwww | /usr/bin/awk '/[O]SXvnc-server/ && NR > 2 {print $2}'`
+    OSXVNCPID=`/bin/ps -auxwwww | /usr/bin/awk '/Library\/StartupItems\/OSXvnc\/[O]SXvnc-server/ && NR > 2 {print $2}'`
     if [ "${OSXVNCPID:=""}" ]; then
-        kill $OSXVNCPID
+        kill -KILL $OSXVNCPID
         sleep 1
     fi
     # make sure it's dead
-    OSXVNCPID=`/bin/ps -auxwwww | /usr/bin/awk '/[O]SXvnc-server/ && NR > 2 {print $2}'`
+    OSXVNCPID=`/bin/ps -auxwwww | /usr/bin/awk '/Library\/StartupItems\/OSXvnc\/[O]SXvnc-server/ && NR > 2 {print $2}'`
     if [ "${OSXVNCPID:=""}" != "" ]; then
         ConsoleMessage "OSXvnc $1: problem stopping OSXvnc-server $OSXVNCPID"
         exit -1
