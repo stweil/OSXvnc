@@ -568,7 +568,7 @@ static void terminateOnSignal(int signal) {
             // Could try to pause here waiting for /bin/cp to finish - but how would we know?
         }
         else {
-            // Would be nice to always use this but there is a timing issue with the CP command
+            // Would be nice to always use this but there is a timing issue with the AuthorizationExecuteWithPrivileges command
             startupScript = [NSMutableString stringWithContentsOfFile:@"/Library/StartupItems/OSXvnc/OSXvnc"];
         }
 
