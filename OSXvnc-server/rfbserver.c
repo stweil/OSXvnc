@@ -255,12 +255,12 @@ rfbClientConnectionGone(cl)
     rfbLog("Client %s disconnected\n",cl->host);
 
     // RedstoneOSX - Track and release depressed modifier keys whenever the client disconnects
-    rfbLog("Client %s release modifier keys\n",cl->host);
+    //rfbLog("Client %s release modifier keys\n",cl->host);
     keyboardReleaseKeysForClient(cl);
 
     pthread_mutex_lock(&rfbClientListMutex);
 
-    rfbLog("Client %s release compression streams\n",cl->host);
+    //rfbLog("Client %s release compression streams\n",cl->host);
     /* Release the compression state structures if any. */
     if ( cl->compStreamInited == TRUE ) {
         deflateEnd( &(cl->compStream) );
@@ -282,7 +282,7 @@ rfbClientConnectionGone(cl)
         cl->next->prev = cl->prev;
 
     pthread_mutex_unlock(&rfbClientListMutex);
-    rfbLog("Client %s removed from client list\n",cl->host);
+    //rfbLog("Client %s removed from client list\n",cl->host);
 
     REGION_UNINIT(pScreen,&cl->modifiedRegion);
 
@@ -300,6 +300,7 @@ rfbClientConnectionGone(cl)
     pthread_mutex_destroy(&cl->outputMutex);
 
     xfree(cl);
+    // Not sure why but this log message seems to prevent a crash
     rfbLog("Client gone\n");
 }
 

@@ -194,14 +194,14 @@ static int keyTable[] = {
     XK_F12,              111,      /* F12 */
 
     /* Modifier keys */
-    XK_Shift_L,           56,      /* Shift Left */
-    XK_Shift_R,           56,      /* Shift Right */
-    XK_Control_L,         59,      /* Ctrl Left */
-    XK_Control_R,         59,      /* Ctrl Right */
-    XK_Meta_L,            58,      /* Logo Left (-> Option) */
-    XK_Meta_R,            58,      /* Logo Right (-> Option) */
     XK_Alt_L,             55,      /* Alt Left (-> Command) */
     XK_Alt_R,             55,      /* Alt Right (-> Command) */
+    XK_Shift_L,           56,      /* Shift Left */
+    XK_Shift_R,           56,      /* Shift Right */
+    XK_Meta_L,            58,      /* Logo Left (-> Option) */
+    XK_Meta_R,            58,      /* Logo Right (-> Option) */
+    XK_Control_L,         59,      /* Ctrl Left */
+    XK_Control_R,         59,      /* Ctrl Right */
 
     /* Weirdness I can't figure out */
     /*    XK_3270_PrintScreen,     105,     /* PrintScrn */  /* XXX ? */
@@ -225,9 +225,7 @@ void loadKeyTable(char *keymapFilepath) {
         }
     }
 
-    /* Somehow this is very intolerant of different keyboards/keymaps, perhaps if we did something differently... */
-
-    // This could be a first attempt to at least ALLOW people to remap modifier keys and/or define mappings for foreign keyboards
+    // This was a first attempt to at least ALLOW people to remap modifier keys and/or define mappings for foreign keyboards
     // Now read in keyRemapFile if one is specified
     /*
      if (keymapFile) {
@@ -257,22 +255,25 @@ void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl) {
 
     rfbUndim();
 
-    //rfbLog("%x - %d (%d)\n", keySym, keyCode, down);
     if (keyCode == 0xFF)
-        rfbLog("warning: couldn't figure out keycode for X keysym %d (0x%x)\n", (int)keySym, (int)keySym);
+        rfbLog("Warning: Unable to determine keycode for X keysym %d (0x%x)\n", (int)keySym, (int)keySym);
     else {  /* Hopefully I can get away with not specifying a CGCharCode. (Why would you need both?) */
         CGPostKeyboardEvent(0 /*(CGCharCode)keySym*/, keyCode, down);
-        if (keyCode >= XK_Alt_L && keyCode <= XK_Control_L)
-            cl->modiferKeys[keyCode-XK_Alt_L] = down; // Mark that key state for that client, we'll release down keys later
+        if (keyCode >= keyTable2[XK_Alt_L] && keyCode <= keyTable2[XK_Control_L]) {
+            cl->modiferKeys[keyCode] = down; // Mark the key state for that client, we'll release down keys later
+        }
     }
 }
 
 void keyboardReleaseKeysForClient(rfbClientPtr cl) {
-    int index = XK_Alt_L;
+    int index = keyTable2[XK_Alt_L];
 
-    while (index <= XK_Control_L)
-        if (cl->modiferKeys[index-XK_Alt_L])
+    for (index = keyTable2[XK_Alt_L]; index <= keyTable2[XK_Control_L]; index++) {
+        if (cl->modiferKeys[index]) {
             CGPostKeyboardEvent(0, index, 0); // Release all modifier keys that were held down
+            //rfbLog("Released Key: %d", index);
+        }
+    }
 }
 
 void PtrAddEvent(int buttonMask, int x, int y, rfbClientPtr cl) {

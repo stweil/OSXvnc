@@ -467,7 +467,7 @@ usage(void)
         
         fprintf(stderr, "-display DisplayID     server displayID to indicate which display to serve\n");
 
-        CGGetOnlineDisplayList(100, activeDisplays, &displayCount);
+        CGGetActiveDisplayList(100, activeDisplays, &displayCount);
 
         for (index=0; index < displayCount; index++)
             fprintf(stderr, "\t\t%d = (%ld,%ld)\n", index, CGDisplayPixelsWide(activeDisplays[index]), CGDisplayPixelsHigh(activeDisplays[index]));
@@ -511,7 +511,7 @@ processArguments(int argc, char *argv[])
 
             CGGetActiveDisplayList(100, activeDisplays, &displayCount);
 
-            if (i + 1 >= argc)
+            if (i + 1 >= argc || atoi(argv[i+1]) >= displayCount)
                 usage();
 
             displayID = activeDisplays[atoi(argv[++i])];
