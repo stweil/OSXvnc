@@ -178,7 +178,8 @@ rfbNewClient(sock)
     cl->disableRemoteEvents = rfbDisableRemote;      // Ignore PB, Keyboard and Mouse events
     cl->swapMouseButtons23 = rfbSwapButtons;         // How to interpret mouse buttons 2 & 3
 
-        cl->reverseConnection = FALSE;
+    cl->pasteBoardLastChange = -1;
+    cl->reverseConnection = FALSE;
     cl->preferredEncoding = rfbEncodingRaw;
     cl->correMaxWidth = 48;
     cl->correMaxHeight = 48;
@@ -228,8 +229,7 @@ rfbNewClient(sock)
     cl->compStreamRaw.total_in = ZLIBHEX_COMP_UNINITED;
     cl->compStreamHex.total_in = ZLIBHEX_COMP_UNINITED;
 
-    sprintf(pv,rfbProtocolVersionFormat,rfbProtocolMajorVersion,
-            rfbProtocolMinorVersion);
+    sprintf(pv,rfbProtocolVersionFormat,rfbProtocolMajorVersion, rfbProtocolMinorVersion);
 
     if (WriteExact(cl, pv, sz_rfbProtocolVersionMsg) < 0) {
         rfbLogPerror("rfbNewClient: write");
@@ -1048,13 +1048,32 @@ rfbSendUpdateBuf(cl)
  */
 
 void
+rfbSendServerCutText(rfbClientPtr cl, char *str, int len)
+{
+    rfbServerCutTextMsg sct;
+
+    sct.type = rfbServerCutText;
+    sct.length = Swap32IfLE(len);
+
+    if (WriteExact(cl, (char *)&sct, sz_rfbServerCutTextMsg) < 0) {
+        rfbLogPerror("rfbSendServerCutText: write");
+        rfbCloseClient(cl);
+    }
+
+    if (WriteExact(cl, str, len) < 0) {
+        rfbLogPerror("rfbSendServerCutText: write");
+        rfbCloseClient(cl);
+    }
+}
+/*
+void
 rfbSendServerCutText(char *str, int len)
 {
     rfbClientPtr cl;
     rfbServerCutTextMsg sct;
     rfbClientIteratorPtr iterator;
 
-    /* XXX bad-- writing with client list lock held */
+    // XXX bad-- writing with client list lock held 
     iterator = rfbGetClientIterator();
     while ((cl = rfbClientIteratorNext(iterator)) != NULL) {
         sct.type = rfbServerCutText;
@@ -1072,3 +1091,4 @@ rfbSendServerCutText(char *str, int len)
     }
     rfbReleaseClientIterator(iterator);
 }
+*/

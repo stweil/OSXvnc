@@ -55,7 +55,9 @@ Bool rfbRemapShortcuts = FALSE;
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
 Bool rfbLocalBuffer = FALSE;
 static pthread_mutex_t logMutex;
+
 static pthread_mutex_t listenerAccepting;
+static pthread_cond_t listenerGotNewClient;
 
 // OSXvnc 0.8 - Local Buffer (for mouse cursor)
 Bool currentlyRefreshing = FALSE;
@@ -197,12 +199,16 @@ clientOutput(void *data)
     while (1) {
         haveUpdate = false;
         pthread_mutex_lock(&cl->updateMutex);
-        while (!haveUpdate) {
+        while (!haveUpdate) {            
             if (cl->sock == -1) {
                 /* Client has disconnected. */
                 pthread_mutex_unlock(&cl->updateMutex);
                 return NULL;
             }
+
+            // Check for pending PB changes
+            rfbClientUpdatePasteboard(cl);
+            
             /* REDSTONE */
             if (rfbDeferUpdateTime > 0 && !cl->immediateUpdate) {
                 REGION_INIT(&hackScreen, &updateRegion, NullBox, 0);
@@ -332,6 +338,7 @@ listenerRun(void *ignore)
         pthread_create(&client_thread, NULL, clientInput, (void *)cl);
         len = sizeof(peer);
         pthread_mutex_unlock(&listenerAccepting);
+        pthread_cond_signal(&listenerGotNewClient);
     }
 
     rfbLog("accept failed\n");
@@ -544,6 +551,8 @@ main(int argc, char *argv[])
 
     pthread_mutex_init(&logMutex, NULL);
     pthread_mutex_init(&listenerAccepting, NULL);
+    pthread_cond_init(&listenerGotNewClient, NULL);
+    
     processArguments(argc, argv);
 
     if (rfbLocalBuffer)
@@ -587,11 +596,26 @@ main(int argc, char *argv[])
     // The problem being that OS X sends it first a SIGTERM and then a SIGKILL (un-trappable)
     // Presumable because it's running a Carbon Event loop
     if (1) {
+        BOOL keepRunning = YES;
+        OSStatus resultCode = 0;
+        
         rfbLog("Registering Screen Update Notification\n");
         CGRegisterScreenRefreshCallback(refreshCallback, NULL);
-        RunApplicationEventLoop();
         // No better luck with this one
-        //RunCurrentEventLoop(kEventDurationForever);
+        // RunApplicationEventLoop();
+        while (keepRunning) {
+            if (!rfbClientsConnected()) { // No clients
+                pthread_mutex_lock(&listenerAccepting);
+                pthread_cond_wait(&listenerGotNewClient, &listenerAccepting);
+                pthread_mutex_unlock(&listenerAccepting);
+            }
+            rfbCheckForPasteboardChange();
+            resultCode = RunCurrentEventLoop(kEventDurationMillisecond); //EventTimeout
+            if (resultCode != eventLoopTimedOutErr) {
+                rfbLog("Received Result: %d during event loop, Shutting Down", resultCode);
+                keepRunning = NO;
+            }
+        }
     }
     // So this looks like it should fix it but I get no response on the CGWaitForScreenRefreshRect....
     else while (1) {

@@ -207,9 +207,10 @@ typedef struct rfbClientRec {
     Bool disableRemoteEvents;      // Ignore PB, Keyboard and Mouse events
     Bool swapMouseButtons23;       // How to interpret mouse buttons 2 & 3
     Bool immediateUpdate;       // To request that we get immediate updates (even 0 rects)
+
+    int pasteBoardLastChange;      // Used to see if we need to send the latest PB
     
     /* REDSTONE - These (updateBuf, ublen) need to be in the CL, not global, for multiple clients */
-
 
     /*
      * UPDATE_BUF_SIZE must be big enough to send at least one whole line of the
@@ -313,7 +314,7 @@ extern int WriteExact(rfbClientPtr cl, char *buf, int len);
 
 extern void rfbSetXCutText(char *str, int len);
 extern void rfbCheckForPasteboardChange();
-
+extern void rfbClientUpdatePasteboard(rfbClientPtr cl);
 
 /* kbdptr.c */
 
@@ -352,7 +353,7 @@ extern void rfbProcessUDPInput(int sock);
 extern Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion);
 extern Bool rfbSendRectEncodingRaw(rfbClientPtr cl, int x,int y,int w,int h);
 extern Bool rfbSendUpdateBuf(rfbClientPtr cl);
-extern void rfbSendServerCutText(char *str, int len);
+extern void rfbSendServerCutText(rfbClientPtr cl, char *str, int len);
 
 
 /* translate.c */

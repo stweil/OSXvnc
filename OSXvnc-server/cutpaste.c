@@ -26,9 +26,11 @@
 #include <Cocoa/Cocoa.h>
 
 #include <stdio.h>
+#include <pthread.h>
 #include "rfb.h"
 
 int pasteBoardLastChangeCount=-1;
+NSStringEncoding pasteboardStringEncoding = 0;
 
 /*
  * rfbSetXCutText sets the cut buffer to be the given string.  We also clear
@@ -53,19 +55,53 @@ rfbSetXCutText(char *str, int len)
 void rfbCheckForPasteboardChange()
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-
     // REDSTONE
-    // First Let's see if we have new info on the pasteboard - if so we'll send that first, then send the FBU
+    // First Let's see if we have new info on the pasteboard - if so we'll send an update to each client
     if (pasteBoardLastChangeCount != [[NSPasteboard generalPasteboard] changeCount]) {
-        const char *pbString = [[[NSPasteboard generalPasteboard] stringForType:NSStringPboardType] cString];
+        rfbClientPtr cl;
+        rfbClientIteratorPtr iterator = rfbGetClientIterator();
+        
+        while ((cl = rfbClientIteratorNext(iterator)) != NULL) {
+            // Notify each client
+            // pthread_mutex_lock(&cl->updateMutex);
+            pthread_cond_signal(&cl->updateCond);
+            // pthread_mutex_unlock(&cl->updateMutex);
+        }
+        rfbReleaseClientIterator(iterator);
+        
+        pasteBoardLastChangeCount = [[NSPasteboard generalPasteboard] changeCount];
+    }
+    [pool release];
+}
+
+// Each client output thread will come here to get the PB and send it
+void rfbClientUpdatePasteboard(rfbClientPtr cl)
+{
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+
+    if (cl->pasteBoardLastChange == -1)
+        cl->pasteBoardLastChange = [[NSPasteboard generalPasteboard] changeCount];
+
+    if (cl->pasteBoardLastChange != [[NSPasteboard generalPasteboard] changeCount]) {
+        const char *pbString;
         int length = 0;
+
+        if (pasteboardStringEncoding) {
+            NSData *encodedString = [[[NSPasteboard generalPasteboard] stringForType:NSStringPboardType]
+ dataUsingEncoding:pasteboardStringEncoding allowLossyConversion:YES];
+            pbString = [encodedString bytes];
+            //pbString[[encodedString length]] = 0;
+        }
+        else
+            pbString = [[[NSPasteboard generalPasteboard] stringForType:NSStringPboardType] lossyCString];
 
         if (pbString)
             length = strlen(pbString);
 
-        rfbSendServerCutText((char *) pbString, length);
-        pasteBoardLastChangeCount = [[NSPasteboard generalPasteboard] changeCount];
+        rfbSendServerCutText(cl, (char *) pbString, length);
+
+        cl->pasteBoardLastChange = [[NSPasteboard generalPasteboard] changeCount];
     }
-    
-    [pool release];
+    [pool release]; 
 }
+

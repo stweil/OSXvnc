@@ -2,12 +2,13 @@
 . /etc/rc.common
 
 #
-# Start OSXvnc Version 1.11
+# Start OSXvnc Version 1.11B
 # 
 # Modify VNCPATH if you keep the application somewhere besides /Applications
+# 
 
 VNCPATH=/Applications/OSXvnc.app
-VNCARGS="-rfbport 5900 -rfbauth /Applications/OSXvnc.app/.osxvncauth -swapButtons -dontdisconnect"
+VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnect"
 
 #
 # Available Arguments for use in the VNCARGS variable above:
@@ -40,6 +41,20 @@ VNCARGS="-rfbport 5900 -rfbauth /Applications/OSXvnc.app/.osxvncauth -swapButton
 #                        If you use SSH and want to stop non-SSH connections from any other hosts 
 #                        (default: allows remote connections)
 #
+# Modification Log:
+#
+# 1.11B
+# Fixed problem in stop section (missing space)
+# Fixed stop to also kill the server and keep alive
+# Now Uses $VNCPATH for other arguments
+#
+# 1.11
+# Added Usage Info
+# Added keepalive call
+#
+# 1.0/Initial
+# Initial Version, no # and no history
+#
 ##
 
 if [ ${1:-noset} = "setpassword" ]; then
@@ -56,9 +71,19 @@ if [ ${1:-noset} = "stop" ]; then
     kill $OSXVNCPID
   fi
 
-  OSXVNCPID =`/bin/ps -auxwwww | grep OSXvnc-keepalive | grep -v grep | awk 'NF > 2 {print \$2}'`
+  OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc-keepalive | grep -v grep | awk 'NF > 2 {print \$2}'`
   if [ "${OSXVNCPID:=""}" != "" ]; then
 	echo "OSXvnc stop: problem stopping OSXvnc-keepalive"
+  else
+#   Now Kill OSXvnc
+    OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc | grep -v grep | awk 'NF > 2 {print \$2}'`
+    if [ "${OSXVNCPID:=""}" ]; then
+      kill $OSXVNCPID
+    fi
+    OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc | grep -v grep | awk 'NF > 2 {print \$2}'`
+    if [ "${OSXVNCPID:=""}" != "" ]; then
+        echo "OSXvnc stop: problem stopping OSXvnc"
+    fi
   fi
   exit
 fi
