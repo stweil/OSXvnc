@@ -275,6 +275,8 @@ typedef struct {
 #define rfbPointerEvent 5
 #define rfbClientCutText 6
 
+#define rfbServerScale 15
+
 
 
 
@@ -292,6 +294,11 @@ typedef struct {
 #define rfbEncodingZlib 6
 #define rfbEncodingTight 7
 #define rfbEncodingZlibHex 8
+
+#define rfbStatsRichCursor         10
+#define rfbStatsCursorPosition     11
+#define rfbStatsDesktopResize      12
+
 #define rfbEncodingZRLE 16
 
 /* Redstone Software
@@ -303,7 +310,8 @@ typedef struct {
 */
 #define rfbImmediateUpdate 0x80000000
 
-/*
+/* TightVNC
+ *
  * Special encoding numbers:
  *   0xFFFFFF00 .. 0xFFFFFF0F -- encoding-specific compression levels;
  *   0xFFFFFF10 .. 0xFFFFFF1F -- mouse cursor shape data;
@@ -326,8 +334,10 @@ typedef struct {
 
 #define rfbEncodingXCursor         0xFFFFFF10
 #define rfbEncodingRichCursor      0xFFFFFF11
+#define rfbEncodingPointerPos      0xFFFFFF18
 
 #define rfbEncodingLastRect        0xFFFFFF20
+#define rfbEncodingDesktopResize   0xFFFFFF21
 
 #define rfbEncodingQualityLevel0   0xFFFFFFE0
 #define rfbEncodingQualityLevel1   0xFFFFFFE1
@@ -731,6 +741,7 @@ typedef struct {
 #define rfbButton5Mask 16
 #define rfbWheelUpMask rfbButton4Mask
 #define rfbWheelDownMask rfbButton5Mask
+#define rfbWheelMask (rfbWheelUpMask | rfbWheelDownMask)
 
 #define sz_rfbPointerEventMsg 6
 
