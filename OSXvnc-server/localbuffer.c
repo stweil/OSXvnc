@@ -10,7 +10,11 @@
 #include "CGS.h"
 #include "localbuffer.h"
 
-#define CGRect2QDRect(rectCG, rectQD) SetRect(rectQD, rectCG.origin.x, rectCG.origin.y, rectCG.origin.x + rectCG.size.width, rectCG.origin.y + rectCG.size.height)
+#define CGRect2QDRect(rectCG, rectQD) SetRect(rectQD, \
+                                              rectCG.origin.x, \
+                                              rectCG.origin.y, \
+                                              rectCG.origin.x + rectCG.size.width, \
+                                              rectCG.origin.y + rectCG.size.height)
 
 GDHandle			gMainDevice;
 char				gDeviceState;
@@ -132,9 +136,15 @@ void rfbLocalBufferDrawCursor()
 		cursorData = (unsigned char*)malloc(sizeof(unsigned char) * cursorDataSize);
 		assert(cursorData);
 		
-		assert(CGSGetGlobalCursorData(gConnection, cursorData, &cursorDataSize,
-									  &cursorRowBytes, &gCursorRect, &gCursorHotspot,
-									  &depth, &componentCount, &bitsPerComponent) == kCGErrorSuccess);
+		assert(CGSGetGlobalCursorData(gConnection,
+                                cursorData,
+                                &cursorDataSize,
+                                &cursorRowBytes,
+                                &gCursorRect,
+                                &gCursorHotspot,
+                                &depth,
+                                &componentCount,
+                                &bitsPerComponent) == kCGErrorSuccess);
 		
 		CGRect2QDRect(gCursorRect, &cursorRect);
 		
