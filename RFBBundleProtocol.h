@@ -8,11 +8,16 @@
 
 #import "rfbserver.h"
 
-@protocol RFBBundleProtocol
+// These work on the class but they aren't defined anywhere
+@interface NSObject (ClassPerform)
 
-- performSelector:(SEL) aSelector;
++ performSelector:(SEL) aSelector;
 
 + performSelector:(SEL) aSelector withObject: (id) anObject;
+
+@end
+
+@protocol RFBBundleProtocol
 
 + (void) rfbUsage;
     /* Print stuff to stderr if you want to add usage information */
