@@ -1,13 +1,10 @@
-//
-//  VNCController.m
-//  OSXvnc
-//
-//  Created by Jonathan Gillaspie on Fri Aug 02 2002.
-//  osxvnc@redstonesoftware.com
-//  Copyright (c) 2002 Redstone Software Inc. All rights reserved.
-//
 /*
- *  OSXvnc Copyright (C) 2001 Dan McGuirk
+ *  VNCController.m
+ *  OSXvnc
+ *
+ *  Created by Jonathan Gillaspie on Fri Aug 02 2002.  osxvnc@redstonesoftware.com
+ *  Copyright (c) 2002-2004 Redstone Software Inc. All rights reserved.
+ *
  *  All Rights Reserved.
  *
  *  This is free software; you can redistribute it and/or modify
@@ -198,7 +195,7 @@ static void terminateOnSignal(int signal) {
     else
         [displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
     
-    [sharingMatrix selectCellAtRow:sharingMode column:0];
+    [sharingMatrix selectCellWithTag:sharingMode];
     [self changeSharing:self];
 
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"swapButtons"])
@@ -253,7 +250,7 @@ static void terminateOnSignal(int signal) {
 
     [[NSUserDefaults standardUserDefaults] setBool:[swapMouseButtonsCheckbox state] forKey:@"swapButtons"];
 
-    [[NSUserDefaults standardUserDefaults] setInteger:[sharingMatrix selectedRow] forKey:@"sharingMode"];
+    [[NSUserDefaults standardUserDefaults] setInteger:[[sharingMatrix selectedCell] tag] forKey:@"sharingMode"];
     [[NSUserDefaults standardUserDefaults] setBool:[dontDisconnectCheckbox state] forKey:@"dontDisconnectClients"];
     [[NSUserDefaults standardUserDefaults] setBool:[disableRemoteEventsCheckbox state] forKey:@"disableRemoteEvents"];
     [[NSUserDefaults standardUserDefaults] setBool:[limitToLocalConnections state] forKey:@"localhostOnly"];
@@ -364,7 +361,8 @@ static void terminateOnSignal(int signal) {
 
     if (!userStopped && 
         [serverKeepAliveCheckbox state] &&
-        [controller terminationStatus] != 1 &&
+        [controller terminationStatus] >= 0 && 
+		[controller terminationStatus] <= 64 &&
         -[lastLaunchTime timeIntervalSinceNow] > 1.0)
         relaunchServer = YES;
     
@@ -469,7 +467,7 @@ static void terminateOnSignal(int signal) {
 }
 
 - (void) changeSharing: sender {
-    int selected = [sharingMatrix selectedRow];
+    int selected = [[sharingMatrix selectedCell] tag];
     if (selected == 1) {
         // Always shared.
         alwaysShared = TRUE;
@@ -662,14 +660,14 @@ static void terminateOnSignal(int signal) {
 		
         [startupScript replaceCharactersInRange:lineRange withString:replaceString];
     }
-    if ([startupScript writeToFile:@"/tmp/OSXvnc" atomically:YES]) {
-        NSArray *mvArguments = [NSArray arrayWithObjects:@"-f", @"/tmp/OSXvnc", @"/Library/StartupItems/OSXvnc/OSXvnc", nil];
+    if ([startupScript writeToFile:@"/tmp/OSXvnc.script" atomically:YES]) {
+        NSArray *mvArguments = [NSArray arrayWithObjects:@"-f", @"/tmp/OSXvnc.script", @"/Library/StartupItems/OSXvnc/OSXvnc", nil];
         NSArray *chownArguments = [NSArray arrayWithObjects:@"-R", @"root", @"/Library/StartupItems/OSXvnc", nil];
         NSArray *chmodArguments = [NSArray arrayWithObjects:@"-R", @"744", @"/Library/StartupItems/OSXvnc", nil];
         NSArray *chmodDirArguments = [NSArray arrayWithObjects:@"755", @"/Library/StartupItems/OSXvnc", nil];
         
         if (![myAuthorization executeCommand:@"/bin/mv" withArgs:mvArguments]) {
-            [startupItemStatusMessageField setStringValue:@"Error: Unable To Modify OSXvnc Script File"];
+            [startupItemStatusMessageField setStringValue:@"Error: Unable To Replace OSXvnc Script File"];
             return;
         }
         [myAuthorization executeCommand:@"/usr/sbin/chown" withArgs:chownArguments];
@@ -677,7 +675,7 @@ static void terminateOnSignal(int signal) {
         [myAuthorization executeCommand:@"/bin/chmod" withArgs:chmodDirArguments];
     }
     else {
-        [startupItemStatusMessageField setStringValue:@"Error: Unable To Write out Temp File"];
+        [startupItemStatusMessageField setStringValue:@"Error: Unable To Write out Temporary Script File"];
         return;
     }
     
