@@ -28,6 +28,8 @@
 #import "OSXvnc-server/libvncauth/vncauth.h"
 #import <signal.h>
 
+#define LocalizedString(X) [[NSBundle mainBundle] localizedStringForKey:X value:nil table:nil]
+
 @implementation VNCController
 
 static void terminateOnSignal(int signal) {
@@ -129,7 +131,7 @@ static void terminateOnSignal(int signal) {
         [commonHostNames removeObject:@"localhost"];
         
         if ([commonHostNames count] > 1) {
-            [hostNamesLabel setStringValue:@"Host Names:"];
+            [hostNamesLabel setStringValue:[LocalizedString(@"Host Names") stringByAppendingString:@":"]];
         }
         [hostNamesField setStringValue:[commonHostNames componentsJoinedByString:@"\n"]];        
     }
@@ -150,7 +152,7 @@ static void terminateOnSignal(int signal) {
         }
         
         if ([commonIPAddresses count] > 1) {
-            [ipAddressesLabel setStringValue:@"IP Addresses:"];
+            [ipAddressesLabel setStringValue:[LocalizedString(@"IP Addresses") stringByAppendingString:@":"]];
         }
         [ipAddressesField setStringValue:[commonIPAddresses componentsJoinedByString:@"\n"]];        
     }
@@ -165,7 +167,7 @@ static void terminateOnSignal(int signal) {
 
 // This is sent when the server's screen params change, the server can't handle this right now so we'll restart
 - (void)applicationDidChangeScreenParameters:(NSNotification *)aNotification {
-    [statusMessageField setStringValue:@"Screen Resolution changed - Server Reinitialized"];
+    [statusMessageField setStringValue:LocalizedString(@"Screen Resolution changed - Server Reinitialized")];
 }
 
 - (void)windowWillClose:(NSNotification *)aNotification {
@@ -321,7 +323,7 @@ static void terminateOnSignal(int signal) {
                                                  selector: NSSelectorFromString(@"serverStopped:")
                                                      name: NSTaskDidTerminateNotification
                                                    object: controller];
-        [statusMessageField setStringValue:@"Server Running"];
+        [statusMessageField setStringValue:LocalizedString(@"Server Running")];
         [startServerButton setEnabled:FALSE];
         [stopServerButton setEnabled:TRUE];
         [startServerButton setKeyEquivalent:@""];
@@ -336,7 +338,7 @@ static void terminateOnSignal(int signal) {
         [controller terminate];
     }
     else {
-        [statusMessageField setStringValue:@"The server is not running."];
+        [statusMessageField setStringValue:LocalizedString(@"The server is not running.")];
     }
 }
 
@@ -350,19 +352,27 @@ static void terminateOnSignal(int signal) {
         return;
     }
 
-    [startServerButton setTitle:@"Start Server"];
+    [startServerButton setTitle:LocalizedString(@"Start Server")];
     [startServerButton setEnabled:TRUE];
     [stopServerButton setEnabled:FALSE];
     [stopServerButton setKeyEquivalent:@""];
     [startServerButton setKeyEquivalent:@"\r"];
 
     if (userStopped)
-        [statusMessageField setStringValue:@"The server is stopped."];
+        [statusMessageField setStringValue:LocalizedString(@"The server is stopped.")];
+    else if ([controller terminationStatus]==250) {
+		NSMutableString *messageString = [NSMutableString stringWithFormat:@"OSXvnc can't listen on the specified port (%d).\n", port];
+		if ([disableStartupButton isEnabled])
+			[messageString appendString:LocalizedString(@"Probably because the OSXvnc server is already running as a Startup Item.")];
+		else
+			[messageString appendString:LocalizedString(@"Probably because another VNC is already using this port.")];
+		[statusMessageField setStringValue:messageString];
+    }
     else if ([controller terminationStatus]) {
-        [statusMessageField setStringValue:[NSString stringWithFormat:@"The server has stopped running. See Log (%d)\n", [controller terminationStatus]]];
+        [statusMessageField setStringValue:[NSString stringWithFormat:LocalizedString(@"The server has stopped running. See Log (%d)\n"), [controller terminationStatus]]];
     }
     else
-        [statusMessageField setStringValue:@"The server has stopped running"];
+        [statusMessageField setStringValue:LocalizedString(@"The server has stopped running")];
 
     if (!userStopped && 
         [serverKeepAliveCheckbox state] &&
@@ -388,7 +398,7 @@ static void terminateOnSignal(int signal) {
     NSMutableArray *argv = [NSMutableArray array];
 
     if (![[portField stringValue] length]) {
-        [statusMessageField setStringValue:@"Need a valid Port or Display Number"];
+        [statusMessageField setStringValue:LocalizedString(@"Need a valid Port or Display Number")];
         return nil;
     }
 
@@ -506,7 +516,7 @@ static void terminateOnSignal(int signal) {
 
         if ([[passwordField stringValue] length]) {
             if (vncEncryptAndStorePasswd((char *)[[passwordField stringValue] cString], (char *)[passwordFile cString]) != 0) {
-                [statusMessageField setStringValue:[NSString stringWithFormat:@"Problem - Unable to store password to %@", passwordFile]];
+                [statusMessageField setStringValue:[NSString stringWithFormat:LocalizedString(@"Problem - Unable to store password to %@"), passwordFile]];
                 [passwordField setStringValue:nil];
             }
             else
@@ -537,10 +547,10 @@ static void terminateOnSignal(int signal) {
 
 - (void) checkForRestart {
     if (controller) {
-        [statusMessageField setStringValue:@"Server Running -\n   Option Change Requires a Restart"];
+        [statusMessageField setStringValue:LocalizedString(@"Server Running -\n   Option Change Requires a Restart")];
         [startupItemStatusMessageField setStringValue:@""];
 
-        [startServerButton setTitle:@"Restart Server"];
+        [startServerButton setTitle:LocalizedString(@"Restart Server")];
         [startServerButton setEnabled:TRUE];
         [stopServerButton setKeyEquivalent:@""];
         [startServerButton setKeyEquivalent:@"\r"];
@@ -578,12 +588,12 @@ static void terminateOnSignal(int signal) {
         openPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:@"pdf"];
     }
     if (!openPath) {
-        openPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:nil];
-    }
-    if (!openPath) {
         openPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:@"txt"];
     }
-
+    if (!openPath) {
+        openPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:nil];
+    }
+	
     [[NSWorkspace sharedWorkspace] openFile:openPath];
 }
 
@@ -597,15 +607,20 @@ static void terminateOnSignal(int signal) {
         myAuthorization = [[NSAuthorization alloc] init];
     
     if (!myAuthorization) {
-        [startupItemStatusMessageField setStringValue:@"Error: No Authorization"];
+        [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: No Authorization")];
         return;
     }
     
     // If StartupItems directory doesn't exist then create it
     if (![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems"]) {
-        NSArray *mkdirArgs = [NSArray arrayWithObjects:@"-p", @"/Library/StartupItems", nil];
-        if (![myAuthorization executeCommand:@"/bin/mkdir" withArgs:mkdirArgs]) {
-            [startupItemStatusMessageField setStringValue:@"Error: Unable to create StartupItems folder"];
+		BOOL success = TRUE;
+		
+		success &= [myAuthorization executeCommand:@"/bin/mkdir" 
+										  withArgs:[NSArray arrayWithObjects:@"-p", @"/Library/StartupItems", nil]];
+        success &= [myAuthorization executeCommand:@"/usr/sbin/chown" 
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"root", @"/Library/StartupItems", nil]];
+        if (!success) {
+            [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to setup StartupItems folder")];
             return;
         }
     }
@@ -621,7 +636,19 @@ static void terminateOnSignal(int signal) {
         [copyArgsArray addObject:@"/Library/StartupItems"];
         
         if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
-            [startupItemStatusMessageField setStringValue:@"Error: Unable to copy OSXvnc folder"];
+            [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to copy OSXvnc folder")];
+            return;
+        }
+		
+		[copyArgsArray removeAllObjects];
+		[copyArgsArray addObject:@"-R"]; // Recursive
+        [copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
+        [copyArgsArray addObject:[[[[[NSProcessInfo processInfo] arguments] objectAtIndex:0] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"OSXvnc-server"]];
+        //[copyArgsArray addObject:[[NSBundle mainBundle] pathForResource:@"OSXvnc-server" ofType:nil]];
+        [copyArgsArray addObject:@"/Library/StartupItems/OSXvnc"];
+		
+        if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
+            [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to copy OSXvnc-server executable")];
             return;
         }
 		
@@ -634,15 +661,14 @@ static void terminateOnSignal(int signal) {
     
     // Now we will modify the script file
     if (![startupScript length]) {
-        [startupItemStatusMessageField setStringValue:@"Error: Unable To Read in OSXvnc script File"];
+        [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Read in OSXvnc script File")];
         return;
     }
     
     // Replace the VNCPATH line
     lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCPATH="]];
     if (lineRange.location != NSNotFound) {
-        NSMutableString *replaceString = [NSString stringWithFormat:@"VNCPATH=\"%@\"\n",[[NSBundle mainBundle] bundlePath]];
-        
+        NSMutableString *replaceString = [NSString stringWithFormat:@"VNCPATH=\"/Library/StartupItems/OSXvnc\"\n"];        
         [startupScript replaceCharactersInRange:lineRange withString:replaceString];
     }
 	
@@ -658,7 +684,7 @@ static void terminateOnSignal(int signal) {
 
 			[vncauth writeToFile:@"/tmp/.osxvncauth" atomically:YES];
 			if (![myAuthorization executeCommand:@"/bin/mv" withArgs:mvArguments]) {
-				[startupItemStatusMessageField setStringValue:@"Error: Unable To Setup Password File"];
+				[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Setup Password File")];
 				return;
 			}
 			passwordFile = @"/Library/StartupItems/OSXvnc/.osxvncauth";
@@ -669,45 +695,64 @@ static void terminateOnSignal(int signal) {
         [startupScript replaceCharactersInRange:lineRange withString:replaceString];
     }
     if ([startupScript writeToFile:@"/tmp/OSXvnc.script" atomically:YES]) {
+		BOOL success = TRUE;
         NSArray *mvArguments = [NSArray arrayWithObjects:@"-f", @"/tmp/OSXvnc.script", @"/Library/StartupItems/OSXvnc/OSXvnc", nil];
-        NSArray *chownArguments = [NSArray arrayWithObjects:@"-R", @"root", @"/Library/StartupItems/OSXvnc", nil];
-        NSArray *chmodArguments = [NSArray arrayWithObjects:@"-R", @"744", @"/Library/StartupItems/OSXvnc", nil];
-        NSArray *chmodDirArguments = [NSArray arrayWithObjects:@"755", @"/Library/StartupItems/OSXvnc", nil];
-        
-        if (![myAuthorization executeCommand:@"/bin/mv" withArgs:mvArguments]) {
-            [startupItemStatusMessageField setStringValue:@"Error: Unable To Replace OSXvnc Script File"];
-            return;
-        }
-        [myAuthorization executeCommand:@"/usr/sbin/chown" withArgs:chownArguments];
-        [myAuthorization executeCommand:@"/bin/chmod" withArgs:chmodArguments];
-        [myAuthorization executeCommand:@"/bin/chmod" withArgs:chmodDirArguments];
+		
+		success &= [myAuthorization executeCommand:@"/bin/mv" withArgs:mvArguments];
+        success &= [myAuthorization executeCommand:@"/usr/sbin/chown" 
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"root", @"/Library/StartupItems/OSXvnc", nil]];
+		success &= [myAuthorization executeCommand:@"/usr/bin/chgrp" 
+										  withArgs:[NSArray arrayWithObjects:@"0", @"/Library/StartupItems", nil]];
+        success &= [myAuthorization executeCommand:@"/usr/bin/chgrp" 
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"0", @"/Library/StartupItems/OSXvnc", nil]];
+        success &= [myAuthorization executeCommand:@"/bin/chmod" 
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"744", @"/Library/StartupItems/OSXvnc", nil]];
+		success &= [myAuthorization executeCommand:@"/bin/chmod" 
+										  withArgs:[NSArray arrayWithObjects:@"755", @"/Library/StartupItems/OSXvnc", nil]];
+		
+		if (!success) {
+			[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Replace OSXvnc Script File")];
+			return;
+		}
+
+		[myAuthorization executeCommand:@"/Library/StartupItems/OSXvnc/OSXvnc" 
+							   withArgs:[NSArray arrayWithObjects:@"restart", nil]];
+
+		/* SystemStarter needs to actually be run as root (and calling sudo requests a password again, so this doesn't work 
+		[myAuthorization executeCommand:@"/usr/bin/sudo"
+							   withArgs:[NSArray arrayWithObjects:@"SystemStarter",@"start", @"VNC", nil]];
+		 */
     }
     else {
-        [startupItemStatusMessageField setStringValue:@"Error: Unable To Write out Temporary Script File"];
+        [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Write out Temporary Script File")];
         return;
     }
     
-    [startupItemStatusMessageField setStringValue:@"Startup Item Configured"];
+    [startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Configured (Started)")];
     [disableStartupButton setEnabled:YES];
 }
 
 - (IBAction) removeService: sender {
-    NSArray *removeArgsArray = [NSArray arrayWithObjects:@"-r", @"-f", @"/Library/StartupItems/OSXvnc", nil];
-    
+	BOOL success = TRUE;
+
     if (!myAuthorization)
         myAuthorization = [[NSAuthorization alloc] init];
     
     if (!myAuthorization) {
-        [startupItemStatusMessageField setStringValue:@"Error - No Authorization"];
+        [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: No Authorization")];
         return;
     }
 
-    if ([myAuthorization executeCommand:@"/bin/rm" withArgs:removeArgsArray]) {
-        [startupItemStatusMessageField setStringValue:@"Startup Item Disabled"];
+	success &= [myAuthorization executeCommand:@"/Library/StartupItems/OSXvnc/OSXvnc" 
+									  withArgs:[NSArray arrayWithObjects:@"stop", nil]];
+	success &= [myAuthorization executeCommand:@"/bin/rm" 
+									  withArgs:[NSArray arrayWithObjects:@"-r", @"-f", @"/Library/StartupItems/OSXvnc", nil]];
+    if (success) {
+        [startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Disabled (Stopped)")];
         [disableStartupButton setEnabled:NO];
     }
     else {
-        [startupItemStatusMessageField setStringValue:@"Error: Unabled to remove startup item"];
+        [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unabled to remove startup item")];
     }    
 }
 
