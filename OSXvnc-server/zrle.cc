@@ -23,6 +23,7 @@
 // Routines to implement Zlib Run-length Encoding (ZRLE).
 //
 
+#include <stdlib.h>
 #include <stdio.h>
 extern "C" {
 #include "rfb.h"

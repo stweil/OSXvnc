@@ -281,15 +281,16 @@ typedef struct rfbClientRec {
                    (((l) & 0x0000ff00) << 8)  | \
                    ((l) << 24))
 
+#define rfbEndianTest 0
 
-/* At this point in time OS X only runs on PowerPCs, so we're
-   big-endian. */
-static const int rfbEndianTest = 0;
-
-#define Swap16IfLE(s) (*(const char *)&rfbEndianTest ? Swap16(s) : (s))
-
-#define Swap32IfLE(l) (*(const char *)&rfbEndianTest ? Swap32(l) : (l))
-
+/* At this point in time OS X only runs on PowerPCs, so we're big-endian. */
+#ifdef RFB_LITTLE_ENDIAN
+#define Swap16IfLE(s) (Swap16(s))
+#define Swap32IfLE(l) (Swap32(l))
+#else
+#define Swap16IfLE(s) (s)
+#define Swap32IfLE(l) (l)
+#endif
 /* main.c */
 
 extern char *rfbGetFramebuffer();

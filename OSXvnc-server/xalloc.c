@@ -14,6 +14,7 @@
 #include <X11/Xwinsock.h>
 #endif
 #include "Xos.h"
+#include <stdlib.h>
 #include <stdio.h>
 #include "misc.h"
 #include "X.h"
@@ -41,7 +42,6 @@
 #if NeedVarargsPrototypes
 #include <stdarg.h>
 #endif
-#include <stdlib.h>
 
 #ifndef INTERNAL_MALLOC
 

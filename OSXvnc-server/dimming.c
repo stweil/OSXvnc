@@ -1,5 +1,6 @@
 #include <IOKit/pwr_mgt/IOPMLib.h>
 #include <IOKit/pwr_mgt/IOPM.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
 #include <pthread.h>
