@@ -27,7 +27,6 @@
 #include <stdlib.h>
 #include "rfb.h"
 
-static void PrintPixelFormat(rfbPixelFormat *pf);
 static Bool rfbSetClientColourMapBGR233();
 
 Bool rfbEconomicTranslate = FALSE;
@@ -46,23 +45,6 @@ rfbPixelFormat rfbServerFormat;
 static const rfbPixelFormat BGR233Format = {
     8, 8, 0, 1, 7, 7, 3, 0, 3, 6
 };
-
-
-/*
- * Macro to compare pixel formats.
- */
-
-#define PF_EQ(x,y)                                                      \
-        ((x.bitsPerPixel == y.bitsPerPixel) &&                          \
-         (x.depth == y.depth) &&                                        \
-         ((x.bigEndian == y.bigEndian) || (x.bitsPerPixel == 8)) &&     \
-         (x.trueColour == y.trueColour) &&                              \
-         (!x.trueColour || ((x.redMax == y.redMax) &&                   \
-                            (x.greenMax == y.greenMax) &&               \
-                            (x.blueMax == y.blueMax) &&                 \
-                            (x.redShift == y.redShift) &&               \
-                            (x.greenShift == y.greenShift) &&           \
-                            (x.blueShift == y.blueShift))))
 
 #define CONCAT2(a,b) a##b
 #define CONCAT2E(a,b) CONCAT2(a,b)
@@ -148,7 +130,6 @@ rfbTranslateFnType rfbTranslateWithRGBTablesFns[3][3] = {
 };
 
 
-
 /*
  * rfbTranslateNone is used when no translation is required.
  */
@@ -172,20 +153,21 @@ rfbTranslateNone(char *table, rfbPixelFormat *in, rfbPixelFormat *out,
  * rfbSetTranslateFunction sets the translation function.
  */
 
-Bool
-rfbSetTranslateFunction(cl)
-    rfbClientPtr cl;
-{
+Bool rfbSetTranslateFunction(rfbClientPtr cl) {
     rfbLog("Pixel format for client %s:\n",cl->host);
     PrintPixelFormat(&cl->format);
 
+    return rfbSetTranslateFunctionUsingFormat(cl, rfbServerFormat);
+}
+
+Bool rfbSetTranslateFunctionUsingFormat(rfbClientPtr cl, rfbPixelFormat inFormat) {
     /*
      * Check that bits per pixel values are valid
      */
 
-    if ((rfbServerFormat.bitsPerPixel != 8) &&
-        (rfbServerFormat.bitsPerPixel != 16) &&
-        (rfbServerFormat.bitsPerPixel != 32))
+    if ((inFormat.bitsPerPixel != 8) &&
+        (inFormat.bitsPerPixel != 16) &&
+        (inFormat.bitsPerPixel != 32))
     {
         rfbLog("%s: server bits per pixel not 8, 16 or 32\n",
                 "rfbSetTranslateFunction");
@@ -222,8 +204,8 @@ rfbSetTranslateFunction(cl)
          * Set client's colour map to BGR233, then effectively it's
          * truecolour as well
          */
-		 
-		 rfbLog("setting the client's color map to BGR233\n");
+
+        rfbLog("setting the client's color map to BGR233\n");
 
         if (!rfbSetClientColourMapBGR233(cl))
             return FALSE;
@@ -233,44 +215,43 @@ rfbSetTranslateFunction(cl)
 
     /* truecolour -> truecolour */
 
-    if (PF_EQ(cl->format,rfbServerFormat)) {
+    if (PF_EQ(cl->format,inFormat)) {
 
         /* client & server the same */
 
-        rfbLog("no translation needed\n");
+        //rfbLog("no translation needed\n");
         cl->translateFn = rfbTranslateNone;
         return TRUE;
     }
 
-    if ((rfbServerFormat.bitsPerPixel < 16) ||
-        (!rfbEconomicTranslate && (rfbServerFormat.bitsPerPixel == 16))) {
+    if ((inFormat.bitsPerPixel < 16) ||
+        (!rfbEconomicTranslate && (inFormat.bitsPerPixel == 16))) {
 
         /* we can use a single lookup table for <= 16 bpp */
 
-		rfbLog("single lookup table translation, function [%d][%d]\n",
-				rfbServerFormat.bitsPerPixel / 16, cl->format.bitsPerPixel / 16);
+        //rfbLog("single lookup table translation, function [%d][%d]\n", inFormat.bitsPerPixel / 16, cl->format.bitsPerPixel / 16);
 		
         cl->translateFn = rfbTranslateWithSingleTableFns
-                              [rfbServerFormat.bitsPerPixel / 16]
+                              [inFormat.bitsPerPixel / 16]
                                   [cl->format.bitsPerPixel / 16];
 
         (*rfbInitTrueColourSingleTableFns
             [cl->format.bitsPerPixel / 16]) (&cl->translateLookupTable,
-                                             &rfbServerFormat, &cl->format);
+                                             &inFormat, &cl->format);
 
-    } else {
-
-		rfbLog("three tables for R, G, B\n");
+    }
+    else {
+        //rfbLog("three tables for R, G, B\n");
 
         /* otherwise we use three separate tables for red, green and blue */
 
         cl->translateFn = rfbTranslateWithRGBTablesFns
-                              [rfbServerFormat.bitsPerPixel / 16]
+                              [inFormat.bitsPerPixel / 16]
                                   [cl->format.bitsPerPixel / 16];
 
         (*rfbInitTrueColourRGBTablesFns
             [cl->format.bitsPerPixel / 16]) (&cl->translateLookupTable,
-                                             &rfbServerFormat, &cl->format);
+                                             &inFormat, &cl->format);
     }
 
     return TRUE;
@@ -330,10 +311,7 @@ rfbSetClientColourMapBGR233(cl)
 }
 
 
-static void
-PrintPixelFormat(pf)
-    rfbPixelFormat *pf;
-{
+void PrintPixelFormat(rfbPixelFormat *pf) {
     if (pf->bitsPerPixel == 1) {
         rfbLog("  1 bpp, %s sig bit in each byte is leftmost on the screen.\n",
                (pf->bigEndian ? "most" : "least"));
