@@ -39,6 +39,7 @@
     IBOutlet NSTextField *statusMessageField;
     IBOutlet NSButton *startServerButton;
     IBOutlet NSButton *stopServerButton;
+    IBOutlet NSTextField *startupItemStatusMessageField;
 
     int port;
 

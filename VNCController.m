@@ -460,6 +460,7 @@ static void terminateOnSignal(int signal) {
 - (void) checkForRestart {
     if (controller) {
         [statusMessageField setStringValue:@"Server Running -\n   Option Change Requires a Restart"];
+        [startupItemStatusMessageField setStringValue:@""];
 
         [startServerButton setTitle:@"Restart Server"];
         [startServerButton setEnabled:TRUE];
@@ -509,19 +510,23 @@ static void terminateOnSignal(int signal) {
 }
 
 - (IBAction) installAsService: sender {
+    BOOL overwrite = TRUE;
     OSStatus myStatus;
     AuthorizationFlags myFlags = kAuthorizationFlagDefaults;
     AuthorizationRef myAuthorizationRef;
     AuthorizationItem myItems = {kAuthorizationRightExecute, 0, NULL, 0};
     AuthorizationRights myRights = {1, &myItems};
-    
+    NSMutableString *startupScript = nil;
+
     myStatus = AuthorizationCreate(NULL,
                                    kAuthorizationEmptyEnvironment,
                                    myFlags,
                                    &myAuthorizationRef);
 
-    if (myStatus != errAuthorizationSuccess)
+    if (myStatus != errAuthorizationSuccess) {
+        [startupItemStatusMessageField setStringValue:@"Error - No Authorization"];
         return;
+    }
 
     myFlags = kAuthorizationFlagDefaults |
         kAuthorizationFlagInteractionAllowed |
@@ -535,14 +540,19 @@ static void terminateOnSignal(int signal) {
         if (![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems"]) {
             char *mkdirArguments[] = { "-p", "/Library/StartupItems", NULL };
 
-            AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/mkdir", kAuthorizationFlagDefaults, mkdirArguments, NULL);
+            myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/mkdir", kAuthorizationFlagDefaults, mkdirArguments, NULL);
         }
-        if (![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems/OSXvnc"]) {
+        
+        // In the future we may not always overwrite (look at Version # or something)
+        overwrite = TRUE;
+        if (overwrite || ![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems/OSXvnc"]) {
             NSMutableArray *copyArgsArray = [NSMutableArray array];
+            NSString *sourceFolder = [[NSBundle mainBundle] pathForResource:@"OSXvnc" ofType:nil];
             char **copyArguments = NULL;
             int i;
             
-            [copyArgsArray addObject:@"-R"];
+            [copyArgsArray addObject:@"-R"]; // Recursive
+            [copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
             [copyArgsArray addObject:[[NSBundle mainBundle] pathForResource:@"OSXvnc" ofType:nil]];
             [copyArgsArray addObject:@"/Library/StartupItems"];
 
@@ -554,14 +564,24 @@ static void terminateOnSignal(int signal) {
 
             myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/cp", kAuthorizationFlagDefaults, copyArguments, NULL);
             free(copyArguments);
+            startupScript = [NSMutableString stringWithContentsOfFile:[sourceFolder stringByAppendingPathComponent:@"OSXvnc"]];
+            // Could try to pause here waiting for /bin/cp to finish - but how would we know?
+        }
+        else {
+            // Would be nice to always use this but there is a timing issue with the CP command
+            startupScript = [NSMutableString stringWithContentsOfFile:@"/Library/StartupItems/OSXvnc/OSXvnc"];
         }
 
         // Then we will modify the script file
         if (myStatus == errAuthorizationSuccess) {
-            NSMutableString *startupScript = [NSMutableString stringWithContentsOfFile:@"/Library/StartupItems/OSXvnc/OSXvnc"];
-            char *copyArguments[] = {"-f", "/tmp/OSXvnc", "/Library/StartupItems/OSXvnc/OSXvnc", NULL};
+            char *chownArguments[] = {"root", "/Library/StartupItems/OSXvnc/OSXvnc", NULL};
+            char *chmodArguments[] = {"755", "/Library/StartupItems/OSXvnc/OSXvnc", NULL};
+            char *mvArguments[] = {"-f", "/tmp/OSXvnc", "/Library/StartupItems/OSXvnc/OSXvnc", NULL};
             NSRange lineRange;
-            
+
+            if (![startupScript length])
+                NSLog(@"Error: Unable To Read in OSXvnc script File");
+
             // Replace the VNCPATH line
             lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCPATH="]];
             if (lineRange.location != NSNotFound) {
@@ -578,8 +598,26 @@ static void terminateOnSignal(int signal) {
                 [startupScript replaceCharactersInRange:lineRange withString:replaceString];
 
             }
-            [startupScript writeToFile:@"/tmp/OSXvnc" atomically:YES];
-            myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/mv", kAuthorizationFlagDefaults, copyArguments, NULL);            
+            if ([startupScript writeToFile:@"/tmp/OSXvnc" atomically:YES]) {
+                if (myStatus == errAuthorizationSuccess)
+                    myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/mv", kAuthorizationFlagDefaults, mvArguments, NULL);
+                if (myStatus == errAuthorizationSuccess)
+                    myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/usr/sbin/chown", kAuthorizationFlagDefaults, chownArguments, NULL);
+                if (myStatus == errAuthorizationSuccess)
+                    myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/chmod", kAuthorizationFlagDefaults, chmodArguments, NULL);
+            }
+            else {
+                NSLog(@"Error: Unable To Write out Temp File");
+                myStatus = -1;
+            }
+        }
+
+        if (myStatus == errAuthorizationSuccess) {
+            [startupItemStatusMessageField setStringValue:@"Startup Item Configured"];
+        }
+        else {
+            NSLog(@"Error: Executing with Authorization: %d", myStatus);
+            [startupItemStatusMessageField setStringValue:@"Error - See System Console"];
         }
     }
     
