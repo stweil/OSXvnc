@@ -5,7 +5,7 @@
  */
 
 /*
- *  OSXvnc Copyright (C) 2001 Dan McGuirk <mcguirk@incompleteness.net>.
+ *  OSXvnc Copyright (C) 2001 Dan McGuirk
  *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.
  *  All Rights Reserved.
  *

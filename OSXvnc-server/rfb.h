@@ -3,7 +3,7 @@
  */
 
 /*
- *  OSXvnc Copyright (C) 2001 Dan McGuirk <mcguirk@incompleteness.net>.
+ *  OSXvnc Copyright (C) 2001  *  OSXvnc Copyright (C) 2002-2004 Redstone Software osxvnc@redstonesoftware.comGuirk <mcguirk@incompleteness.net>.
  *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.  
  *  All Rights Reserved.
  *

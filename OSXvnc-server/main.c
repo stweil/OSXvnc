@@ -1,5 +1,5 @@
 /*
- *  OSXvnc Copyright (C) 2002-3 Redstone Software osxvnc@redstonesoftware.com
+ *  OSXvnc Copyright (C) 2002-2004 Redstone Software osxvnc@redstonesoftware.com
  *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.
  *  All Rights Reserved.
  *
@@ -38,6 +38,8 @@
 #include "rfbserver.h"
 #import "VNCServer.h"
 
+#import "../RFBBundleProtocol.h"
+
 ScreenRec hackScreen;
 rfbScreenInfo rfbScreen;
 
@@ -56,6 +58,7 @@ Bool rfbReverseMods = FALSE;
 Bool rfbSwapButtons = FALSE;
 Bool rfbDisableRemote = FALSE;
 Bool rfbRemapShortcuts = FALSE;
+BOOL rfbShouldSendUpdates = TRUE;
 BOOL registered = FALSE;
 BOOL restartOnUserSwitch = FALSE;
 
@@ -134,7 +137,7 @@ void bundlesPerformSelector(SEL performSel) {
     NSBundle *bundle = nil;
 
     while ((bundle = [bundleEnum nextObject]))
-        [[bundle principalClass] performSelector:performSel];
+        [(id <RFBBundleProtocol>)[bundle principalClass] performSelector:performSel];
 
     [bundlePool release];
 }
@@ -178,7 +181,7 @@ void loadDynamicBundles(BOOL startup) {
             if ([aBundle load]) {
                 [bundleArray addObject:aBundle];
                 if (startup)
-                    [[aBundle principalClass] performSelector:@selector(rfbStartup:) withObject:(id) &thisServer];
+                    [[aBundle principalClass] rfbStartup: &thisServer];
             }
             else {
                 NSLog(@"\t-Bundle Load Failed");
@@ -246,7 +249,7 @@ void rfbCheckForScreenResolutionChange() {
                        rfbScreen.height != CGDisplayPixelsHigh(displayID));
 
     // See if screen changed
-    if (sizeChange || rfbScreen.depth != CGDisplayBitsPerPixel(displayID)) {
+    if (sizeChange || rfbScreen.bitsPerPixel != CGDisplayBitsPerPixel(displayID)) {
         rfbClientIteratorPtr iterator;
         rfbClientPtr cl = NULL;
 
@@ -406,7 +409,7 @@ static void *clientInput(void *data) {
         rfbProcessClientMessage(cl);
 
         // Some people will connect but not request screen updates - just send events, this will delay registering the CG callback until then
-        if (!registered && REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion)) {
+        if (rfbShouldSendUpdates && !registered && REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion)) {
             rfbLog("Client Connected - Registering Screen Update Notification\n");
             CGRegisterScreenRefreshCallback(refreshCallback, NULL);
             registered = TRUE;
@@ -516,18 +519,20 @@ static void rfbScreenInit(void) {
         rfbScreen.width = CGDisplayPixelsWide(displayID);
         rfbScreen.height = CGDisplayPixelsHigh(displayID);
         rfbScreen.bitsPerPixel = CGDisplayBitsPerPixel(displayID);
-        rfbScreen.depth = CGDisplayBitsPerPixel(displayID);
+        rfbScreen.depth = CGDisplaySamplesPerPixel(displayID) * CGDisplayBitsPerSample(displayID);
         rfbScreen.paddedWidthInBytes = CGDisplayBytesPerRow(displayID);
     }
     rfbServerFormat.bitsPerPixel = rfbScreen.bitsPerPixel;
     rfbServerFormat.depth = rfbScreen.depth;
     rfbServerFormat.bigEndian = !(rfbEndianTest);
     gethostname(rfbThisHost, 255);
-
+/*
     if ((rfbScreen.bitsPerPixel) == 8) {
         rfbServerFormat.trueColour = FALSE;
     }
-    else {
+    else 
+ */
+	{
         int bitsPerSample = CGDisplayBitsPerSample(displayID);
 
         rfbServerFormat.trueColour = TRUE;
@@ -595,6 +600,7 @@ static void usage(void) {
     fprintf(stderr, "-rfbLocalBuffer        run the screen through a local buffer, thereby enabling the cursor\n"
             "                       (default: no, it's slow and causes more artifacts)\n"
             "                       (WARNING - This option is Deprecated and will be removed soon)\n");
+	fprintf(stderr, "-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n");
     /* This isn't ready to go yet
     {
         CGDisplayCount displayCount;
@@ -694,15 +700,18 @@ static void processArguments(int argc, char *argv[]) {
             rfbLocalhostOnly = TRUE;
         } else if (strcmp(argv[i], "-inhibitevents") == 0) {
             rfbInhibitEvents = TRUE;
-        } else if (strcmp(argv[i], "-restartonuserswitch") == 0) {
-            if (i + 1 >= argc) 
-                usage();
-            else {
-                char *argument = argv[++i];
-                restartOnUserSwitch = (argument[0] == 'y' || argument[0] == 'Y' || argument[0] == 't' || argument[0] == 'T' || atoi(argument));
-            }
-        }
-    }
+		} else if (strcmp(argv[i], "-noupdates") == 0) {
+			rfbShouldSendUpdates = FALSE;
+		} 	
+		else if (strcmp(argv[i], "-restartonuserswitch") == 0) {
+			if (i + 1 >= argc) 
+				usage();
+			else {
+				char *argument = argv[++i];
+				restartOnUserSwitch = (argument[0] == 'y' || argument[0] == 'Y' || argument[0] == 't' || argument[0] == 'T' || atoi(argument));
+			}
+		}
+	}
 }
 
 void rfbShutdown(void) {
@@ -823,10 +832,11 @@ int main(int argc, char *argv[]) {
     
     /* That's great that they #define it to use the new symbol that doesn't exist in older versions
         better to just not even define it - but give a warning or something  */
-    // This should bin in CGRemoteOperationApi.h
+    // This should be in CGRemoteOperationApi.h
 #if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_3
 #undef CGSetLocalEventsFilterDuringSupressionState
 #warning Using Obsolete CGSetLocalEventsFilterDuringSupressionState for backwards compatibility to 10.2
+CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask filter, CGEventSuppressionState state);
 #endif
     
     // Does this need to be in 10.1 and greater (does any of this stuff work in 10.0?)
@@ -836,7 +846,7 @@ int main(int argc, char *argv[]) {
         CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateSupressionInterval);
         CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateRemoteMouseDrag);
     }
-    
+
     if (rfbDisableScreenSaver) {
         /* setup screen saver disabling timer */
         screensaverTimerUPP = NewEventLoopTimerUPP(rfbScreensaverTimer);
@@ -862,8 +872,7 @@ int main(int argc, char *argv[]) {
             if (!rfbClientsConnected()) {
                 pthread_mutex_lock(&listenerAccepting);
 
-                // You would think that there is
-                // No point getting events with no clients
+                // You would think that there is no point in getting events with no clients
                 // But it seems that unregistering but keeping the process (or event loop) around can cause a stuttering behavior in OS X.
                 if (0 && registered) {
                     rfbLog("UnRegistering Screen Update Notification - waiting for clients\n");
