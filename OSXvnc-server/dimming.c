@@ -4,9 +4,9 @@
 #include <signal.h>
 #include <pthread.h>
 
-#include "rfb.h"
-
 #include <Carbon/Carbon.h>
+
+#include "rfb.h"
 
 Bool rfbNoDimming = FALSE;
 Bool rfbNoSleep   = TRUE;
