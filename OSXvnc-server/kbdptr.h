@@ -173,6 +173,8 @@ static int SpecialKeyCodes[] = {
     XK_Shift_R,           56,      /* Shift Right */
     XK_Meta_L,            58,      /* Option Left (-> Option) */
     XK_Meta_R,            58,      /* Option Right (-> Option) */
+    XK_Super_L,            58,      /* Option Left (-> Option) */
+    XK_Super_R,            58,      /* Option Right (-> Option) */
     XK_Control_L,         59,      /* Ctrl Left */
     XK_Control_R,         59,      /* Ctrl Right */
 };
