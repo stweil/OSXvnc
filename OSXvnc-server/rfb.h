@@ -34,8 +34,19 @@
 #include <vncauth.h>
 #include <zlib.h>
 
-#define MAX_ENCODINGS 17
+//#include "Keyboards.h"
+//#import <Carbon/Carbon.h>
+//#include <ApplicationServices/ApplicationServices.h>
+//#include "CoreGraphics/CGGeometry.h"
+#ifndef __COREGRAPHICS__
+struct CGPoint {
+    float x;
+    float y;
+};
+typedef struct CGPoint CGPoint;
+#endif
 
+#define MAX_ENCODINGS 17
 
 /*
  * Per-screen (framebuffer) structure.  There is only one of these, since we
@@ -58,11 +69,14 @@ typedef struct
  */
 
 struct rfbClientRec;
-typedef void (*rfbTranslateFnType)(char *table, rfbPixelFormat *in,
+typedef void (*rfbTranslateFnType)(char *table,
+                                   rfbPixelFormat *in,
                                    rfbPixelFormat *out,
-                                   char *iptr, char *optr,
+                                   char *iptr,
+                                   char *optr,
                                    int bytesBetweenInputLines,
-                                   int width, int height);
+                                   int width,
+                                   int height);
 
 
 /*
@@ -73,22 +87,20 @@ typedef struct rfbClientRec {
 
     int sock;
     char *host;
+    // Version
+    int major, minor;
+
     pthread_mutex_t outputMutex;
 
                                 /* Possible client states: */
     enum {
         RFB_PROTOCOL_VERSION,   /* establishing protocol version */
+        RFB_AUTH_VERSION,       /* establishing authentication version (3.7) */
         RFB_AUTHENTICATION,     /* authenticating */
         RFB_INITIALISATION,     /* sending initialisation messages */
         RFB_NORMAL              /* normal protocol messages */
     } state;
 
-    Bool reverseConnection;
-
-    Bool readyForSetColourMapEntries;
-
-    Bool useCopyRect;
-    int preferredEncoding;
     int correMaxWidth, correMaxHeight;
     void* zrleData;
     void* mosData;
@@ -121,15 +133,6 @@ typedef struct rfbClientRec {
        framebuffer if the client is ready, empty if it's not. */
 
     RegionRec requestedRegion;
-
-    /* The following members represent the state of the "deferred update" timer
-        - when the framebuffer is modified and the client is ready, in most
-        cases it is more efficient to defer sending the update by a few
-        milliseconds so that several changes to the framebuffer can be combined
-        into a single update. */
-
-    Bool deferredUpdateScheduled;
-    OsTimerPtr deferredUpdateTimer;
 
     /* translateFn points to the translation function which is used to copy
        and translate a rectangle from the framebuffer to an output buffer. */
@@ -194,10 +197,17 @@ typedef struct rfbClientRec {
     int tightQualityLevel;
 
     Bool enableLastRectEncoding;   /* client supports LastRect encoding */
-    Bool enableCursorShapeUpdates; /* client supports cursor shape updates */
-    Bool useRichCursorEncoding;    /* rfbEncodingRichCursor is preferred */
-    Bool cursorWasChanged;         /* cursor shape update should be sent */
+    Bool enableXCursorShapeUpdates; /* client supports XCursor shape updates - Tight */
+    Bool useRichCursorEncoding;    /* rfbEncodingRichCursor is preferred : Tight and RFB - 3.7 */
+    Bool enableCursorPosUpdates;   /* client supports PointerPos updates - Tight */
+    Bool desktopSizeUpdate;        /* client supports dynamic desktop updates - Tight and RFB 3.7 */
 
+    Bool reverseConnection;
+    Bool readyForSetColourMapEntries;
+    Bool useCopyRect;
+    
+    int preferredEncoding;
+    
     /* ZRLE -- Zlib Run Length Encoding Variable Space */
 
     char client_zrleBeforeBuf[rfbZRLETileWidth * rfbZRLETileHeight * 4 + 4];
@@ -206,11 +216,14 @@ typedef struct rfbClientRec {
 
     Bool disableRemoteEvents;      // Ignore PB, Keyboard and Mouse events
     Bool swapMouseButtons23;       // How to interpret mouse buttons 2 & 3
-    Bool immediateUpdate;       // To request that we get immediate updates (even 0 rects)
+    Bool immediateUpdate;          // To request that we get immediate updates (even 0 rects)
 
     int pasteBoardLastChange;      // Used to see if we need to send the latest PB
+    int currentCursorSeed;         // Used to see if we need to send a new cursor
+    CGPoint clientCursorLocation;  // The last location the client left the mouse at
 
-    Bool modiferKeys[256];          // Bool Array to record which keys THIS user has down, if they disconnect we will release those keys
+    BOOL needNewScreenSize;        // Flag to indicate we must send a new screen resolution
+    BOOL modiferKeys[256];         // BOOL Array to record which keys THIS user has down, if they disconnect we will release those keys
     
     /* REDSTONE - These (updateBuf, ublen) need to be in the CL, not global, for multiple clients */
 
@@ -292,12 +305,10 @@ extern Bool rfbNeverShared;
 extern Bool rfbDontDisconnect;
 extern Bool rfbReverseMods;
 
-/* REDSTONE - Additions */
 extern Bool rfbSwapButtons;
 extern Bool rfbDisableRemote;
 
 extern Bool rfbLocalBuffer;
-extern Bool currentlyRefreshing;
 
 extern void rfbLog(char *format, ...);
 extern void rfbLogPerror(char *str);
@@ -320,11 +331,15 @@ extern void rfbClientUpdatePasteboard(rfbClientPtr cl);
 
 /* kbdptr.c */
 
-extern char *keymapFile;
+extern u_int16_t keyTable[];
+extern unsigned char keyTableMods[]; // 8 Bits for Modifier Keys
+extern BOOL pressModsForKeys;
 
 extern void PtrAddEvent(int buttonMask, int x, int y, rfbClientPtr cl);
 extern void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl);
+
 extern void loadKeyTable();
+
 extern void keyboardReleaseKeysForClient(rfbClientPtr cl);
 
 
@@ -334,6 +349,12 @@ extern void keyboardReleaseKeysForClient(rfbClientPtr cl);
 //extern int ublen;
 
 extern rfbClientPtr pointerClient;
+
+extern void rfbProcessClientProtocolVersion(rfbClientPtr cl);
+extern void rfbProcessClientNormalMessage(rfbClientPtr cl);
+extern void rfbProcessClientInitMessage(rfbClientPtr cl);
+extern Bool rfbSendScreenUpdateEncoding(rfbClientPtr cl);
+extern Bool rfbSendLastRectMarker(rfbClientPtr cl);
 
 
 /* Routines to iterate over the client list in a thread-safe way.
@@ -362,6 +383,24 @@ extern void rfbSendServerCutText(rfbClientPtr cl, char *str, int len);
 
 /* translate.c */
 
+/*
+ * Macro to compare pixel formats.
+ */
+
+#define PF_EQ(x,y)                                                  \
+((x.bitsPerPixel == y.bitsPerPixel) &&                          \
+ (x.depth == y.depth) &&                                        \
+ ((x.bigEndian == y.bigEndian) || (x.bitsPerPixel == 8)) &&     \
+ (x.trueColour == y.trueColour) &&                              \
+ (!x.trueColour || ((x.redMax == y.redMax) &&                   \
+                    (x.greenMax == y.greenMax) &&               \
+                    (x.blueMax == y.blueMax) &&                 \
+                    (x.redShift == y.redShift) &&               \
+                    (x.greenShift == y.greenShift) &&           \
+                    (x.blueShift == y.blueShift))))
+
+
+
 extern Bool rfbEconomicTranslate;
 extern rfbPixelFormat rfbServerFormat;
 
@@ -371,6 +410,8 @@ extern void rfbTranslateNone(char *table, rfbPixelFormat *in,
                              int bytesBetweenInputLines,
                              int width, int height);
 extern Bool rfbSetTranslateFunction(rfbClientPtr cl);
+extern Bool rfbSetTranslateFunctionUsingFormat(rfbClientPtr cl, rfbPixelFormat inFormat);
+extern void PrintPixelFormat(rfbPixelFormat *pf);
 
 
 /* httpd.c */
@@ -389,6 +430,7 @@ extern char *rfbAuthPasswdFile;
 extern Bool rfbAuthenticating;
 
 extern void rfbAuthNewClient(rfbClientPtr cl);
+extern void rfbProcessAuthVersion(rfbClientPtr cl);
 extern void rfbAuthProcessClientMessage(rfbClientPtr cl);
 
 
@@ -457,6 +499,8 @@ extern void FreeZrleData(rfbClientPtr cl);
 
 /* stats.c */
 
+extern char* encNames[];
+
 extern void rfbResetStats(rfbClientPtr cl);
 extern void rfbPrintStats(rfbClientPtr cl);
 
@@ -469,3 +513,15 @@ extern Bool rfbNoSleep;
 extern int rfbDimmingInit(void);
 extern int rfbUndim(void);
 extern int rfbDimmingShutdown(void);
+
+/* mousecursor.c */
+
+extern void GetCursorInfo();
+extern void rfbCheckForCursorChange();
+extern Bool rfbShouldSendNewCursor(rfbClientPtr cl);
+extern Bool rfbShouldSendNewPosition(rfbClientPtr cl);
+
+extern Bool rfbSendRichCursorUpdate(rfbClientPtr cl);
+extern Bool rfbSendCursorPos(rfbClientPtr cl);
+
+
