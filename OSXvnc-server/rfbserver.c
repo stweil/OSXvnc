@@ -226,6 +226,13 @@ rfbClientPtr rfbNewClient(int sock) {
     cl->compStreamRaw.total_in = ZLIBHEX_COMP_UNINITED;
     cl->compStreamHex.total_in = ZLIBHEX_COMP_UNINITED;
 
+    cl->client_zlibBeforeBufSize = 0;
+    cl->client_zlibBeforeBuf = NULL;
+
+    cl->client_zlibAfterBufSize = 0;
+    cl->client_zlibAfterBuf = NULL;
+    cl->client_zlibAfterBufLen = 0;
+    
     sprintf(pv,rfbProtocolVersionFormat,rfbProtocolMajorVersion, rfbProtocolMinorVersion);
 
     if (WriteExact(cl, pv, sz_rfbProtocolVersionMsg) < 0) {
