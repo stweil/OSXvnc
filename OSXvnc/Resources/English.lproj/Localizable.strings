@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+<dict>
+	<key>Restarting OSXvnc server</key>
+	<string>Restarting OSXvnc server</string>
+	<key>Starting OSXvnc server</key>
+	<string>Starting OSXvnc server</string>
+	<key>Stopping OSXvnc server</key>
+	<string>Stopping OSXvnc server</string>
+</dict>
+</plist>
+
+

@@ -76,12 +76,14 @@ static void terminateOnSignal(int signal) {
     NSArray *passwordFiles = [NSArray arrayWithObjects:
         [[NSUserDefaults standardUserDefaults] stringForKey:@"PasswordFile"],
         [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@".osxvncauth"],
+		@"~/.osxvncauth",
         @"/tmp/.osxvncauth",
         nil];
     NSEnumerator *passwordEnumerators = [passwordFiles objectEnumerator];
     NSArray *logFiles = [NSArray arrayWithObjects:
         [[NSUserDefaults standardUserDefaults] stringForKey:@"LogFile"],
         @"/var/log/OSXvnc-server.log",
+		@"~/Library/Logs/OSXvnc-server.log",
         [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server.log"],
         @"/tmp/OSXvnc-server.log",
         nil];
@@ -616,7 +618,7 @@ static void terminateOnSignal(int signal) {
             [startupItemStatusMessageField setStringValue:@"Error: Unable to copy OSXvnc folder"];
             return;
         }
-        
+		
         startupScript = [NSMutableString stringWithContentsOfFile:[sourceFolder stringByAppendingPathComponent:@"OSXvnc"]];
     }
     else {
@@ -637,19 +639,34 @@ static void terminateOnSignal(int signal) {
         
         [startupScript replaceCharactersInRange:lineRange withString:replaceString];
     }
-    
-    // Replace the VNCARGS line
+	
+	// Replace the VNCARGS line
     lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCARGS="]];
     if (lineRange.location != NSNotFound) {
+		NSData *vncauth = [[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"];
         NSMutableString *replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLine] componentsJoinedByString:@" "]];
-        
+			
+		if ([vncauth length]) {
+			NSString *oldPasswordFile = passwordFile;
+			NSArray *mvArguments = [NSArray arrayWithObjects:@"-f", @"/tmp/.osxvncauth", @"/Library/StartupItems/OSXvnc/.osxvncauth", nil];
+
+			[vncauth writeToFile:@"/tmp/.osxvncauth" atomically:YES];
+			if (![myAuthorization executeCommand:@"/bin/mv" withArgs:mvArguments]) {
+				[startupItemStatusMessageField setStringValue:@"Error: Unable To Setup Password File"];
+				return;
+			}
+			passwordFile = @"/Library/StartupItems/OSXvnc/.osxvncauth";
+			replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLine] componentsJoinedByString:@" "]];
+			passwordFile = oldPasswordFile;
+		}
+		
         [startupScript replaceCharactersInRange:lineRange withString:replaceString];
-        
     }
     if ([startupScript writeToFile:@"/tmp/OSXvnc" atomically:YES]) {
         NSArray *mvArguments = [NSArray arrayWithObjects:@"-f", @"/tmp/OSXvnc", @"/Library/StartupItems/OSXvnc/OSXvnc", nil];
         NSArray *chownArguments = [NSArray arrayWithObjects:@"-R", @"root", @"/Library/StartupItems/OSXvnc", nil];
-        NSArray *chmodArguments = [NSArray arrayWithObjects:@"-R", @"544", @"/Library/StartupItems/OSXvnc", nil];
+        NSArray *chmodArguments = [NSArray arrayWithObjects:@"-R", @"744", @"/Library/StartupItems/OSXvnc", nil];
+        NSArray *chmodDirArguments = [NSArray arrayWithObjects:@"755", @"/Library/StartupItems/OSXvnc", nil];
         
         if (![myAuthorization executeCommand:@"/bin/mv" withArgs:mvArguments]) {
             [startupItemStatusMessageField setStringValue:@"Error: Unable To Modify OSXvnc Script File"];
@@ -657,6 +674,7 @@ static void terminateOnSignal(int signal) {
         }
         [myAuthorization executeCommand:@"/usr/sbin/chown" withArgs:chownArguments];
         [myAuthorization executeCommand:@"/bin/chmod" withArgs:chmodArguments];
+        [myAuthorization executeCommand:@"/bin/chmod" withArgs:chmodDirArguments];
     }
     else {
         [startupItemStatusMessageField setStringValue:@"Error: Unable To Write out Temp File"];

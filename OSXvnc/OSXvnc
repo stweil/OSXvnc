@@ -2,7 +2,7 @@
 . /etc/rc.common
 
 #
-# Start OSXvnc Version 1.31
+# Start OSXvnc Version 1.33
 # 
 # The OSXvnc application will OVERWRITE this file if you ask it to Setup the Startup Item
 #
@@ -12,6 +12,11 @@ VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnec
 
 #
 # Modification Log:
+#
+# 1.33
+# Added Resources directory with English.lproj for Localization lookup
+# Modified to handle 'restart' directive
+# Modified to make more better use of the awk command
 #
 # 1.31
 # Modified Startup parameters to work better on some systems
@@ -35,49 +40,54 @@ VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnec
 #
 ##
 
-if [ ${1:-noset} = "setpassword" ]; then
-  $VNCPATH/storepasswd "$2" $VNCPATH/.osxvncauth
-  echo "Password set at path " $VNCPATH/.osxvncauth
-  exit 0
+if [ ${1:-noset} == "setpassword" ]; then
+    $VNCPATH/storepasswd "$2" $VNCPATH/.osxvncauth
+    echo "Password set at path " $VNCPATH/.osxvncauth
+    exit 0
 fi
 
-if [ ${1:-noset} = "stop" ]; then
-  ConsoleMessage "Stopping OSXvnc KeepAlive"
-  OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc-keepalive | grep -v grep | awk 'NF > 2 {print \$2}'`
-  if [ "${OSXVNCPID:=""}" ]; then
-    kill $OSXVNCPID
-  fi
-
-  ConsoleMessage "Stopping OSXvnc Server"
-  OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc-keepalive | grep -v grep | awk 'NF > 2 {print \$2}'`
-  if [ "${OSXVNCPID:=""}" != "" ]; then
-	ConsoleMessage "OSXvnc stop: problem stopping OSXvnc-keepalive"
-        exit -1
-  else
-#   Now Kill OSXvnc
-    OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc-server | grep -v grep | awk 'NF > 2 {print \$2}'`
+if [ ${1:-noset} == "stop" ] || [ ${1:-noset} == "restart" ]; then
+    ConsoleMessage "Stopping OSXvnc KeepAlive"
+    OSXVNCPID=`/bin/ps auxwwww | /usr/bin/awk '/[O]SXvnc-keepalive/ && NR > 2 {print $2}'`
     if [ "${OSXVNCPID:=""}" ]; then
-      kill $OSXVNCPID
+        kill $OSXVNCPID
+        sleep 1
     fi
-    OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc-server | grep -v grep | awk 'NF > 2 {print \$2}'`
+    # make sure it's dead
+    OSXVNCPID=`/bin/ps -auxwwww | /usr/bin/awk '/[O]SXvnc-keepalive/ && NR > 2 {print $2}'`
     if [ "${OSXVNCPID:=""}" != "" ]; then
-        ConsoleMessage "OSXvnc stop: problem stopping OSXvnc-server"
+        ConsoleMessage "OSXvnc $1: problem stopping OSXvnc-keepalive"
         exit -1
     fi
-  fi
-  exit 0
+
+    ConsoleMessage "Stopping OSXvnc Server"
+    OSXVNCPID=`/bin/ps -auxwwww | /usr/bin/awk '/[O]SXvnc-server/ && NR > 2 {print $2}'`
+    if [ "${OSXVNCPID:=""}" ]; then
+        kill $OSXVNCPID
+        sleep 1
+    fi
+    # make sure it's dead
+    OSXVNCPID=`/bin/ps -auxwwww | /usr/bin/awk '/[O]SXvnc-server/ && NR > 2 {print $2}'`
+    if [ "${OSXVNCPID:=""}" != "" ]; then
+        ConsoleMessage "OSXvnc $1: problem stopping OSXvnc-server $OSXVNCPID"
+        exit -1
+    fi
+    if [ ${1:-noset} = "stop" ]; then
+        exit 0
+    fi
 fi
+
 
 if [ -x "$VNCPATH" ]; then
-  ConsoleMessage "Starting OSXvnc Server"
+    ConsoleMessage "Starting OSXvnc Server"
 
-  if [ -e /var/log/osxvnc.log ] ; then
-    /bin/mv /var/log/osxvnc.log /var/log/osxvnc.log.1
-  fi
+    if [ -e /var/log/osxvnc.log ]; then
+        /bin/mv /var/log/osxvnc.log /var/log/osxvnc.log.1
+    fi
 
-  $0-keepalive "$VNCPATH/OSXvnc-server" $VNCARGS > /var/log/osxvnc.log 2>&1 &
-  exit 0
+    $0-keepalive "$VNCPATH/OSXvnc-server" $VNCARGS > /var/log/osxvnc.log 2>&1 &
+    exit 0
 else
-  ConsoleMessage "Unable to find OSXvnc"
-  exit -1
+    ConsoleMessage "Unable to find OSXvnc"
+    exit -1
 fi

@@ -6,6 +6,9 @@
 # 
 # Modification Log:
 #
+# 1.33
+# Modified so that keepalive only shutsdown on unrecoverable errors
+#
 # 1.31
 # Modified so that OSXvnc can live in directories with spaces
 #
@@ -15,13 +18,13 @@
 RESULT=15
 
 # OS X will send a SIGINT or SIGTERM to shutdown OSXvnc-server
-# On a SIGHUP we'll stop properly (this is what the server returns internally when an error occurs) - should change
-while [ "$RESULT" != "1" ]
+# On a negative SIGNAL we'll stop properly (this is what the server returns internally when an error occurs)
+while [ "$RESULT" > "0" ]
 do
 	echo "OSXVNC: Starting Server"
 	"$@"
 	RESULT=$?
-	sleep 8
+	sleep 6
 done
 
 echo "OSXVNC Shutdown with exit status" $RESULT

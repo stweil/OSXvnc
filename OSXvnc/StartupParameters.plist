@@ -3,9 +3,9 @@
   Provides        = ("VNC");
   Requires        = ("Core Graphics", "Resolver");
   OrderPreference = "None";
-  Messages =
-  {
-    start = "Starting OSXvnc server";
-    stop  = "Stopping OSXvnc server";
+  Messages =  {
+	restart = "Restarting OSXvnc server";
+	start = "Starting OSXvnc server";
+	stop = "Stopping OSXvnc server";
   };
 }
