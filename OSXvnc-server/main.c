@@ -1,5 +1,5 @@
 /*
- *  OSXvnc Copyright (C) 2001 Dan McGuirk <mcguirk@incompleteness.net>.
+ *  OSXvnc Copyright (C) 2002-3 Redstone Software osxvnc@redstonesoftware.com
  *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.
  *  All Rights Reserved.
  *
@@ -463,38 +463,25 @@ static void *listenerRun(void *ignore) {
         exit(1);
     }
 
-    if (fcntl(listen_fd, F_SETFL, O_NONBLOCK) < 0) {
-        rfbLog("Unable To Set NON_BLOCK for accept");
-    }
-
     len = sizeof(peer);
     rfbLog("Started Listener Thread on port %d\n", rfbPort);
 
     // This will block while wait for an accept
     while ((client_fd = accept(listen_fd, (struct sockaddr *)&peer, &len))) {
-        if (client_fd == -1) {
-            if (errno == EWOULDBLOCK) {
-                usleep(200000);
-            }
-            else
-                break;
-        }
-        else {
-            if (!rfbClientsConnected())
-                rfbCheckForScreenResolutionChange();
+        if (!rfbClientsConnected())
+            rfbCheckForScreenResolutionChange();
 
-            pthread_mutex_lock(&listenerAccepting);
-            if (rfbLocalBuffer && !rfbClientsConnected())
-                rfbLocalBufferSyncAll();
+        pthread_mutex_lock(&listenerAccepting);
+        if (rfbLocalBuffer && !rfbClientsConnected())
+            rfbLocalBufferSyncAll();
 
-            rfbUndim();
-            cl = rfbNewClient(client_fd);
+        rfbUndim();
+        cl = rfbNewClient(client_fd);
 
-            pthread_create(&client_thread, NULL, clientInput, (void *)cl);
+        pthread_create(&client_thread, NULL, clientInput, (void *)cl);
 
-            pthread_mutex_unlock(&listenerAccepting);
-            pthread_cond_signal(&listenerGotNewClient);
-        }
+        pthread_mutex_unlock(&listenerAccepting);
+        pthread_cond_signal(&listenerGotNewClient);
     }
 
     rfbLog("accept failed %d\n", errno);
@@ -534,7 +521,7 @@ static void rfbScreenInit(void) {
     }
     rfbServerFormat.bitsPerPixel = rfbScreen.bitsPerPixel;
     rfbServerFormat.depth = rfbScreen.depth;
-    rfbServerFormat.bigEndian = !(*(char *)&rfbEndianTest);
+    rfbServerFormat.bigEndian = !(rfbEndianTest);
     gethostname(rfbThisHost, 255);
 
     if ((rfbScreen.bitsPerPixel) == 8) {
@@ -708,8 +695,12 @@ static void processArguments(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-inhibitevents") == 0) {
             rfbInhibitEvents = TRUE;
         } else if (strcmp(argv[i], "-restartonuserswitch") == 0) {
-            if (i + 1 >= argc) usage();
-            restartOnUserSwitch = atoi(argv[++i]);
+            if (i + 1 >= argc) 
+                usage();
+            else {
+                char *argument = argv[++i];
+                restartOnUserSwitch = (argument[0] == 'y' || argument[0] == 'Y' || argument[0] == 't' || argument[0] == 'T' || atoi(argument));
+            }
         }
     }
 }
@@ -752,7 +743,12 @@ void daemonize( void ) {
     setsid();
 
     // Ignore signals here
-
+    signal(SIGHUP, SIG_IGN);
+    signal(SIGPIPE, SIG_IGN);
+    signal(SIGTERM, rfbShutdownOnSignal);
+    signal(SIGINT, rfbShutdownOnSignal);
+    signal(SIGQUIT, rfbShutdownOnSignal);
+    
     // Fork a second new process
     if ( fork( ) != 0 )
         exit( 0 );
@@ -782,6 +778,16 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, rfbShutdownOnSignal);
     signal(SIGQUIT, rfbShutdownOnSignal);
 
+    // This fix should in CGDirectDisplay.h
+#undef kCGDirectMainDisplay
+    
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_2
+#define kCGDirectMainDisplay ((CGDirectDisplayID)0)
+#warning Using Obsolete kCGDirectMainDisplay for backwards compatibility to 10.1
+#else
+#define kCGDirectMainDisplay CGMainDisplayID()
+#endif
+    
     displayID = kCGDirectMainDisplay;
 
     pthread_t listener_thread;
@@ -803,18 +809,25 @@ int main(int argc, char *argv[]) {
     rfbDimmingInit();
 
     // Register for User Switch Notification
+    // This works on non-Panther systems since the Notification just wont get called
     if (restartOnUserSwitch) {
-        /*
         [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:vncServerObject
                                                                selector:@selector(userSwitched:)
                                                                    name:@"NSWorkspaceSessionDidBecomeActiveNotification"
                                                                  object:nil];
-         */
         [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:vncServerObject
                                                                selector:@selector(userSwitched:)
                                                                    name:@"NSWorkspaceSessionDidResignActiveNotification"
                                                                  object:nil];
     }
+    
+    /* That's great that they #define it to use the new symbol that doesn't exist in older versions
+        better to just not even define it - but give a warning or something  */
+    // This should bin in CGRemoteOperationApi.h
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_3
+#undef CGSetLocalEventsFilterDuringSupressionState
+#warning Using Obsolete CGSetLocalEventsFilterDuringSupressionState for backwards compatibility to 10.2
+#endif
     
     // Does this need to be in 10.1 and greater (does any of this stuff work in 10.0?)
     if (!rfbInhibitEvents) {
