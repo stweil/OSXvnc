@@ -903,9 +903,6 @@ rfbSendFramebufferUpdate(cl, updateRegion)
     if (nUpdateRegionRects == 0xFFFF && !rfbSendLastRectMarker(cl))
         return FALSE;
 
-    // REDSTONE - Check to see about sending latest cut text
-    rfbCheckForPasteboardChange();
-        
     if (!rfbSendUpdateBuf(cl))
         return FALSE;
 
