@@ -14,7 +14,7 @@ VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnec
 # Modification Log:
 #
 # 1.5
-# Added -f option to log move so it won't hang started up (when run as authenticated/non-root user)
+# Added -f option to log move so it won't hang when started up (when run as authenticated/non-root user)
 #
 # 1.33
 # Added Resources directory with English.lproj for Localization lookup
