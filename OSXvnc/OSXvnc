@@ -2,7 +2,7 @@
 . /etc/rc.common
 
 #
-# Start OSXvnc Version 1.33
+# OSXvnc
 # 
 # The OSXvnc application will OVERWRITE this file if you ask it to Setup the Startup Item
 #

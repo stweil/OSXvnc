@@ -1,13 +1,14 @@
 #!/bin/sh 
 #
-# Start OSXvnc-keepalive Version 1.31
+# OSXvnc-keepalive 
+#
 # This little script, as you might imagine, will relaunch OSXvnc-server
 # when a user logs out and the OS kills the process (because it's running an event loop)
 # 
 # Modification Log:
 #
 # 1.33
-# Modified so that keepalive only shutsdown on unrecoverable errors
+# Modified so that keepalive only shuts down on unrecoverable errors
 #
 # 1.31
 # Modified so that OSXvnc can live in directories with spaces
