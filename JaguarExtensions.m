@@ -31,7 +31,7 @@ rfbserver *theServer;
 
     theServer = aServer;
 	
-    keyboardLoading = YES;
+    keyboardLoading = NO;
     argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-keyboardLoading"];
     if (argumentIndex != NSNotFound) {
         NSString *value = nil;
@@ -258,7 +258,7 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 	// Register For Rendezvous
     if (loadRendezvous) {
 		 service = [[NSNetService alloc] initWithDomain:@""
-												   type:@"_vnc._tcp." 
+												   type:@"_rfb._tcp." 
 												   name:[NSString stringWithCString:theServer->desktopName]
 												   port:(int) theServer->rfbPort];
 		[service setDelegate:[[RendezvousDelegate alloc] init]];		
