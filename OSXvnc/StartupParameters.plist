@@ -1,7 +1,8 @@
 {
   Description     = "VNC Server";
   Provides        = ("VNC");
-  Requires        = ("Core Graphics", "Resolver");
+  Requires        = ("Resolver");
+  Uses			  = ("Core Graphics");
   OrderPreference = "None";
   Messages =  {
 	restart = "Restarting OSXvnc server";
