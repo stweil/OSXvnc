@@ -177,13 +177,14 @@
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
+				ABD7FE7E07AFF8B4004D0B81,
 				ABCCC8B203D9C60A00A80117,
-				F55FDAB502FB44CE01A80117,
+				AB541C2907A0264F00B63668,
 				F5F3A78903B395AA01A80117,
 				F54B48D8038C32FA01A80117,
 				F570ED1002F9DA7601A80186,
-				F5753F450343ACD501A80186,
-				F5753F460343ACD501A80186,
+				AB541C3B07A0273500B63668,
+				AB541C2B07A0265E00B63668,
 				096B69DC0097995A7F000001,
 				F57BB467027E036F014B5D3F,
 				29B97318FDCFA39411CA2CEA,
@@ -197,6 +198,7 @@
 		29B97318FDCFA39411CA2CEA = {
 			children = (
 				29B97319FDCFA39411CA2CEA,
+				ABD7FEA607AFF92B004D0B81,
 			);
 			isa = PBXVariantGroup;
 			name = MainMenu.nib;
@@ -234,6 +236,7 @@
 				043355C9FE30361CC02AAC07,
 				F538E4AA02F9B5FB01A80186,
 				F5F3AB0F03B3CBA401A80117,
+				AB2A165007313D6B007E2408,
 			);
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -266,7 +269,7 @@
 	<key>CFBundleExecutable</key>
 	<string>OSXvnc</string>
 	<key>CFBundleGetInfoString</key>
-	<string>1.5Beta - Copyright © 2002-2004 Redstone Software </string>
+	<string>1.5 - Copyright © 2002-2005 Redstone Software </string>
 	<key>CFBundleIconFile</key>
 	<string>OSXvnc.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -278,17 +281,17 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.5Beta</string>
+	<string>1.5</string>
 	<key>CFBundleSignature</key>
 	<string>OSXv</string>
 	<key>CFBundleVersion</key>
-	<string>1.5Beta</string>
+	<string>1.5</string>
 	<key>NSAppleScriptEnabled</key>
 	<false/>
 	<key>NSHelpFile</key>
 	<string>OSXvnc.html</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2002-2004 Redstone Software</string>
+	<string>Copyright © 2002-2005 Redstone Software</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
@@ -314,14 +317,15 @@
 				080E96DCFE201CFB7F000001,
 				F57BB469027E036F014B5D3F,
 				F570ED1102F9DA7601A80186,
-				F5753F400343932D01A80186,
+				AB541C2A07A0264F00B63668,
 				F5753F410343991101A80186,
-				F5753F470343ACD501A80186,
-				F5753F480343ACD501A80186,
+				AB541C3C07A0273500B63668,
+				AB541C2C07A0265E00B63668,
 				F571340803C4C18D01A80186,
 				ABCCC8B703D9C60A00A80117,
 				AB15010E04F6A94500A80117,
 				ABFD5F69069C843E00721AF2,
+				ABD7FE8007AFF8B4004D0B81,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -430,6 +434,19 @@
 			isa = PBXBuildFile;
 			settings = {
 			};
+		};
+		AB2A165007313D6B007E2408 = {
+			buildActionMask = 8;
+			files = (
+			);
+			inputPaths = (
+			);
+			isa = PBXShellScriptBuildPhase;
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "hdiutil create -ov -srcfolder $INSTALL_DIR $INSTALL_DIR/../$PROJECT_NAME.dmg;\nhdiutil internet-enable $INSTALL_DIR/../$PROJECT_NAME.dmg";
 		};
 		AB3598E004BF8A3D00A80117 = {
 			buildActionMask = 2147483647;
@@ -592,6 +609,86 @@
 			settings = {
 			};
 		};
+		AB541C2907A0264F00B63668 = {
+			children = (
+				F55FDAB502FB44CE01A80117,
+				AB541C3E07A0276200B63668,
+			);
+			isa = PBXVariantGroup;
+			name = "Release Notes.rtf";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		AB541C2A07A0264F00B63668 = {
+			fileRef = AB541C2907A0264F00B63668;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB541C2B07A0265E00B63668 = {
+			children = (
+				F5753F460343ACD501A80186,
+				AB541C3007A0269F00B63668,
+			);
+			isa = PBXVariantGroup;
+			name = Readme.rtf;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		AB541C2C07A0265E00B63668 = {
+			fileRef = AB541C2B07A0265E00B63668;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB541C3007A0269F00B63668 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.rtf;
+			name = "Lisez Moi.rtf";
+			path = "French.lproj/Lisez Moi.rtf";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		AB541C3B07A0273500B63668 = {
+			children = (
+				F5753F450343ACD501A80186,
+				AB541C3D07A0273900B63668,
+			);
+			isa = PBXVariantGroup;
+			name = Copying.rtf;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		AB541C3C07A0273500B63668 = {
+			fileRef = AB541C3B07A0273500B63668;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB541C3D07A0273900B63668 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.rtf;
+			name = Licence.rtf;
+			path = French.lproj/Licence.rtf;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		AB541C3E07A0276200B63668 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.rtf;
+			name = "Notes de version.rtf";
+			path = "French.lproj/Notes de version.rtf";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		AB541C5B07A027AA00B63668 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.rtf;
+			name = French;
+			path = French.lproj/Credits.rtf;
+			refType = 4;
+			sourceTree = "<group>";
+		};
 		AB82E81904FA629800A80117 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
@@ -651,6 +748,39 @@
 			isa = PBXBuildFile;
 			settings = {
 			};
+		};
+		ABD7FE7E07AFF8B4004D0B81 = {
+			children = (
+				ABD7FE7F07AFF8B4004D0B81,
+			);
+			isa = PBXVariantGroup;
+			name = Localizable.strings;
+			path = "";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		ABD7FE7F07AFF8B4004D0B81 = {
+			fileEncoding = 30;
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
+			name = French;
+			path = French.lproj/Localizable.strings;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		ABD7FE8007AFF8B4004D0B81 = {
+			fileRef = ABD7FE7E07AFF8B4004D0B81;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		ABD7FEA607AFF92B004D0B81 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
+			name = French;
+			path = French.lproj/MainMenu.nib;
+			refType = 4;
+			sourceTree = "<group>";
 		};
 		ABD8EAFF0588D4AB00C84739 = {
 			containerPortal = 29B97313FDCFA39411CA2CEA;
@@ -2947,6 +3077,7 @@
 			fileEncoding = 30;
 			isa = PBXFileReference;
 			lastKnownFileType = sourcecode.c.c;
+			lineEnding = 0;
 			path = rfbserver.c;
 			refType = 4;
 			sourceTree = "<group>";
@@ -3122,7 +3253,8 @@
 		F55FDAB502FB44CE01A80117 = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.rtf;
-			path = "Release Notes.rtf";
+			name = English;
+			path = "English.lproj/Release Notes.rtf";
 			refType = 4;
 			sourceTree = "<group>";
 		};
@@ -3145,12 +3277,6 @@
 			settings = {
 			};
 		};
-		F5753F400343932D01A80186 = {
-			fileRef = F55FDAB502FB44CE01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		F5753F410343991101A80186 = {
 			fileRef = 096B69DC0097995A7F000001;
 			isa = PBXBuildFile;
@@ -3160,32 +3286,23 @@
 		F5753F450343ACD501A80186 = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.rtf;
-			path = Copying.rtf;
+			name = English;
+			path = English.lproj/Copying.rtf;
 			refType = 4;
 			sourceTree = "<group>";
 		};
 		F5753F460343ACD501A80186 = {
 			isa = PBXFileReference;
 			lastKnownFileType = text.rtf;
-			path = Readme.rtf;
+			name = English;
+			path = English.lproj/Readme.rtf;
 			refType = 4;
 			sourceTree = "<group>";
-		};
-		F5753F470343ACD501A80186 = {
-			fileRef = F5753F450343ACD501A80186;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5753F480343ACD501A80186 = {
-			fileRef = F5753F460343ACD501A80186;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		F57BB467027E036F014B5D3F = {
 			children = (
 				F57BB468027E036F014B5D3F,
+				AB541C5B07A027AA00B63668,
 			);
 			isa = PBXVariantGroup;
 			name = Credits.rtf;
