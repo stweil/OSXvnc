@@ -215,7 +215,7 @@ static void rfbShutdownOnSignal(int signal) {
     if (userStopped)
         [statusMessageField setStringValue:@"The server is stopped."];
     else if ([controller terminationStatus]) {
-        /* GRRRR- it's not working
+        /* GRRRR- it's not working trying to read any error or exit message from server process
         NSString *outputPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"server.txt"];
         NSData *lastOutput;
         int offset;
