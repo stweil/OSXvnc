@@ -243,13 +243,14 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
         unsigned int alphaShift = 8 - cursorBitsPerComponent;
         unsigned char mask = 0;
         unsigned char fullOn = 0x00FF >> alphaShift;
+        unsigned char alphaThreshold = 0x60 >> alphaShift; // Only include the pixel if it's coverage is greater than this
         int dataX, dataY, componentIndex;
 
         for (dataY = 0; dataY < cursorRect.size.height; dataY++) {
             cursorColumnData = cursorRowData;
             for (dataX = 0; dataX < cursorRect.size.width; dataX++) {
                 mask = (unsigned char)(*cursorColumnData) >> alphaShift;
-                if (mask != 0) {
+                if (mask > alphaThreshold) {
                     // Write the Bit For The Mask to be ON
                     cl->updateBuf[bufferMaskOffset+(dataX/8)] |= 0x0080 >> (dataX % 8);
                     // Composite Alpha into real cursors other channels - only for 32 bit
