@@ -45,7 +45,7 @@
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <netinet/tcp.h>
+//#include <netinet/tcp.h> -- This conflicts with Carbon
 #include <netdb.h>
 #include <fcntl.h>
 #include <errno.h>
