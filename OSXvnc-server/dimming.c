@@ -6,6 +6,8 @@
 
 #include "rfb.h"
 
+#include <Carbon/Carbon.h>
+
 Bool rfbNoDimming = FALSE;
 Bool rfbNoSleep   = TRUE;
 
@@ -17,6 +19,15 @@ static io_connect_t     power_mgt;
 static Bool initialized            = FALSE;
 static Bool dim_time_saved         = FALSE;
 static Bool sleep_time_saved       = FALSE;
+
+// OSXvnc 0.8 - Disable ScreenSaver
+void rfbScreensaverTimer(EventLoopTimerRef timer, void *userData)
+{
+#pragma unused (timer, userData)
+    if (rfbNoSleep && rfbClientsConnected())
+        UpdateSystemActivity(IdleActivity);
+}
+
 
 static int
 saveDimSettings(void)

@@ -21,11 +21,13 @@
     IBOutlet NSButton *allowSleepCheckbox;
     IBOutlet NSButton *startServerOnLaunchCheckbox;
 
-    IBOutlet NSMenuItem *hideOrShowWindowMenuItem;
+    IBOutlet NSButton *showMouseButton;
+
     IBOutlet NSMatrix *sharingMatrix;
     IBOutlet NSButton *dontDisconnectCheckbox;
     IBOutlet NSButton *swapMouseButtonsCheckbox;
     IBOutlet NSButton *disableRemoteEventsCheckbox;
+    IBOutlet NSButton *limitToLocalConnections;
     
     IBOutlet NSTextField *statusMessageField;
     IBOutlet NSButton *startServerButton;
@@ -37,11 +39,13 @@
     BOOL alwaysShared;
     BOOL neverShared;
     BOOL userStopped;
+    BOOL relaunchServer;
 
     NSTask *controller;
     NSFileHandle *serverOutput;
 
     NSString *passwordFile;
+    NSString *logFile;
 }
 
 - init;
@@ -60,19 +64,15 @@
 - (IBAction) changePort: sender;
 - (IBAction) changeSharing: sender;
 - (IBAction) changePassword: sender;
+- (IBAction) optionChanged: sender;
 
-- (void) disableEverything;
-- (void) enableEverything;
-- (void) showWindow;
-- (void) hideWindow;
-- (IBAction) hideOrShowWindow: sender;
-
-- (BOOL) windowShouldClose: sender;
+- (void) checkForRestart;
 
 - (void) applicationWillTerminate: (NSNotification *) notification;
 
 - (BOOL) validateMenuItem: (NSMenuItem *) menuItem ;
 
+- (IBAction) openLog:(id) sender;
 - (IBAction) openFile:(id) sender;
 
 

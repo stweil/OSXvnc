@@ -69,7 +69,7 @@ typedef struct _PixmapFormat {
     
 typedef struct _Visual {
     VisualID            vid;
-    short               class;
+    short               clazz;
     short               bitsPerRGBValue;
     short               ColormapEntries;
     short               nplanes;/* = log2 (ColormapEntries). This does not

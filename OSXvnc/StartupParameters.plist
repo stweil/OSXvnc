@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist SYSTEM "file://localhost/System/Library/DTDs/PropertyList.dtd">
+<plist version="0.9">
+<dict>
+	<key>Description</key>
+	<string>OSXvnc Server</string>
+	<key>Messages</key>
+	<dict>
+		<key>start</key>
+		<string>Starting OSXvnc Server</string>
+		<key>stop</key>
+		<string>Stopping OSXvnc Server</string>
+	</dict>
+	<key>OrderPreference</key>
+	<string>None</string>
+	<key>Provides</key>
+	<array>
+		<string>VNC</string>
+	</array>
+	<key>Requires</key>
+	<array>
+		<string>Resolver</string>
+	</array>
+</dict>
+</plist>

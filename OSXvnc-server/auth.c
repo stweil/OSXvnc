@@ -49,7 +49,7 @@ rfbAuthNewClient(cl)
 
     cl->state = RFB_AUTHENTICATION;
 
-    if (rfbAuthPasswdFile && !cl->reverseConnection) {
+    if (rfbAuthPasswdFile && !cl->reverseConnection && (vncDecryptPasswdFromFile(rfbAuthPasswdFile) != NULL)) {
 
         *(CARD32 *)buf = Swap32IfLE(rfbVncAuth);
         vncRandomBytes(cl->authChallenge);

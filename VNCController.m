@@ -26,6 +26,10 @@
  */
 
 
+// Run a panel to authenticate for root privs.... but how...
+
+// try CoreTechnologies/securityservices/authorizationservices is a directory in /Developer/Documentation says Doug
+
 #import "VNCController.h"
 
 #import "OSXvnc-server/libvncauth/vncauth.h"
@@ -49,12 +53,13 @@ static void rfbShutdownOnSignal(int signal) {
 
     userStopped = FALSE;
 
-    signal(SIGTERM, rfbShutdownOnSignal);
-    signal(SIGINT, rfbShutdownOnSignal);
     signal(SIGHUP, rfbShutdownOnSignal);
+    signal(SIGINT, rfbShutdownOnSignal);
     signal(SIGQUIT, rfbShutdownOnSignal);
     signal(SIGBUS, rfbShutdownOnSignal);
     signal(SIGSEGV, rfbShutdownOnSignal);
+    signal(SIGTERM, rfbShutdownOnSignal);
+    signal(SIGTSTP, rfbShutdownOnSignal);
     
     return self;
 }
@@ -62,8 +67,9 @@ static void rfbShutdownOnSignal(int signal) {
 - (void) awakeFromNib {
     // This should keep it in the bundle, a little less conspicuous
     passwordFile = [[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@".osxvncauth"] retain];
+    logFile = [[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server.log"] retain];
 
-    [[NSFileManager defaultManager] removeFileAtPath:passwordFile handler:nil];
+    //[[NSFileManager defaultManager] removeFileAtPath:passwordFile handler:nil];
     [displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
     
     [self loadUserDefaults: self];
@@ -72,8 +78,6 @@ static void rfbShutdownOnSignal(int signal) {
 
     if ([startServerOnLaunchCheckbox state])
         [self startServer: self];
-    
-    [self showWindow]; 
 
     [displayNumberField selectItemAtIndex:displayNumber];
     [portField setIntValue:port];
@@ -81,10 +85,10 @@ static void rfbShutdownOnSignal(int signal) {
 
 // This is sent when the server's screen params change, the server can't handle this right now so we'll restart
 - (void)applicationDidChangeScreenParameters:(NSNotification *)aNotification {
-    [statusMessageField setStringValue:@"Screen Resolution changed - restarting server."];
+    [statusMessageField setStringValue:@"Screen Resolution changed - reinitializing server"];
 
-    [self stopServer: self];
-    [self startServer: self];
+    //[self stopServer: self];
+    //[self startServer: self];
 }
 
 - (void) loadUserDefaults: sender {
@@ -100,7 +104,7 @@ static void rfbShutdownOnSignal(int signal) {
 
     if ([vncauth length]) {
         [vncauth writeToFile:passwordFile atomically:YES];
-        [passwordField setStringValue:@"XXXXXXXX"];
+        [passwordField setStringValue:@"********"];
     }
 
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"desktopName"])
@@ -126,6 +130,12 @@ static void rfbShutdownOnSignal(int signal) {
 
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"disableRemoteEvents"])
         [disableRemoteEventsCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"disableRemoteEvents"]];
+
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"showMouse"])
+        [showMouseButton setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"showMouse"]];
+
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"localhostOnly"])
+        [limitToLocalConnections setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnly"]];
 }
 
 - (void) saveUserDefaults: sender {
@@ -153,27 +163,38 @@ static void rfbShutdownOnSignal(int signal) {
 
     [[NSUserDefaults standardUserDefaults] setBool:[disableRemoteEventsCheckbox state] forKey:@"disableRemoteEvents"];
 
+    [[NSUserDefaults standardUserDefaults] setBool:[showMouseButton state] forKey:@"showMouse"];
+
+    [[NSUserDefaults standardUserDefaults] setBool:[limitToLocalConnections state] forKey:@"localhostOnly"];
+
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (void) startServer: sender {
     id argv;
 
+    if (controller) {
+        // Set to relaunch and then try to shut-down
+        relaunchServer = TRUE;
+        [self stopServer: self];
+        return;
+    }
+    
     if (![window makeFirstResponder:window])
         [window endEditingFor:nil];
 
     if (argv = [self formCommandLine]) {
-        NSString *executionPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"OSXvnc-server"];
-        NSString *outputPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"server.txt"];
+        NSString *executionPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server"];
+        
+        [[NSFileManager defaultManager] removeFileAtPath:logFile handler:nil];
+        [[NSFileManager defaultManager] createFileAtPath:logFile contents:nil attributes:nil];
+        serverOutput = [[NSFileHandle fileHandleForWritingAtPath:logFile] retain];
 
-        [[NSFileManager defaultManager] removeFileAtPath:outputPath handler:nil];
-        [[NSFileManager defaultManager] createFileAtPath:outputPath contents:nil attributes:nil];
         controller = [[NSTask alloc] init];
-        //serverOutput = [NSFileHandle fileHandleForUpdatingAtPath:outputPath];
         [controller setLaunchPath:executionPath];
         [controller setArguments:argv];
-        //[controller setStandardOutput:[NSFileHandle fileHandleForUpdatingAtPath:outputPath]];
-        [controller setStandardError:[NSFileHandle fileHandleForUpdatingAtPath:outputPath]];
+        [controller setStandardOutput:serverOutput];
+        [controller setStandardError:serverOutput];
         [controller launch];
 
         [[NSNotificationCenter defaultCenter] addObserver: self
@@ -183,10 +204,9 @@ static void rfbShutdownOnSignal(int signal) {
         [statusMessageField setStringValue:@"Server Running"];
         [startServerButton setEnabled:FALSE];
         [stopServerButton setEnabled:TRUE];
+        [startServerButton setKeyEquivalent:@""];
+        [stopServerButton setKeyEquivalent:@"\r"];
         userStopped = FALSE;
-
-        // Make it clear that changing options while the server is running is not going to do anything.
-        [self disableEverything];
     }
 }
 
@@ -205,39 +225,34 @@ static void rfbShutdownOnSignal(int signal) {
                                                     name: NSTaskDidTerminateNotification
                                                   object: controller];
 
+    // If we don't get the notification soon enough, we may have already restarted
+    if ([controller isRunning]) {
+        return;
+    }
+
+    [startServerButton setTitle:@"Start Server"];
     [startServerButton setEnabled:TRUE];
     [stopServerButton setEnabled:FALSE];
-
-    [self enableEverything];
-
-    
+    [stopServerButton setKeyEquivalent:@""];
+    [startServerButton setKeyEquivalent:@"\r"];
     
     if (userStopped)
         [statusMessageField setStringValue:@"The server is stopped."];
     else if ([controller terminationStatus]) {
-        /* GRRRR- it's not working trying to read any error or exit message from server process
-        NSString *outputPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"server.txt"];
-        NSData *lastOutput;
-        int offset;
-
-        serverOutput = [NSFileHandle fileHandleForUpdatingAtPath:outputPath];
-        [serverOutput seekToEndOfFile];
-        offset = MAX(0, [serverOutput offsetInFile] - 200);
-        [serverOutput seekToFileOffset:offset];
-        lastOutput = [serverOutput readDataToEndOfFile];
-
-        [serverOutput closeFile];
-        */
-        [statusMessageField setStringValue:[NSString stringWithFormat:@"The server has stopped running: (%d)\n", [controller terminationStatus]]];
+        [statusMessageField setStringValue:[NSString stringWithFormat:@"The server has stopped running. See Log (%d)\n", [controller terminationStatus]]];
     }
     else
         [statusMessageField setStringValue:@"The server has stopped running"];
 
-    
     [controller release];
-    [serverOutput release];
     controller = nil;
+    [serverOutput release];
     serverOutput = nil;
+
+    if (relaunchServer) {
+        relaunchServer = NO;
+        [self startServer:self];
+    }
 }
 
 - (NSArray *) formCommandLine {
@@ -265,19 +280,29 @@ static void rfbShutdownOnSignal(int signal) {
         [argv addObject:@"-nodimming"];
     if ([allowSleepCheckbox state])
         [argv addObject:@"-allowsleep"];
+    if ([showMouseButton state])
+        [argv addObject:@"-rfbLocalBuffer"];
 
     if ([swapMouseButtonsCheckbox state])
         [argv addObject:@"-swapButtons"];
     if ([disableRemoteEventsCheckbox state])
         [argv addObject:@"-disableRemoteEvents"];
+    if ([limitToLocalConnections state])
+        [argv addObject:@"-localhost"];
 
     if ([[NSFileManager defaultManager] fileExistsAtPath:passwordFile]) {
         [argv addObject:@"-rfbauth"];
         [argv addObject:passwordFile];
     }
+
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"rfbDeferUpdateTime"]) {
+        [argv addObject:@"-deferupdate"];
+        [argv addObject:[[NSUserDefaults standardUserDefaults] stringForKey:@"rfbDeferUpdateTime"]];
+    }
     
     return argv;
 }
+
 
 - (void) changeDisplayNumber: sender {
     displayNumber = [displayNumberField indexOfSelectedItem];
@@ -287,7 +312,10 @@ static void rfbShutdownOnSignal(int signal) {
         [portField setIntValue:port];
     }
 
-    [self saveUserDefaults: self];
+    if (sender != self) {
+        [self saveUserDefaults: self];
+        [self checkForRestart];
+    }
 }
 
 - (void) changePort: sender {
@@ -298,8 +326,10 @@ static void rfbShutdownOnSignal(int signal) {
     }
     [displayNumberField selectItemAtIndex:displayNumber];
 
-    if (sender != self)
+    if (sender != self) {
         [self saveUserDefaults: self];
+        [self checkForRestart];
+    }
 }
 
 - (void) changeSharing: sender {
@@ -321,8 +351,10 @@ static void rfbShutdownOnSignal(int signal) {
         [dontDisconnectCheckbox setEnabled:YES];
     }
 
-    if (sender != self)
+    if (sender != self) {
         [self saveUserDefaults: self];
+        [self checkForRestart];
+    }
 }
 
 - (void) changePassword: sender {
@@ -335,35 +367,28 @@ static void rfbShutdownOnSignal(int signal) {
         }
     }
 
-    [self saveUserDefaults: self];
-}
-
-- (void) disableEverything {
-    [displayNumberField setEnabled:FALSE];
-    [portField setEnabled:FALSE];
-    [passwordField setEnabled:FALSE];
-    [displayNameField setEnabled:FALSE];
-    [sharingMatrix setEnabled:FALSE];
-    [dontDisconnectCheckbox setEnabled:FALSE];
-    [allowDimmingCheckbox setEnabled:FALSE];
-    [allowSleepCheckbox setEnabled:FALSE];
-    [disableRemoteEventsCheckbox setEnabled:FALSE];
-    [swapMouseButtonsCheckbox setEnabled:FALSE];
-}
-
-- (void) enableEverything {
-    [displayNumberField setEnabled:TRUE];
-    [portField setEnabled:TRUE];
-    [passwordField setEnabled:TRUE];
-    [displayNameField setEnabled:TRUE];
-    [sharingMatrix setEnabled:TRUE];
-    if (!alwaysShared) {
-        [dontDisconnectCheckbox setEnabled:TRUE];
+    if (sender != self) {
+        [self saveUserDefaults: self];
+        [self checkForRestart];
     }
-    [allowDimmingCheckbox setEnabled:TRUE];
-    [allowSleepCheckbox setEnabled:TRUE];
-    [disableRemoteEventsCheckbox setEnabled:TRUE];
-    [swapMouseButtonsCheckbox setEnabled:TRUE];
+}
+
+- (IBAction) optionChanged: sender {
+    if (sender != self) {
+        [self saveUserDefaults: sender];
+        [self checkForRestart];
+    }
+}
+
+- (void) checkForRestart {
+    if (controller) {
+        [statusMessageField setStringValue:@"Server Running -\n   Option Change Requires a Restart"];
+
+        [startServerButton setTitle:@"Restart Server"];
+        [startServerButton setEnabled:TRUE];
+        [stopServerButton setKeyEquivalent:@""];
+        [startServerButton setKeyEquivalent:@"\r"];
+    }
 }
 
 - (void) applicationWillTerminate: (NSNotification *) notification {
@@ -371,30 +396,6 @@ static void rfbShutdownOnSignal(int signal) {
     [window endEditingFor: nil];
 
     [self saveUserDefaults:self];
-}
-
-- (void) showWindow {
-    [hideOrShowWindowMenuItem setTitle:@"Hide Window"];
-    [window makeKeyAndOrderFront: self];
-}
-
-- (void) hideWindow {
-    [hideOrShowWindowMenuItem setTitle:@"Show Window"];
-    [window orderOut: self];
-}
-
-- (void) hideOrShowWindow: sender {
-    // Make the window visible.
-    if (![window isVisible])
-        [self showWindow];
-    else
-        [self hideWindow];
-}
-
-// Make the window not visible, but don't actually close it.
-- (BOOL) windowShouldClose: sender {
-    [self hideWindow];
-    return FALSE;
 }
 
 - (BOOL) validateMenuItem: (NSMenuItem *) menuItem {
@@ -408,6 +409,10 @@ static void rfbShutdownOnSignal(int signal) {
     }
 
     return TRUE;
+}
+
+- (IBAction) openLog:(id) sender {
+    [[NSWorkspace sharedWorkspace] openFile:logFile];
 }
 
 - (IBAction) openFile:(id) sender {
@@ -426,25 +431,11 @@ static void rfbShutdownOnSignal(int signal) {
     [[NSWorkspace sharedWorkspace] openFile:openPath];
 }
 
-- (IBAction) startAsService: sender {
-    [self writeStartupScriptToPath: ];
-
-    // Authenticate
-
-    // Write SYM link
-    
-}
-
-- (IBAction) removeAsServer: sender {
-    
-}
-
-- writeStartupScript {
-
-}
-
 - (void) dealloc {
     [passwordFile release];
+    [logFile release];
+
+    [super dealloc];
 }
 
 @end

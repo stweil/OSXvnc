@@ -6,6 +6,8 @@
  */
 
 /*
+ *  Copyright (C) 2002 RealVNC Ltd.
+ *  Copyright (C) 1999 AT&T Laboratories Cambridge.  All Rights Reserved.
  *  OSXvnc Copyright (C) 2001 Dan McGuirk <mcguirk@incompleteness.net>.
  *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.  
  *  All Rights Reserved.
@@ -49,7 +51,7 @@ static int subrectEncode16(CARD16 *data, int w, int h);
 static int subrectEncode32(CARD32 *data, int w, int h);
 static CARD32 getBgColour(char *data, int size, int bpp);
 static Bool rfbSendSmallRectEncodingCoRRE(rfbClientPtr cl, int x, int y,
-                                          int w, int h);
+					  int w, int h);
 
 
 /*
@@ -63,15 +65,15 @@ rfbSendRectEncodingCoRRE(cl, x, y, w, h)
     int x, y, w, h;
 {
     if (h > cl->correMaxHeight) {
-        return (rfbSendRectEncodingCoRRE(cl, x, y, w, cl->correMaxHeight) &&
-                rfbSendRectEncodingCoRRE(cl, x, y + cl->correMaxHeight,
-                                         w, h - cl->correMaxHeight));
+      return (rfbSendRectEncodingCoRRE(cl, x, y, w, cl->correMaxHeight) &&
+              rfbSendRectEncodingCoRRE(cl, x, y + cl->correMaxHeight, w,
+                                       h - cl->correMaxHeight));
     }
 
     if (w > cl->correMaxWidth) {
-        return (rfbSendRectEncodingCoRRE(cl, x, y, cl->correMaxWidth, h) &&
-                rfbSendRectEncodingCoRRE(cl, x + cl->correMaxWidth, y,
-                                         w - cl->correMaxWidth, h));
+      return (rfbSendRectEncodingCoRRE(cl, x, y, cl->correMaxWidth, h) &&
+              rfbSendRectEncodingCoRRE(cl, x + cl->correMaxWidth, y,
+                                       w - cl->correMaxWidth, h));
     }
 
     return rfbSendSmallRectEncodingCoRRE(cl, x, y, w, h);
@@ -97,59 +99,59 @@ rfbSendSmallRectEncodingCoRRE(cl, x, y, w, h)
                    + (x * (rfbScreen.bitsPerPixel / 8)));
 
     int maxRawSize = (rfbScreen.width * rfbScreen.height
-                      * (cl->format.bitsPerPixel / 8));
+		      * (cl->format.bitsPerPixel / 8));
 
     if (rreBeforeBufSize < maxRawSize) {
-        rreBeforeBufSize = maxRawSize;
-        if (rreBeforeBuf == NULL)
-            rreBeforeBuf = (char *)xalloc(rreBeforeBufSize);
-        else
-            rreBeforeBuf = (char *)xrealloc(rreBeforeBuf, rreBeforeBufSize);
+	rreBeforeBufSize = maxRawSize;
+	if (rreBeforeBuf == NULL)
+	    rreBeforeBuf = (char *)xalloc(rreBeforeBufSize);
+	else
+	    rreBeforeBuf = (char *)xrealloc(rreBeforeBuf, rreBeforeBufSize);
     }
 
     if (rreAfterBufSize < maxRawSize) {
-        rreAfterBufSize = maxRawSize;
-        if (rreAfterBuf == NULL)
-            rreAfterBuf = (char *)xalloc(rreAfterBufSize);
-        else
-            rreAfterBuf = (char *)xrealloc(rreAfterBuf, rreAfterBufSize);
+	rreAfterBufSize = maxRawSize;
+	if (rreAfterBuf == NULL)
+	    rreAfterBuf = (char *)xalloc(rreAfterBufSize);
+	else
+	    rreAfterBuf = (char *)xrealloc(rreAfterBuf, rreAfterBufSize);
     }
 
     (*cl->translateFn)(cl->translateLookupTable, &rfbServerFormat,
-                       &cl->format, fbptr, rreBeforeBuf,
-                       rfbScreen.paddedWidthInBytes, w, h);
+		       &cl->format, fbptr, rreBeforeBuf,
+		       rfbScreen.paddedWidthInBytes, w, h);
 
     switch (cl->format.bitsPerPixel) {
     case 8:
-        nSubrects = subrectEncode8((CARD8 *)rreBeforeBuf, w, h);
-        break;
+	nSubrects = subrectEncode8((CARD8 *)rreBeforeBuf, w, h);
+	break;
     case 16:
-        nSubrects = subrectEncode16((CARD16 *)rreBeforeBuf, w, h);
-        break;
+	nSubrects = subrectEncode16((CARD16 *)rreBeforeBuf, w, h);
+	break;
     case 32:
-        nSubrects = subrectEncode32((CARD32 *)rreBeforeBuf, w, h);
-        break;
+	nSubrects = subrectEncode32((CARD32 *)rreBeforeBuf, w, h);
+	break;
     default:
-        rfbLog("getBgColour: bpp %d?\n",cl->format.bitsPerPixel);
-        exit(1);
+	rfbLog("getBgColour: bpp %d?\n",cl->format.bitsPerPixel);
+	exit(1);
     }
-        
+	
     if (nSubrects < 0) {
 
-        /* RRE encoding was too large, use raw */
+	/* RRE encoding was too large, use raw */
 
-        return rfbSendRectEncodingRaw(cl, x, y, w, h);
+	return rfbSendRectEncodingRaw(cl, x, y, w, h);
     }
 
     cl->rfbRectanglesSent[rfbEncodingCoRRE]++;
     cl->rfbBytesSent[rfbEncodingCoRRE] += (sz_rfbFramebufferUpdateRectHeader
-                                           + sz_rfbRREHeader + rreAfterBufLen);
+					   + sz_rfbRREHeader + rreAfterBufLen);
 
     if (cl->ublen + sz_rfbFramebufferUpdateRectHeader + sz_rfbRREHeader
         > UPDATE_BUF_SIZE)
     {
-        if (!rfbSendUpdateBuf(cl))
-            return FALSE;
+	if (!rfbSendUpdateBuf(cl))
+	    return FALSE;
     }
 
     rect.r.x = Swap16IfLE(x);
@@ -171,9 +173,9 @@ rfbSendSmallRectEncodingCoRRE(cl, x, y, w, h)
 
         int bytesToCopy = UPDATE_BUF_SIZE - cl->ublen;
 
-        if (i + bytesToCopy > rreAfterBufLen) {
-            bytesToCopy = rreAfterBufLen - i;
-        }
+	if (i + bytesToCopy > rreAfterBufLen) {
+	    bytesToCopy = rreAfterBufLen - i;
+	}
 
         memcpy(&cl->updateBuf[cl->ublen], &rreAfterBuf[i], bytesToCopy);
 
@@ -204,97 +206,97 @@ rfbSendSmallRectEncodingCoRRE(cl, x, y, w, h)
  * <subrect> is [<colour><x><y><w><h>].
  */
 
-#define DEFINE_SUBRECT_ENCODE(bpp)                                            \
-static int                                                                    \
-subrectEncode##bpp(data,w,h)                                                  \
-    CARD##bpp *data;                                                          \
-    int w;                                                                    \
-    int h;                                                                    \
-{                                                                             \
-    CARD##bpp cl;                                                             \
-    rfbCoRRERectangle subrect;                                                \
-    int x,y;                                                                  \
-    int i,j;                                                                  \
-    int hx=0,hy,vx=0,vy;                                                      \
-    int hyflag;                                                               \
-    CARD##bpp *seg;                                                           \
-    CARD##bpp *line;                                                          \
-    int hw,hh,vw,vh;                                                          \
-    int thex,they,thew,theh;                                                  \
-    int numsubs = 0;                                                          \
-    int newLen;                                                               \
-    CARD##bpp bg = (CARD##bpp)getBgColour((char*)data,w*h,bpp);               \
-                                                                              \
-    *((CARD##bpp*)rreAfterBuf) = bg;                                          \
-                                                                              \
-    rreAfterBufLen = (bpp/8);                                                 \
-                                                                              \
-    for (y=0; y<h; y++) {                                                     \
-      line = data+(y*w);                                                      \
-      for (x=0; x<w; x++) {                                                   \
-        if (line[x] != bg) {                                                  \
-          cl = line[x];                                                       \
-          hy = y-1;                                                           \
-          hyflag = 1;                                                         \
-          for (j=y; j<h; j++) {                                               \
-            seg = data+(j*w);                                                 \
-            if (seg[x] != cl) {break;}                                        \
-            i = x;                                                            \
-            while ((seg[i] == cl) && (i < w)) i += 1;                         \
-            i -= 1;                                                           \
-            if (j == y) vx = hx = i;                                          \
-            if (i < vx) vx = i;                                               \
+#define DEFINE_SUBRECT_ENCODE(bpp)					      \
+static int								      \
+subrectEncode##bpp(data,w,h)						      \
+    CARD##bpp *data;							      \
+    int w;								      \
+    int h;								      \
+{									      \
+    CARD##bpp cl;							      \
+    rfbCoRRERectangle subrect;						      \
+    int x,y;								      \
+    int i,j;								      \
+    int hx=0,hy,vx=0,vy;						      \
+    int hyflag;								      \
+    CARD##bpp *seg;							      \
+    CARD##bpp *line;							      \
+    int hw,hh,vw,vh;							      \
+    int thex,they,thew,theh;						      \
+    int numsubs = 0;							      \
+    int newLen;								      \
+    CARD##bpp bg = (CARD##bpp)getBgColour((char*)data,w*h,bpp);		      \
+									      \
+    *((CARD##bpp*)rreAfterBuf) = bg;					      \
+									      \
+    rreAfterBufLen = (bpp/8);						      \
+									      \
+    for (y=0; y<h; y++) {						      \
+      line = data+(y*w);						      \
+      for (x=0; x<w; x++) {						      \
+        if (line[x] != bg) {						      \
+          cl = line[x];							      \
+          hy = y-1;							      \
+          hyflag = 1;							      \
+          for (j=y; j<h; j++) {						      \
+            seg = data+(j*w);						      \
+            if (seg[x] != cl) {break;}					      \
+            i = x;							      \
+            while ((seg[i] == cl) && (i < w)) i += 1;			      \
+            i -= 1;							      \
+            if (j == y) vx = hx = i;					      \
+            if (i < vx) vx = i;						      \
             if ((hyflag > 0) && (i >= hx)) {hy += 1;} else {hyflag = 0;}      \
-          }                                                                   \
-          vy = j-1;                                                           \
-                                                                              \
+          }								      \
+          vy = j-1;							      \
+									      \
           /*  We now have two possible subrects: (x,y,hx,hy) and (x,y,vx,vy)  \
-           *  We'll choose the bigger of the two.                             \
-           */                                                                 \
-          hw = hx-x+1;                                                        \
-          hh = hy-y+1;                                                        \
-          vw = vx-x+1;                                                        \
-          vh = vy-y+1;                                                        \
-                                                                              \
-          thex = x;                                                           \
-          they = y;                                                           \
-                                                                              \
-          if ((hw*hh) > (vw*vh)) {                                            \
-            thew = hw;                                                        \
-            theh = hh;                                                        \
-          } else {                                                            \
-            thew = vw;                                                        \
-            theh = vh;                                                        \
-          }                                                                   \
-                                                                              \
-          subrect.x = thex;                                                   \
-          subrect.y = they;                                                   \
-          subrect.w = thew;                                                   \
-          subrect.h = theh;                                                   \
-                                                                              \
-          newLen = rreAfterBufLen + (bpp/8) + sz_rfbCoRRERectangle;           \
+           *  We'll choose the bigger of the two.			      \
+           */								      \
+          hw = hx-x+1;							      \
+          hh = hy-y+1;							      \
+          vw = vx-x+1;							      \
+          vh = vy-y+1;							      \
+									      \
+          thex = x;							      \
+          they = y;							      \
+									      \
+          if ((hw*hh) > (vw*vh)) {					      \
+            thew = hw;							      \
+            theh = hh;							      \
+          } else {							      \
+            thew = vw;							      \
+            theh = vh;							      \
+          }								      \
+									      \
+          subrect.x = thex;						      \
+          subrect.y = they;						      \
+          subrect.w = thew;						      \
+          subrect.h = theh;						      \
+									      \
+	  newLen = rreAfterBufLen + (bpp/8) + sz_rfbCoRRERectangle;	      \
           if ((newLen > (w * h * (bpp/8))) || (newLen > rreAfterBufSize))     \
-            return -1;                                                        \
-                                                                              \
-          numsubs += 1;                                                       \
-          *((CARD##bpp*)(rreAfterBuf + rreAfterBufLen)) = cl;                 \
-          rreAfterBufLen += (bpp/8);                                          \
-          memcpy(&rreAfterBuf[rreAfterBufLen],&subrect,sz_rfbCoRRERectangle); \
-          rreAfterBufLen += sz_rfbCoRRERectangle;                             \
-                                                                              \
-          /*                                                                  \
-           * Now mark the subrect as done.                                    \
-           */                                                                 \
-          for (j=they; j < (they+theh); j++) {                                \
-            for (i=thex; i < (thex+thew); i++) {                              \
-              data[j*w+i] = bg;                                               \
-            }                                                                 \
-          }                                                                   \
-        }                                                                     \
-      }                                                                       \
-    }                                                                         \
-                                                                              \
-    return numsubs;                                                           \
+	    return -1;							      \
+									      \
+	  numsubs += 1;							      \
+	  *((CARD##bpp*)(rreAfterBuf + rreAfterBufLen)) = cl;		      \
+	  rreAfterBufLen += (bpp/8);					      \
+	  memcpy(&rreAfterBuf[rreAfterBufLen],&subrect,sz_rfbCoRRERectangle); \
+	  rreAfterBufLen += sz_rfbCoRRERectangle;			      \
+									      \
+          /*								      \
+           * Now mark the subrect as done.				      \
+           */								      \
+          for (j=they; j < (they+theh); j++) {				      \
+            for (i=thex; i < (thex+thew); i++) {			      \
+              data[j*w+i] = bg;						      \
+            }								      \
+          }								      \
+        }								      \
+      }									      \
+    }									      \
+									      \
+    return numsubs;							      \
 }
 
 DEFINE_SUBRECT_ENCODE(8)

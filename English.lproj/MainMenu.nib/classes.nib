@@ -1,15 +1,21 @@
 {
     IBClasses = (
-        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {optionChanged = id; }; 
+            CLASS = FirstResponder; 
+            LANGUAGE = ObjC; 
+            SUPERCLASS = NSObject; 
+        }, 
         {
             ACTIONS = {
                 changeDisplayNumber = id; 
                 changePassword = id; 
                 changePort = id; 
                 changeSharing = id; 
-                hideOrShowWindow = id; 
                 loadUserDefaults = id; 
                 openFile = id; 
+                openLog = id; 
+                optionChanged = id; 
                 saveUserDefaults = id; 
                 startServer = id; 
                 stopServer = id; 
@@ -23,10 +29,11 @@
                 displayNameField = NSTextField; 
                 displayNumberField = NSPopUpButton; 
                 dontDisconnectCheckbox = NSButton; 
-                hideOrShowWindowMenuItem = NSMenuItem; 
+                limitToLocalConnections = NSButton; 
                 passwordField = NSTextField; 
                 portField = NSTextField; 
                 sharingMatrix = NSMatrix; 
+                showMouseButton = NSButton; 
                 startServerButton = NSButton; 
                 startServerMenuItem = NSMenuItem; 
                 startServerOnLaunchCheckbox = NSButton; 

@@ -1,8 +1,8 @@
-{\rtf1\mac\ansicpg10000\cocoartf100
-{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fswiss\fcharset77 Helvetica-Oblique;
-\f3\fswiss\fcharset77 Helvetica-BoldOblique;}
+{\rtf1\mac\ansicpg10000\cocoartf102
+\readonlydoc1{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fswiss\fcharset77 Helvetica-BoldOblique;
+}
 {\colortbl;\red255\green255\blue255;\red25\green35\blue255;}
-\vieww11560\viewh11760\viewkind0
+\vieww16460\viewh13640\viewkind0
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\qc
 
 \f0\b\fs36 \cf0 OSXvnc \
@@ -10,14 +10,37 @@ Release Notes\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\b0\fs24 \cf0 \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 Version 1.11, Released 1/18/2003:\
+	* Modified by Jonathan Gillaspie for Redstone Software, Inc.\
+	( osxvnc@redstonesoftware.com )\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0         	* Contributions from (OSXvncPlus) by Steven Tamm\
+                	* Contributions from (OSXvnc 0.8) by Mihai Parparita\
+                	* Cool Icon Contributed by Martin Goneau ( http://www.goneau.com )\
+	Included StarupItems folder for Startup on System Boot\
+	Version 1.11 of StarupItems Script will relaunch after a user logout\
+	GUI will now offer Server Restart when appropriate\
+                        OSXvnc now supports Scroll Wheel Mice (compliant with RealVNC 3.3.5+)\
+                        OSXvnc now supports zRLE encoding (compliant with RealVNC 3.3.4+)\
+        	8-Bit color now works\
+                	Can optionally set to allow only local connections (useful with SSH)\
+                        Updated FAQ with lots of useful information\
+	Enhanced Keyboard Mapping Performance\
+                        Now compatible with all versions of Chicken of the VNC\
+        	Fix which caused pointer events to be locked out and occasionally not recognized\
+                        Fix to a problem when multiple clients were using encodings that use Zlib compression\
+                        Fix to a problem where changing screen resolution didn't work if launched command line\
+                        Fix to the Zero Size Rect\
+	Fix to the default keymapping for ~ and ` keys\
 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f0\b \cf0 Version 1.0, Released 9/26/2002;\
-	* Modified by Jonathan Gillaspie & Doug Simons for Redstone Software, Inc.	( feedback@redstonesoftware.com )\
-\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
-
-\f2\i\b0 \cf0 	VNC Server will restart if the screen resolution Changes\
+	* Modified by Jonathan Gillaspie & Doug Simons for Redstone Software, Inc.
+\f1\b0 	VNC Server will restart if the screen resolution Changes\
 	Now sends updates on request as per protocol\
                 	Now Handles Pasteboard events\
 	Now correctly handles multiple connections\
@@ -30,7 +53,7 @@ Release Notes\
 	Allows Autostart server on launch\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f3\b \cf2 \
+\f2\i\b \cf2 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\i0\b0 \cf0 \
@@ -70,27 +93,16 @@ Still to do:\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\b0 \cf0 \
-Add support for ZRLE (3.3.4)\
-\
 CoRRE bug? - Yes\
 \
 Optionally, make mouse cursor appear\
 	-- umm.  how?\
 \
--localhost option for server (for ssh forwarding)\
-\
 security of stored password is lame use hash like /etc/passwd?\
 \
 security issues re: running it from the command line (no icon shows up)\
 \
-web site: instructions for running as a StartupItem\
-\
-installer that sets it up as a StartupItem for you (optionally with\
-	ssh-forwarded port as well)\
-\
-UI options:\
-	start server on login/on boot (create installer that does this\
-		for you)\
+installer that sets it up as a StartupItem for you (optionally with ssh-forwarded port as well)\
 \
 how to send force quit over the link?\
 	-- option key mapped to X 'left logo'/'right logo'\
@@ -109,56 +121,4 @@ emacs glitch still happens when delay time is 0 (lower bound\
 \
 try updating everything enclosed by the current region\
 	to work around window-moving bug?\
-\
-8-bit color (256 colors) doesn't work right\
-\
-crash on first connection sometimes?  (race condition?)  (or on startup)\
-	-- should be doing whatever the equivalent of '-pthread'\
-	is, since there's no '-pthread'?\
-	-- based on core file, seems to happen during dynamic linking.\
-	-- got it to happen in debugger; here are stack traces:\
-#0  0x7000a4ac in stat ()\
-#1  0x70183e7c in __CFLoadCarbonCore ()\
-#2  0x70183dc0 in __CF_CurResFile_internal ()\
-#3  0x7017c77c in _CFBundleCopyBundleDevelopmentRegionFromVersResource\
-()\
-#4  0x7017c998 in CFBundleGetDevelopmentRegion ()\
-#5  0x7017ca44 in _CFBundleGetLanguageSearchList ()\
-#6  0x7017cc58 in _CFBundleAddPreferredLprojNamesInDirectory ()\
-#7  0x7017ca64 in _CFBundleGetLanguageSearchList ()\
-#8  0x70180408 in CFBundleCopyResourceURL ()\
-#9  0x70181470 in _CFBundleCopyResourceForkURLMayBeLocal ()\
-#10 0x7017c658 in _CFBundleOpenBundleGlobalResourceFile ()\
-#11 0x70181604 in CFBundleOpenBundleResourceFiles ()\
-#12 0x737c1b58 in OpenHLTBResourceFiles ()\
-#13 0x73ae283c in _InitHLTB ()\
-#14 0x411069ac in _dyld__call_image_init_routines ()\
-#15 0x4110d284 in _dyld__link_in_need_modules ()\
-#16 0x4110d10c in _dyld__bind_symbol_by_name ()\
-#17 0x4110f9cc in _dyld___dyld_NSLookupAndBindSymbolWithHint ()\
-#18 0x700b7b00 in NSLookupAndBindSymbolWithHint ()\
-#19 0x70278250 in GetDYLDEntryPoint ()\
-#20 0x702878e4 in IOMasterPort ()\
-#21 0x702bd858 in GetDisksFromRegistry ()\
-#22 0x70276a64 in ClassicVolumeGetStartupInfo ()\
-#23 0x73737a08 in MyGetClassicDomainSystemFolder ()\
-#24 0x73731754 in SendScanFontDirectoriesMessage ()\
-#25 0x73744bb4 in INIT_FontObjects ()\
-#26 0x73731010 in INIT_ATS ()\
-#27 0x411069ac in _dyld__call_image_init_routines ()\
-#28 0x4110d284 in _dyld__link_in_need_modules ()\
-#29 0x4110cf84 in _dyld__bind_lazy_symbol_reference ()\
-#30 0x41100af0 in _dyld__stub_binding_helper_interface ()\
-#31 0x00003498 in rfbNewClient (sock=10) at rfbserver.c:158\
-#32 0x00002768 in listenerRun (ignore=0x0) at main.c:224\
-#33 0x700150f4 in _pthread_body ()\
-#34 0x00000000 in ?? ()\
-	\
-#0  0x737dc8c0 in RunEventLoopInModeUntilEventArrives ()\
-#1  0x737dc608 in ReceiveNextEventCommon ()\
-#2  0x73ae07cc in _AcquireNextEvent ()\
-#3  0x73a46824 in RunApplicationEventLoop ()\
-#4  0x000031d4 in main (argc=1, argv=0xbffffbb8) at main.c:363\
-#5  0x00001cb0 in _start ()\
-#6  0x00001af0 in start ()\
-#7  0x00000000 in ?? ()}
+}

@@ -1,0 +1,21 @@
+#!/bin/sh 
+#
+# Start OSXvnc-keepalive Version 1.11
+# This little script, as you might imagine, will relaunch OSXvnc-server
+# when a user logs out and the OS kills the process (because it's running an event loop)
+# 
+
+RESULT=15
+
+# OS X will send a SIGINT or SIGTERM to shutdown OSXvnc-server
+# On a SIGHUP we'll stop properly (this is what the server returns internally when an error occurs) - should change
+while [ "$RESULT" != "1" ]
+do
+	echo "OSXVNC: Starting Server"
+	$@
+	RESULT=$?
+	sleep 8
+done
+
+echo "OSXVNC Shutdown with exit status" $RESULT
+

@@ -1,0 +1,78 @@
+#!/bin/sh 
+. /etc/rc.common
+
+#
+# Start OSXvnc Version 1.11
+# 
+# Modify VNCPATH if you keep the application somewhere besides /Applications
+
+VNCPATH=/Applications/OSXvnc.app
+VNCARGS="-rfbport 5900 -rfbauth /Applications/OSXvnc.app/.osxvncauth -swapButtons -dontdisconnect"
+
+#
+# Available Arguments for use in the VNCARGS variable above:
+# 
+# -rfbport port          TCP port for RFB protocol
+# -rfbwait time          max time in ms to wait for RFB client
+# -rfbauth passwd-file   use authentication on RFB protocol
+#                        (use '/Applications/OSXvnc.app/storepasswd' to create a password file)
+# -deferupdate time      time in ms to defer updates (default 0)
+# -desktop name          VNC desktop name (default "MacOS X")
+# -alwaysshared          always treat new clients as shared
+# -nevershared           never treat new clients as shared
+# -dontdisconnect        don't disconnect existing clients when a new non-shared
+#                        connection comes in (refuse new connection instead)
+# -nodimming             never allow the display to dim
+#                        (default: display can dim, input undims)
+# -maxdepth bits         maximum allowed bit depth for connecting clients.
+#                        (default: bit depth of display)
+# -allowsleep            allow machine to sleep
+#                        (default: sleep is disabled)
+# -disableScreenSaver    Disable screen saver while users are connected
+#                        (default: no, allow screen saver to engage)
+# -swapButtons           swap mouse buttons 2 & 3
+#                        (default: no)
+# -disableRemoteEvents   ignore remote keyboard, pointer, and pasteboard event
+#                        (default: no, process them)
+# -rfbLocalBuffer        run the screen through a local buffer, thereby enabling the cursor
+#                        (default: no, it's slow and causes more artifacts)
+# -localhost             Only allow connections from the same machine
+#                        If you use SSH and want to stop non-SSH connections from any other hosts 
+#                        (default: allows remote connections)
+#
+##
+
+if [ ${1:-noset} = "setpassword" ]; then
+  $VNCPATH/storepasswd "$2" $VNCPATH/.osxvncauth
+  echo "Password set at path " $VNCPATH/.osxvncauth
+  exit
+fi
+
+if [ ${1:-noset} = "stop" ]; then
+  ConsoleMessage "Stopping OSXvnc Server"
+
+  OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc-keepalive | grep -v grep | awk 'NF > 2 {print \$2}'`
+  if [ "${OSXVNCPID:=""}" ]; then
+    kill $OSXVNCPID
+  fi
+
+  OSXVNCPID =`/bin/ps -auxwwww | grep OSXvnc-keepalive | grep -v grep | awk 'NF > 2 {print \$2}'`
+  if [ "${OSXVNCPID:=""}" != "" ]; then
+	echo "OSXvnc stop: problem stopping OSXvnc-keepalive"
+  fi
+  exit
+fi
+
+if [ -x "$VNCPATH" ]; then
+  ConsoleMessage "Starting OSXvnc Server"
+
+  if [ -e /var/log/osxvnc.log ] ; then
+    /bin/mv /var/log/osxvnc.log /var/log/osxvnc.log.1
+  fi
+
+  $0-keepalive $VNCPATH/OSXvnc-server $VNCARGS > /var/log/osxvnc.log 2>&1 &
+  exit 0
+else
+  ConsoleMessage "Unable to find OSXvnc"
+  exit -1
+fi

@@ -6,7 +6,7 @@
 
 /*
  *  OSXvnc Copyright (C) 2001 Dan McGuirk <mcguirk@incompleteness.net>.
- *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.  
+ *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.
  *  All Rights Reserved.
  *
  *  This is free software; you can redistribute it and/or modify
@@ -25,15 +25,18 @@
  *  USA.
  */
 
+#import <Cocoa/Cocoa.h>
+
 #include <stdio.h>
 #include <ApplicationServices/ApplicationServices.h>
 
 #include <X11/keysym.h>
 #include "rfb.h"
 
+
 /* Where do I get the "official" list of Mac key codes?
-   Ripped these out of a Mac II emulator called Basilisk II
-   that I found on the net. */
+Ripped these out of a Mac II emulator called Basilisk II
+that I found on the net. */
 static int keyTable[] = {
     /* The alphabet */
     XK_A,                  0,      /* A */
@@ -116,8 +119,8 @@ static int keyTable[] = {
     XK_underscore,        27,      /* _ */
     XK_equal,             24,      /* = */
     XK_plus,              24,      /* + */
-    XK_grave,             10,      /* ` */  /* XXX ? */
-    XK_asciitilde,        10,      /* ~ */
+    XK_grave,             50,      /* ` */  /* XXX ? */
+    XK_asciitilde,        50,      /* ~ */
     XK_bracketleft,       33,      /* [ */
     XK_braceleft,         33,      /* { */
     XK_bracketright,      30,      /* ] */
@@ -203,72 +206,100 @@ static int keyTable[] = {
     /* Weirdness I can't figure out */
     /*    XK_3270_PrintScreen,     105,     /* PrintScrn */  /* XXX ? */
     /*  ???  94,          50,      /* International */
-    XK_Menu,              50,      /* Menu (-> International) */
+    // XK_Menu,              50,      /* Menu (-> International) */
 };
 
+static char keyTable2[0xFFFF];
 
-void
-KbdAddEvent(down, keySym, cl)
-    Bool down;
-    KeySym keySym;
-    rfbClientPtr cl;
-{
+void loadKeyTable(char *keymapFilepath) {
     int i;
-    CGKeyCode keyCode = -1;
-    int found = 0;
 
-    rfbUndim();
+    if (keyTable2[0] != (char) 0xFF) {
+        // initialize them to 255
+        for (i = 0; i < sizeof(keyTable2); i++)
+            keyTable2[i] = 0xFF;
 
-    for (i = 0; i < (sizeof(keyTable) / sizeof(int)); i += 2) {
-        if (keyTable[i] == keySym) {
-            keyCode = keyTable[i+1];
-            found = 1;
-            break;
+        // Map the above key table into a static array so we can just look them up directly....
+        for (i = 0; i < (sizeof(keyTable) / sizeof(int)); i += 2) {
+            keyTable2[(unsigned short)keyTable[i]] = (char) keyTable[i+1];
         }
     }
 
-    if (!found) {
-        rfbLog("warning: couldn't figure out keycode for X keysym %d (0x%x)\n", 
-               (int)keySym, (int)keySym);
-    } else {
-        /* Hopefully I can get away with not specifying a CGCharCode.
-           (Why would you need both?) */
-        CGPostKeyboardEvent((CGCharCode)0, keyCode, down);
-    }
+    /* Somehow this is very intolerant of different keyboards/keymaps, perhaps if we did something differently... */
+
+    // This could be a first attempt to at least ALLOW people to remap modifier keys and/or define mappings for foreign keyboards
+    // Now read in keyRemapFile if one is specified
+    /*
+     if (keymapFile) {
+         unsigned short XKey = 0;
+         char appleKeyCode;
+         FILE *keymapFile = NULL;
+
+         // Open File,
+         // For each line of file
+         for (i=0;i<0;i++) {
+
+             // if # then skip
+             // else get XK key then mac CHAR map key.
+             if (0) {
+             }
+             else {
+                 fscanf(keymapFile, "%d\t%d", XKey, appleKeyCode);
+                 keyTable2[XKey] = (char) appleKeyCode;
+             }
+         }
+     }
+     */
 }
 
-void
-PtrAddEvent(buttonMask, x, y, cl)
-    int buttonMask;
-    int x;
-    int y;
-    rfbClientPtr cl;
-{
+void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl) {
+    CGKeyCode keyCode = keyTable2[(unsigned short)keySym];
+
+    rfbUndim();
+
+    //rfbLog("%x - %d (%d)\n", keySym, keyCode, down);
+    if (keyCode == 0xFF)
+        rfbLog("warning: couldn't figure out keycode for X keysym %d (0x%x)\n", (int)keySym, (int)keySym);
+    else    /* Hopefully I can get away with not specifying a CGCharCode. (Why would you need both?) */
+        CGPostKeyboardEvent(0 /*(CGCharCode)keySym*/, keyCode, down);
+}
+
+void PtrAddEvent(int buttonMask, int x, int y, rfbClientPtr cl) {
     CGPoint position;
 
     rfbUndim();
 
-    position.x = x;
-    position.y = y;
+    if (buttonMask & rfbWheelUpMask) {
+        // Hmm.. hopefully this will pull from the current user even if root launches osxvnc
+        int mouseWheelDistance = 8 * [[NSUserDefaults standardUserDefaults] floatForKey:@"com.apple.scrollwheel.scaling"];
 
-    if (cl->swapMouseButtons23)
-        CGPostMouseEvent(position, TRUE, 8,
-                         (buttonMask & (1 << 0)) ? TRUE : FALSE,
-                         (buttonMask & (1 << 2)) ? TRUE : FALSE, // <--Swapped
-                         (buttonMask & (1 << 1)) ? TRUE : FALSE, // <--Swapped
-                         (buttonMask & (1 << 3)) ? TRUE : FALSE,
-                         (buttonMask & (1 << 4)) ? TRUE : FALSE,
-                         (buttonMask & (1 << 5)) ? TRUE : FALSE,
-                         (buttonMask & (1 << 6)) ? TRUE : FALSE,
-                         (buttonMask & (1 << 7)) ? TRUE : FALSE);
-    else
-        CGPostMouseEvent(position, TRUE, 8,
-                         (buttonMask & (1 << 0)) ? TRUE : FALSE,
-                         (buttonMask & (1 << 1)) ? TRUE : FALSE,
-                         (buttonMask & (1 << 2)) ? TRUE : FALSE,
-                         (buttonMask & (1 << 3)) ? TRUE : FALSE,
-                         (buttonMask & (1 << 4)) ? TRUE : FALSE,
-                         (buttonMask & (1 << 5)) ? TRUE : FALSE,
-                         (buttonMask & (1 << 6)) ? TRUE : FALSE,
-                         (buttonMask & (1 << 7)) ? TRUE : FALSE);
+        if (!mouseWheelDistance)
+            mouseWheelDistance = 10;
+
+        CGPostScrollWheelEvent(1,  mouseWheelDistance);
+    }
+    else if (buttonMask & rfbWheelDownMask) {
+        // Hmm.. hopefully this will pull from the current user even if root launches osxvnc
+        int mouseWheelDistance = 8 * [[NSUserDefaults standardUserDefaults] floatForKey:@"com.apple.scrollwheel.scaling"];
+
+        if (!mouseWheelDistance)
+            mouseWheelDistance = 10;
+
+        CGPostScrollWheelEvent(1, -mouseWheelDistance);
+    }
+    else {
+        position.x = x;
+        position.y = y;
+
+        if (cl->swapMouseButtons23)
+            CGPostMouseEvent(position, TRUE, 3,
+                             (buttonMask & rfbButton1Mask) ? TRUE : FALSE,
+                             (buttonMask & rfbButton3Mask) ? TRUE : FALSE,
+                             (buttonMask & rfbButton2Mask) ? TRUE : FALSE);
+        else
+            CGPostMouseEvent(position, TRUE, 3,
+                             (buttonMask & rfbButton1Mask) ? TRUE : FALSE,
+                             (buttonMask & rfbButton2Mask) ? TRUE : FALSE,
+                             (buttonMask & rfbButton3Mask) ? TRUE : FALSE);
+    }
 }
