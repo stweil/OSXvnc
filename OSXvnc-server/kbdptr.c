@@ -260,8 +260,19 @@ void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl) {
     //rfbLog("%x - %d (%d)\n", keySym, keyCode, down);
     if (keyCode == 0xFF)
         rfbLog("warning: couldn't figure out keycode for X keysym %d (0x%x)\n", (int)keySym, (int)keySym);
-    else    /* Hopefully I can get away with not specifying a CGCharCode. (Why would you need both?) */
+    else {  /* Hopefully I can get away with not specifying a CGCharCode. (Why would you need both?) */
         CGPostKeyboardEvent(0 /*(CGCharCode)keySym*/, keyCode, down);
+        if (keyCode >= XK_Alt_L && keyCode <= XK_Control_L)
+            cl->modiferKeys[keyCode-XK_Alt_L] = down; // Mark that key state for that client, we'll release down keys later
+    }
+}
+
+void keyboardReleaseKeysForClient(rfbClientPtr cl) {
+    int index = XK_Alt_L;
+
+    while (index <= XK_Control_L)
+        if (cl->modiferKeys[index-XK_Alt_L])
+            CGPostKeyboardEvent(0, index, 0); // Release all modifier keys that were held down
 }
 
 void PtrAddEvent(int buttonMask, int x, int y, rfbClientPtr cl) {
