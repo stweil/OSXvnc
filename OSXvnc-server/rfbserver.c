@@ -36,6 +36,8 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
+#include <netdb.h>
+
 #include "rfb.h"
 
 //char updateBuf[UPDATE_BUF_SIZE];
@@ -100,30 +102,49 @@ void rfbNewClientConnection(int sock) {
 
 
 /*
- * rfbReverseConnection is called by the CORBA stuff to make an outward
+ * rfbReverseConnection is called to make an outward
  * connection to a "listening" RFB client.
  */
-
 rfbClientPtr rfbReverseConnection(char *host, int port) {
-    return NULL;
-
-#ifdef NOT_YET
     int sock;
+    struct sockaddr_in sin;
     rfbClientPtr cl;
-
-    if ((sock = rfbConnect(host, port)) < 0)
-        return (rfbClientPtr)NULL;
-
+	
+    bzero(&sin, sizeof(sin));
+    sin.sin_len = sizeof(sin);
+    sin.sin_family = AF_INET;
+    sin.sin_addr.s_addr = inet_addr(host);
+    sin.sin_port = htons(port);
+    if ((int)sin.sin_addr.s_addr == -1) {
+        struct hostent *hostinfo;
+        hostinfo = gethostbyname(host);
+        if (hostinfo && hostinfo->h_addr) {
+            sin.sin_addr.s_addr = ((struct in_addr *)hostinfo->h_addr)->s_addr;
+        }
+        else {
+            rfbLog("Error resolving reverse host %s\n", host);
+            return NULL;
+        }
+    }
+	
+    if ((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+        rfbLog("Error creating reverse socket\n");
+        return NULL;
+    }
+    
+    if (connect(sock, (struct sockaddr *)&sin, sizeof(sin)) != 0) {
+        rfbLog("Error connecting to reverse host %s:%d\n", host, port);
+        return NULL;
+    }
+	
     cl = rfbNewClient(sock);
-
+	
     if (cl) {
         cl->reverseConnection = TRUE;
     }
 
     return cl;
-#endif
 }
-
 
 /*
  * rfbNewClient is called when a new connection has been made by whatever
@@ -149,8 +170,6 @@ rfbClientPtr rfbNewClient(int sock) {
          rfbReleaseClientIterator(iterator);
      }
      */
-    /* REDSTONE - Have server update to all OTHER clients now, so new client keeps his PB currently */
-    rfbCheckForPasteboardChange();
 
     cl = (rfbClientPtr)xalloc(sizeof(rfbClientRec));
 
@@ -169,7 +188,8 @@ rfbClientPtr rfbNewClient(int sock) {
     cl->swapMouseButtons23 = rfbSwapButtons;         // How to interpret mouse buttons 2 & 3
 
     cl->needNewScreenSize = NO;
-    cl->pasteBoardLastChange = -1;
+	initPasteboardForClient(cl);
+
     cl->reverseConnection = FALSE;
     cl->preferredEncoding = rfbEncodingRaw;
     cl->correMaxWidth = 48;
@@ -622,7 +642,13 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                         rfbLog("\tEnabling Immediate updates for client " "%s\n", cl->host);
                         cl->immediateUpdate = TRUE;
                         break;
-
+					case rfbPasteboardError:
+					    /* REDSTONE - Have new client keep his PB currently UNLESS We don't have PB support */
+						if (!pasteBoardLastChangeCount) {
+							rfbLog("\tEnabling Pasteboard Error Message" "%s\n", cl->host);
+							cl->pasteBoardLastChange = -2; // This will cause it to send a single update that shows that the PB isn't accessible
+						}
+						break;
 
                         // Tight encoding options
                     default:
