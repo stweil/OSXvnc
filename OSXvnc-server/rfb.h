@@ -298,8 +298,7 @@ extern char *rfbGetFramebuffer();
 extern ScreenRec hackScreen;
 extern rfbScreenInfo rfbScreen;
 
-extern char *desktopName;
-extern char rfbThisHost[];
+extern char desktopName[255];
 
 extern Bool rfbAlwaysShared;
 extern Bool rfbNeverShared;

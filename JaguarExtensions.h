@@ -6,13 +6,18 @@
 //  Copyright (c) 2003 RedstoneSoftware. All rights reserved.
 //
 
-// Actually these are for 10.1 (Puma) and Higher
 
 #import <Foundation/Foundation.h>
+#import <Carbon/Carbon.h>
 
 #import "RFBBundleProtocol.h"
 
 @interface JaguarExtensions : NSObject <RFBBundleProtocol> {
 }
+
+// Actually these are for 10.1 (Puma) and Higher but not sure if we need to bundle them
+void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef);
+
++ (void) registerRendezvous;
 
 @end

@@ -3,15 +3,17 @@
 // We use it for passing off to the bundles
 
 typedef struct rfbserver {
+	id vncServer;
+	
+	char *desktopName;
+	int rfbPort;
+	
     /*
     static const int rfbEndianTest = 0;
 
     ScreenRec hackScreen;
     rfbScreenInfo rfbScreen;
-
-    char *desktopName;
-    char rfbThisHost[];
-
+	 
     Bool rfbAlwaysShared;
     Bool rfbNeverShared;
     Bool rfbDontDisconnect;
@@ -72,5 +74,3 @@ typedef struct rfbserver {
     Bool *rfbNoSleep;
      */
 } rfbserver;
-
-

@@ -17,6 +17,7 @@
 
 @implementation JaguarExtensions
 
+static NSNetService *service;
 static BOOL keyboardLoading;
 
 static KeyboardLayoutRef loadedKeyboardRef;
@@ -29,7 +30,7 @@ rfbserver *theServer;
     int argumentIndex;
 
     theServer = aServer;
-
+	
     keyboardLoading = YES;
     argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-keyboardLoading"];
     if (argumentIndex != NSNotFound) {
@@ -77,33 +78,13 @@ rfbserver *theServer;
     fprintf(stderr,
             "-keyboardLoading flag  This BETA feature allows OSXvnc to look at the users selected keyboard and map keystrokes using it.\n"
             "                       Disabling this returns OSXvnc to 1.2 (U.S. Keyboard) which may work better with Dead Keys.\n"
-            "                       (default: yes), 10.2+ ONLY\n"
+            "                       (default: no), 10.2+ ONLY\n"
             "-pressModsForKeys flag If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it.\n"
             "                       This flag works well if you have different keyboards on the local and remote machines.\n"
             "                       Only works if -keyboardLoading is on\n"
+            "                       (default: no), 10.2+ ONLY\n"
+	        "-rendezvous flag       Allow OSXvnc to advertise VNC server using Rendezvous discovery services.\n"
             "                       (default: yes), 10.2+ ONLY\n");
-}
-
-+ (void) rfbPoll {
-    // Check if keyboardLayoutRef has changed
-    if (keyboardLoading) {
-        KeyboardLayoutRef currentKeyboardLayoutRef;
-
-        if (KLGetCurrentKeyboardLayout(&currentKeyboardLayoutRef) == noErr) {
-            if (currentKeyboardLayoutRef != loadedKeyboardRef) {
-                loadedKeyboardRef = currentKeyboardLayoutRef;
-                loadKeyboard(loadedKeyboardRef);
-            }
-        }
-    }
-}
-
-+ (void) rfbReceivedClientMessage {
-    return;
-}
-
-+ (void) rfbShutdown {
-    NSLog(@"Unloading Jaguar Extensions");
 }
 
 
@@ -253,5 +234,66 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
     for (i = 0; i < (sizeof(SpecialKeyCodes) / sizeof(int)); i += 2)
         theServer->keyTable[(unsigned short)SpecialKeyCodes[i]] = (CGKeyCode) SpecialKeyCodes[i+1];   
 }
+
++ (void) rfbRunning {	
+	[JaguarExtensions registerRendezvous];
+}
+
++ (void) registerRendezvous {
+	BOOL loadRendezvous = YES;
+	int argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-rendezvous"];
+	
+    if (argumentIndex != NSNotFound) {
+        NSString *value = nil;
+        
+        if ([[[NSProcessInfo processInfo] arguments] count] > argumentIndex + 1)
+            value = [[[NSProcessInfo processInfo] arguments] objectAtIndex:argumentIndex+1];
+        
+        if ([value hasPrefix:@"n"] || [value hasPrefix:@"N"] || [value hasPrefix:@"0"])
+            loadRendezvous = NO;
+        else
+            loadRendezvous = YES;
+    }
+	
+	// Register For Rendezvous
+    if (loadRendezvous) {
+		 service = [[NSNetService alloc] initWithDomain:@""
+												   type:@"_vnc._tcp." 
+												   name:[NSString stringWithCString:theServer->desktopName]
+												   port:(int) theServer->rfbPort];
+		[service setDelegate:theServer->vncServer];		
+
+		if (![service publish])
+			NSLog(@"An error occurred publishing the Rendezvous Net Service");
+	}
+	else
+		NSLog(@"Rendezvous - Disabled");
+}
+
++ (void) rfbPoll {
+    // Check if keyboardLayoutRef has changed
+    if (keyboardLoading) {
+        KeyboardLayoutRef currentKeyboardLayoutRef;
+		
+        if (KLGetCurrentKeyboardLayout(&currentKeyboardLayoutRef) == noErr) {
+            if (currentKeyboardLayoutRef != loadedKeyboardRef) {
+                loadedKeyboardRef = currentKeyboardLayoutRef;
+                loadKeyboard(loadedKeyboardRef);
+            }
+        }
+    }
+}
+
++ (void) rfbReceivedClientMessage {
+    return;
+}
+
++ (void) rfbShutdown {
+    NSLog(@"Unloading Jaguar Extensions");
+	if (service)
+		[service stop];
+}
+
+
 
 @end

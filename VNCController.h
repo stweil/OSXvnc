@@ -40,6 +40,7 @@
     IBOutlet NSButton *swapMouseButtonsCheckbox;
     IBOutlet NSButton *disableRemoteEventsCheckbox;
     IBOutlet NSButton *limitToLocalConnections;
+    IBOutlet NSButton *allowRendezvousCheckbox;
 
     IBOutlet NSButton *startServerOnLaunchCheckbox;
     IBOutlet NSButton *terminateOnFastUserSwitch;

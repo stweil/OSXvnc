@@ -41,6 +41,7 @@ static void terminateOnSignal(int signal) {
     [[NSUserDefaults standardUserDefaults] registerDefaults: [NSDictionary dictionaryWithObjectsAndKeys:
         @"", @"PasswordFile",
         @"", @"LogFile",
+		[NSNumber numberWithBool:TRUE], @"allowRendezvous",
         nil]];
     
     port = 5900;
@@ -235,6 +236,9 @@ static void terminateOnSignal(int signal) {
 
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"localhostOnly"])
         [limitToLocalConnections setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnly"]];
+	
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowRendezvous"])
+        [allowRendezvousCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowRendezvous"]];
 }
 
 - (void) saveUserDefaults: sender {
@@ -254,7 +258,8 @@ static void terminateOnSignal(int signal) {
     [[NSUserDefaults standardUserDefaults] setBool:[dontDisconnectCheckbox state] forKey:@"dontDisconnectClients"];
     [[NSUserDefaults standardUserDefaults] setBool:[disableRemoteEventsCheckbox state] forKey:@"disableRemoteEvents"];
     [[NSUserDefaults standardUserDefaults] setBool:[limitToLocalConnections state] forKey:@"localhostOnly"];
-
+    [[NSUserDefaults standardUserDefaults] setBool:[allowRendezvousCheckbox state] forKey:@"allowRendezvous"];
+	
     [[NSUserDefaults standardUserDefaults] setBool:[startServerOnLaunchCheckbox state] forKey:@"startServerOnLaunch"];
     [[NSUserDefaults standardUserDefaults] setBool:[startServerOnLaunchCheckbox state] forKey:@"terminateOnFastUserSwitch"];
     [[NSUserDefaults standardUserDefaults] setBool:[serverKeepAliveCheckbox state] forKey:@"serverKeepAlive"];
@@ -308,7 +313,7 @@ static void terminateOnSignal(int signal) {
         [controller setStandardOutput:serverOutput];
         [controller setStandardError:serverOutput];
         [controller launch];
-        
+        		
         [lastLaunchTime release];
         lastLaunchTime = [[NSDate date] retain];
         
@@ -422,7 +427,10 @@ static void terminateOnSignal(int signal) {
         [argv addObject:@"-disableRemoteEvents"];
     if ([limitToLocalConnections state])
         [argv addObject:@"-localhost"];
-
+	
+	[argv addObject:@"-rendezvous"];
+    [argv addObject:([allowRendezvousCheckbox state] ? @"Y" : @"N")];
+	
     if (passwordFile && [[NSFileManager defaultManager] fileExistsAtPath:passwordFile]) {
         [argv addObject:@"-rfbauth"];
         [argv addObject:passwordFile];

@@ -268,7 +268,7 @@
 	<key>CFBundleExecutable</key>
 	<string>OSXvnc</string>
 	<key>CFBundleGetInfoString</key>
-	<string>1.33 - Copyright © 2002-2004 Redstone Software </string>
+	<string>1.4 - Copyright © 2002-2004 Redstone Software </string>
 	<key>CFBundleIconFile</key>
 	<string>OSXvnc.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -280,11 +280,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.33</string>
+	<string>1.4</string>
 	<key>CFBundleSignature</key>
 	<string>OSXv</string>
 	<key>CFBundleVersion</key>
-	<string>1.33</string>
+	<string>1.4</string>
 	<key>NSAppleScriptEnabled</key>
 	<false/>
 	<key>NSHelpFile</key>
@@ -323,6 +323,7 @@
 				F571340803C4C18D01A80186,
 				ABCCC8B703D9C60A00A80117,
 				AB15010E04F6A94500A80117,
+				ABFD5F69069C843E00721AF2,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -725,6 +726,12 @@
 			path = /System/Library/Frameworks/Carbon.framework;
 			refType = 0;
 			sourceTree = "<absolute>";
+		};
+		ABFD5F69069C843E00721AF2 = {
+			fileRef = AB3598E604BF8A3D00A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
 		};
 //AB0
 //AB1

@@ -43,8 +43,7 @@
 ScreenRec hackScreen;
 rfbScreenInfo rfbScreen;
 
-char *desktopName = "MacOS X";
-char rfbThisHost[255];
+char desktopName[255] = "";
 
 static int rfbPort = 5900;
 int  rfbMaxBitDepth = 0;
@@ -149,10 +148,14 @@ void loadDynamicBundles(BOOL startup) {
     NSString *execPath =[[NSProcessInfo processInfo] processName];
 
     // Setup thisServer structure
+	thisServer.vncServer = vncServerObject;
+	thisServer.desktopName = desktopName;
+	thisServer.rfbPort = rfbPort;
+
     thisServer.keyTable = keyTable;
     thisServer.keyTableMods = keyTableMods;
     thisServer.pressModsForKeys = &pressModsForKeys;
-
+	
     NSLog(@"Main Bundle: %@", [osxvncBundle bundlePath]);
     if (!osxvncBundle) {
         // If We Launched Relative - make it absolute
@@ -192,6 +195,8 @@ void loadDynamicBundles(BOOL startup) {
         NSLog(@"No Bundles Loaded - Run %@ from inside OSXvnc.app", execPath);
     }
 
+	// We might choose to RESYNC back from the server data if the bundles wanted to change some of the server state
+	
     [startPool release];
 }
 
@@ -468,6 +473,8 @@ static void *listenerRun(void *ignore) {
 
     len = sizeof(peer);
     rfbLog("Started Listener Thread on port %d\n", rfbPort);
+	
+	bundlesPerformSelector(@selector(rfbRunning));
 
     // This will block while wait for an accept
     while ((client_fd = accept(listen_fd, (struct sockaddr *)&peer, &len))) {
@@ -525,7 +532,6 @@ static void rfbScreenInit(void) {
     rfbServerFormat.bitsPerPixel = rfbScreen.bitsPerPixel;
     rfbServerFormat.depth = rfbScreen.depth;
     rfbServerFormat.bigEndian = !(rfbEndianTest);
-    gethostname(rfbThisHost, 255);
 /*
     if ((rfbScreen.bitsPerPixel) == 8) {
         rfbServerFormat.trueColour = FALSE;
@@ -664,7 +670,7 @@ static void processArguments(int argc, char *argv[]) {
             rfbMaxBitDepth = atoi(argv[++i]);
         } else if (strcmp(argv[i], "-desktop") == 0) {  // -desktop desktop-name
             if (i + 1 >= argc) usage();
-            desktopName = argv[++i];
+			strncpy(desktopName, argv[++i], 255);
         } else if (strcmp(argv[i], "-display") == 0) {   // -display DisplayID
             CGDisplayCount displayCount;
             CGDirectDisplayID activeDisplays[100];
@@ -774,10 +780,10 @@ void daemonize( void ) {
 
 int main(int argc, char *argv[]) {
     vncServerObject = [[VNCServer alloc] init];
-    
     checkForUsage(argc,argv);
     
-    // This guarantees separating us from any terminal - that might help when launched in SSH, etc but I don't think it solves the problem of being killed on GUI logout.
+    // This guarantees separating us from any terminal - 
+	// that might help when launched in SSH, etc but I don't think it solves the problem of being killed on GUI logout.
     // daemonize();
 
     // Let's not shutdown on a SIGHUP at some point perhaps we can use that to reload configuration
@@ -787,7 +793,7 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, rfbShutdownOnSignal);
     signal(SIGQUIT, rfbShutdownOnSignal);
 
-    // This fix should in CGDirectDisplay.h
+    // This fix should be in CGDirectDisplay.h
 #undef kCGDirectMainDisplay
     
 #if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_2
@@ -807,8 +813,16 @@ int main(int argc, char *argv[]) {
 
     loadKeyTable();
 
-    loadDynamicBundles(TRUE);
     processArguments(argc, argv);
+
+	// If no Desktop Name Provided Try to Get it
+	if (strlen(desktopName) == 0) {
+		NSAutoreleasePool *tempPool = [[NSAutoreleasePool alloc] init];
+		[[[NSProcessInfo processInfo] hostName] getCString:desktopName];
+		[tempPool release];
+	}
+	
+	loadDynamicBundles(TRUE);
 
     if (rfbLocalBuffer)
         rfbLocalBufferInit();
@@ -859,14 +873,14 @@ CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask 
     }
 
     pthread_create(&listener_thread, NULL, listenerRun, NULL);
-
+		
     // This segment is what is responsible for causing the server to shutdown when a user logs out
     // The problem being that OS X sends it first a SIGTERM and then a SIGKILL (un-trappable)
     // Presumable because it's running a Carbon Event loop
     if (1) {
         BOOL keepRunning = TRUE;
         OSStatus resultCode = 0;
-
+		
         while (keepRunning) {
             // No Clients - go into hibernation
             if (!rfbClientsConnected()) {

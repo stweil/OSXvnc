@@ -29,6 +29,7 @@
                 allowDimmingCheckbox = NSButton; 
                 allowKeyboardLoading = NSButton; 
                 allowPressModsForKeys = NSButton; 
+                allowRendezvousCheckbox = NSButton; 
                 allowSleepCheckbox = NSButton; 
                 disableRemoteEventsCheckbox = NSButton; 
                 disableStartupButton = NSButton; 
