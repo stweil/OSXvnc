@@ -29,17 +29,20 @@
 #include <pthread.h>
 #include "rfb.h"
 
+// Currently there is a problem when OSXvnc is run PRIOR to the pbs (which happens when a user logs in)
+// the OSXvnc process is NOT connected to the pbs port - this is an OS X security measure which we aren't certain
+// how to work around
+
+// We might be able to register with the port later
+// Restart VNC on login (of course this kills sessions)
+// or spawn a little agent at login -- modify the /etc/ttys and add a -LoginHook process
+
+// This is the global VNC change count
 int pasteBoardLastChangeCount=-1;
 NSStringEncoding pasteboardStringEncoding = 0;
 
-/*
- * rfbSetXCutText sets the cut buffer to be the given string.  We also clear
- * the primary selection.  Ideally we'd like to set it to the same thing, but I
- * can't work out how to do that without some kind of helper X client.
- */
-
-void
-rfbSetXCutText(char *str, int len)
+// This notifies us that the VNCclient set some new pasteboard
+void rfbSetXCutText(char *str, int len)
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     NSString *clientCutText = [[NSString alloc] initWithCString:str length:len];
@@ -51,25 +54,23 @@ rfbSetXCutText(char *str, int len)
     [pool release];
 }
 
-
-void rfbCheckForPasteboardChange()
-{
+// We call this to see if we have a new pasteboard change and should notify clients to do an update
+void rfbCheckForPasteboardChange() {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
     // REDSTONE
     // First Let's see if we have new info on the pasteboard - if so we'll send an update to each client
     if (pasteBoardLastChangeCount != [[NSPasteboard generalPasteboard] changeCount]) {
         rfbClientPtr cl;
         rfbClientIteratorPtr iterator = rfbGetClientIterator();
-        
+
+        // Record first in case another event comes in after notifying clients
+        pasteBoardLastChangeCount = [[NSPasteboard generalPasteboard] changeCount];
+
+        // Notify each client
         while ((cl = rfbClientIteratorNext(iterator)) != NULL) {
-            // Notify each client
-            // pthread_mutex_lock(&cl->updateMutex);
             pthread_cond_signal(&cl->updateCond);
-            // pthread_mutex_unlock(&cl->updateMutex);
         }
         rfbReleaseClientIterator(iterator);
-        
-        pasteBoardLastChangeCount = [[NSPasteboard generalPasteboard] changeCount];
     }
     [pool release];
 }
@@ -83,14 +84,13 @@ void rfbClientUpdatePasteboard(rfbClientPtr cl)
         cl->pasteBoardLastChange = [[NSPasteboard generalPasteboard] changeCount];
 
     if (cl->pasteBoardLastChange != [[NSPasteboard generalPasteboard] changeCount]) {
-        const char *pbString;
+        const char *pbString = NULL;
         int length = 0;
 
         if (pasteboardStringEncoding) {
             NSData *encodedString = [[[NSPasteboard generalPasteboard] stringForType:NSStringPboardType]
  dataUsingEncoding:pasteboardStringEncoding allowLossyConversion:YES];
             pbString = [encodedString bytes];
-            //pbString[[encodedString length]] = 0;
         }
         else
             pbString = [[[NSPasteboard generalPasteboard] stringForType:NSStringPboardType] lossyCString];
