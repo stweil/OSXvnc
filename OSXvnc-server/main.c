@@ -580,7 +580,8 @@ static void usage(void) {
     fprintf(stderr, "-disableRemoteEvents   ignore remote keyboard, pointer, and pasteboard event\n"
             "                       (default: no, process them)\n");
     fprintf(stderr, "-rfbLocalBuffer        run the screen through a local buffer, thereby enabling the cursor\n"
-            "                       (default: no, it's slow and causes more artifacts)\n");
+            "                       (default: no, it's slow and causes more artifacts)\n"
+            "                       (WARNING - This option is Deprecated and will be removed soon)\n");
     /* This isn't ready to go yet
     {
         CGDisplayCount displayCount;
@@ -597,7 +598,7 @@ static void usage(void) {
     */
     fprintf(stderr, "-localhost             Only allow connections from the same machine, literally localhost (127.0.0.1)\n");
     fprintf(stderr, "                       If you use SSH and want to stop non-SSH connections from any other hosts \n");
-    fprintf(stderr, "                       (default: allows remote connections)\n");
+    fprintf(stderr, "                       (default: no, allow remote connections)\n");
     bundlesPerformSelector(@selector(rfbUsage));
     fprintf(stderr, "\n");
 
@@ -612,6 +613,8 @@ static void checkForUsage(int argc, char *argv[]) {
             strncmp(argv[i], "-H", 2) == 0 ||
             strncmp(argv[i], "--h", 3) == 0 ||
             strncmp(argv[i], "--H", 3) == 0 ||
+            strncmp(argv[i], "-usage", 6) == 0 ||
+            strncmp(argv[i], "--usage", 7) == 0 ||
             strcmp(argv[i], "-?") == 0) {
             loadDynamicBundles(FALSE);
             usage();
@@ -670,6 +673,7 @@ static void processArguments(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-disableRemoteEvents") == 0) {
             rfbDisableRemote = TRUE;
         } else if (strcmp(argv[i], "-rfbLocalBuffer") == 0) {
+            rfbLog("WARNING - rfbLocalBuffer option is Deprecated and will be removed soon");
             rfbLocalBuffer = TRUE;
         } else if (strcmp(argv[i], "-localhost") == 0) {
             rfbLocalhostOnly = TRUE;
@@ -732,10 +736,11 @@ void daemonize( void ) {
 }
 
 int main(int argc, char *argv[]) {
-    // This guarantees separating us from any terminal - that might help when launched in SSH, etc but I don't think it solves the problem of being killed on GUI logout.
     checkForUsage(argc,argv);
-
+    
+    // This guarantees separating us from any terminal - that might help when launched in SSH, etc but I don't think it solves the problem of being killed on GUI logout.
     //daemonize();
+
     // Let's not shutdown on a SIGHUP at some point perhaps we can use that to reload configuration
     signal(SIGHUP, SIG_IGN);
     signal(SIGPIPE, SIG_IGN);
@@ -763,6 +768,14 @@ int main(int argc, char *argv[]) {
     rfbClientListInit();
     rfbDimmingInit();
 
+    // Does this need to be in 10.1 and greater (does any of this stuff work in 10.0?)
+    if (!rfbInhibitEvents) {
+        //NSLog(@"Core Graphics - Event Suppression Turned Off");
+        // This seems to actually sometimes inhibit REMOTE events as well, but all the same let's let everything pass through for now
+        CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateSupressionInterval);
+        CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateRemoteMouseDrag);
+    }
+    
     if (rfbDisableScreenSaver) {
         /* setup screen saver disabling timer */
         screensaverTimerUPP = NewEventLoopTimerUPP(rfbScreensaverTimer);
