@@ -1,0 +1,42 @@
+{
+    IBClasses = (
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }, 
+        {
+            ACTIONS = {
+                changeDisplayNumber = id; 
+                changePassword = id; 
+                changePort = id; 
+                changeSharing = id; 
+                hideOrShowWindow = id; 
+                loadUserDefaults = id; 
+                saveUserDefaults = id; 
+                startServer = id; 
+                stopServer = id; 
+            }; 
+            CLASS = VNCController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                allowDimmingCheckbox = NSButton; 
+                allowSleepCheckbox = NSButton; 
+                disableRemoteEventsCheckbox = NSButton; 
+                displayNameField = NSTextField; 
+                displayNumberField = NSPopUpButton; 
+                dontDisconnectCheckbox = NSButton; 
+                hideOrShowWindowMenuItem = NSMenuItem; 
+                passwordField = NSTextField; 
+                portField = NSTextField; 
+                sharingMatrix = NSMatrix; 
+                startServerButton = NSButton; 
+                startServerMenuItem = NSMenuItem; 
+                startServerOnLaunchCheckbox = NSButton; 
+                statusMessageField = NSTextField; 
+                stopServerButton = NSButton; 
+                stopServerMenuItem = NSMenuItem; 
+                swapMouseButtonsCheckbox = NSButton; 
+                window = NSWindow; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }
+    ); 
+    IBVersion = 1; 
+}
