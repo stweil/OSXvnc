@@ -8,7 +8,6 @@
 
 #import <Cocoa/Cocoa.h>
 
-
 @interface VNCController : NSObject {
     IBOutlet NSWindow *window;
     IBOutlet NSMenuItem *startServerMenuItem;

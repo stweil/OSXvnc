@@ -58,16 +58,6 @@
 //102
 //103
 //104
-		1024E995008B94547F000001 = {
-			isa = PBXFileReference;
-			path = vncController.java;
-			refType = 2;
-		};
-		1024E997008BBB817F000001 = {
-			isa = PBXFileReference;
-			path = processController.java;
-			refType = 2;
-		};
 		1058C7A0FEA54F0111CA2CBB = {
 			children = (
 				1058C7A1FEA54F0111CA2CBB,
@@ -164,8 +154,6 @@
 				29B97317FDCFA39411CA2CEA,
 				29B97323FDCFA39411CA2CEA,
 				19C28FACFE9D520D11CA2CBB,
-				1024E995008B94547F000001,
-				1024E997008BBB817F000001,
 			);
 			isa = PBXGroup;
 			name = OSXvnc;
@@ -275,7 +263,7 @@
 	<key>CFBundleExecutable</key>
 	<string>OSXvnc</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Copyright 2001 Redstone Software </string>
+	<string>Copyright 2002 Redstone Software </string>
 	<key>CFBundleIconFile</key>
 	<string>OSXvnc.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -287,11 +275,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.81</string>
+	<string>0.82</string>
 	<key>CFBundleSignature</key>
-	<string>????</string>
+	<string>OSXV</string>
 	<key>CFBundleVersion</key>
-	<string>0.81</string>
+	<string>0.82</string>
 	<key>NSHelpFile</key>
 	<string>OSXvnc.html</string>
 	<key>NSMainNibFile</key>

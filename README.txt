@@ -1,5 +1,6 @@
 OSXvnc: a VNC server for Mac OS X
 Copyright (C) 2001 Dan McGuirk
+Copyright (C) 2002 Redstone Software
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -16,11 +17,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.dfdf
 
 
-For help with OSXvnc, please visit http://www.osxvnc.com/.
+For help with OSXvnc, please visit http://www.redstonesoftware.com/osxvnc
 
-Dan McGuirk was kind enough to make this avaiable to MacOS X community.
+Dan McGuirk was kind enough to make the original avaiable to MacOS X community.
 
 Mahmud Haque added the additional codes to have Zlib, ZlibHex and Tight 
 encodings available for this program.
 
-Current version of program can be found at http://hompage.mac.com/muhaque
+Jonathan Gillaspie and Doug Simons performed some updates and cleanup for Redstone Software.
+
+Current version of program can be found at http://www.redstonesoftware.com/osxvnc
+
+

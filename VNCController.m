@@ -55,7 +55,7 @@ static void rfbShutdownOnSignal(int signal) {
     signal(SIGQUIT, rfbShutdownOnSignal);
     signal(SIGBUS, rfbShutdownOnSignal);
     signal(SIGSEGV, rfbShutdownOnSignal);
-        
+    
     return self;
 }
 
@@ -77,6 +77,14 @@ static void rfbShutdownOnSignal(int signal) {
 
     [displayNumberField selectItemAtIndex:displayNumber];
     [portField setIntValue:port];
+}
+
+// This is sent when the server's screen params change, the server can't handle this right now so we'll restart
+- (void)applicationDidChangeScreenParameters:(NSNotification *)aNotification {
+    [statusMessageField setStringValue:@"Screen Resolution changed - restarting server."];
+
+    [self stopServer: self];
+    [self startServer: self];
 }
 
 - (void) loadUserDefaults: sender {

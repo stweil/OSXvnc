@@ -57,13 +57,13 @@ void rfbCheckForPasteboardChange()
     // REDSTONE
     // First Let's see if we have new info on the pasteboard - if so we'll send that first, then send the FBU
     if (pasteBoardLastChangeCount != [[NSPasteboard generalPasteboard] changeCount]) {
-        char *pbString = [[[NSPasteboard generalPasteboard] stringForType:NSStringPboardType] cString];
+        const char *pbString = [[[NSPasteboard generalPasteboard] stringForType:NSStringPboardType] cString];
         int length = 0;
 
         if (pbString)
             length = strlen(pbString);
 
-        rfbSendServerCutText(pbString, length);
+        rfbSendServerCutText((char *) pbString, length);
         pasteBoardLastChangeCount = [[NSPasteboard generalPasteboard] changeCount];
     }
     
