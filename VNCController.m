@@ -25,11 +25,6 @@
  *  USA.
  */
 
-
-// Run a panel to authenticate for root privs.... but how...
-
-// try CoreTechnologies/securityservices/authorizationservices is a directory in /Developer/Documentation says Doug
-
 #import "VNCController.h"
 
 #import "OSXvnc-server/libvncauth/vncauth.h"
@@ -40,7 +35,7 @@
 
 @implementation VNCController
 
-static void rfbShutdownOnSignal(int signal) {
+static void terminateOnSignal(int signal) {
     NSLog(@"Trapped Signal %d -- Terminating", signal);
     [NSApp terminate:NSApp];
 }
@@ -56,36 +51,47 @@ static void rfbShutdownOnSignal(int signal) {
     userStopped = FALSE;
 
     signal(SIGHUP, SIG_IGN);
-    signal(SIGINT, rfbShutdownOnSignal);
-    signal(SIGQUIT, rfbShutdownOnSignal);
-    signal(SIGBUS, rfbShutdownOnSignal);
-    signal(SIGSEGV, rfbShutdownOnSignal);
-    signal(SIGTERM, rfbShutdownOnSignal);
-    signal(SIGTSTP, rfbShutdownOnSignal);
+    signal(SIGINT, terminateOnSignal);
+    signal(SIGQUIT, terminateOnSignal);
+    signal(SIGBUS, terminateOnSignal);
+    signal(SIGSEGV, terminateOnSignal);
+    signal(SIGTERM, terminateOnSignal);
+    signal(SIGTSTP, terminateOnSignal);
 
     return self;
 }
 
-- (void) awakeFromNib {
-    // This should keep it in the bundle, a little less conspicuous
-    if ([[NSFileManager defaultManager] isWritableFileAtPath:[[NSBundle mainBundle] bundlePath]])
-        passwordFile = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@".osxvncauth"];
+- (BOOL) canWriteToFile: (NSString *) path {
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path])
+        return [[NSFileManager defaultManager] isWritableFileAtPath:path];
     else
+        return [[NSFileManager defaultManager] isWritableFileAtPath:[path stringByDeletingLastPathComponent]];
+}
+
+- (void) awakeFromNib {
+    id infoDictionary = [[NSBundle mainBundle] infoDictionary];
+    
+    // This should keep it in the bundle, a little less conspicuous
+    passwordFile = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@".osxvncauth"];
+    if (![self canWriteToFile:passwordFile])
         passwordFile = @"/tmp/.osxvncauth";
     [passwordFile retain];
 
-    if ([[NSFileManager defaultManager] isWritableFileAtPath:@"/var/log"])
-        logFile = [@"/var/log" stringByAppendingPathComponent:@"OSXvnc-server.log"];
-    else if ([[NSFileManager defaultManager] isWritableFileAtPath:[[NSBundle mainBundle] bundlePath]])
+    logFile = [@"/var/log" stringByAppendingPathComponent:@"OSXvnc-server.log"];
+    if (![self canWriteToFile:logFile]) {
         logFile = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server.log"];
-    else
-        logFile = @"/tmp/OSXvnc-server.log";
+        if (![self canWriteToFile:logFile])
+            logFile = @"/tmp/OSXvnc-server.log";
+    }
     [logFile retain];
 
     //[[NSFileManager defaultManager] removeFileAtPath:passwordFile handler:nil];
     [displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
 
     [self loadUserDefaults: self];
+
+    [window setTitle:[NSString stringWithFormat:@"%@ (%@)", [infoDictionary objectForKey:@"CFBundleName"], [infoDictionary objectForKey:@"CFBundleShortVersionString"]]];
+    
     [window setFrameUsingName:@"Server Panel"];
     [window setFrameAutosaveName:@"Server Panel"];
 
@@ -93,11 +99,21 @@ static void rfbShutdownOnSignal(int signal) {
         [self startServer: self];
 
     [portField setIntValue:port];
+
+    [optionsTabView selectTabViewItemAtIndex:0];
+}
+
+- (void)applicationDidBecomeActive:(NSNotification *)aNotification {
+    [window makeKeyAndOrderFront:self];
 }
 
 // This is sent when the server's screen params change, the server can't handle this right now so we'll restart
 - (void)applicationDidChangeScreenParameters:(NSNotification *)aNotification {
     [statusMessageField setStringValue:@"Screen Resolution changed - Server Reinitializing"];
+}
+
+- (void)windowWillClose:(NSNotification *)aNotification {
+    [NSApp addWindowsItem:window title:[window title] filename:NO];
 }
 
 - (void) loadUserDefaults: sender {
@@ -121,7 +137,9 @@ static void rfbShutdownOnSignal(int signal) {
 
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"desktopName"])
         [displayNameField setStringValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"desktopName"]];
-
+    else
+        [displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
+    
     [sharingMatrix selectCellAtRow:sharingMode column:0];
     [self changeSharing:self];
 
@@ -131,6 +149,9 @@ static void rfbShutdownOnSignal(int signal) {
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"startServerOnLaunch"])
         [startServerOnLaunchCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"startServerOnLaunch"]];
 
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"serverKeepAlive"])
+        [serverKeepAliveCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"serverKeepAlive"]];
+    
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"dontDisconnectClients"])
         [dontDisconnectCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"dontDisconnectClients"]];
 
@@ -140,6 +161,14 @@ static void rfbShutdownOnSignal(int signal) {
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowSleep"])
         [allowSleepCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowSleep"]];
 
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowKeyboardLoading"]) {
+        [allowKeyboardLoading setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowKeyboardLoading"]];
+        [allowPressModsForKeys setEnabled:[allowKeyboardLoading state]];
+    }
+
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowPressModsForKeys"]) 
+        [allowPressModsForKeys setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowPressModsForKeys"]];        
+    
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"disableRemoteEvents"])
         [disableRemoteEventsCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"disableRemoteEvents"]];
 
@@ -161,23 +190,23 @@ static void rfbShutdownOnSignal(int signal) {
     if ([[displayNameField stringValue] length])
         [[NSUserDefaults standardUserDefaults] setObject:[displayNameField stringValue] forKey:@"desktopName"];
 
-    [[NSUserDefaults standardUserDefaults] setInteger:[sharingMatrix selectedRow] forKey:@"sharingMode"];
-
     [[NSUserDefaults standardUserDefaults] setBool:[swapMouseButtonsCheckbox state] forKey:@"swapButtons"];
 
-    [[NSUserDefaults standardUserDefaults] setBool:[startServerOnLaunchCheckbox state] forKey:@"startServerOnLaunch"];
-
+    [[NSUserDefaults standardUserDefaults] setInteger:[sharingMatrix selectedRow] forKey:@"sharingMode"];
     [[NSUserDefaults standardUserDefaults] setBool:[dontDisconnectCheckbox state] forKey:@"dontDisconnectClients"];
+    [[NSUserDefaults standardUserDefaults] setBool:[disableRemoteEventsCheckbox state] forKey:@"disableRemoteEvents"];
+    [[NSUserDefaults standardUserDefaults] setBool:[limitToLocalConnections state] forKey:@"localhostOnly"];
+
+    [[NSUserDefaults standardUserDefaults] setBool:[startServerOnLaunchCheckbox state] forKey:@"startServerOnLaunch"];
+    [[NSUserDefaults standardUserDefaults] setBool:[serverKeepAliveCheckbox state] forKey:@"serverKeepAlive"];
 
     [[NSUserDefaults standardUserDefaults] setBool:[allowDimmingCheckbox state] forKey:@"allowDimming"];
-
     [[NSUserDefaults standardUserDefaults] setBool:[allowSleepCheckbox state] forKey:@"allowSleep"];
 
-    [[NSUserDefaults standardUserDefaults] setBool:[disableRemoteEventsCheckbox state] forKey:@"disableRemoteEvents"];
-
+    [[NSUserDefaults standardUserDefaults] setBool:[allowKeyboardLoading state] forKey:@"allowKeyboardLoading"];
+    [[NSUserDefaults standardUserDefaults] setBool:[allowPressModsForKeys state] forKey:@"allowPressModsForKeys"];
+    
     [[NSUserDefaults standardUserDefaults] setBool:[showMouseButton state] forKey:@"showMouse"];
-
-    [[NSUserDefaults standardUserDefaults] setBool:[limitToLocalConnections state] forKey:@"localhostOnly"];
 
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
@@ -199,7 +228,7 @@ static void rfbShutdownOnSignal(int signal) {
         NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
 
         NSString *executionPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server"];
-        NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting OSXvnc Version %@\n\n", [NSDate date], [infoDictionary valueForKey:@"CFBundleShortVersionString"]];
+        NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting OSXvnc Version %@\n", [NSDate date], [infoDictionary valueForKey:@"CFBundleShortVersionString"]];
 
         if (![[NSFileManager defaultManager] fileExistsAtPath:logFile]) {
             [[NSFileManager defaultManager] createFileAtPath:logFile contents:nil attributes:nil];
@@ -211,6 +240,8 @@ static void rfbShutdownOnSignal(int signal) {
         }
         serverOutput = [[NSFileHandle fileHandleForUpdatingAtPath:logFile] retain];
         [serverOutput writeData:[noteStartup dataUsingEncoding:NSASCIIStringEncoding]];
+        [serverOutput writeData:[[argv componentsJoinedByString:@" "] dataUsingEncoding:NSASCIIStringEncoding]];
+        [serverOutput writeData:[@"\n\n" dataUsingEncoding:NSASCIIStringEncoding]];
 
         controller = [[NSTask alloc] init];
         [controller setLaunchPath:executionPath];
@@ -266,6 +297,9 @@ static void rfbShutdownOnSignal(int signal) {
     else
         [statusMessageField setStringValue:@"The server has stopped running"];
 
+    if (!userStopped && [serverKeepAliveCheckbox state] && [controller terminationStatus] > 1)
+        relaunchServer = YES;
+    
     [controller release];
     controller = nil;
     [serverOutput closeFile];
@@ -303,8 +337,14 @@ static void rfbShutdownOnSignal(int signal) {
         [argv addObject:@"-nodimming"];
     if ([allowSleepCheckbox state])
         [argv addObject:@"-allowsleep"];
+
     if ([showMouseButton state])
         [argv addObject:@"-rfbLocalBuffer"];
+
+    [argv addObject:@"-keyboardLoading"];
+    [argv addObject:([allowKeyboardLoading state] ? @"Y" : @"N")];
+    [argv addObject:@"-pressModsForKeys"];
+    [argv addObject:([allowPressModsForKeys state] ? @"Y" : @"N")];
 
     if ([swapMouseButtonsCheckbox state])
         [argv addObject:@"-swapButtons"];
@@ -410,6 +450,7 @@ static void rfbShutdownOnSignal(int signal) {
 }
 
 - (IBAction) optionChanged: sender {
+    [allowPressModsForKeys setEnabled:[allowKeyboardLoading state]];
     if (sender != self) {
         [self saveUserDefaults: sender];
         [self checkForRestart];
@@ -515,24 +556,30 @@ static void rfbShutdownOnSignal(int signal) {
             free(copyArguments);
         }
 
-        // First we will modify the script file
+        // Then we will modify the script file
         if (myStatus == errAuthorizationSuccess) {
             NSMutableString *startupScript = [NSMutableString stringWithContentsOfFile:@"/Library/StartupItems/OSXvnc/OSXvnc"];
             char *copyArguments[] = {"-f", "/tmp/OSXvnc", "/Library/StartupItems/OSXvnc/OSXvnc", NULL};
-            NSRange argsRange;
+            NSRange lineRange;
             
-            // Modify the file
+            // Replace the VNCPATH line
+            lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCPATH="]];
+            if (lineRange.location != NSNotFound) {
+                NSMutableString *replaceString = [NSString stringWithFormat:@"VNCPATH=\"%@\"\n",[[NSBundle mainBundle] bundlePath]];
+
+                [startupScript replaceCharactersInRange:lineRange withString:replaceString];
+            }
 
             // Replace the VNCARGS line
-            argsRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCARGS"]];
-            if (argsRange.location != NSNotFound) {
+            lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCARGS="]];
+            if (lineRange.location != NSNotFound) {
                 NSMutableString *replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLine] componentsJoinedByString:@" "]];
 
-                [startupScript replaceCharactersInRange:argsRange withString:replaceString];
+                [startupScript replaceCharactersInRange:lineRange withString:replaceString];
 
-                [startupScript writeToFile:@"/tmp/OSXvnc" atomically:YES];
-                myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/mv", kAuthorizationFlagDefaults, copyArguments, NULL);
             }
+            [startupScript writeToFile:@"/tmp/OSXvnc" atomically:YES];
+            myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/mv", kAuthorizationFlagDefaults, copyArguments, NULL);            
         }
     }
     

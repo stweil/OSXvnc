@@ -3,15 +3,17 @@
 //  OSXvnc
 //
 //  Created by Jonathan Gillaspie on Fri Aug 02 2002.
-//  Copyright (c) 2002 __MyCompanyName__. All rights reserved.
+//  Copyright (c) 2002 Redstone Software, Inc. All rights reserved.
 //
 
 #import <Cocoa/Cocoa.h>
 
 @interface VNCController : NSObject {
-    IBOutlet NSWindow *window;
     IBOutlet NSMenuItem *startServerMenuItem;
     IBOutlet NSMenuItem *stopServerMenuItem;
+
+    IBOutlet NSWindow *window;
+    IBOutlet NSTabView *optionsTabView;
 
     IBOutlet NSPopUpButton *displayNumberField;
     IBOutlet NSTextField *portField;
@@ -19,16 +21,21 @@
     IBOutlet NSTextField *displayNameField;
     IBOutlet NSButton *allowDimmingCheckbox;
     IBOutlet NSButton *allowSleepCheckbox;
-    IBOutlet NSButton *startServerOnLaunchCheckbox;
 
-    IBOutlet NSButton *showMouseButton;
+    IBOutlet NSButton *allowKeyboardLoading;
+    IBOutlet NSButton *allowPressModsForKeys;
+
+    NSButton *showMouseButton;
 
     IBOutlet NSMatrix *sharingMatrix;
     IBOutlet NSButton *dontDisconnectCheckbox;
     IBOutlet NSButton *swapMouseButtonsCheckbox;
     IBOutlet NSButton *disableRemoteEventsCheckbox;
     IBOutlet NSButton *limitToLocalConnections;
-    
+
+    IBOutlet NSButton *startServerOnLaunchCheckbox;
+    IBOutlet NSButton *serverKeepAliveCheckbox;
+
     IBOutlet NSTextField *statusMessageField;
     IBOutlet NSButton *startServerButton;
     IBOutlet NSButton *stopServerButton;

@@ -13,7 +13,6 @@
 #import "RFBBundleProtocol.h"
 
 @interface JaguarExtensions : NSObject <RFBBundleProtocol> {
-
 }
 
 @end

@@ -4,7 +4,7 @@
 //
 //  Created by Jonathan Gillaspie on Fri Jul 11 2003.
 //  Copyright (c) 2003 RedstoneSoftware, Inc. All rights reserved.
-// MACOSX_DEPLOYMENT_TARGET
+
 
 #import "JaguarExtensions.h"
 
@@ -17,6 +17,8 @@
 
 @implementation JaguarExtensions
 
+static BOOL keyboardLoading;
+
 static KeyboardLayoutRef loadedKeyboardRef;
 
 void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef);
@@ -24,46 +26,74 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef);
 rfbserver *theServer;
 
 + (void) rfbStartup: (rfbserver *) aServer {
-    int pressModsIndex;
+    int argumentIndex;
 
     theServer = aServer;
-    // Does this need to be in 10.1
-    NSLog(@"10.1 Extenstions Loaded - Event Suppression Disabled");
-    // This seems to actually sometimes inhibit REMOTE events as well, but all the same let's let everything pass through for now
-    CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateSupressionInterval);
-    CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateRemoteMouseDrag);
 
-    *(theServer->pressModsForKeys) = TRUE;
-
-    pressModsIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-pressModsForKeys"];
-    if (pressModsIndex != NSNotFound && [[[NSProcessInfo processInfo] arguments] count] > pressModsIndex + 1) {
-        NSString *value = [[[NSProcessInfo processInfo] arguments] objectAtIndex:pressModsIndex+1];
-        if ([value hasPrefix:@"n"] || [value hasPrefix:@"N"] || [value hasPrefix:@"0"]) {
-            NSLog(@"Press Modifiers For Character - Disable");
-            *(theServer->pressModsForKeys) = FALSE;
-        }
+    keyboardLoading = YES;
+    argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-keyboardLoading"];
+    if (argumentIndex != NSNotFound) {
+        NSString *value = nil;
+        
+        if ([[[NSProcessInfo processInfo] arguments] count] > argumentIndex + 1)
+            value = [[[NSProcessInfo processInfo] arguments] objectAtIndex:argumentIndex+1];
+        
+        if ([value hasPrefix:@"n"] || [value hasPrefix:@"N"] || [value hasPrefix:@"0"])
+            keyboardLoading = NO;
+        else
+            keyboardLoading = YES;
     }
 
-    if (KLGetCurrentKeyboardLayout(&loadedKeyboardRef) == noErr) {
-        loadKeyboard(loadedKeyboardRef);
+    if (keyboardLoading) {
+        NSLog(@"Keyboard Loading - Enabled");
+
+        *(theServer->pressModsForKeys) = TRUE;
+        argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-pressModsForKeys"];
+        if (argumentIndex != NSNotFound) {
+            NSString *value = nil;
+
+            if ([[[NSProcessInfo processInfo] arguments] count] > argumentIndex + 1)
+                value = [[[NSProcessInfo processInfo] arguments] objectAtIndex:argumentIndex+1];
+
+            if ([value hasPrefix:@"n"] || [value hasPrefix:@"N"] || [value hasPrefix:@"0"])
+                *(theServer->pressModsForKeys) = FALSE;
+        }
+        if (*(theServer->pressModsForKeys))
+            NSLog(@"Press Modifiers For Keys - Enabled");
+        else
+            NSLog(@"Press Modifiers For Keys - Disabled");
+
+        if (KLGetCurrentKeyboardLayout(&loadedKeyboardRef) == noErr) {
+            loadKeyboard(loadedKeyboardRef);
+        }
+    }
+    else {
+        NSLog(@"Keyboard Loading - Disabled");
+        NSLog(@"Press Modifiers For Character - Disabled");
     }
 }
 
 + (void) rfbUsage {
     fprintf(stderr,
-            "-pressModsForKeys      This flag works well if you have different keyboards on the local and remote machines\n"
-            "                       if it finds the key you want it will temporarily toggle the modifier keys to produce it\n"
-            "                       (default: yes)\n");
+            "-keyboardLoading flag  This BETA feature allows OSXvnc to look at the users selected keyboard and map keystrokes using it.\n"
+            "                       Disabling this returns OSXvnc to 1.2 (U.S. Keyboard) which may work better with Dead Keys.\n"
+            "                       (default: yes), 10.2+ ONLY\n"
+            "-pressModsForKeys flag If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it.\n"
+            "                       This flag works well if you have different keyboards on the local and remote machines.\n"
+            "                       Only works if -keyboardLoading is on\n"
+            "                       (default: yes), 10.2+ ONLY\n");
 }
 
 + (void) rfbPoll {
-    // Check if keyboardLayoutRef !=
-    KeyboardLayoutRef currentKeyboardLayoutRef;
-    
-    if (KLGetCurrentKeyboardLayout(&currentKeyboardLayoutRef) == noErr) {
-        if (currentKeyboardLayoutRef != loadedKeyboardRef) {
-            loadedKeyboardRef = currentKeyboardLayoutRef;
-            loadKeyboard(loadedKeyboardRef);
+    // Check if keyboardLayoutRef has changed
+    if (keyboardLoading) {
+        KeyboardLayoutRef currentKeyboardLayoutRef;
+
+        if (KLGetCurrentKeyboardLayout(&currentKeyboardLayoutRef) == noErr) {
+            if (currentKeyboardLayoutRef != loadedKeyboardRef) {
+                loadedKeyboardRef = currentKeyboardLayoutRef;
+                loadKeyboard(loadedKeyboardRef);
+            }
         }
     }
 }

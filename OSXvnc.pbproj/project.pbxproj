@@ -218,7 +218,7 @@
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "";
 				HEADER_SEARCH_PATHS = "";
-				INSTALL_PATH = .;
+				INSTALL_PATH = /;
 				LIBRARY_SEARCH_PATHS = "";
 				OPTIMIZATION_CFLAGS = "-O3";
 				OTHER_CFLAGS = "";
@@ -234,7 +234,7 @@
 			);
 			isa = PBXApplicationTarget;
 			name = OSXvnc;
-			productInstallPath = .;
+			productInstallPath = /;
 			productName = OSXvnc;
 			productReference = 17587328FF379C6511CA2CBB;
 			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
@@ -246,7 +246,7 @@
 	<key>CFBundleExecutable</key>
 	<string>OSXvnc</string>
 	<key>CFBundleGetInfoString</key>
-	<string>1.3Beta - Copyright © 2003 Redstone Software </string>
+	<string>1.3 - Copyright © 2003 Redstone Software </string>
 	<key>CFBundleIconFile</key>
 	<string>OSXvnc.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -258,11 +258,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.3Beta</string>
+	<string>1.3</string>
 	<key>CFBundleSignature</key>
 	<string>OSXv</string>
 	<key>CFBundleVersion</key>
-	<string>1.3Beta</string>
+	<string>1.3</string>
 	<key>NSAppleScriptEnabled</key>
 	<false/>
 	<key>NSHelpFile</key>
@@ -299,7 +299,6 @@
 				F5753F480343ACD501A80186,
 				F571340803C4C18D01A80186,
 				ABCCC8B703D9C60A00A80117,
-				AB3598E804BF8A3D00A80117,
 				AB15010E04F6A94500A80117,
 			);
 			isa = PBXResourcesBuildPhase;
@@ -510,12 +509,6 @@
 		AB3598E704BF8A3D00A80117 = {
 			isa = PBXTargetDependency;
 			target = AB3598E504BF8A3D00A80117;
-		};
-		AB3598E804BF8A3D00A80117 = {
-			fileRef = AB3598E604BF8A3D00A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		AB3598E904BF8A6500A80117 = {
 			fileEncoding = 4;
@@ -2514,7 +2507,7 @@
 		};
 		F54B48D8038C32FA01A80117 = {
 			isa = PBXFileReference;
-			path = OSXvnc.tif;
+			path = OSXvnc.tiff;
 			refType = 4;
 		};
 		F55FDAB502FB44CE01A80117 = {

@@ -10,36 +10,24 @@ Release Notes\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\b0\fs24 \cf0 \
+\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f0\b \cf0 Still to do:\
-	
-\f1\b0 Try keeping CGS connection around to improve performance\
-	Whole screen has problem in 256 color mode\
-	Problem with 3.7 authentication scheme\
-\
-	Test pressMods for keys with Foreign Keyboard\
-		Works but not for sticky key - make this loading a selected behavior\
-\
-	Move Disable Logic To Puma Bundle - Necessary or move to main app?\
-	Add GUI to disable Mod Key Swtiching (including GUI)\
-	Add GUI to set for Startup Up\
-	Make GUI more Pref Pane Like\
-\
-
-\f0\b Version 1.3, NOT YET RELEASED:\
+\f0\b \cf0 Version 1.3, Released 9/10/2003:\
 	Modified by Jonathan Gillaspie for Redstone Software, Inc.\
 	( osxvnc@redstonesoftware.com )\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\b0 \cf0 \
-	On OS X 10.2 and higher added support for Keyboard Detection, OSXvnc should now  be able to hit any SINGLE key that is present in the users currently selected keyboard\
-\
+	Made GUI more Pref Pane Like\
+	Added GUI to set for System Startup Up\
 	Added Cursor Support\
-		Added RichCursorSupport (RFB 3.7) \
+		Added RichCursorSupport (RFB 3.7 + Tight) \
 		Added CursorPositionUpdate Support (Tight)\
-		Dynamic Screen Sizing (Clients need no longer reconnect after a screen size change)\
-	\
+	Dynamic Screen Sizing (Clients need no longer reconnect after a screen size change - RFB 3.7)\
+\
+	Now Attempting to pass the CGCharCode, reports that this improves stability (no crashing during key events like Return).\
+	Added BUNDLE to hopefully allow OSXvnc to run on 10.0 and use 10.2 and 10.3 specific enhancements\
 	Fixed an occasional problem sending a rectangle without having accounted for it\
 	Fixed a rare bug where it was occasionally possible for clients to miss a copy event which occurred on the server.
 \f0\b \
@@ -52,8 +40,6 @@ Release Notes\
 	
 \f1\b0 Fixed problem with OSXvnc causing machine interruptions when no clients connected by disabling poll for ScreenUpdates (Bug-770661)\
 	Fixed so that scroll wheel events don't leak by adding NSAutoreleasePool (Bug-760383)\
-	Now Attempting to pass the CGCharCode, reports that this improves stability (no crashing during key events like Return).\
-	Added BUNDLE to hopefully allow OSXvnc to run on 10.0\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f0\b \cf0 	
@@ -156,10 +142,29 @@ Things To Do:\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\b0 \cf0 \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 Still to do:\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 	On OS X 10.2 and higher added support for Keyboard Detection, OSXvnc should now  be able to hit any SINGLE key that is present in the users currently selected keyboard\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 	
+\f1\b0 Try keeping CGS connection around to improve performance\
+	Whole screen has problem in 256 color mode\
+	Problem with 3.7 authentication scheme\
+	Bundles performance optimization\
+	Test pressMods for keys with Foreign Keyboard\
+		Works but not for sticky key - make this loading a selected behavior\
+		Also has problems with things like SHIFT Arrows, CTRL Arrows, etc.\
+\
+	Move Disable Logic To Puma Bundle - Necessary for 10.0?\
+	Add GUI to disable Mod Key Swtiching (including GUI)\
+\
 Mouse Cursor:\
-	Problems with non 32bit color modes\
 	Occasional cursor artifacts (disabling cursor display didn't seem to help)\
-	Problem with partial transparency on cursors - how should we display?\
+	Problem with partial transparency on cursors - displayed using threshold\
 \
 Fix problem where pasteboard isn't shared when run as StartupItem\
 	Tricky, the loginserver specifically disconnects our port to the pbs, could try something with -LoginHook to reconnect it.\
@@ -185,8 +190,9 @@ Update Dock Icon with Badging As Users Connect\
 Option to set background to Black on Connect\
 	(
 \f3\fs20 /System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine -background -module "" &)\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f1\fs24 \
+\f1\fs24 \cf0 \
 Panther:\
 	See if Panther allows us to run multiple virtual desktops\
 	Fix Compile problems\
