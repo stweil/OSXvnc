@@ -29,9 +29,14 @@
 #import "VNCController.h"
 
 #import "OSXvnc-server/libvncauth/vncauth.h"
-
+#import <signal.h>
 
 @implementation VNCController
+
+static void rfbShutdownOnSignal(int signal) {
+    NSLog(@"Trapped Signal %d -- Terminating", signal);
+    [NSApp terminate:NSApp];
+}
 
 - init {
     [super init];
@@ -43,7 +48,14 @@
     neverShared = FALSE;
 
     userStopped = FALSE;
-    
+
+    signal(SIGTERM, rfbShutdownOnSignal);
+    signal(SIGINT, rfbShutdownOnSignal);
+    signal(SIGHUP, rfbShutdownOnSignal);
+    signal(SIGQUIT, rfbShutdownOnSignal);
+    signal(SIGBUS, rfbShutdownOnSignal);
+    signal(SIGSEGV, rfbShutdownOnSignal);
+        
     return self;
 }
 
@@ -69,7 +81,7 @@
 
 - (void) loadUserDefaults: sender {
     NSString *portDefault = [[NSUserDefaults standardUserDefaults] stringForKey:@"portNumber"];
-    NSString *vncauth = [[NSUserDefaults standardUserDefaults] stringForKey:@"vncauth"];
+    NSData *vncauth = [[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"];
     int sharingMode = [[NSUserDefaults standardUserDefaults] integerForKey:@"sharingMode"];
     
     if (portDefault) {
@@ -80,7 +92,7 @@
 
     if ([vncauth length]) {
         [vncauth writeToFile:passwordFile atomically:YES];
-        [passwordField setStringValue:vncauth];
+        [passwordField setStringValue:@"XXXXXXXX"];
     }
 
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"desktopName"])
@@ -112,9 +124,9 @@
     [[NSUserDefaults standardUserDefaults] setInteger:port forKey:@"portNumber"];
     
     if ([[NSFileManager defaultManager] fileExistsAtPath:passwordFile])
-        [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithContentsOfFile:passwordFile] forKey:@"vncauth"];
+        [[NSUserDefaults standardUserDefaults] setObject:[NSData dataWithContentsOfFile:passwordFile] forKey:@"vncauth"];
     else
-        [[NSUserDefaults standardUserDefaults] setObject:[NSString stringWithContentsOfFile:passwordFile] forKey:@"vncauth"];
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"vncauth"];
         
     if ([[displayNameField stringValue] length])
         [[NSUserDefaults standardUserDefaults] setObject:[displayNameField stringValue] forKey:@"desktopName"];
@@ -139,13 +151,10 @@
 - (void) startServer: sender {
     id argv;
 
-    // They may have the crossbar in the 'port' field but not have
-    // hit 'tab' or return.  So make sure we do an update on those fields.
-    [self changePort: sender];
-    [self changePassword: sender];
+    if (![window makeFirstResponder:window])
+        [window endEditingFor:nil];
 
-    argv = [self formCommandLine];
-    if (argv) {
+    if (argv = [self formCommandLine]) {
         NSString *executionPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"OSXvnc-server"];
         NSString *outputPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"server.txt"];
 
@@ -349,8 +358,6 @@
     [swapMouseButtonsCheckbox setEnabled:TRUE];
 }
 
-// It would also be good to do this if we get a kill signal, etc
-//
 - (void) applicationWillTerminate: (NSNotification *) notification {
     [self stopServer: self];
     [window endEditingFor: nil];
