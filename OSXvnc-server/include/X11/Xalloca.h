@@ -59,6 +59,9 @@ from the X Consortium.
  *    #include "Xalloca.h"
  */
 
+// Lets skip this on OS X
+#define XALLOCA_H 1
+
 #ifndef XALLOCA_H
 #define XALLOCA_H 1
 

@@ -28,6 +28,9 @@ in this Software without prior written authorization from the X Consortium.
  *
  */
 
+// Lets skip this file
+#define _XFUNCS_H_
+
 #ifndef _XFUNCS_H_
 #define _XFUNCS_H_
 
@@ -69,6 +72,7 @@ int bcmp();
 #endif /* sgi */
 #endif /* __STDC__ and relatives */
 #endif /* X_USEBFUNCS */
+
 
 /* the new Xfuncs.h */
 

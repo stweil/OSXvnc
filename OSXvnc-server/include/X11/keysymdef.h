@@ -40,7 +40,7 @@ supporting documentation, and that the name of Digital not be
 used in advertising or publicity pertaining to distribution of the
 software without specific, written prior permission.
 
-DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+DIGITAL DISCLAIMS// // #ifdef ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
 ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
 DIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR
 ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
@@ -52,7 +52,7 @@ SOFTWARE.
 
 #define XK_VoidSymbol		0xFFFFFF	/* void symbol */
 
-#ifdef XK_MISCELLANY
+// #ifdef XK_MISCELLANY
 /*
  * TTY Functions, cleverly chosen to map to ascii, for convenience of
  * programming, but could have been arbitrary (at the cost of lookup
@@ -263,14 +263,14 @@ SOFTWARE.
 #define XK_Super_R		0xFFEC	/* Right super */
 #define XK_Hyper_L		0xFFED	/* Left hyper */
 #define XK_Hyper_R		0xFFEE	/* Right hyper */
-#endif /* XK_MISCELLANY */
+// #endif /* XK_MISCELLANY */
 
 /*
  * ISO 9995 Function and Modifier Keys
  * Byte 3 = 0xFE
  */
 
-#ifdef XK_XKB_KEYS
+// #ifdef XK_XKB_KEYS
 #define	XK_ISO_Lock					0xFE01
 #define	XK_ISO_Level2_Latch				0xFE02
 #define	XK_ISO_Level3_Shift				0xFE03
@@ -378,14 +378,14 @@ SOFTWARE.
 #define	XK_Pointer_DfltBtnNext				0xFEFB
 #define	XK_Pointer_DfltBtnPrev				0xFEFC
 
-#endif
+// #endif
 
 /*
  * 3270 Terminal Keys
  * Byte 3 = 0xFD
  */
 
-#ifdef XK_3270
+// #ifdef XK_3270
 #define XK_3270_Duplicate      0xFD01
 #define XK_3270_FieldMark      0xFD02
 #define XK_3270_Right2         0xFD03
@@ -416,13 +416,13 @@ SOFTWARE.
 #define XK_3270_CursorSelect   0xFD1C
 #define XK_3270_PrintScreen    0xFD1D
 #define XK_3270_Enter          0xFD1E
-#endif
+// #endif
 
 /*
  *  Latin 1
  *  Byte 3 = 0
  */
-#ifdef XK_LATIN1
+// #ifdef XK_LATIN1
 #define XK_space               0x020
 #define XK_exclam              0x021
 #define XK_quotedbl            0x022
@@ -619,14 +619,14 @@ SOFTWARE.
 #define XK_yacute              0x0fd
 #define XK_thorn               0x0fe
 #define XK_ydiaeresis          0x0ff
-#endif /* XK_LATIN1 */
+// #endif /* XK_LATIN1 */
 
 /*
  *   Latin 2
  *   Byte 3 = 1
  */
 
-#ifdef XK_LATIN2
+// #ifdef XK_LATIN2
 #define XK_Aogonek             0x1a1
 #define XK_breve               0x1a2
 #define XK_Lstroke             0x1a3
@@ -684,14 +684,14 @@ SOFTWARE.
 #define XK_uring               0x1f9
 #define XK_tcedilla            0x1fe
 #define XK_abovedot            0x1ff
-#endif /* XK_LATIN2 */
+// #endif /* XK_LATIN2 */
 
 /*
  *   Latin 3
  *   Byte 3 = 2
  */
 
-#ifdef XK_LATIN3
+// #ifdef XK_LATIN3
 #define XK_Hstroke             0x2a1
 #define XK_Hcircumflex         0x2a6
 #define XK_Iabovedot           0x2a9
@@ -714,7 +714,7 @@ SOFTWARE.
 #define XK_gcircumflex         0x2f8
 #define XK_ubreve              0x2fd
 #define XK_scircumflex         0x2fe
-#endif /* XK_LATIN3 */
+// #endif /* XK_LATIN3 */
 
 
 /*
@@ -722,7 +722,7 @@ SOFTWARE.
  *   Byte 3 = 3
  */
 
-#ifdef XK_LATIN4
+// #ifdef XK_LATIN4
 #define XK_kra                 0x3a2
 #define XK_kappa               0x3a2	/* deprecated */
 #define XK_Rcedilla            0x3a3
@@ -759,14 +759,14 @@ SOFTWARE.
 #define XK_uogonek             0x3f9
 #define XK_utilde              0x3fd
 #define XK_umacron             0x3fe
-#endif /* XK_LATIN4 */
+// #endif /* XK_LATIN4 */
 
 /*
  * Katakana
  * Byte 3 = 4
  */
 
-#ifdef XK_KATAKANA
+// #ifdef XK_KATAKANA
 #define XK_overline				       0x47e
 #define XK_kana_fullstop                               0x4a1
 #define XK_kana_openingbracket                         0x4a2
@@ -837,14 +837,14 @@ SOFTWARE.
 #define XK_voicedsound                                 0x4de
 #define XK_semivoicedsound                             0x4df
 #define XK_kana_switch          0xFF7E  /* Alias for mode_switch */
-#endif /* XK_KATAKANA */
+// #endif /* XK_KATAKANA */
 
 /*
  *  Arabic
  *  Byte 3 = 5
  */
 
-#ifdef XK_ARABIC
+// #ifdef XK_ARABIC
 #define XK_Arabic_comma                                0x5ac
 #define XK_Arabic_semicolon                            0x5bb
 #define XK_Arabic_question_mark                        0x5bf
@@ -895,13 +895,13 @@ SOFTWARE.
 #define XK_Arabic_shadda                               0x5f1
 #define XK_Arabic_sukun                                0x5f2
 #define XK_Arabic_switch        0xFF7E  /* Alias for mode_switch */
-#endif /* XK_ARABIC */
+// #endif /* XK_ARABIC */
 
 /*
  * Cyrillic
  * Byte 3 = 6
  */
-#ifdef XK_CYRILLIC
+// #ifdef XK_CYRILLIC
 #define XK_Serbian_dje                                 0x6a1
 #define XK_Macedonia_gje                               0x6a2
 #define XK_Cyrillic_io                                 0x6a3
@@ -1009,14 +1009,14 @@ SOFTWARE.
 #define XK_Cyrillic_SHCHA                              0x6fd
 #define XK_Cyrillic_CHE                                0x6fe
 #define XK_Cyrillic_HARDSIGN                           0x6ff
-#endif /* XK_CYRILLIC */
+// #endif /* XK_CYRILLIC */
 
 /*
  * Greek
  * Byte 3 = 7
  */
 
-#ifdef XK_GREEK
+// #ifdef XK_GREEK
 #define XK_Greek_ALPHAaccent                           0x7a1
 #define XK_Greek_EPSILONaccent                         0x7a2
 #define XK_Greek_ETAaccent                             0x7a3
@@ -1091,14 +1091,14 @@ SOFTWARE.
 #define XK_Greek_psi                                   0x7f8
 #define XK_Greek_omega                                 0x7f9
 #define XK_Greek_switch         0xFF7E  /* Alias for mode_switch */
-#endif /* XK_GREEK */
+// #endif /* XK_GREEK */
 
 /*
  * Technical
  * Byte 3 = 8
  */
 
-#ifdef XK_TECHNICAL
+// #ifdef XK_TECHNICAL
 #define XK_leftradical                                 0x8a1
 #define XK_topleftradical                              0x8a2
 #define XK_horizconnector                              0x8a3
@@ -1148,14 +1148,14 @@ SOFTWARE.
 #define XK_uparrow                                     0x8fc
 #define XK_rightarrow                                  0x8fd
 #define XK_downarrow                                   0x8fe
-#endif /* XK_TECHNICAL */
+// #endif /* XK_TECHNICAL */
 
 /*
  *  Special
  *  Byte 3 = 9
  */
 
-#ifdef XK_SPECIAL
+// #ifdef XK_SPECIAL
 #define XK_blank                                       0x9df
 #define XK_soliddiamond                                0x9e0
 #define XK_checkerboard                                0x9e1
@@ -1180,14 +1180,14 @@ SOFTWARE.
 #define XK_bott                                        0x9f6
 #define XK_topt                                        0x9f7
 #define XK_vertbar                                     0x9f8
-#endif /* XK_SPECIAL */
+// #endif /* XK_SPECIAL */
 
 /*
  *  Publishing
  *  Byte 3 = a
  */
 
-#ifdef XK_PUBLISHING
+// #ifdef XK_PUBLISHING
 #define XK_emspace                                     0xaa1
 #define XK_enspace                                     0xaa2
 #define XK_em3space                                    0xaa3
@@ -1271,14 +1271,14 @@ SOFTWARE.
 #define XK_singlelowquotemark                          0xafd
 #define XK_doublelowquotemark                          0xafe
 #define XK_cursor                                      0xaff
-#endif /* XK_PUBLISHING */
+// #endif /* XK_PUBLISHING */
 
 /*
  *  APL
  *  Byte 3 = b
  */
 
-#ifdef XK_APL
+// #ifdef XK_APL
 #define XK_leftcaret                                   0xba3
 #define XK_rightcaret                                  0xba6
 #define XK_downcaret                                   0xba8
@@ -1298,14 +1298,14 @@ SOFTWARE.
 #define XK_leftshoe                                    0xbda
 #define XK_lefttack                                    0xbdc
 #define XK_righttack                                   0xbfc
-#endif /* XK_APL */
+// #endif /* XK_APL */
 
 /*
  * Hebrew
  * Byte 3 = c
  */
 
-#ifdef XK_HEBREW
+// #ifdef XK_HEBREW
 #define XK_hebrew_doublelowline                        0xcdf
 #define XK_hebrew_aleph                                0xce0
 #define XK_hebrew_bet                                  0xce1
@@ -1346,14 +1346,14 @@ SOFTWARE.
 #define XK_hebrew_taw                                  0xcfa
 #define XK_hebrew_taf                                  0xcfa  /* deprecated */
 #define XK_Hebrew_switch        0xFF7E  /* Alias for mode_switch */
-#endif /* XK_HEBREW */
+// #endif /* XK_HEBREW */
 
 /*
  * Thai
  * Byte 3 = d
  */
 
-#ifdef XK_THAI
+// #ifdef XK_THAI
 #define XK_Thai_kokai					0xda1
 #define XK_Thai_khokhai					0xda2
 #define XK_Thai_khokhuat				0xda3
@@ -1438,14 +1438,14 @@ SOFTWARE.
 #define XK_Thai_lekchet					0xdf7  
 #define XK_Thai_lekpaet					0xdf8  
 #define XK_Thai_lekkao					0xdf9 
-#endif /* XK_THAI */
+// #endif /* XK_THAI */
 
 /*
  *   Korean
  *   Byte 3 = e
  */
 
-#ifdef XK_KOREAN
+// #ifdef XK_KOREAN
 
 #define XK_Hangul		0xff31    /* Hangul start/stop(toggle) */
 #define XK_Hangul_Start		0xff32    /* Hangul start */
@@ -1569,4 +1569,4 @@ SOFTWARE.
 /* Korean currency symbol */
 #define XK_Korean_Won					0xeff
 
-#endif /* XK_KOREAN */
+// #endif /* XK_KOREAN */
