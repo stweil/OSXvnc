@@ -10,6 +10,7 @@
 			files = (
 			);
 			isa = PBXRezBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 //040
 //041
@@ -227,6 +228,7 @@
 				29B9732DFDCFA39411CA2CEA,
 				043355C9FE30361CC02AAC07,
 				F538E4AA02F9B5FB01A80186,
+				F5F19D410369073501A80117,
 			);
 			buildSettings = {
 				FRAMEWORK_SEARCH_PATHS = "";
@@ -249,8 +251,8 @@
 			productName = OSXvnc;
 			productReference = 17587328FF379C6511CA2CBB;
 			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist SYSTEM \"file://localhost/System/Library/DTDs/PropertyList.dtd\">
-<plist version=\"0.9\">
+<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+<plist version=\"1.0\">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
@@ -293,6 +295,7 @@
 				F5456DB302FAD57A01A80117,
 			);
 			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		29B97328FDCFA39411CA2CEA = {
 			buildActionMask = 2147483647;
@@ -306,6 +309,7 @@
 				F5753F480343ACD501A80186,
 			);
 			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		29B9732BFDCFA39411CA2CEA = {
 			buildActionMask = 2147483647;
@@ -316,6 +320,7 @@
 				F5456DB202FAD57901A80117,
 			);
 			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		29B9732CFDCFA39411CA2CEA = {
 			fileRef = 29B97316FDCFA39411CA2CEA;
@@ -331,6 +336,7 @@
 				1058C7A3FEA54F0111CA2CBB,
 			);
 			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 //290
 //291
@@ -357,6 +363,9 @@
 			);
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DSTROOT = /;
+				OPTIMIZATION_CFLAGS = "-O3";
 			};
 			isa = PBXBuildStyle;
 			name = Deployment;
@@ -2052,6 +2061,7 @@
 				F538E4B502F9B74201A80186,
 			);
 			isa = PBXCopyFilesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F538E4B402F9B73F01A80186 = {
 			isa = PBXExecutableFileReference;
@@ -2181,6 +2191,19 @@
 			isa = PBXBuildFile;
 			settings = {
 			};
+		};
+		F5F19D410369073501A80117 = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			generatedFileNames = (
+			);
+			isa = PBXShellScriptBuildPhase;
+			neededFileNames = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "pushd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/;/bin/ln -s Contents/MacOS/Resources/OSXvnc-server Contents/MacOS;popd";
 		};
 	};
 	rootObject = 29B97313FDCFA39411CA2CEA;
