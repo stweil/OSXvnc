@@ -18,14 +18,14 @@ extern CGError CGSReleaseConnection(CGSConnectionRef connection);
 
 extern CGError CGSGetGlobalCursorDataSize(CGSConnectionRef connection, int* size);
 extern CGError CGSGetGlobalCursorData(CGSConnectionRef connection,
-									  unsigned char* cursorData,
-									  int* size,
-									  void* unknown,
-									  CGRect* cursorRect,
-									  CGPoint* hotspot,
-									  int* depth,
-									  int* components,
-									  int* bitsPerComponent);
+                                      unsigned char* cursorData,
+                                      int* size,
+                                      int* bytesPerRow,
+                                      CGRect* cursorRect,
+                                      CGPoint* hotspot,
+                                      int* depth,
+                                      int* components,
+                                      int* bitsPerComponent);
 
 extern CGError CGSGetCurrentCursorLocation(CGSConnectionRef connection, CGPoint* point);
 extern int CGSCurrentCursorSeed(void);
