@@ -175,6 +175,7 @@ rfbClientPtr rfbNewClient(int sock) {
     cl->correMaxWidth = 48;
     cl->correMaxHeight = 48;
     cl->zrleData = 0;
+    cl->mosData = 0;
 
     box.x1 = box.y1 = 0;
     box.x2 = rfbScreen.width;
@@ -196,7 +197,12 @@ rfbClientPtr rfbNewClient(int sock) {
         cl->zsActive[i] = FALSE;
 
     cl->enableLastRectEncoding = FALSE;
-
+    cl->enableXCursorShapeUpdates = FALSE;
+    cl->useRichCursorEncoding = FALSE;
+    cl->enableCursorPosUpdates = FALSE;
+    cl->desktopSizeUpdate = FALSE;
+    cl->immediateUpdate = FALSE;
+    
     pthread_mutex_lock(&rfbClientListMutex);
     cl->next = rfbClientHead;
     cl->prev = NULL;
