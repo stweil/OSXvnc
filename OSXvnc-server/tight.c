@@ -109,18 +109,18 @@ static int *prevRowBuf = NULL;
 
 /* Prototypes for static functions. */
 
-static void FindBestSolidArea (int x, int y, int w, int h,
+static void FindBestSolidArea (rfbClientPtr cl, int x, int y, int w, int h,
                                CARD32 colorValue, int *w_ptr, int *h_ptr);
-static void ExtendSolidArea   (int x, int y, int w, int h,
+static void ExtendSolidArea   (rfbClientPtr cl, int x, int y, int w, int h,
                                CARD32 colorValue,
                                int *x_ptr, int *y_ptr, int *w_ptr, int *h_ptr);
-static Bool CheckSolidTile    (int x, int y, int w, int h,
+static Bool CheckSolidTile    (rfbClientPtr cl, int x, int y, int w, int h,
                                CARD32 *colorPtr, Bool needSameColor);
-static Bool CheckSolidTile8   (int x, int y, int w, int h,
+static Bool CheckSolidTile8   (rfbClientPtr cl, int x, int y, int w, int h,
                                CARD32 *colorPtr, Bool needSameColor);
-static Bool CheckSolidTile16  (int x, int y, int w, int h,
+static Bool CheckSolidTile16  (rfbClientPtr cl, int x, int y, int w, int h,
                                CARD32 *colorPtr, Bool needSameColor);
-static Bool CheckSolidTile32  (int x, int y, int w, int h,
+static Bool CheckSolidTile32  (rfbClientPtr cl, int x, int y, int w, int h,
                                CARD32 *colorPtr, Bool needSameColor);
 
 static Bool SendRectSimple    (rfbClientPtr cl, int x, int y, int w, int h);
@@ -164,10 +164,10 @@ static unsigned long DetectSmoothImage32(rfbPixelFormat *fmt, int w, int h);
 
 static Bool SendJpegRect(rfbClientPtr cl, int x, int y, int w, int h,
                          int quality);
-static void PrepareRowForJpeg(CARD8 *dst, int x, int y, int count);
-static void PrepareRowForJpeg24(CARD8 *dst, int x, int y, int count);
-static void PrepareRowForJpeg16(CARD8 *dst, int x, int y, int count);
-static void PrepareRowForJpeg32(CARD8 *dst, int x, int y, int count);
+static void PrepareRowForJpeg(rfbClientPtr cl, CARD8 *dst, int x, int y, int count);
+static void PrepareRowForJpeg16(rfbClientPtr cl, CARD8 *dst, int x, int y, int count);
+static void PrepareRowForJpeg24(rfbClientPtr cl, CARD8 *dst, int x, int y, int count);
+static void PrepareRowForJpeg32(rfbClientPtr cl, CARD8 *dst, int x, int y, int count);
 
 static void JpegInitDestination(j_compress_ptr cinfo);
 static boolean JpegEmptyOutputBuffer(j_compress_ptr cinfo);
@@ -272,11 +272,11 @@ rfbSendRectEncodingTight(cl, x, y, w, h)
             dw = (dx + MAX_SPLIT_TILE_SIZE <= x + w) ?
                 MAX_SPLIT_TILE_SIZE : (x + w - dx);
 
-            if (CheckSolidTile(dx, dy, dw, dh, &colorValue, FALSE)) {
+            if (CheckSolidTile(cl, dx, dy, dw, dh, &colorValue, FALSE)) {
 
                 /* Get dimensions of solid-color area. */
 
-                FindBestSolidArea(dx, dy, w - (dx - x), h - (dy - y),
+                FindBestSolidArea(cl, dx, dy, w - (dx - x), h - (dy - y),
 				  colorValue, &w_best, &h_best);
 
                 /* Make sure a solid rectangle is large enough
@@ -289,7 +289,7 @@ rfbSendRectEncodingTight(cl, x, y, w, h)
                 /* Try to extend solid rectangle to maximum size. */
 
                 x_best = dx; y_best = dy;
-                ExtendSolidArea(x, y, w, h, colorValue,
+                ExtendSolidArea(cl, x, y, w, h, colorValue,
                                 &x_best, &y_best, &w_best, &h_best);
 
                 /* Send rectangles at top and left to solid-color area. */
@@ -307,13 +307,13 @@ rfbSendRectEncodingTight(cl, x, y, w, h)
                 if (!SendTightHeader(cl, x_best, y_best, w_best, h_best))
                     return FALSE;
 
-                fbptr = (rfbGetFramebuffer() +
-                         (rfbScreen.paddedWidthInBytes * y_best) +
+                fbptr = (cl->scalingFrameBuffer +
+                         (cl->scalingPaddedWidthInBytes * y_best) +
                          (x_best * (rfbScreen.bitsPerPixel / 8)));
 
                 (*cl->translateFn)(cl->translateLookupTable, &rfbServerFormat,
                                    &cl->format, fbptr, tightBeforeBuf,
-                                   rfbScreen.paddedWidthInBytes, 1, 1);
+                                   cl->scalingPaddedWidthInBytes, 1, 1);
 
                 if (!SendSolidRect(cl))
                     return FALSE;
@@ -344,7 +344,8 @@ rfbSendRectEncodingTight(cl, x, y, w, h)
 }
 
 static void
-FindBestSolidArea(x, y, w, h, colorValue, w_ptr, h_ptr)
+FindBestSolidArea(cl, x, y, w, h, colorValue, w_ptr, h_ptr)
+    rfbClientPtr cl;
     int x, y, w, h;
     CARD32 colorValue;
     int *w_ptr, *h_ptr;
@@ -362,13 +363,13 @@ FindBestSolidArea(x, y, w, h, colorValue, w_ptr, h_ptr)
         dw = (w_prev > MAX_SPLIT_TILE_SIZE) ?
             MAX_SPLIT_TILE_SIZE : w_prev;
 
-        if (!CheckSolidTile(x, dy, dw, dh, &colorValue, TRUE))
+        if (!CheckSolidTile(cl, x, dy, dw, dh, &colorValue, TRUE))
             break;
 
         for (dx = x + dw; dx < x + w_prev;) {
             dw = (dx + MAX_SPLIT_TILE_SIZE <= x + w_prev) ?
                 MAX_SPLIT_TILE_SIZE : (x + w_prev - dx);
-            if (!CheckSolidTile(dx, dy, dw, dh, &colorValue, TRUE))
+            if (!CheckSolidTile(cl, dx, dy, dw, dh, &colorValue, TRUE))
                 break;
 	    dx += dw;
         }
@@ -385,7 +386,8 @@ FindBestSolidArea(x, y, w, h, colorValue, w_ptr, h_ptr)
 }
 
 static void
-ExtendSolidArea(x, y, w, h, colorValue, x_ptr, y_ptr, w_ptr, h_ptr)
+ExtendSolidArea(cl, x, y, w, h, colorValue, x_ptr, y_ptr, w_ptr, h_ptr)
+rfbClientPtr cl;
     int x, y, w, h;
     CARD32 colorValue;
     int *x_ptr, *y_ptr, *w_ptr, *h_ptr;
@@ -394,7 +396,7 @@ ExtendSolidArea(x, y, w, h, colorValue, x_ptr, y_ptr, w_ptr, h_ptr)
 
     /* Try to extend the area upwards. */
     for ( cy = *y_ptr - 1;
-          cy >= y && CheckSolidTile(*x_ptr, cy, *w_ptr, 1, &colorValue, TRUE);
+          cy >= y && CheckSolidTile(cl, *x_ptr, cy, *w_ptr, 1, &colorValue, TRUE);
           cy-- );
     *h_ptr += *y_ptr - (cy + 1);
     *y_ptr = cy + 1;
@@ -402,13 +404,13 @@ ExtendSolidArea(x, y, w, h, colorValue, x_ptr, y_ptr, w_ptr, h_ptr)
     /* ... downwards. */
     for ( cy = *y_ptr + *h_ptr;
           cy < y + h &&
-              CheckSolidTile(*x_ptr, cy, *w_ptr, 1, &colorValue, TRUE);
+              CheckSolidTile(cl, *x_ptr, cy, *w_ptr, 1, &colorValue, TRUE);
           cy++ );
     *h_ptr += cy - (*y_ptr + *h_ptr);
 
     /* ... to the left. */
     for ( cx = *x_ptr - 1;
-          cx >= x && CheckSolidTile(cx, *y_ptr, 1, *h_ptr, &colorValue, TRUE);
+          cx >= x && CheckSolidTile(cl, cx, *y_ptr, 1, *h_ptr, &colorValue, TRUE);
           cx-- );
     *w_ptr += *x_ptr - (cx + 1);
     *x_ptr = cx + 1;
@@ -416,31 +418,33 @@ ExtendSolidArea(x, y, w, h, colorValue, x_ptr, y_ptr, w_ptr, h_ptr)
     /* ... to the right. */
     for ( cx = *x_ptr + *w_ptr;
           cx < x + w &&
-              CheckSolidTile(cx, *y_ptr, 1, *h_ptr, &colorValue, TRUE);
+              CheckSolidTile(cl, cx, *y_ptr, 1, *h_ptr, &colorValue, TRUE);
           cx++ );
     *w_ptr += cx - (*x_ptr + *w_ptr);
 }
 
 static Bool
-CheckSolidTile(x, y, w, h, colorPtr, needSameColor)
-    int x, y, w, h;
+CheckSolidTile(cl, x, y, w, h, colorPtr, needSameColor)
+    rfbClientPtr cl;
+	int x, y, w, h;
     CARD32 *colorPtr;
     Bool needSameColor;
 {
     switch(rfbServerFormat.bitsPerPixel) {
     case 32:
-        return CheckSolidTile32(x, y, w, h, colorPtr, needSameColor);
+        return CheckSolidTile32(cl, x, y, w, h, colorPtr, needSameColor);
     case 16:
-        return CheckSolidTile16(x, y, w, h, colorPtr, needSameColor);
+        return CheckSolidTile16(cl, x, y, w, h, colorPtr, needSameColor);
     default:
-        return CheckSolidTile8(x, y, w, h, colorPtr, needSameColor);
+        return CheckSolidTile8(cl, x, y, w, h, colorPtr, needSameColor);
     }
 }
 
 #define DEFINE_CHECK_SOLID_FUNCTION(bpp)                                      \
                                                                               \
 static Bool                                                                   \
-CheckSolidTile##bpp(x, y, w, h, colorPtr, needSameColor)                      \
+CheckSolidTile##bpp(cl, x, y, w, h, colorPtr, needSameColor)                      \
+    rfbClientPtr cl; \
     int x, y;                                                                 \
     CARD32 *colorPtr;                                                         \
     Bool needSameColor;                                                       \
@@ -450,7 +454,7 @@ CheckSolidTile##bpp(x, y, w, h, colorPtr, needSameColor)                      \
     int dx, dy;                                                               \
                                                                               \
     fbptr = (CARD##bpp *)                                                     \
-        &rfbGetFramebuffer()[y * rfbScreen.paddedWidthInBytes + x * (bpp/8)]; \
+        &cl->scalingFrameBuffer[y * cl->scalingPaddedWidthInBytes + x * (bpp/8)]; \
                                                                               \
     colorValue = *fbptr;                                                      \
     if (needSameColor && (CARD32)colorValue != *colorPtr)                     \
@@ -461,7 +465,7 @@ CheckSolidTile##bpp(x, y, w, h, colorPtr, needSameColor)                      \
             if (colorValue != fbptr[dx])                                      \
                 return FALSE;                                                 \
         }                                                                     \
-        fbptr = (CARD##bpp *)((CARD8 *)fbptr + rfbScreen.paddedWidthInBytes); \
+        fbptr = (CARD##bpp *)((CARD8 *)fbptr + cl->scalingPaddedWidthInBytes); \
     }                                                                         \
                                                                               \
     *colorPtr = (CARD32)colorValue;                                           \
@@ -544,12 +548,12 @@ SendSubrect(cl, x, y, w, h)
     if (!SendTightHeader(cl, x, y, w, h))
         return FALSE;
 
-    fbptr = (rfbGetFramebuffer() + (rfbScreen.paddedWidthInBytes * y)
+    fbptr = (cl->scalingFrameBuffer + (cl->scalingPaddedWidthInBytes * y)
              + (x * (rfbScreen.bitsPerPixel / 8)));
 
     (*cl->translateFn)(cl->translateLookupTable, &rfbServerFormat,
                        &cl->format, fbptr, tightBeforeBuf,
-                       rfbScreen.paddedWidthInBytes, w, h);
+                       cl->scalingPaddedWidthInBytes, w, h);
 
     paletteMaxColors = w * h / tightConf[compressLevel].idxMaxColorsDivisor;
     if ( paletteMaxColors < 2 &&
@@ -1648,7 +1652,7 @@ SendJpegRect(cl, x, y, w, h, quality)
     jpeg_start_compress(&cinfo, TRUE);
 
     for (dy = 0; dy < h; dy++) {
-        PrepareRowForJpeg(srcBuf, x, y + dy, w);
+        PrepareRowForJpeg(cl, srcBuf, x, y + dy, w);
         jpeg_write_scanlines(&cinfo, rowPointer, 1);
         if (jpegError)
             break;
@@ -1675,7 +1679,8 @@ SendJpegRect(cl, x, y, w, h, quality)
 }
 
 static void
-PrepareRowForJpeg(dst, x, y, count)
+PrepareRowForJpeg(cl, dst, x, y, count)
+rfbClientPtr cl;
     CARD8 *dst;
     int x, y, count;
 {
@@ -1683,18 +1688,19 @@ PrepareRowForJpeg(dst, x, y, count)
         if ( rfbServerFormat.redMax == 0xFF &&
              rfbServerFormat.greenMax == 0xFF &&
              rfbServerFormat.blueMax == 0xFF ) {
-            PrepareRowForJpeg24(dst, x, y, count);
+            PrepareRowForJpeg24(cl, dst, x, y, count);
         } else {
-            PrepareRowForJpeg32(dst, x, y, count);
+            PrepareRowForJpeg32(cl, dst, x, y, count);
         }
     } else {
         /* 16 bpp assumed. */
-        PrepareRowForJpeg16(dst, x, y, count);
+        PrepareRowForJpeg16(cl, dst, x, y, count);
     }
 }
 
 static void
-PrepareRowForJpeg24(dst, x, y, count)
+PrepareRowForJpeg24(cl, dst, x, y, count)
+    rfbClientPtr cl;
     CARD8 *dst;
     int x, y, count;
 {
@@ -1702,7 +1708,7 @@ PrepareRowForJpeg24(dst, x, y, count)
     CARD32 pix;
 
     fbptr = (CARD32 *)
-        &rfbGetFramebuffer()[y * rfbScreen.paddedWidthInBytes + x * 4];
+        &cl->scalingFrameBuffer[y * cl->scalingPaddedWidthInBytes + x * 4];
 
     while (count--) {
         pix = *fbptr++;
@@ -1715,8 +1721,9 @@ PrepareRowForJpeg24(dst, x, y, count)
 #define DEFINE_JPEG_GET_ROW_FUNCTION(bpp)                                   \
                                                                             \
 static void                                                                 \
-PrepareRowForJpeg##bpp(dst, x, y, count)                                    \
-    CARD8 *dst;                                                             \
+PrepareRowForJpeg##bpp(cl, dst, x, y, count)                                    \
+rfbClientPtr cl; \
+CARD8 *dst;                                                             \
     int x, y, count;                                                        \
 {                                                                           \
     CARD##bpp *fbptr;                                                       \
@@ -1724,7 +1731,7 @@ PrepareRowForJpeg##bpp(dst, x, y, count)                                    \
     int inRed, inGreen, inBlue;                                             \
                                                                             \
     fbptr = (CARD##bpp *)                                                   \
-        &rfbGetFramebuffer()[y * rfbScreen.paddedWidthInBytes +             \
+        &cl->scalingFrameBuffer[y * cl->scalingPaddedWidthInBytes +             \
                              x * (bpp / 8)];                                \
                                                                             \
     while (count--) {                                                       \

@@ -128,12 +128,12 @@ sendHextiles##bpp(cl, rx, ry, rw, rh)                                           
                     return FALSE;                                               \
             }                                                                   \
                                                                                 \
-            fbptr = (rfbGetFramebuffer() + (rfbScreen.paddedWidthInBytes * y)   \
+            fbptr = (cl->scalingFrameBuffer + (cl->scalingPaddedWidthInBytes * y)   \
                      + (x * (rfbScreen.bitsPerPixel / 8)));                     \
                                                                                 \
             (*cl->translateFn)(cl->translateLookupTable, &rfbServerFormat,      \
                                &cl->format, fbptr, (char *)clientPixelData,     \
-                               rfbScreen.paddedWidthInBytes, w, h);             \
+                               cl->scalingPaddedWidthInBytes, w, h);             \
                                                                                 \
             startUblen = cl->ublen;                                             \
             cl->updateBuf[startUblen] = 0;                                      \
@@ -177,7 +177,7 @@ sendHextiles##bpp(cl, rx, ry, rw, rh)                                           
                 (*cl->translateFn)(cl->translateLookupTable,                    \
                                    &rfbServerFormat, &cl->format, fbptr,        \
                                    (char *)clientPixelData,                     \
-                                   rfbScreen.paddedWidthInBytes, w, h);         \
+                                   cl->scalingPaddedWidthInBytes, w, h);         \
                                                                                 \
                 memcpy(&cl->updateBuf[cl->ublen], (char *)clientPixelData,      \
                        w * h * (bpp/8));                                        \

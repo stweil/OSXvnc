@@ -33,12 +33,12 @@ extern "C" {
 
 
 #define GET_IMAGE_INTO_BUF(tx,ty,tw,th,buf)                                \
-  char *fbptr = (rfbGetFramebuffer() + (rfbScreen.paddedWidthInBytes * ty) \
+  char *fbptr = (cl->scalingFrameBuffer + (cl->scalingPaddedWidthInBytes * ty) \
                  + (tx * (rfbScreen.bitsPerPixel / 8)));                   \
                                                                            \
   (*cl->translateFn)(cl->translateLookupTable, &rfbServerFormat,           \
                      &cl->format, fbptr, (char*)buf,                       \
-                     rfbScreen.paddedWidthInBytes, tw, th);
+                     cl->scalingPaddedWidthInBytes, tw, th);
 
 #define EXTRA_ARGS , rfbClientPtr cl
 

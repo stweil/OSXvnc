@@ -48,7 +48,7 @@ rfbSendOneRectEncodingZlib(cl, x, y, w, h)
     int deflateResult;
     int previousOut;
     int i;
-    char *fbptr = (rfbGetFramebuffer() + (rfbScreen.paddedWidthInBytes * y)
+    char *fbptr = (cl->scalingFrameBuffer + (cl->scalingPaddedWidthInBytes * y)
     	   + (x * (rfbScreen.bitsPerPixel / 8)));
 
     int maxRawSize;
@@ -110,7 +110,7 @@ rfbSendOneRectEncodingZlib(cl, x, y, w, h)
      */
     (*cl->translateFn)(cl->translateLookupTable, &rfbServerFormat,
 		       &cl->format, fbptr, zlibBeforeBuf,
-		       rfbScreen.paddedWidthInBytes, w, h);
+		       cl->scalingPaddedWidthInBytes, w, h);
 
     cl->compStream.next_in = ( Bytef * )zlibBeforeBuf;
     cl->compStream.avail_in = w * h * (cl->format.bitsPerPixel / 8);
