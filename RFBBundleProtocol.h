@@ -10,6 +10,10 @@
 
 @protocol RFBBundleProtocol
 
++ performSelector:(SEL) aSelector;
+
++ performSelector:(SEL) aSelector withObject: (id) anObject;
+
 + (void) rfbStartup: (rfbserver *) theServer;
     /* This method is called during startup and should display with NSLog some information about the Bundle */
     /* You can use NSProcessInfo to get access to the startup arguments */
