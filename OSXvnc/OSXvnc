@@ -4,16 +4,12 @@
 #
 # Start OSXvnc Version 1.3
 # 
-# The OSXvnc application will OVERWRITE the VNCPATH and VNCARGS if you ask it to Setup the Startup Item
+# The OSXvnc application will OVERWRITE this file if you ask it to Setup the Startup Item
 #
 
 VNCPATH=/Applications/OSXvnc.app
 VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnect"
 
-# If you must modify by hand you may...
-# Modify VNCPATH if you keep the application somewhere besides /Applications
-# Modify VNCARGS to specify what arguments are used to launch OSXvnc-server (-? for usage)
-#
 #
 # Modification Log:
 #
@@ -38,7 +34,7 @@ VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnec
 if [ ${1:-noset} = "setpassword" ]; then
   $VNCPATH/storepasswd "$2" $VNCPATH/.osxvncauth
   echo "Password set at path " $VNCPATH/.osxvncauth
-  exit
+  exit 0
 fi
 
 if [ ${1:-noset} = "stop" ]; then
@@ -51,19 +47,21 @@ if [ ${1:-noset} = "stop" ]; then
 
   OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc-keepalive | grep -v grep | awk 'NF > 2 {print \$2}'`
   if [ "${OSXVNCPID:=""}" != "" ]; then
-	echo "OSXvnc stop: problem stopping OSXvnc-keepalive"
+	ConsoleMessage "OSXvnc stop: problem stopping OSXvnc-keepalive"
+        exit -1
   else
 #   Now Kill OSXvnc
-    OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc | grep -v grep | awk 'NF > 2 {print \$2}'`
+    OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc-server | grep -v grep | awk 'NF > 2 {print \$2}'`
     if [ "${OSXVNCPID:=""}" ]; then
       kill $OSXVNCPID
     fi
-    OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc | grep -v grep | awk 'NF > 2 {print \$2}'`
+    OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc-server | grep -v grep | awk 'NF > 2 {print \$2}'`
     if [ "${OSXVNCPID:=""}" != "" ]; then
-        echo "OSXvnc stop: problem stopping OSXvnc"
+        ConsoleMessage "OSXvnc stop: problem stopping OSXvnc-server"
+        exit -1
     fi
   fi
-  exit
+  exit 0
 fi
 
 if [ -x "$VNCPATH" ]; then

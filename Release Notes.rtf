@@ -19,30 +19,38 @@ Release Notes\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\b0 \cf0 \
-	Made GUI more Pref Pane Like\
-	Added GUI to set for System Startup Up\
-	Added Cursor Support\
+	OSXvnc GUI has been broken out to allow for more options and to match Preference Panes more closely.\
+	Added GUI controls to set for System Startup Up (Including Authentication)\
+		WARNING: OSXvnc run at StartUp Does NOT have pasteboard synchronization\
+	Added Mac OS X Cursor Support\
 		Added RichCursorSupport (RFB 3.7 + Tight) \
 		Added CursorPositionUpdate Support (Tight)\
-	Dynamic Screen Sizing (Clients need no longer reconnect after a screen size change - RFB 3.7)\
+	Supports Dynamic Screen Sizing (Clients need no longer reconnect after a screen size change - RFB 3.7)\
 \
-	Now Attempting to pass the CGCharCode, reports that this improves stability (no crashing during key events like Return).\
-	Added BUNDLE to hopefully allow OSXvnc to run on 10.0 and use 10.2 and 10.3 specific enhancements\
-	Fixed an occasional problem sending a rectangle without having accounted for it\
-	Fixed a rare bug where it was occasionally possible for clients to miss a copy event which occurred on the server.
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 	
+\f1\b0 Fixed crashing bug where certain unknown keys would crash OSXvnc
 \f0\b \
 	
 \f1\b0 Fixed problem with Shift-Tab (sent from OS X) being ignored as an End Of Medium character, when it didn't crash the whole server
 \f0\b \
 	
-\f1\b0 Fixed crashing bug where certain unknown keys would crash OSXvnc
-\f0\b \
-	
 \f1\b0 Fixed problem with OSXvnc causing machine interruptions when no clients connected by disabling poll for ScreenUpdates (Bug-770661)\
-	Fixed so that scroll wheel events don't leak by adding NSAutoreleasePool (Bug-760383)\
+	Now Attempting to pass the CGCharCode, reports that this improves stability (no crashing during key events like Return).\
+	Added Bundle Loading to hopefully allow OSXvnc to run on 10.0 and use 10.2 and 10.3 specific enhancements\
+	Fixed an occasional problem sending a rectangle without having accounted for it\
+	Fixed a rare bug where it was occasionally possible for clients to miss a copy event which occurred on the server.
+\f0\b \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 	Fixed so that scroll wheel events don't leak by adding NSAutoreleasePool (Bug-760383)\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f0\b \cf0 	
+\f1\b0 Fixed some pasteboard problems with non text put to pasteboard\
+
+\f0\b 	
 \f1\b0 Minor Performance improvements for delay between thread notifications\
 \
 
@@ -145,6 +153,10 @@ Things To Do:\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f0\b \cf0 Still to do:\
+	
+\f1\b0 Better Confirmation When Adding as Startup Item.\
+	Option To Completely Replace Startup Item (If Version Mismatch?)	
+\f0\b \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\b0 \cf0 	On OS X 10.2 and higher added support for Keyboard Detection, OSXvnc should now  be able to hit any SINGLE key that is present in the users currently selected keyboard\
@@ -205,6 +217,8 @@ Improved International Keyboard Support:\
 \
 Disable the screen-blanking/screen-saver while people are connected\
 	It does some of this, must verify\
+\
+Fix bug when running with local screen in 256 Color Mode\
 \
 Fix bug in CoRRE\
 \

@@ -39,10 +39,10 @@
                 portField = NSTextField; 
                 serverKeepAliveCheckbox = NSButton; 
                 sharingMatrix = NSMatrix; 
-                showMouseButton = NSButton; 
                 startServerButton = NSButton; 
                 startServerMenuItem = NSMenuItem; 
                 startServerOnLaunchCheckbox = NSButton; 
+                startupItemStatusMessageField = NSTextField; 
                 statusMessageField = NSTextField; 
                 stopServerButton = NSButton; 
                 stopServerMenuItem = NSMenuItem; 

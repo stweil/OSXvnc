@@ -117,6 +117,7 @@
 				4A9504D3FFE6A4CB11CA0CBA,
 				4A9504D4FFE6A4CB11CA0CBA,
 			);
+			hasScannedForEncodings = 1;
 			isa = PBXProject;
 			mainGroup = 29B97314FDCFA39411CA2CEA;
 			projectDirPath = "";
@@ -275,7 +276,6 @@
 </dict>
 </plist>
 ";
-			shouldUseHeadermap = 0;
 		};
 		29B97327FDCFA39411CA2CEA = {
 			buildActionMask = 2147483647;
@@ -500,7 +500,6 @@
 </dict>
 </plist>
 ";
-			shouldUseHeadermap = 0;
 		};
 		AB3598E604BF8A3D00A80117 = {
 			isa = PBXBundleReference;
@@ -653,11 +652,11 @@
 			);
 			isa = PBXLegacyTarget;
 			name = "OSXvnc-server";
+			passBuildSettingsInEnvironment = 1;
 			productName = "OSXvnc-server";
 			settingsToExpand = 6;
 			settingsToPassInEnvironment = 287;
 			settingsToPassOnCommandLine = 280;
-			shouldUseHeadermap = 0;
 		};
 		F538DFFC02F9808B01A80186 = {
 			isa = PBXTargetDependency;
