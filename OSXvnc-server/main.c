@@ -69,6 +69,9 @@ static EventLoopTimerUPP  screensaverTimerUPP;
 static EventLoopTimerRef screensaverTimer;
 Bool rfbDisableScreenSaver = FALSE;
 
+// Display ID
+CGDirectDisplayID displayID = kCGDirectMainDisplay;
+
 extern void rfbScreensaverTimer(EventLoopTimerRef timer, void *userData);
 
 int rfbDeferUpdateTime = 40; /* ms */
@@ -164,9 +167,9 @@ refreshCallback(CGRectCount count, const CGRect *rectArray, void *ignore)
     currentlyRefreshing = FALSE;
 
     // See if screen changed
-    if (rfbScreen.width != CGDisplayPixelsWide(kCGDirectMainDisplay) ||
-        rfbScreen.height != CGDisplayPixelsHigh(kCGDirectMainDisplay) ||
-        rfbScreen.depth != CGDisplayBitsPerPixel(kCGDirectMainDisplay)) {
+    if (rfbScreen.width != CGDisplayPixelsWide(displayID) ||
+        rfbScreen.height != CGDisplayPixelsHigh(displayID) ||
+        rfbScreen.depth != CGDisplayBitsPerPixel(displayID)) {
 
         // Block listener from accepting new connections while we restart
         pthread_mutex_lock(&listenerAccepting);
@@ -351,7 +354,7 @@ rfbGetFramebuffer(void)
     if (rfbLocalBuffer)
         return rfbFrontBufferBaseAddress();
     else
-        return (char *)CGDisplayBaseAddress(kCGDirectMainDisplay);
+        return (char *)CGDisplayBaseAddress(displayID);
 }
 
 static void 
@@ -362,7 +365,7 @@ rfbScreenInit(void)
     // otherwise CGDisplayBitsPerPixel doesn't
     // always works correctly after a resolution change
 
-    if (CGDisplaySamplesPerPixel(kCGDirectMainDisplay) != 3) {
+    if (CGDisplaySamplesPerPixel(displayID) != 3) {
         rfbLog("screen format not supported.  exiting.\n");
         exit(1);
     }
@@ -373,11 +376,11 @@ rfbScreenInit(void)
                            &rfbScreen.paddedWidthInBytes);
     }
     else {
-        rfbScreen.width = CGDisplayPixelsWide(kCGDirectMainDisplay);
-        rfbScreen.height = CGDisplayPixelsHigh(kCGDirectMainDisplay);
-        rfbScreen.bitsPerPixel = CGDisplayBitsPerPixel(kCGDirectMainDisplay);
-        rfbScreen.depth = CGDisplayBitsPerPixel(kCGDirectMainDisplay);
-        rfbScreen.paddedWidthInBytes = CGDisplayBytesPerRow(kCGDirectMainDisplay);
+        rfbScreen.width = CGDisplayPixelsWide(displayID);
+        rfbScreen.height = CGDisplayPixelsHigh(displayID);
+        rfbScreen.bitsPerPixel = CGDisplayBitsPerPixel(displayID);
+        rfbScreen.depth = CGDisplayBitsPerPixel(displayID);
+        rfbScreen.paddedWidthInBytes = CGDisplayBytesPerRow(displayID);
     }
     rfbServerFormat.bitsPerPixel = rfbScreen.bitsPerPixel;
     rfbServerFormat.depth = rfbScreen.depth;
@@ -388,7 +391,7 @@ rfbScreenInit(void)
         rfbServerFormat.trueColour = FALSE;
     }
     else {
-        int bitsPerSample = CGDisplayBitsPerSample(kCGDirectMainDisplay);
+        int bitsPerSample = CGDisplayBitsPerSample(displayID);
 
         rfbServerFormat.trueColour = TRUE;
 
@@ -457,6 +460,19 @@ usage(void)
                     "                       (default: no, process them)\n");
     fprintf(stderr, "-rfbLocalBuffer        run the screen through a local buffer, thereby enabling the cursor\n"
                     "                       (default: no, it's slow and causes more artifacts)\n");
+    {
+        CGDisplayCount displayCount;
+        CGDirectDisplayID activeDisplays[100];
+        int index = 0;
+        
+        fprintf(stderr, "-display DisplayID     server displayID to indicate which display to serve\n");
+
+        CGGetOnlineDisplayList(100, activeDisplays, &displayCount);
+
+        for (index=0; index < displayCount; index++)
+            fprintf(stderr, "\t\t%d = (%ld,%ld)\n", index, CGDisplayPixelsWide(activeDisplays[index]), CGDisplayPixelsHigh(activeDisplays[index]));
+    }
+
     fprintf(stderr, "-localhost             Only allow connections from the same machine\n");
     fprintf(stderr, "                       If you use SSH and want to stop non-SSH connections from any other hosts \n");
     fprintf(stderr, "                       (default: allows remote connections)\n");
@@ -471,24 +487,34 @@ processArguments(int argc, char *argv[])
     int i;
 
     for (i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-rfbport") == 0) { /* -rfbport port */
+        if (strcmp(argv[i], "-rfbport") == 0) { // -rfbport port
             if (i + 1 >= argc) usage();
             rfbPort = atoi(argv[++i]);
-        } else if (strcmp(argv[i], "-rfbwait") == 0) {  /* -rfbwait ms */
+        } else if (strcmp(argv[i], "-rfbwait") == 0) {  // -rfbwait ms
             if (i + 1 >= argc) usage();
             rfbMaxClientWait = atoi(argv[++i]);
-        } else if (strcmp(argv[i], "-rfbauth") == 0) {  /* -rfbauth passwd-file */
+        } else if (strcmp(argv[i], "-rfbauth") == 0) {  // -rfbauth passwd-file
             if (i + 1 >= argc) usage();
             rfbAuthPasswdFile = argv[++i];
-        } else if (strcmp(argv[i], "-deferupdate") == 0) {      /* -deferupdate ms */
+        } else if (strcmp(argv[i], "-deferupdate") == 0) {      // -deferupdate ms
             if (i + 1 >= argc) usage();
             rfbDeferUpdateTime = atoi(argv[++i]);
-        } else if (strcmp(argv[i], "-maxdepth") == 0) {      /* -deferupdate ms */
+        } else if (strcmp(argv[i], "-maxdepth") == 0) {      // -maxdepth
             if (i + 1 >= argc) usage();
             rfbMaxBitDepth = atoi(argv[++i]);
-        } else if (strcmp(argv[i], "-desktop") == 0) {  /* -desktop desktop-name */
+        } else if (strcmp(argv[i], "-desktop") == 0) {  // -desktop desktop-name
             if (i + 1 >= argc) usage();
             desktopName = argv[++i];
+        } else if (strcmp(argv[i], "-display") == 0) {   // -display DisplayID
+            CGDisplayCount displayCount;
+            CGDirectDisplayID activeDisplays[100];
+
+            CGGetActiveDisplayList(100, activeDisplays, &displayCount);
+
+            if (i + 1 >= argc)
+                usage();
+
+            displayID = activeDisplays[atoi(argv[++i])];
         } else if (strcmp(argv[i], "-alwaysshared") == 0) {
             rfbAlwaysShared = TRUE;
         } else if (strcmp(argv[i], "-nevershared") == 0) {

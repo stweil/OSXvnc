@@ -209,6 +209,8 @@ typedef struct rfbClientRec {
     Bool immediateUpdate;       // To request that we get immediate updates (even 0 rects)
 
     int pasteBoardLastChange;      // Used to see if we need to send the latest PB
+
+    Bool modiferKeys[10];          // Bool Array to record which keys THIS user has down, if they disconnect we will release those keys
     
     /* REDSTONE - These (updateBuf, ublen) need to be in the CL, not global, for multiple clients */
 
@@ -323,6 +325,8 @@ extern char *keymapFile;
 extern void PtrAddEvent(int buttonMask, int x, int y, rfbClientPtr cl);
 extern void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl);
 extern void loadKeyTable();
+extern void keyboardReleaseKeysForClient(rfbClientPtr cl);
+
 
 /* rfbserver.c */
 

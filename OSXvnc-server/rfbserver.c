@@ -250,12 +250,17 @@ void
 rfbClientConnectionGone(cl)
      rfbClientPtr cl;
 {
-  int i;
+    int i;
+
+    rfbLog("Client %s disconnected\n",cl->host);
+
+    // RedstoneOSX - Track and release depressed modifier keys whenever the client disconnects
+    rfbLog("Client %s release modifier keys\n",cl->host);
+    keyboardReleaseKeysForClient(cl);
+
     pthread_mutex_lock(&rfbClientListMutex);
 
-    rfbLog("Client %s gone\n",cl->host);
-    free(cl->host);
-
+    rfbLog("Client %s release compression streams\n",cl->host);
     /* Release the compression state structures if any. */
     if ( cl->compStreamInited == TRUE ) {
         deflateEnd( &(cl->compStream) );
@@ -276,21 +281,26 @@ rfbClientConnectionGone(cl)
     if (cl->next)
         cl->next->prev = cl->prev;
 
-    FreeZrleData(cl);
-
     pthread_mutex_unlock(&rfbClientListMutex);
+    rfbLog("Client %s removed from client list\n",cl->host);
 
     REGION_UNINIT(pScreen,&cl->modifiedRegion);
 
     rfbPrintStats(cl);
 
-    if (cl->translateLookupTable) free(cl->translateLookupTable);
+    FreeZrleData(cl);
+
+    free(cl->host);
+
+    if (cl->translateLookupTable)
+        free(cl->translateLookupTable);
 
     pthread_cond_destroy(&cl->updateCond);
     pthread_mutex_destroy(&cl->updateMutex);
     pthread_mutex_destroy(&cl->outputMutex);
 
     xfree(cl);
+    rfbLog("Client gone\n");
 }
 
 
