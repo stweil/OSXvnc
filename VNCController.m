@@ -426,6 +426,23 @@ static void rfbShutdownOnSignal(int signal) {
     [[NSWorkspace sharedWorkspace] openFile:openPath];
 }
 
+- (IBAction) startAsService: sender {
+    [self writeStartupScriptToPath: ];
+
+    // Authenticate
+
+    // Write SYM link
+    
+}
+
+- (IBAction) removeAsServer: sender {
+    
+}
+
+- writeStartupScript {
+
+}
+
 - (void) dealloc {
     [passwordFile release];
 }
