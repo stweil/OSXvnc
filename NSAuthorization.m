@@ -46,6 +46,7 @@
     int i;
     OSStatus myStatus;
 	char outputString[1024];
+	int startTime=time(NULL);
         
     copyArguments = malloc(sizeof(char *) * ([argumentArray count]+1));
     for (i=0;i<[argumentArray count];i++) {
@@ -60,9 +61,11 @@
                                                   (sync ? &communicationStream : NULL)); // FILE HANDLE for I/O
 
 	if (!myStatus && sync) {
-		while (fgets(outputString, 1024, communicationStream)) {
+		while (!feof(communicationStream) && fgets(outputString, 1024, communicationStream) && time(NULL)-startTime<10) {
 			if (strlen(outputString) > 1)
 				NSLog(@"NSAuthorization: %s",outputString);
+			else
+				break;
 		}
 		fclose(communicationStream);
 	}
