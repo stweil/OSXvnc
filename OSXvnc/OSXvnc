@@ -13,6 +13,9 @@ VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnec
 #
 # Modification Log:
 #
+# 1.5
+# Added -f option to log move so it won't hang started up (when run as authenticated/non-root user)
+#
 # 1.33
 # Added Resources directory with English.lproj for Localization lookup
 # Modified to handle 'restart' directive
@@ -82,7 +85,7 @@ if [ -x "$VNCPATH" ]; then
     ConsoleMessage "Starting OSXvnc Server"
 
     if [ -e /var/log/osxvnc.log ]; then
-        /bin/mv /var/log/osxvnc.log /var/log/osxvnc.log.1
+        /bin/mv -f /var/log/osxvnc.log /var/log/osxvnc.log.1
     fi
 
     $0-keepalive "$VNCPATH/OSXvnc-server" $VNCARGS > /var/log/osxvnc.log 2>&1 &
