@@ -12,14 +12,17 @@ LIBS=$(VNCAUTHLIB) $(SUPPORTLIB) $(RDRLIB) $(EXTRALIBS) -framework Carbon -frame
 
 SOURCES=main.c rfbserver.c miregion.c kbdptr.c auth.c sockets.c xalloc.c \
 	stats.c corre.c hextile.c rre.c translate.c cutpaste.c dimming.c \
-	tight.c zlib.c zlibhex.c localbuffer.c mousecursor.c zrle.cc
+	tight.c zlib.c zlibhex.c localbuffer.c mousecursor.c zrle.cc 
 OBJS=main.o rfbserver.o miregion.o kbdptr.o auth.o sockets.o xalloc.o \
 	stats.o corre.o hextile.o rre.o translate.o cutpaste.o dimming.o \
-	tight.o zlib.o zlibhex.o localbuffer.o mousecursor.o zrle.o
+	tight.o zlib.o zlibhex.o localbuffer.o mousecursor.o zrle.o VNCServer.o
 
 all: OSXvnc-server storepasswd
 
 install:
+
+.m.o: 
+	$(CC) $(CFLAGS) $(INCLUDES) -c $<
 
 .c.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<

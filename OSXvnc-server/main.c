@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <unistd.h>
 #include <signal.h>
@@ -35,6 +36,7 @@
 #include "localbuffer.h"
 
 #include "rfbserver.h"
+#import "VNCServer.h"
 
 ScreenRec hackScreen;
 rfbScreenInfo rfbScreen;
@@ -54,6 +56,8 @@ Bool rfbReverseMods = FALSE;
 Bool rfbSwapButtons = FALSE;
 Bool rfbDisableRemote = FALSE;
 Bool rfbRemapShortcuts = FALSE;
+BOOL registered = FALSE;
+BOOL restartOnUserSwitch = TRUE;
 
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
 Bool rfbLocalBuffer = FALSE;
@@ -82,6 +86,8 @@ CGDisplayErr displayErr;
 rfbserver thisServer;
 // List of Loaded Bundles
 NSMutableArray *bundleArray = nil;
+
+VNCServer *vncServerObject = nil;
 
 static void rfbScreenInit(void);
 
@@ -398,6 +404,14 @@ static void *clientInput(void *data) {
     while (1) {
         bundlesPerformSelector(@selector(rfbReceivedClientMessage));
         rfbProcessClientMessage(cl);
+
+        // Some people will connect but not request screen updates - just send events, this will delay registering the CG callback until then
+        if (!registered && REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion)) {
+            rfbLog("Client Connected - Registering Screen Update Notification\n");
+            CGRegisterScreenRefreshCallback(refreshCallback, NULL);
+            registered = TRUE;
+        }
+        
         if (cl->sock == -1) {
             /* Client has disconnected. */
             break;
@@ -435,13 +449,12 @@ static void *listenerRun(void *ignore) {
         return NULL;
     }
     value = 1;
-    if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR,
-                   &value, sizeof(value)) < 0) {
+    if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
         rfbLog("setsockopt SO_REUSEADDR failed\n");
     }
 
     if (bind(listen_fd, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
-        rfbLog("Failed to Bind Socket: Socket may be in use by another VNC\n");
+        rfbLog("Failed to Bind Socket: Port may be in use by another VNC\n");
         exit(1);
     }
 
@@ -450,28 +463,41 @@ static void *listenerRun(void *ignore) {
         exit(1);
     }
 
+    if (fcntl(listen_fd, F_SETFL, O_NONBLOCK) < 0) {
+        rfbLog("Unable To Set NON_BLOCK for accept");
+    }
+
     len = sizeof(peer);
     rfbLog("Started Listener Thread on port %d\n", rfbPort);
 
     // This will block while wait for an accept
-    while ((client_fd = accept(listen_fd, (struct sockaddr *)&peer, &len)) >= 0) {
-        if (!rfbClientsConnected())
-            rfbCheckForScreenResolutionChange();
+    while ((client_fd = accept(listen_fd, (struct sockaddr *)&peer, &len))) {
+        if (client_fd == -1) {
+            if (errno == EWOULDBLOCK) {
+                usleep(200000);
+            }
+            else
+                break;
+        }
+        else {
+            if (!rfbClientsConnected())
+                rfbCheckForScreenResolutionChange();
 
-        pthread_mutex_lock(&listenerAccepting);
-        if (rfbLocalBuffer && !rfbClientsConnected())
-            rfbLocalBufferSyncAll();
+            pthread_mutex_lock(&listenerAccepting);
+            if (rfbLocalBuffer && !rfbClientsConnected())
+                rfbLocalBufferSyncAll();
 
-        rfbUndim();
-        cl = rfbNewClient(client_fd);
+            rfbUndim();
+            cl = rfbNewClient(client_fd);
 
-        pthread_create(&client_thread, NULL, clientInput, (void *)cl);
+            pthread_create(&client_thread, NULL, clientInput, (void *)cl);
 
-        pthread_mutex_unlock(&listenerAccepting);
-        pthread_cond_signal(&listenerGotNewClient);
+            pthread_mutex_unlock(&listenerAccepting);
+            pthread_cond_signal(&listenerGotNewClient);
+        }
     }
 
-    rfbLog("accept failed\n");
+    rfbLog("accept failed %d\n", errno);
     exit(1);
 }
 
@@ -599,6 +625,8 @@ static void usage(void) {
     fprintf(stderr, "-localhost             Only allow connections from the same machine, literally localhost (127.0.0.1)\n");
     fprintf(stderr, "                       If you use SSH and want to stop non-SSH connections from any other hosts \n");
     fprintf(stderr, "                       (default: no, allow remote connections)\n");
+    fprintf(stderr, "-restartonuserswitch   For Use on Panther 10.3 systems, this will cause the server to restart when a fast user switch occurs, the allows events to be sent again");
+    fprintf(stderr, "                       (default: yes)\n");
     bundlesPerformSelector(@selector(rfbUsage));
     fprintf(stderr, "\n");
 
@@ -679,17 +707,22 @@ static void processArguments(int argc, char *argv[]) {
             rfbLocalhostOnly = TRUE;
         } else if (strcmp(argv[i], "-inhibitevents") == 0) {
             rfbInhibitEvents = TRUE;
+        } else if (strcmp(argv[i], "-restartonuserswitch") == 0) {
+            if (i + 1 >= argc) usage();
+            restartOnUserSwitch = atoi(argv[++i]);
         }
     }
 }
 
-static void rfbShutdown(void) {
+void rfbShutdown(void) {
     bundlesPerformSelector(@selector(rfbShutdown));
     [bundleArray release];
 
     CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
     //CGDisplayShowCursor(displayID);
     rfbDimmingShutdown();
+
+    [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver: vncServerObject];
 
     if (rfbDisableScreenSaver) {
         /* remove the screensaver timer */
@@ -736,6 +769,8 @@ void daemonize( void ) {
 }
 
 int main(int argc, char *argv[]) {
+    vncServerObject = [[VNCServer alloc] init];
+    
     checkForUsage(argc,argv);
     
     // This guarantees separating us from any terminal - that might help when launched in SSH, etc but I don't think it solves the problem of being killed on GUI logout.
@@ -768,6 +803,20 @@ int main(int argc, char *argv[]) {
     rfbClientListInit();
     rfbDimmingInit();
 
+    // Register for User Switch Notification
+    if (restartOnUserSwitch) {
+        /*
+        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:vncServerObject
+                                                               selector:@selector(userSwitched:)
+                                                                   name:@"NSWorkspaceSessionDidBecomeActiveNotification"
+                                                                 object:nil];
+         */
+        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:vncServerObject
+                                                               selector:@selector(userSwitched:)
+                                                                   name:@"NSWorkspaceSessionDidResignActiveNotification"
+                                                                 object:nil];
+    }
+    
     // Does this need to be in 10.1 and greater (does any of this stuff work in 10.0?)
     if (!rfbInhibitEvents) {
         //NSLog(@"Core Graphics - Event Suppression Turned Off");
@@ -793,26 +842,23 @@ int main(int argc, char *argv[]) {
     // The problem being that OS X sends it first a SIGTERM and then a SIGKILL (un-trappable)
     // Presumable because it's running a Carbon Event loop
     if (1) {
-        BOOL keepRunning = YES;
+        BOOL keepRunning = TRUE;
         OSStatus resultCode = 0;
 
-        //rfbLog("Registering Screen Update Notification\n");
-        CGRegisterScreenRefreshCallback(refreshCallback, NULL);
-        // No better luck with this one
-        // RunApplicationEventLoop();
         while (keepRunning) {
             // No Clients - go into hibernation
             if (!rfbClientsConnected()) {
                 pthread_mutex_lock(&listenerAccepting);
 
                 // No point getting events with no clients
-                rfbLog("UnRegistering Screen Update Notification\n");
-                CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
-
+                if (registered) {
+                    rfbLog("UnRegistering Screen Update Notification - waiting for clients\n");
+                    CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
+                }
+                else
+                    rfbLog("Waiting for clients\n");
+                    
                 pthread_cond_wait(&listenerGotNewClient, &listenerAccepting);
-
-                rfbLog("Registering Screen Update Notification\n");
-                CGRegisterScreenRefreshCallback(refreshCallback, NULL);
 
                 pthread_mutex_unlock(&listenerAccepting);
             }
@@ -822,6 +868,8 @@ int main(int argc, char *argv[]) {
             rfbCheckForCursorChange();
             rfbCheckForScreenResolutionChange();
             // Run The Event loop a moment to see if we have a screen update
+            // No better luck with this one avoiding the shutdown on logout problem
+            // RunApplicationEventLoop();
             resultCode = RunCurrentEventLoop(kEventDurationSecond/30); //EventTimeout
             if (resultCode != eventLoopTimedOutErr) {
                 rfbLog("Received Result: %d during event loop, Shutting Down", resultCode);

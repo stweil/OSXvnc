@@ -313,6 +313,8 @@ extern Bool rfbLocalBuffer;
 extern void rfbLog(char *format, ...);
 extern void rfbLogPerror(char *str);
 
+extern void rfbShutdown();
+
 
 /* sockets.c */
 
