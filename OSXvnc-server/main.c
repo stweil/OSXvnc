@@ -441,7 +441,7 @@ static void *listenerRun(void *ignore) {
     }
 
     if (bind(listen_fd, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
-        rfbLog("failed to bind socket\n");
+        rfbLog("Failed to Bind Socket: Socket may be in use by another VNC\n");
         exit(1);
     }
 
