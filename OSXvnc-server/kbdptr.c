@@ -40,9 +40,9 @@ CGKeyCode keyTable[keyTableSize];
 unsigned char keyTableMods[keyTableSize]; // 8 Bits for Modifier Keys
 
 // This flag will try to change the modifier key state to the required set for the unicode key that came in
-// allow this to be disabled
-BOOL pressModsForKeys = TRUE;
 
+// It will be turned on by JaguarExtensions unless specified
+BOOL pressModsForKeys = FALSE;
 
 static int mouseWheelDistance;
 
