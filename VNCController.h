@@ -52,26 +52,28 @@
 
 - (NSArray *) formCommandLine;
 
-- (void) startServer: sender;
-- (void) stopServer: sender;
+- (IBAction) startServer: sender;
+- (IBAction) stopServer: sender;
 - (void) serverStopped: (NSNotification *) aNotification;
 
-- (void) changeDisplayNumber: sender;
-- (void) changePort: sender;
-- (void) changeSharing: sender;
-- (void) changePassword: sender;
+- (IBAction) changeDisplayNumber: sender;
+- (IBAction) changePort: sender;
+- (IBAction) changeSharing: sender;
+- (IBAction) changePassword: sender;
 
 - (void) disableEverything;
 - (void) enableEverything;
 - (void) showWindow;
 - (void) hideWindow;
-- (void) hideOrShowWindow: sender;
+- (IBAction) hideOrShowWindow: sender;
 
 - (BOOL) windowShouldClose: sender;
 
 - (void) applicationWillTerminate: (NSNotification *) notification;
 
 - (BOOL) validateMenuItem: (NSMenuItem *) menuItem ;
+
+- (IBAction) openFile:(id) sender;
 
 
 @end

@@ -9,6 +9,7 @@
                 changeSharing = id; 
                 hideOrShowWindow = id; 
                 loadUserDefaults = id; 
+                openFile = id; 
                 saveUserDefaults = id; 
                 startServer = id; 
                 stopServer = id; 

@@ -42,12 +42,6 @@
 			path = OSXvnc.html;
 			refType = 4;
 		};
-		096B69DD0097995A7F000001 = {
-			fileRef = 096B69DC0097995A7F000001;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 //090
 //091
 //092
@@ -148,7 +142,6 @@
 			children = (
 				F5456A2802FAD08901A80117,
 				F5456A2902FAD08901A80117,
-				096B69DC0097995A7F000001,
 				F538E00B02F9812901A80186,
 				29B97315FDCFA39411CA2CEA,
 				29B97317FDCFA39411CA2CEA,
@@ -176,9 +169,10 @@
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
-				F538E01202F9812901A80186,
 				F55FDAB502FB44CE01A80117,
-				F538E11202F9812C01A80186,
+				F5753F450343ACD501A80186,
+				F5753F460343ACD501A80186,
+				096B69DC0097995A7F000001,
 				F570ED1002F9DA7601A80186,
 				F57BB467027E036F014B5D3F,
 				29B97318FDCFA39411CA2CEA,
@@ -275,11 +269,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.82</string>
+	<string>1.0</string>
 	<key>CFBundleSignature</key>
-	<string>OSXV</string>
+	<string>OSXv</string>
 	<key>CFBundleVersion</key>
-	<string>0.82</string>
+	<string>1.0</string>
 	<key>NSHelpFile</key>
 	<string>OSXvnc.html</string>
 	<key>NSMainNibFile</key>
@@ -304,12 +298,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				080E96DCFE201CFB7F000001,
-				096B69DD0097995A7F000001,
 				F57BB469027E036F014B5D3F,
 				F570ED1102F9DA7601A80186,
-				F55FDAB602FB469401A80117,
-				F55FDAB702FB469501A80117,
-				F55FDAB802FB469601A80117,
+				F5753F400343932D01A80186,
+				F5753F410343991101A80186,
+				F5753F470343ACD501A80186,
+				F5753F480343ACD501A80186,
 			);
 			isa = PBXResourcesBuildPhase;
 		};
@@ -449,11 +443,6 @@
 		F538E01002F9812901A80186 = {
 			isa = PBXFileReference;
 			path = auth.c;
-			refType = 4;
-		};
-		F538E01202F9812901A80186 = {
-			isa = PBXFileReference;
-			path = COPYING.txt;
 			refType = 4;
 		};
 		F538E01302F9812901A80186 = {
@@ -1980,11 +1969,6 @@
 			path = miregion.c;
 			refType = 4;
 		};
-		F538E11202F9812C01A80186 = {
-			isa = PBXFileReference;
-			path = README.txt;
-			refType = 2;
-		};
 		F538E11302F9812C01A80186 = {
 			isa = PBXFileReference;
 			path = rfb.h;
@@ -2129,26 +2113,8 @@
 		};
 		F55FDAB502FB44CE01A80117 = {
 			isa = PBXFileReference;
-			path = ReleaseNotes.rtf;
+			path = "Release Notes.rtf";
 			refType = 4;
-		};
-		F55FDAB602FB469401A80117 = {
-			fileRef = F538E01202F9812901A80186;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F55FDAB702FB469501A80117 = {
-			fileRef = F55FDAB502FB44CE01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F55FDAB802FB469601A80117 = {
-			fileRef = F538E11202F9812C01A80186;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		F570ED1002F9DA7601A80186 = {
 			isa = PBXFileReference;
@@ -2157,6 +2123,40 @@
 		};
 		F570ED1102F9DA7601A80186 = {
 			fileRef = F570ED1002F9DA7601A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5753F400343932D01A80186 = {
+			fileRef = F55FDAB502FB44CE01A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5753F410343991101A80186 = {
+			fileRef = 096B69DC0097995A7F000001;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5753F450343ACD501A80186 = {
+			isa = PBXFileReference;
+			path = Copying.rtf;
+			refType = 4;
+		};
+		F5753F460343ACD501A80186 = {
+			isa = PBXFileReference;
+			path = Readme.rtf;
+			refType = 4;
+		};
+		F5753F470343ACD501A80186 = {
+			fileRef = F5753F450343ACD501A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5753F480343ACD501A80186 = {
+			fileRef = F5753F460343ACD501A80186;
 			isa = PBXBuildFile;
 			settings = {
 			};

@@ -410,6 +410,22 @@ static void rfbShutdownOnSignal(int signal) {
     return TRUE;
 }
 
+- (IBAction) openFile:(id) sender {
+    NSString *openPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:@"rtf"];
+
+    if (!openPath) {
+        openPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:@"pdf"];
+    }
+    if (!openPath) {
+        openPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:nil];
+    }
+    if (!openPath) {
+        openPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:@"txt"];
+    }
+
+    [[NSWorkspace sharedWorkspace] openFile:openPath];
+}
+
 - (void) dealloc {
     [passwordFile release];
 }
