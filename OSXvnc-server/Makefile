@@ -49,9 +49,12 @@ clean:
 	(cd rdr; make clean)
 
 realclean: clean
-	rm -f OSXvnc-server storepasswd
+	rm -f OSXvnc-server storepasswd .depend
 
 depend:
-	cc -M $(INCLUDES) $(SOURCES) >.depend
+	cc -M $(INCLUDES) $(SOURCES) > .depend
+
+.depend:
+	cc -M $(INCLUDES) $(SOURCES) > .depend
 
 include .depend
