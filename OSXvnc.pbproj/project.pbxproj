@@ -109,6 +109,7 @@
 //194
 		19C28FACFE9D520D11CA2CBB = {
 			children = (
+				F5E62722036ADFA501A80117,
 				F538E4B402F9B73F01A80186,
 				17587328FF379C6511CA2CBB,
 			);
@@ -170,6 +171,7 @@
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
+				F5E62728036AE08701A80117,
 				F55FDAB502FB44CE01A80117,
 				F5753F450343ACD501A80186,
 				F5753F460343ACD501A80186,
@@ -307,6 +309,8 @@
 				F5753F410343991101A80186,
 				F5753F470343ACD501A80186,
 				F5753F480343ACD501A80186,
+				F5E62723036ADFA501A80117,
+				F5E6272C036AE08701A80117,
 			);
 			isa = PBXResourcesBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2188,6 +2192,30 @@
 		};
 		F57BB469027E036F014B5D3F = {
 			fileRef = F57BB467027E036F014B5D3F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5E62722036ADFA501A80117 = {
+			isa = PBXExecutableFileReference;
+			name = storepasswd;
+			path = "OSXvnc-server/storepasswd";
+			refType = 4;
+		};
+		F5E62723036ADFA501A80117 = {
+			fileRef = F5E62722036ADFA501A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		F5E62728036AE08701A80117 = {
+			includeInIndex = 1;
+			isa = PBXFolderReference;
+			path = OSXvnc;
+			refType = 4;
+		};
+		F5E6272C036AE08701A80117 = {
+			fileRef = F5E62728036AE08701A80117;
 			isa = PBXBuildFile;
 			settings = {
 			};
