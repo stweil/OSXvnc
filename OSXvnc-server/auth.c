@@ -53,7 +53,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
         }
         else {
             buf[len++] = rfbNoAuth;
-            cl->state = RFB_INITIALISATION; // Do they report that they won't send anything?
+            cl->state = RFB_INITIALISATION;
         }
 
         if (WriteExact(cl, buf, len) < 0) {
@@ -63,6 +63,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
         }
     }
     else {
+        // If We have a valid password - Send Challenge Request
         if (rfbAuthPasswdFile && !cl->reverseConnection && (vncDecryptPasswdFromFile(rfbAuthPasswdFile) != NULL)) {
             *(CARD32 *)buf = Swap32IfLE(rfbVncAuth);
             vncRandomBytes(cl->authChallenge);
@@ -71,10 +72,11 @@ void rfbAuthNewClient(rfbClientPtr cl) {
 
             cl->state = RFB_AUTHENTICATION;
         }
+        // Otherwise just send NO auth
         else {
             *(CARD32 *)buf = Swap32IfLE(rfbNoAuth);
             len = 4;
-            
+
             cl->state = RFB_INITIALISATION;
         }
 
