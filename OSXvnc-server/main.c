@@ -57,7 +57,7 @@ Bool rfbSwapButtons = FALSE;
 Bool rfbDisableRemote = FALSE;
 Bool rfbRemapShortcuts = FALSE;
 BOOL registered = FALSE;
-BOOL restartOnUserSwitch = TRUE;
+BOOL restartOnUserSwitch = FALSE;
 
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
 Bool rfbLocalBuffer = FALSE;
@@ -625,8 +625,8 @@ static void usage(void) {
     fprintf(stderr, "-localhost             Only allow connections from the same machine, literally localhost (127.0.0.1)\n");
     fprintf(stderr, "                       If you use SSH and want to stop non-SSH connections from any other hosts \n");
     fprintf(stderr, "                       (default: no, allow remote connections)\n");
-    fprintf(stderr, "-restartonuserswitch   For Use on Panther 10.3 systems, this will cause the server to restart when a fast user switch occurs, the allows events to be sent again");
-    fprintf(stderr, "                       (default: yes)\n");
+    fprintf(stderr, "-restartonuserswitch flag  For Use on Panther 10.3 systems, this will cause the server to restart when a fast user switch occurs");
+    fprintf(stderr, "                           (default: no)\n");
     bundlesPerformSelector(@selector(rfbUsage));
     fprintf(stderr, "\n");
 
@@ -764,8 +764,7 @@ void daemonize( void ) {
     for ( i = getdtablesize( ) - 1; i > STDERR_FILENO; i-- )
         close( i );
 
-    /* from this point on we should only
-        send output to server log or syslog */
+    /* from this point on we should only send output to server log or syslog */
 }
 
 int main(int argc, char *argv[]) {
@@ -774,7 +773,7 @@ int main(int argc, char *argv[]) {
     checkForUsage(argc,argv);
     
     // This guarantees separating us from any terminal - that might help when launched in SSH, etc but I don't think it solves the problem of being killed on GUI logout.
-    //daemonize();
+    // daemonize();
 
     // Let's not shutdown on a SIGHUP at some point perhaps we can use that to reload configuration
     signal(SIGHUP, SIG_IGN);
@@ -850,10 +849,13 @@ int main(int argc, char *argv[]) {
             if (!rfbClientsConnected()) {
                 pthread_mutex_lock(&listenerAccepting);
 
+                // You would think that there is
                 // No point getting events with no clients
-                if (registered) {
+                // But it seems that unregistering but keeping the process (or event loop) around can cause a stuttering behavior in OS X.
+                if (0 && registered) {
                     rfbLog("UnRegistering Screen Update Notification - waiting for clients\n");
                     CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
+                    registered = NO;
                 }
                 else
                     rfbLog("Waiting for clients\n");
