@@ -37,7 +37,7 @@
 }
 
 - (BOOL) executeCommand:(NSString *) command withArgs: (NSArray *) argumentArray {
-	[self executeCommand:(NSString *) command withArgs: (NSArray *) argumentArray synchronous:TRUE];
+	return [self executeCommand:(NSString *) command withArgs: (NSArray *) argumentArray synchronous:TRUE];
 }
 		
 - (BOOL) executeCommand:(NSString *) command withArgs: (NSArray *) argumentArray synchronous: (BOOL) sync {
