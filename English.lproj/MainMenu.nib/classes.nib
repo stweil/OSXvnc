@@ -18,6 +18,7 @@
                 openFile = id; 
                 openLog = id; 
                 optionChanged = id; 
+                removeService = id; 
                 saveUserDefaults = id; 
                 startServer = id; 
                 stopServer = id; 
@@ -30,14 +31,20 @@
                 allowPressModsForKeys = NSButton; 
                 allowSleepCheckbox = NSButton; 
                 disableRemoteEventsCheckbox = NSButton; 
+                disableStartupButton = NSButton; 
                 displayNameField = NSTextField; 
                 displayNumberField = NSPopUpButton; 
                 dontDisconnectCheckbox = NSButton; 
+                hostNamesField = NSTextField; 
+                hostNamesLabel = NSTextField; 
+                ipAddressesField = NSTextField; 
+                ipAddressesLabel = NSTextField; 
                 limitToLocalConnections = NSButton; 
                 optionsTabView = NSTabView; 
                 passwordField = NSTextField; 
                 portField = NSTextField; 
                 serverKeepAliveCheckbox = NSButton; 
+                setStartupButton = NSButton; 
                 sharingMatrix = NSMatrix; 
                 startServerButton = NSButton; 
                 startServerMenuItem = NSMenuItem; 
@@ -47,6 +54,7 @@
                 stopServerButton = NSButton; 
                 stopServerMenuItem = NSMenuItem; 
                 swapMouseButtonsCheckbox = NSButton; 
+                terminateOnFastUserSwitch = NSButton; 
                 window = NSWindow; 
             }; 
             SUPERCLASS = NSObject; 
