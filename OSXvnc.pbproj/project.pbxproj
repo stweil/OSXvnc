@@ -152,7 +152,6 @@
 				29B97317FDCFA39411CA2CEA,
 				29B97323FDCFA39411CA2CEA,
 				19C28FACFE9D520D11CA2CBB,
-				AB10BF82058A3E9000945899,
 			);
 			isa = PBXGroup;
 			name = OSXvnc;
@@ -411,15 +410,6 @@
 //AB2
 //AB3
 //AB4
-		AB10BF82058A3E9000945899 = {
-			fileEncoding = 4;
-			isa = PBXFileReference;
-			lastKnownFileType = text;
-			name = BuildPackage;
-			path = /Users/jonathan/BuildPackage;
-			refType = 0;
-			sourceTree = "<absolute>";
-		};
 		AB15010D04F6A94500A80117 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;

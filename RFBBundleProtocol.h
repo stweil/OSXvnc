@@ -10,7 +10,7 @@
 
 @protocol RFBBundleProtocol
 
-+ performSelector:(SEL) aSelector;
+- performSelector:(SEL) aSelector;
 
 + performSelector:(SEL) aSelector withObject: (id) anObject;
 
