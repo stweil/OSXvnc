@@ -40,46 +40,94 @@ char *rfbAuthPasswdFile = NULL;
  * rfbNoAuth.  Otherwise we send rfbVncAuth plus the challenge.
  */
 
-void
-rfbAuthNewClient(cl)
-    rfbClientPtr cl;
-{
+void rfbAuthNewClient(rfbClientPtr cl) {
     char buf[4 + CHALLENGESIZE];
-    int len;
+    int len = 0;
 
-    cl->state = RFB_AUTHENTICATION;
+    if (0 && cl->minor >= 7) { // This doesn't seem to behave as documented
+        buf[len++] = 1; // 1 Type
+        
+        if (rfbAuthPasswdFile && !cl->reverseConnection && (vncDecryptPasswdFromFile(rfbAuthPasswdFile) != NULL)) {
+            buf[len++] = rfbVncAuth;
+            cl->state = RFB_AUTH_VERSION;
+        }
+        else {
+            buf[len++] = rfbNoAuth;
+            cl->state = RFB_INITIALISATION; // Do they report that they won't send anything?
+        }
 
-    if (rfbAuthPasswdFile && !cl->reverseConnection && (vncDecryptPasswdFromFile(rfbAuthPasswdFile) != NULL)) {
-
-        *(CARD32 *)buf = Swap32IfLE(rfbVncAuth);
-        vncRandomBytes(cl->authChallenge);
-        memcpy(&buf[4], (char *)cl->authChallenge, CHALLENGESIZE);
-        len = 4 + CHALLENGESIZE;
-
-    } else {
-
-        *(CARD32 *)buf = Swap32IfLE(rfbNoAuth);
-        len = 4;
-        cl->state = RFB_INITIALISATION;
+        if (WriteExact(cl, buf, len) < 0) {
+            rfbLogPerror("rfbAuthNewClient: write");
+            rfbCloseClient(cl);
+            return;
+        }
     }
+    else {
+        if (rfbAuthPasswdFile && !cl->reverseConnection && (vncDecryptPasswdFromFile(rfbAuthPasswdFile) != NULL)) {
+            *(CARD32 *)buf = Swap32IfLE(rfbVncAuth);
+            vncRandomBytes(cl->authChallenge);
+            memcpy(&buf[4], (char *)cl->authChallenge, CHALLENGESIZE);
+            len = 4 + CHALLENGESIZE;
 
-    if (WriteExact(cl, buf, len) < 0) {
-        rfbLogPerror("rfbAuthNewClient: write");
-        rfbCloseClient(cl);
-        return;
+            cl->state = RFB_AUTHENTICATION;
+        }
+        else {
+            *(CARD32 *)buf = Swap32IfLE(rfbNoAuth);
+            len = 4;
+            
+            cl->state = RFB_INITIALISATION;
+        }
+
+        if (WriteExact(cl, buf, len) < 0) {
+            rfbLogPerror("rfbAuthNewClient: write");
+            rfbCloseClient(cl);
+            return;
+        }
     }
 }
 
+void rfbProcessAuthVersion(rfbClientPtr cl) {
+    int n;
+    CARD8 securityType;
+
+    if ((n = ReadExact(cl, &securityType, 1)) <= 0) {
+        if (n != 0)
+            rfbLogPerror("rfbProcessAuthVersion: read");
+        rfbCloseClient(cl);
+        return;
+    }
+
+    switch (securityType) {
+        case rfbVncAuth: {
+            char buf[CHALLENGESIZE];
+            int len = 0;
+
+            vncRandomBytes(cl->authChallenge);
+            memcpy(buf, (char *)cl->authChallenge, CHALLENGESIZE);
+            len = CHALLENGESIZE;
+
+            if (WriteExact(cl, buf, len) < 0) {
+                rfbLogPerror("rfbProcessAuthVersion: write");
+                rfbCloseClient(cl);
+                return;
+            }
+
+            cl->state = RFB_AUTHENTICATION;
+            break;
+        }
+        default:
+            rfbLogPerror("rfbProcessAuthVersion: Invalid Authorization Type");
+            rfbCloseClient(cl);
+            break;
+    }
+}
 
 /*
  * rfbAuthProcessClientMessage is called when the client sends its
  * authentication response.
  */
 
-void
-rfbAuthProcessClientMessage(cl)
-    rfbClientPtr cl;
-{
+void rfbAuthProcessClientMessage(rfbClientPtr cl) {
     char *passwd;
     int i, n;
     CARD8 response[CHALLENGESIZE];
