@@ -3,7 +3,7 @@
  *  OSXvnc
  *
  *  Created by Jonathan Gillaspie on Fri Aug 02 2002.  osxvnc@redstonesoftware.com
- *  Copyright (c) 2002-2004 Redstone Software Inc. All rights reserved.
+ *  Copyright (c) 2002-2005 Redstone Software Inc. All rights reserved.
  *
  *  All Rights Reserved.
  *
@@ -28,7 +28,7 @@
 #import "OSXvnc-server/libvncauth/vncauth.h"
 #import <signal.h>
 
-#define LocalizedString(X) [[NSBundle mainBundle] localizedStringForKey:X value:nil table:nil]
+#define LocalizedString(X)      [[NSBundle mainBundle] localizedStringForKey:(X) value:nil table:nil]
 
 @implementation VNCController
 
@@ -131,7 +131,7 @@ static void terminateOnSignal(int signal) {
         [commonHostNames removeObject:@"localhost"];
         
         if ([commonHostNames count] > 1) {
-            [hostNamesLabel setStringValue:[LocalizedString(@"Host Names") stringByAppendingString:@":"]];
+            [hostNamesLabel setStringValue:LocalizedString(@"Host Names:")];
         }
         [hostNamesField setStringValue:[commonHostNames componentsJoinedByString:@"\n"]];        
     }
@@ -152,7 +152,7 @@ static void terminateOnSignal(int signal) {
         }
         
         if ([commonIPAddresses count] > 1) {
-            [ipAddressesLabel setStringValue:[LocalizedString(@"IP Addresses") stringByAppendingString:@":"]];
+            [ipAddressesLabel setStringValue:LocalizedString(@"IP Addresses:")];
         }
         [ipAddressesField setStringValue:[commonIPAddresses componentsJoinedByString:@"\n"]];        
     }
