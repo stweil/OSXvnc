@@ -65,9 +65,20 @@ static void rfbShutdownOnSignal(int signal) {
 
 - (void) awakeFromNib {
     // This should keep it in the bundle, a little less conspicuous
-    passwordFile = [[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@".osxvncauth"] retain];
-    logFile = [[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server.log"] retain];
+    if ([[NSFileManager defaultManager] isWritableFileAtPath:[[NSBundle mainBundle] bundlePath]])
+        passwordFile = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@".osxvncauth"];
+    else
+        passwordFile = @"/tmp/.osxvncauth";
+    [passwordFile retain];
 
+    if ([[NSFileManager defaultManager] isWritableFileAtPath:@"/var/log"])
+        logFile = [@"/var/log" stringByAppendingPathComponent:@"OSXvnc-server.log"];
+    else if ([[NSFileManager defaultManager] isWritableFileAtPath:[[NSBundle mainBundle] bundlePath]])
+        logFile = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server.log"];
+    else
+        logFile = @"/tmp/OSXvnc-server.log";
+    [logFile retain];
+    
     //[[NSFileManager defaultManager] removeFileAtPath:passwordFile handler:nil];
     [displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
     
