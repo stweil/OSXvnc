@@ -8,6 +8,8 @@
 
 #import <Cocoa/Cocoa.h>
 
+#import "NSAuthorization.h"
+
 @interface VNCController : NSObject {
     IBOutlet NSMenuItem *startServerMenuItem;
     IBOutlet NSMenuItem *stopServerMenuItem;
@@ -19,6 +21,12 @@
     IBOutlet NSTextField *portField;
     IBOutlet NSTextField *passwordField;
     IBOutlet NSTextField *displayNameField;
+    
+    IBOutlet NSTextField *hostNamesField;
+    IBOutlet NSTextField *hostNamesLabel;
+    IBOutlet NSTextField *ipAddressesLabel;
+    IBOutlet NSTextField *ipAddressesField;
+    
     IBOutlet NSButton *allowDimmingCheckbox;
     IBOutlet NSButton *allowSleepCheckbox;
 
@@ -34,8 +42,12 @@
     IBOutlet NSButton *limitToLocalConnections;
 
     IBOutlet NSButton *startServerOnLaunchCheckbox;
+    IBOutlet NSButton *terminateOnFastUserSwitch;
     IBOutlet NSButton *serverKeepAliveCheckbox;
 
+    IBOutlet NSButton *setStartupButton;
+    IBOutlet NSButton *disableStartupButton;
+    
     IBOutlet NSTextField *statusMessageField;
     IBOutlet NSButton *startServerButton;
     IBOutlet NSButton *stopServerButton;
@@ -50,9 +62,13 @@
 
     NSTask *controller;
     NSFileHandle *serverOutput;
-
+    
     NSString *passwordFile;
     NSString *logFile;
+    
+    NSAuthorization *myAuthorization;
+    
+    NSDate *lastLaunchTime;
 }
 
 - init;
@@ -84,6 +100,6 @@
 - (IBAction) openFile:(id) sender;
 
 - (IBAction) installAsService: sender;
-
+- (IBAction) removeService: sender;
 
 @end

@@ -3,10 +3,11 @@
 //  OSXvnc
 //
 //  Created by Jonathan Gillaspie on Fri Aug 02 2002.
+//  osxvnc@redstonesoftware.com
 //  Copyright (c) 2002 Redstone Software Inc. All rights reserved.
 //
 /*
- *  OSXvnc Copyright (C) 2001 Dan McGuirk <mcguirk@incompleteness.net>.
+ *  OSXvnc Copyright (C) 2001 Dan McGuirk
  *  All Rights Reserved.
  *
  *  This is free software; you can redistribute it and/or modify
@@ -30,9 +31,6 @@
 #import "OSXvnc-server/libvncauth/vncauth.h"
 #import <signal.h>
 
-#include <Security/Authorization.h>
-#include <Security/AuthorizationTags.h>
-
 @implementation VNCController
 
 static void terminateOnSignal(int signal) {
@@ -43,21 +41,26 @@ static void terminateOnSignal(int signal) {
 - init {
     [super init];
 
+    [[NSUserDefaults standardUserDefaults] registerDefaults: [NSDictionary dictionaryWithObjectsAndKeys:
+        @"", @"PasswordFile",
+        @"", @"LogFile",
+        nil]];
+    
     port = 5900;
 
     alwaysShared = FALSE;
     neverShared = FALSE;
-
     userStopped = FALSE;
 
     signal(SIGHUP, SIG_IGN);
+    signal(SIGABRT, terminateOnSignal);
     signal(SIGINT, terminateOnSignal);
     signal(SIGQUIT, terminateOnSignal);
     signal(SIGBUS, terminateOnSignal);
     signal(SIGSEGV, terminateOnSignal);
     signal(SIGTERM, terminateOnSignal);
     signal(SIGTSTP, terminateOnSignal);
-
+        
     return self;
 }
 
@@ -70,37 +73,90 @@ static void terminateOnSignal(int signal) {
 
 - (void) awakeFromNib {
     id infoDictionary = [[NSBundle mainBundle] infoDictionary];
-    
-    // This should keep it in the bundle, a little less conspicuous
-    passwordFile = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@".osxvncauth"];
-    if (![self canWriteToFile:passwordFile])
-        passwordFile = @"/tmp/.osxvncauth";
-    [passwordFile retain];
+    NSArray *passwordFiles = [NSArray arrayWithObjects:
+        [[NSUserDefaults standardUserDefaults] stringForKey:@"PasswordFile"],
+        [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@".osxvncauth"],
+        @"/tmp/.osxvncauth",
+        nil];
+    NSEnumerator *passwordEnumerators = [passwordFiles objectEnumerator];
+    NSArray *logFiles = [NSArray arrayWithObjects:
+        [[NSUserDefaults standardUserDefaults] stringForKey:@"LogFile"],
+        @"/var/log/OSXvnc-server.log",
+        [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server.log"],
+        @"/tmp/OSXvnc-server.log",
+        nil];
+    NSEnumerator *logEnumerators = [logFiles objectEnumerator];
 
-    logFile = [@"/var/log" stringByAppendingPathComponent:@"OSXvnc-server.log"];
-    if (![self canWriteToFile:logFile]) {
-        logFile = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server.log"];
-        if (![self canWriteToFile:logFile])
-            logFile = @"/tmp/OSXvnc-server.log";
+    // Find first writable location for the password file
+    while (passwordFile = [passwordEnumerators nextObject]) {
+        passwordFile = [passwordFile stringByStandardizingPath];
+        if ([passwordFile length] && [self canWriteToFile:passwordFile]) {
+            [passwordFile retain];
+            break;
+        }
     }
-    [logFile retain];
 
-    //[[NSFileManager defaultManager] removeFileAtPath:passwordFile handler:nil];
+    // Find first writable location for the log file
+    while (logFile = [logEnumerators nextObject]) {
+        logFile = [logFile stringByStandardizingPath];
+        if ([logFile length] && [self canWriteToFile:logFile]) {
+            [logFile retain];
+            break;
+        }
+    }
+    
     [displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
 
     [self loadUserDefaults: self];
 
-    [window setTitle:[NSString stringWithFormat:@"%@ (%@)", [infoDictionary objectForKey:@"CFBundleName"], [infoDictionary objectForKey:@"CFBundleShortVersionString"]]];
+    [window setTitle:[NSString stringWithFormat:@"%@ (%@)",
+        [infoDictionary objectForKey:@"CFBundleName"],
+        [infoDictionary objectForKey:@"CFBundleShortVersionString"]]];
     
     [window setFrameUsingName:@"Server Panel"];
     [window setFrameAutosaveName:@"Server Panel"];
 
-    if ([startServerOnLaunchCheckbox state])
-        [self startServer: self];
-
     [portField setIntValue:port];
 
     [optionsTabView selectTabViewItemAtIndex:0];
+
+    [disableStartupButton setEnabled:[[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems/OSXvnc"]];
+    
+    // Display Host Names
+    {
+        NSMutableArray *commonHostNames = [[[NSHost currentHost] names] mutableCopy];
+        
+        [commonHostNames removeObject:@"localhost"];
+        
+        if ([commonHostNames count] > 1) {
+            [hostNamesLabel setStringValue:@"Host Names:"];
+        }
+        [hostNamesField setStringValue:[commonHostNames componentsJoinedByString:@"\n"]];        
+    }
+    // Display IP Info
+    {
+        NSCharacterSet *ipv6Chars = [NSCharacterSet characterSetWithCharactersInString:@"ABCDEFabcdef:"];
+        NSMutableArray *commonIPAddresses = [[[NSHost currentHost] addresses] mutableCopy];
+        NSEnumerator *ipEnum = nil;
+        NSString *anIP = nil;
+
+        // 10.1 didn't seem to give a value here let's try the base - that didn't work either, just duplicated it on 10.2+
+        //[commonIPAddresses addObject:[[NSHost currentHost] address]];
+        ipEnum = [commonIPAddresses reverseObjectEnumerator];
+        
+        while (anIP = [ipEnum nextObject]) {
+            if ([anIP isEqualToString:@"127.0.0.1"] || [anIP rangeOfCharacterFromSet:ipv6Chars].location != NSNotFound)
+                [commonIPAddresses removeObject:anIP];
+        }
+        
+        if ([commonIPAddresses count] > 1) {
+            [ipAddressesLabel setStringValue:@"IP Addresses:"];
+        }
+        [ipAddressesField setStringValue:[commonIPAddresses componentsJoinedByString:@"\n"]];        
+    }
+        
+    if ([startServerOnLaunchCheckbox state])
+        [self startServer: self];
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification {
@@ -130,7 +186,7 @@ static void terminateOnSignal(int signal) {
             [displayNumberField selectItemAtIndex:port-5900];
     }
 
-    if ([vncauth length]) {
+    if (passwordFile && [vncauth length]) {
         [vncauth writeToFile:passwordFile atomically:YES];
         [passwordField setStringValue:@"********"];
     }
@@ -148,6 +204,9 @@ static void terminateOnSignal(int signal) {
 
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"startServerOnLaunch"])
         [startServerOnLaunchCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"startServerOnLaunch"]];
+
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"terminateOnFastUserSwitch"])
+        [terminateOnFastUserSwitch setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"terminateOnFastUserSwitch"]];
 
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"serverKeepAlive"])
         [serverKeepAliveCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"serverKeepAlive"]];
@@ -182,7 +241,7 @@ static void terminateOnSignal(int signal) {
 - (void) saveUserDefaults: sender {
     [[NSUserDefaults standardUserDefaults] setInteger:port forKey:@"portNumber"];
 
-    if ([[NSFileManager defaultManager] fileExistsAtPath:passwordFile])
+    if (passwordFile && [[NSFileManager defaultManager] fileExistsAtPath:passwordFile])
         [[NSUserDefaults standardUserDefaults] setObject:[NSData dataWithContentsOfFile:passwordFile] forKey:@"vncauth"];
     else
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"vncauth"];
@@ -198,6 +257,7 @@ static void terminateOnSignal(int signal) {
     [[NSUserDefaults standardUserDefaults] setBool:[limitToLocalConnections state] forKey:@"localhostOnly"];
 
     [[NSUserDefaults standardUserDefaults] setBool:[startServerOnLaunchCheckbox state] forKey:@"startServerOnLaunch"];
+    [[NSUserDefaults standardUserDefaults] setBool:[startServerOnLaunchCheckbox state] forKey:@"terminateOnFastUserSwitch"];
     [[NSUserDefaults standardUserDefaults] setBool:[serverKeepAliveCheckbox state] forKey:@"serverKeepAlive"];
 
     [[NSUserDefaults standardUserDefaults] setBool:[allowDimmingCheckbox state] forKey:@"allowDimming"];
@@ -249,7 +309,10 @@ static void terminateOnSignal(int signal) {
         [controller setStandardOutput:serverOutput];
         [controller setStandardError:serverOutput];
         [controller launch];
-
+        
+        [lastLaunchTime release];
+        lastLaunchTime = [[NSDate date] retain];
+        
         [[NSNotificationCenter defaultCenter] addObserver: self
                                                  selector: NSSelectorFromString(@"serverStopped:")
                                                      name: NSTaskDidTerminateNotification
@@ -297,7 +360,10 @@ static void terminateOnSignal(int signal) {
     else
         [statusMessageField setStringValue:@"The server has stopped running"];
 
-    if (!userStopped && [serverKeepAliveCheckbox state] && [controller terminationStatus] != 1)
+    if (!userStopped && 
+        [serverKeepAliveCheckbox state] &&
+        [controller terminationStatus] != 1 &&
+        -[lastLaunchTime timeIntervalSinceNow] > 1.0)
         relaunchServer = YES;
     
     [controller release];
@@ -306,6 +372,7 @@ static void terminateOnSignal(int signal) {
     [serverOutput release];
     serverOutput = nil;
 
+    // If it crashes in less than a second it probably can't launch
     if (relaunchServer) {
         relaunchServer = NO;
         [self startServer:self];
@@ -338,6 +405,9 @@ static void terminateOnSignal(int signal) {
     if ([allowSleepCheckbox state])
         [argv addObject:@"-allowsleep"];
 
+    [argv addObject:@"-restartonuserswitch"];
+    [argv addObject:([terminateOnFastUserSwitch state] ? @"Y" : @"N")];
+
     if ([showMouseButton state])
         [argv addObject:@"-rfbLocalBuffer"];
 
@@ -353,7 +423,7 @@ static void terminateOnSignal(int signal) {
     if ([limitToLocalConnections state])
         [argv addObject:@"-localhost"];
 
-    if ([[NSFileManager defaultManager] fileExistsAtPath:passwordFile]) {
+    if (passwordFile && [[NSFileManager defaultManager] fileExistsAtPath:passwordFile]) {
         [argv addObject:@"-rfbauth"];
         [argv addObject:passwordFile];
     }
@@ -510,118 +580,111 @@ static void terminateOnSignal(int signal) {
 }
 
 - (IBAction) installAsService: sender {
+    // In the future we may not always overwrite (look at Version # or something)
     BOOL overwrite = TRUE;
-    OSStatus myStatus;
-    AuthorizationFlags myFlags = kAuthorizationFlagDefaults;
-    AuthorizationRef myAuthorizationRef;
-    AuthorizationItem myItems = {kAuthorizationRightExecute, 0, NULL, 0};
-    AuthorizationRights myRights = {1, &myItems};
     NSMutableString *startupScript = nil;
+    NSRange lineRange;
 
-    myStatus = AuthorizationCreate(NULL,
-                                   kAuthorizationEmptyEnvironment,
-                                   myFlags,
-                                   &myAuthorizationRef);
+    if (!myAuthorization)
+        myAuthorization = [[NSAuthorization alloc] init];
+    
+    if (!myAuthorization) {
+        [startupItemStatusMessageField setStringValue:@"Error: No Authorization"];
+        return;
+    }
+    
+    // If StartupItems directory doesn't exist then create it
+    if (![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems"]) {
+        NSArray *mkdirArgs = [NSArray arrayWithObjects:@"-p", @"/Library/StartupItems", nil];
+        if (![myAuthorization executeCommand:@"/bin/mkdir" withArgs:mkdirArgs]) {
+            [startupItemStatusMessageField setStringValue:@"Error: Unable to create StartupItems folder"];
+            return;
+        }
+    }
+        
+    // If we are overwriting or if the OSXvnc folder doesn't exist
+    if (overwrite || ![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems/OSXvnc"]) {
+        NSMutableArray *copyArgsArray = [NSMutableArray array];
+        NSString *sourceFolder = [[NSBundle mainBundle] pathForResource:@"OSXvnc" ofType:nil];
+        
+        [copyArgsArray addObject:@"-R"]; // Recursive
+        [copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
+        [copyArgsArray addObject:[[NSBundle mainBundle] pathForResource:@"OSXvnc" ofType:nil]];
+        [copyArgsArray addObject:@"/Library/StartupItems"];
+        
+        if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
+            [startupItemStatusMessageField setStringValue:@"Error: Unable to copy OSXvnc folder"];
+            return;
+        }
+        
+        startupScript = [NSMutableString stringWithContentsOfFile:[sourceFolder stringByAppendingPathComponent:@"OSXvnc"]];
+    }
+    else {
+        // Would be nice to always use this but there is a timing issue with the AuthorizationExecuteWithPrivileges command
+        startupScript = [NSMutableString stringWithContentsOfFile:@"/Library/StartupItems/OSXvnc/OSXvnc"];
+    }
+    
+    // Now we will modify the script file
+    if (![startupScript length]) {
+        [startupItemStatusMessageField setStringValue:@"Error: Unable To Read in OSXvnc script File"];
+        return;
+    }
+    
+    // Replace the VNCPATH line
+    lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCPATH="]];
+    if (lineRange.location != NSNotFound) {
+        NSMutableString *replaceString = [NSString stringWithFormat:@"VNCPATH=\"%@\"\n",[[NSBundle mainBundle] bundlePath]];
+        
+        [startupScript replaceCharactersInRange:lineRange withString:replaceString];
+    }
+    
+    // Replace the VNCARGS line
+    lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCARGS="]];
+    if (lineRange.location != NSNotFound) {
+        NSMutableString *replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLine] componentsJoinedByString:@" "]];
+        
+        [startupScript replaceCharactersInRange:lineRange withString:replaceString];
+        
+    }
+    if ([startupScript writeToFile:@"/tmp/OSXvnc" atomically:YES]) {
+        NSArray *mvArguments = [NSArray arrayWithObjects:@"-f", @"/tmp/OSXvnc", @"/Library/StartupItems/OSXvnc/OSXvnc", nil];
+        NSArray *chownArguments = [NSArray arrayWithObjects:@"-R", @"root", @"/Library/StartupItems/OSXvnc", nil];
+        NSArray *chmodArguments = [NSArray arrayWithObjects:@"-R", @"544", @"/Library/StartupItems/OSXvnc", nil];
+        
+        if (![myAuthorization executeCommand:@"/bin/mv" withArgs:mvArguments]) {
+            [startupItemStatusMessageField setStringValue:@"Error: Unable To Modify OSXvnc Script File"];
+            return;
+        }
+        [myAuthorization executeCommand:@"/usr/sbin/chown" withArgs:chownArguments];
+        [myAuthorization executeCommand:@"/bin/chmod" withArgs:chmodArguments];
+    }
+    else {
+        [startupItemStatusMessageField setStringValue:@"Error: Unable To Write out Temp File"];
+        return;
+    }
+    
+    [startupItemStatusMessageField setStringValue:@"Startup Item Configured"];
+    [disableStartupButton setEnabled:YES];
+}
 
-    if (myStatus != errAuthorizationSuccess) {
+- (IBAction) removeService: sender {
+    NSArray *removeArgsArray = [NSArray arrayWithObjects:@"-r", @"-f", @"/Library/StartupItems/OSXvnc", nil];
+    
+    if (!myAuthorization)
+        myAuthorization = [[NSAuthorization alloc] init];
+    
+    if (!myAuthorization) {
         [startupItemStatusMessageField setStringValue:@"Error - No Authorization"];
         return;
     }
 
-    myFlags = kAuthorizationFlagDefaults |
-        kAuthorizationFlagInteractionAllowed |
-        kAuthorizationFlagPreAuthorize |
-        kAuthorizationFlagExtendRights;
-    // This will pre-authorize the authentication
-    myStatus = AuthorizationCopyRights(myAuthorizationRef, &myRights, NULL, myFlags, NULL);
-    
-    if (myStatus == errAuthorizationSuccess) {
-        // If StartupItems doesn't exist then create it
-        if (![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems"]) {
-            char *mkdirArguments[] = { "-p", "/Library/StartupItems", NULL };
-
-            myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/mkdir", kAuthorizationFlagDefaults, mkdirArguments, NULL);
-        }
-        
-        // In the future we may not always overwrite (look at Version # or something)
-        overwrite = TRUE;
-        if (overwrite || ![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems/OSXvnc"]) {
-            NSMutableArray *copyArgsArray = [NSMutableArray array];
-            NSString *sourceFolder = [[NSBundle mainBundle] pathForResource:@"OSXvnc" ofType:nil];
-            char **copyArguments = NULL;
-            int i;
-            
-            [copyArgsArray addObject:@"-R"]; // Recursive
-            [copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
-            [copyArgsArray addObject:[[NSBundle mainBundle] pathForResource:@"OSXvnc" ofType:nil]];
-            [copyArgsArray addObject:@"/Library/StartupItems"];
-
-            copyArguments = malloc(sizeof(char *) * ([copyArgsArray count]+1));
-            for (i=0;i<[copyArgsArray count];i++) {
-                copyArguments[i] = (char *) [[copyArgsArray objectAtIndex:i] lossyCString];
-            }
-            copyArguments[i] = NULL;
-
-            myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/cp", kAuthorizationFlagDefaults, copyArguments, NULL);
-            free(copyArguments);
-            startupScript = [NSMutableString stringWithContentsOfFile:[sourceFolder stringByAppendingPathComponent:@"OSXvnc"]];
-            // Could try to pause here waiting for /bin/cp to finish - but how would we know?
-        }
-        else {
-            // Would be nice to always use this but there is a timing issue with the AuthorizationExecuteWithPrivileges command
-            startupScript = [NSMutableString stringWithContentsOfFile:@"/Library/StartupItems/OSXvnc/OSXvnc"];
-        }
-
-        // Then we will modify the script file
-        if (myStatus == errAuthorizationSuccess) {
-            char *chownArguments[] = {"root", "/Library/StartupItems/OSXvnc/OSXvnc", NULL};
-            char *chmodArguments[] = {"755", "/Library/StartupItems/OSXvnc/OSXvnc", NULL};
-            char *mvArguments[] = {"-f", "/tmp/OSXvnc", "/Library/StartupItems/OSXvnc/OSXvnc", NULL};
-            NSRange lineRange;
-
-            if (![startupScript length])
-                NSLog(@"Error: Unable To Read in OSXvnc script File");
-
-            // Replace the VNCPATH line
-            lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCPATH="]];
-            if (lineRange.location != NSNotFound) {
-                NSMutableString *replaceString = [NSString stringWithFormat:@"VNCPATH=\"%@\"\n",[[NSBundle mainBundle] bundlePath]];
-
-                [startupScript replaceCharactersInRange:lineRange withString:replaceString];
-            }
-
-            // Replace the VNCARGS line
-            lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCARGS="]];
-            if (lineRange.location != NSNotFound) {
-                NSMutableString *replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLine] componentsJoinedByString:@" "]];
-
-                [startupScript replaceCharactersInRange:lineRange withString:replaceString];
-
-            }
-            if ([startupScript writeToFile:@"/tmp/OSXvnc" atomically:YES]) {
-                if (myStatus == errAuthorizationSuccess)
-                    myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/mv", kAuthorizationFlagDefaults, mvArguments, NULL);
-                if (myStatus == errAuthorizationSuccess)
-                    myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/usr/sbin/chown", kAuthorizationFlagDefaults, chownArguments, NULL);
-                if (myStatus == errAuthorizationSuccess)
-                    myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/chmod", kAuthorizationFlagDefaults, chmodArguments, NULL);
-            }
-            else {
-                NSLog(@"Error: Unable To Write out Temp File");
-                myStatus = -1;
-            }
-        }
-
-        if (myStatus == errAuthorizationSuccess) {
-            [startupItemStatusMessageField setStringValue:@"Startup Item Configured"];
-        }
-        else {
-            NSLog(@"Error: Executing with Authorization: %d", myStatus);
-            [startupItemStatusMessageField setStringValue:@"Error - See System Console"];
-        }
+    if ([myAuthorization executeCommand:@"/bin/rm" withArgs:removeArgsArray]) {
+        [startupItemStatusMessageField setStringValue:@"Startup Item Disabled"];
+        [disableStartupButton setEnabled:NO];
     }
-    
-    AuthorizationFree (myAuthorizationRef, kAuthorizationFlagDefaults);
+    else {
+        [startupItemStatusMessageField setStringValue:@"Error: Unabled to remove startup item"];
+    }    
 }
 
 - (void) dealloc {
