@@ -2,7 +2,7 @@
 . /etc/rc.common
 
 #
-# Start OSXvnc Version 1.11B
+# Start OSXvnc Version 1.2
 # 
 # Modify VNCPATH if you keep the application somewhere besides /Applications
 # 
@@ -43,7 +43,7 @@ VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnec
 #
 # Modification Log:
 #
-# 1.11B
+# 1.2
 # Fixed problem in stop section (missing space)
 # Fixed stop to also kill the server and keep alive
 # Now Uses $VNCPATH for other arguments

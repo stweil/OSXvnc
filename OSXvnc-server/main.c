@@ -460,6 +460,7 @@ usage(void)
                     "                       (default: no, process them)\n");
     fprintf(stderr, "-rfbLocalBuffer        run the screen through a local buffer, thereby enabling the cursor\n"
                     "                       (default: no, it's slow and causes more artifacts)\n");
+    /* This isn't ready to go yet
     {
         CGDisplayCount displayCount;
         CGDirectDisplayID activeDisplays[100];
@@ -472,7 +473,7 @@ usage(void)
         for (index=0; index < displayCount; index++)
             fprintf(stderr, "\t\t%d = (%ld,%ld)\n", index, CGDisplayPixelsWide(activeDisplays[index]), CGDisplayPixelsHigh(activeDisplays[index]));
     }
-
+    */
     fprintf(stderr, "-localhost             Only allow connections from the same machine\n");
     fprintf(stderr, "                       If you use SSH and want to stop non-SSH connections from any other hosts \n");
     fprintf(stderr, "                       (default: allows remote connections)\n");
