@@ -35,6 +35,9 @@
 #import "OSXvnc-server/libvncauth/vncauth.h"
 #import <signal.h>
 
+#include <Security/Authorization.h>
+#include <Security/AuthorizationTags.h>
+
 @implementation VNCController
 
 static void rfbShutdownOnSignal(int signal) {
@@ -52,14 +55,14 @@ static void rfbShutdownOnSignal(int signal) {
 
     userStopped = FALSE;
 
-    signal(SIGHUP, rfbShutdownOnSignal);
+    signal(SIGHUP, SIG_IGN);
     signal(SIGINT, rfbShutdownOnSignal);
     signal(SIGQUIT, rfbShutdownOnSignal);
     signal(SIGBUS, rfbShutdownOnSignal);
     signal(SIGSEGV, rfbShutdownOnSignal);
     signal(SIGTERM, rfbShutdownOnSignal);
     signal(SIGTSTP, rfbShutdownOnSignal);
-    
+
     return self;
 }
 
@@ -78,10 +81,10 @@ static void rfbShutdownOnSignal(int signal) {
     else
         logFile = @"/tmp/OSXvnc-server.log";
     [logFile retain];
-    
+
     //[[NSFileManager defaultManager] removeFileAtPath:passwordFile handler:nil];
     [displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
-    
+
     [self loadUserDefaults: self];
     [window setFrameUsingName:@"Server Panel"];
     [window setFrameAutosaveName:@"Server Panel"];
@@ -94,14 +97,14 @@ static void rfbShutdownOnSignal(int signal) {
 
 // This is sent when the server's screen params change, the server can't handle this right now so we'll restart
 - (void)applicationDidChangeScreenParameters:(NSNotification *)aNotification {
-    [statusMessageField setStringValue:@"Screen Resolution changed - reinitializing server"];
+    [statusMessageField setStringValue:@"Screen Resolution changed - Server Reinitializing"];
 }
 
 - (void) loadUserDefaults: sender {
     NSString *portDefault = [[NSUserDefaults standardUserDefaults] stringForKey:@"portNumber"];
     NSData *vncauth = [[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"];
     int sharingMode = [[NSUserDefaults standardUserDefaults] integerForKey:@"sharingMode"];
-    
+
     if (portDefault) {
         port = [portDefault intValue];
         [portField setIntValue:port];
@@ -110,7 +113,7 @@ static void rfbShutdownOnSignal(int signal) {
         else
             [displayNumberField selectItemAtIndex:port-5900];
     }
-        
+
     if ([vncauth length]) {
         [vncauth writeToFile:passwordFile atomically:YES];
         [passwordField setStringValue:@"********"];
@@ -124,7 +127,7 @@ static void rfbShutdownOnSignal(int signal) {
 
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"swapButtons"])
         [swapMouseButtonsCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"swapButtons"]];
-    
+
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"startServerOnLaunch"])
         [startServerOnLaunchCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"startServerOnLaunch"]];
 
@@ -149,12 +152,12 @@ static void rfbShutdownOnSignal(int signal) {
 
 - (void) saveUserDefaults: sender {
     [[NSUserDefaults standardUserDefaults] setInteger:port forKey:@"portNumber"];
-    
+
     if ([[NSFileManager defaultManager] fileExistsAtPath:passwordFile])
         [[NSUserDefaults standardUserDefaults] setObject:[NSData dataWithContentsOfFile:passwordFile] forKey:@"vncauth"];
     else
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"vncauth"];
-        
+
     if ([[displayNameField stringValue] length])
         [[NSUserDefaults standardUserDefaults] setObject:[displayNameField stringValue] forKey:@"desktopName"];
 
@@ -188,16 +191,26 @@ static void rfbShutdownOnSignal(int signal) {
         [self stopServer: self];
         return;
     }
-    
+
     if (![window makeFirstResponder:window])
         [window endEditingFor:nil];
 
     if (argv = [self formCommandLine]) {
+        NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
+
         NSString *executionPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server"];
-        
-        [[NSFileManager defaultManager] removeFileAtPath:logFile handler:nil];
-        [[NSFileManager defaultManager] createFileAtPath:logFile contents:nil attributes:nil];
-        serverOutput = [[NSFileHandle fileHandleForWritingAtPath:logFile] retain];
+        NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting OSXvnc Version %@\n\n", [NSDate date], [infoDictionary valueForKey:@"CFBundleShortVersionString"]];
+
+        if (![[NSFileManager defaultManager] fileExistsAtPath:logFile]) {
+            [[NSFileManager defaultManager] createFileAtPath:logFile contents:nil attributes:nil];
+        }
+        else { // Clear it
+            serverOutput = [NSFileHandle fileHandleForUpdatingAtPath:logFile];
+            [serverOutput truncateFileAtOffset:0];
+            [serverOutput closeFile];
+        }
+        serverOutput = [[NSFileHandle fileHandleForUpdatingAtPath:logFile] retain];
+        [serverOutput writeData:[noteStartup dataUsingEncoding:NSASCIIStringEncoding]];
 
         controller = [[NSTask alloc] init];
         [controller setLaunchPath:executionPath];
@@ -244,7 +257,7 @@ static void rfbShutdownOnSignal(int signal) {
     [stopServerButton setEnabled:FALSE];
     [stopServerButton setKeyEquivalent:@""];
     [startServerButton setKeyEquivalent:@"\r"];
-    
+
     if (userStopped)
         [statusMessageField setStringValue:@"The server is stopped."];
     else if ([controller terminationStatus]) {
@@ -255,6 +268,7 @@ static void rfbShutdownOnSignal(int signal) {
 
     [controller release];
     controller = nil;
+    [serverOutput closeFile];
     [serverOutput release];
     serverOutput = nil;
 
@@ -308,7 +322,7 @@ static void rfbShutdownOnSignal(int signal) {
         [argv addObject:@"-deferupdate"];
         [argv addObject:[[NSUserDefaults standardUserDefaults] stringForKey:@"rfbDeferUpdateTime"]];
     }
-    
+
     return argv;
 }
 
@@ -334,7 +348,7 @@ static void rfbShutdownOnSignal(int signal) {
             [displayNumberField selectItemAtIndex:10];
         else
             [displayNumberField selectItemAtIndex:port-5900];
-        
+
         if (sender != self) {
             [self saveUserDefaults: self];
             [self checkForRestart];
@@ -380,7 +394,7 @@ static void rfbShutdownOnSignal(int signal) {
             else
                 [passwordField setStringValue:@"********"];
         }
-        
+
         if (sender != self) {
             [self saveUserDefaults: self];
             [self checkForRestart];
@@ -451,6 +465,78 @@ static void rfbShutdownOnSignal(int signal) {
     }
 
     [[NSWorkspace sharedWorkspace] openFile:openPath];
+}
+
+- (IBAction) installAsService: sender {
+    OSStatus myStatus;
+    AuthorizationFlags myFlags = kAuthorizationFlagDefaults;
+    AuthorizationRef myAuthorizationRef;
+    AuthorizationItem myItems = {kAuthorizationRightExecute, 0, NULL, 0};
+    AuthorizationRights myRights = {1, &myItems};
+    
+    myStatus = AuthorizationCreate(NULL,
+                                   kAuthorizationEmptyEnvironment,
+                                   myFlags,
+                                   &myAuthorizationRef);
+
+    if (myStatus != errAuthorizationSuccess)
+        return;
+
+    myFlags = kAuthorizationFlagDefaults |
+        kAuthorizationFlagInteractionAllowed |
+        kAuthorizationFlagPreAuthorize |
+        kAuthorizationFlagExtendRights;
+    // This will pre-authorize the authentication
+    myStatus = AuthorizationCopyRights(myAuthorizationRef, &myRights, NULL, myFlags, NULL);
+    
+    if (myStatus == errAuthorizationSuccess) {
+        // If StartupItems doesn't exist then create it
+        if (![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems"]) {
+            char *mkdirArguments[] = { "-p", "/Library/StartupItems", NULL };
+
+            AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/mkdir", kAuthorizationFlagDefaults, mkdirArguments, NULL);
+        }
+        if (![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems/OSXvnc"]) {
+            NSMutableArray *copyArgsArray = [NSMutableArray array];
+            char **copyArguments = NULL;
+            int i;
+            
+            [copyArgsArray addObject:@"-R"];
+            [copyArgsArray addObject:[[NSBundle mainBundle] pathForResource:@"OSXvnc" ofType:nil]];
+            [copyArgsArray addObject:@"/Library/StartupItems"];
+
+            copyArguments = malloc(sizeof(char *) * ([copyArgsArray count]+1));
+            for (i=0;i<[copyArgsArray count];i++) {
+                copyArguments[i] = (char *) [[copyArgsArray objectAtIndex:i] lossyCString];
+            }
+            copyArguments[i] = NULL;
+
+            myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/cp", kAuthorizationFlagDefaults, copyArguments, NULL);
+            free(copyArguments);
+        }
+
+        // First we will modify the script file
+        if (myStatus == errAuthorizationSuccess) {
+            NSMutableString *startupScript = [NSMutableString stringWithContentsOfFile:@"/Library/StartupItems/OSXvnc/OSXvnc"];
+            char *copyArguments[] = {"-f", "/tmp/OSXvnc", "/Library/StartupItems/OSXvnc/OSXvnc", NULL};
+            NSRange argsRange;
+            
+            // Modify the file
+
+            // Replace the VNCARGS line
+            argsRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCARGS"]];
+            if (argsRange.location != NSNotFound) {
+                NSMutableString *replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLine] componentsJoinedByString:@" "]];
+
+                [startupScript replaceCharactersInRange:argsRange withString:replaceString];
+
+                [startupScript writeToFile:@"/tmp/OSXvnc" atomically:YES];
+                myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, "/bin/mv", kAuthorizationFlagDefaults, copyArguments, NULL);
+            }
+        }
+    }
+    
+    AuthorizationFree (myAuthorizationRef, kAuthorizationFlagDefaults);
 }
 
 - (void) dealloc {

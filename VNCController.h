@@ -75,5 +75,7 @@
 - (IBAction) openLog:(id) sender;
 - (IBAction) openFile:(id) sender;
 
+- (IBAction) installAsService: sender;
+
 
 @end
