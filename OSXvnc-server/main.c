@@ -82,6 +82,9 @@ extern void rfbScreensaverTimer(EventLoopTimerRef timer, void *userData);
 
 int rfbDeferUpdateTime = 40; /* in ms */
 
+static char reverseHost[255] = "";
+static int reversePort = 5500;
+
 CGDisplayErr displayErr;
 
 // Server Data
@@ -136,7 +139,7 @@ void bundlesPerformSelector(SEL performSel) {
     NSBundle *bundle = nil;
 
     while ((bundle = [bundleEnum nextObject]))
-        [(id <RFBBundleProtocol>)[bundle principalClass] performSelector:performSel];
+        [(NSObject <RFBBundleProtocol> *)[bundle principalClass] performSelector:performSel];
 
     [bundlePool release];
 }
@@ -329,11 +332,12 @@ void rfbCheckForScreenResolutionChange() {
 
 static void *clientOutput(void *data) {
     rfbClientPtr cl = (rfbClientPtr)data;
-    Bool haveUpdate;
     RegionRec updateRegion;
+    Bool haveUpdate = false;
 
     while (1) {
         haveUpdate = false;
+			
         pthread_mutex_lock(&cl->updateMutex);
         while (!haveUpdate) {
             if (cl->sock == -1) {
@@ -342,35 +346,38 @@ static void *clientOutput(void *data) {
                 return NULL;
             }
 
-            // Check for pending PB changes
+            // Check for (and send immediately) pending PB changes
             rfbClientUpdatePasteboard(cl);
 
-            /* REDSTONE */
-            if (rfbDeferUpdateTime > 0 && !cl->immediateUpdate) {
-                REGION_INIT(&hackScreen, &updateRegion, NullBox, 0);
-                REGION_INTERSECT(&hackScreen, &updateRegion, &cl->modifiedRegion, &cl->requestedRegion);
-                haveUpdate = REGION_NOTEMPTY(&hackScreen, &updateRegion);
+			// Only do checks if we HAVE an outstanding request
+			if (REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion)) {
+				/* REDSTONE */
+				if (rfbDeferUpdateTime > 0 && !cl->immediateUpdate) {
+					// Compare Request with Update Area
+					REGION_INIT(&hackScreen, &updateRegion, NullBox, 0);
+					REGION_INTERSECT(&hackScreen, &updateRegion, &cl->modifiedRegion, &cl->requestedRegion);
+					haveUpdate = REGION_NOTEMPTY(&hackScreen, &updateRegion);
 
-                REGION_UNINIT(&hackScreen, &updateRegion);
-            }
-            else {
-                /*
-                 If we've turned off deferred updating
-                 We are going to send an update as soon as we have a requested,
-                 regardless of if we have a "change" intersection
-                 */
-                haveUpdate = REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion);
-            }
+					REGION_UNINIT(&hackScreen, &updateRegion);
+				}
+				else {
+					/*  If we've turned off deferred updating
+					We are going to send an update as soon as we have a requested,
+					regardless of if we have a "change" intersection */
+					haveUpdate = TRUE;
+				}
 
-            if (rfbShouldSendNewCursor(cl))
-                haveUpdate = TRUE;
-            else if (rfbShouldSendNewPosition(cl))
-                haveUpdate = TRUE;
-            else if (cl->needNewScreenSize)
-                haveUpdate = TRUE;
+				if (rfbShouldSendNewCursor(cl))
+					haveUpdate = TRUE;
+				else if (rfbShouldSendNewPosition(cl))
+					// Could Compare with the request area but for now just always send it
+					haveUpdate = TRUE;
+				else if (cl->needNewScreenSize)
+					haveUpdate = TRUE;
+			}
 
-            if (!haveUpdate)
-                pthread_cond_wait(&cl->updateCond, &cl->updateMutex);
+			if (!haveUpdate)
+				pthread_cond_wait(&cl->updateCond, &cl->updateMutex);
         }
 
         // OK, now, to save bandwidth, wait a little while for more updates to come along.
@@ -393,16 +400,14 @@ static void *clientOutput(void *data) {
         REGION_UNINIT(&hackScreen, &cl->requestedRegion);
         REGION_INIT(&hackScreen, &cl->requestedRegion,NullBox,0);
 
-        /* This does happen but it's asynchronous (and slow to occur)
-            what we really want to happen is to just temporarily hide the cursor (while sending to the remote screen)
-            -- It's not even usually there (as it's handled by the display driver - but under certain occasions it does appear */
-
-        /*
+        /*  This does happen but it's asynchronous (and slow to occur)
+			what we really want to happen is to just temporarily hide the cursor (while sending to the remote screen)
+			-- It's not even usually there (as it's handled by the display driver - but under certain occasions it does appear
          displayErr = CGDisplayHideCursor(displayID);
          if (displayErr != 0)
          rfbLog("Error Hiding Cursor %d", displayErr);
          CGDisplayMoveCursorToPoint(displayID, CGPointZero);
-         */
+											*/
 
         /* Now actually send the update. */
         rfbSendFramebufferUpdate(cl, updateRegion);
@@ -478,13 +483,19 @@ static void *listenerRun(void *ignore) {
     }
 
     if (bind(listen_fd, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
-        rfbLog("Failed to Bind Socket: Port may be in use by another VNC\n");
-        exit(-1);
+        rfbLog("Failed to Bind Socket: Port %d may be in use by another VNC\n", rfbPort);
+		if (strlen(reverseHost)) {
+			rfbLog("Listener Disabled\n", rfbPort);
+			return NULL;
+		}
+		else {
+			exit(250);
+		}
     }
 
     if (listen(listen_fd, 5) < 0) {
         rfbLog("listen failed\n");
-        exit(-1);
+        exit(255);
     }
 
     len = sizeof(peer);
@@ -514,6 +525,23 @@ static void *listenerRun(void *ignore) {
     exit(1);
 }
 
+static void connectReverseClient() {
+    pthread_t client_thread;
+    rfbClientPtr cl;
+	
+	pthread_mutex_lock(&listenerAccepting);
+    rfbUndim();
+    cl = rfbReverseConnection(reverseHost, reversePort);
+	if (cl) {	
+		pthread_create(&client_thread, NULL, clientInput, (void *)cl);
+		pthread_mutex_unlock(&listenerAccepting);
+		pthread_cond_signal(&listenerGotNewClient);
+	}
+	else {
+		pthread_mutex_unlock(&listenerAccepting);
+	}
+}
+
 char *rfbGetFramebuffer(void)
 {
     if (rfbLocalBuffer)
@@ -530,7 +558,7 @@ static void rfbScreenInit(void) {
 
     if (CGDisplaySamplesPerPixel(displayID) != 3) {
         rfbLog("screen format not supported.  exiting.\n");
-        exit(-1);
+        exit(255);
     }
 
     if (rfbLocalBuffer) {
@@ -619,9 +647,9 @@ static void usage(void) {
             "                       (default: no)\n");
     fprintf(stderr, "-disableRemoteEvents   ignore remote keyboard, pointer, and pasteboard event\n"
             "                       (default: no, process them)\n");
-    fprintf(stderr, "-rfbLocalBuffer        run the screen through a local buffer, thereby enabling the cursor\n"
-            "                       (default: no, it's slow and causes more artifacts)\n"
-            "                       (WARNING - This option is Deprecated and will be removed soon)\n");
+	fprintf(stderr, "-connectHost host      Host Name or IP of listening client to establishing a reverse conneect\n");
+	fprintf(stderr, "-connectPort port      TCP port of listening client to establishing a reverse conneect\n"
+			"                       (default: 5500)\n");
 	fprintf(stderr, "-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n");
     /* This isn't ready to go yet
     {
@@ -645,7 +673,7 @@ static void usage(void) {
     bundlesPerformSelector(@selector(rfbUsage));
     fprintf(stderr, "\n");
 
-    exit(-1);
+    exit(255);
 }
 
 static void checkForUsage(int argc, char *argv[]) {
@@ -678,16 +706,23 @@ static void processArguments(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-rfbauth") == 0) {  // -rfbauth passwd-file
             if (i + 1 >= argc) usage();
             rfbAuthPasswdFile = argv[++i];
-        } else if (strcmp(argv[i], "-deferupdate") == 0) {      // -deferupdate ms
+        } else if (strcmp(argv[i], "-connectHost") == 0) {  // -connect host
+            if (i + 1 >= argc) usage();
+			strncpy(reverseHost, argv[++i], 255);
+            if (strlen(reverseHost) == 0) usage();
+        } else if (strcmp(argv[i], "-connectPort") == 0) {  // -connect host
+            if (i + 1 >= argc) usage();
+            reversePort = atoi(argv[++i]);
+		} else if (strcmp(argv[i], "-deferupdate") == 0) {  // -deferupdate ms
             if (i + 1 >= argc) usage();
             rfbDeferUpdateTime = atoi(argv[++i]);
-        } else if (strcmp(argv[i], "-maxdepth") == 0) {      // -maxdepth
+        } else if (strcmp(argv[i], "-maxdepth") == 0) {  // -maxdepth
             if (i + 1 >= argc) usage();
             rfbMaxBitDepth = atoi(argv[++i]);
         } else if (strcmp(argv[i], "-desktop") == 0) {  // -desktop desktop-name
             if (i + 1 >= argc) usage();
 			strncpy(desktopName, argv[++i], 255);
-        } else if (strcmp(argv[i], "-display") == 0) {   // -display DisplayID
+        } else if (strcmp(argv[i], "-display") == 0) {  // -display DisplayID
             CGDisplayCount displayCount;
             CGDirectDisplayID activeDisplays[100];
 
@@ -795,12 +830,17 @@ void daemonize( void ) {
 }
 
 int main(int argc, char *argv[]) {
+	NSAutoreleasePool *tempPool = [[NSAutoreleasePool alloc] init];
     vncServerObject = [[VNCServer alloc] init];
     checkForUsage(argc,argv);
     
     // This guarantees separating us from any terminal - 
-	// that might help when launched in SSH, etc but I don't think it solves the problem of being killed on GUI logout.
-    // daemonize();
+	// Right now this causes problems with the keep-alive script and the GUI app (since it causes the process to return right away)
+	// it allows you to survive when launched in SSH, etc but doesn't solves the problem of being killed on GUI logout.
+	// It also doesn't help with any of the pasteboard security issues, those requires secure sessionID's, see:
+	// http://developer.apple.com/documentation/MacOSX/Conceptual/BPMultipleUsers/index.html
+	// 
+	// daemonize();
 
     // Let's not shutdown on a SIGHUP at some point perhaps we can use that to reload configuration
     signal(SIGHUP, SIG_IGN);
@@ -833,9 +873,7 @@ int main(int argc, char *argv[]) {
 
 	// If no Desktop Name Provided Try to Get it
 	if (strlen(desktopName) == 0) {
-		NSAutoreleasePool *tempPool = [[NSAutoreleasePool alloc] init];
 		[[[NSProcessInfo processInfo] hostName] getCString:desktopName];
-		[tempPool release];
 	}
 	
 	loadDynamicBundles(TRUE);
@@ -846,6 +884,8 @@ int main(int argc, char *argv[]) {
     rfbScreenInit();
     rfbClientListInit();
     rfbDimmingInit();
+
+	initPasteboard();
 
     // Register for User Switch Notification
     // This works on non-Panther systems since the Notification just wont get called
@@ -860,6 +900,7 @@ int main(int argc, char *argv[]) {
                                                                  object:nil];
     }
     
+	
     /* That's great that they #define it to use the new symbol that doesn't exist in older versions
         better to just not even define it - but give a warning or something  */
     // This should be in CGRemoteOperationApi.h
@@ -890,6 +931,9 @@ CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask 
 
     pthread_create(&listener_thread, NULL, listenerRun, NULL);
 		
+	if (strlen(reverseHost) > 0)
+		connectReverseClient();
+	
     // This segment is what is responsible for causing the server to shutdown when a user logs out
     // The problem being that OS X sends it first a SIGTERM and then a SIGKILL (un-trappable)
     // Presumable because it's running a Carbon Event loop
@@ -922,8 +966,7 @@ CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask 
             rfbCheckForCursorChange();
             rfbCheckForScreenResolutionChange();
             // Run The Event loop a moment to see if we have a screen update
-            // No better luck with this one avoiding the shutdown on logout problem
-            // RunApplicationEventLoop();
+            // No better luck with RunApplicationEventLoop() avoiding the shutdown on logout problem
             resultCode = RunCurrentEventLoop(kEventDurationSecond/30); //EventTimeout
             if (resultCode != eventLoopTimedOutErr) {
                 rfbLog("Received Result: %d during event loop, Shutting Down", resultCode);
@@ -942,6 +985,9 @@ CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask 
         refreshCallback(rectCount, rectArray, NULL);
         CGReleaseScreenRefreshRects( rectArray );
     }
+
+		[tempPool release];
+	
 
         rfbShutdown();
 
