@@ -455,12 +455,12 @@ static void *listenerRun(void *ignore) {
 
     if (bind(listen_fd, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
         rfbLog("Failed to Bind Socket: Port may be in use by another VNC\n");
-        exit(1);
+        exit(-1);
     }
 
     if (listen(listen_fd, 5) < 0) {
         rfbLog("listen failed\n");
-        exit(1);
+        exit(-1);
     }
 
     len = sizeof(peer);
@@ -504,7 +504,7 @@ static void rfbScreenInit(void) {
 
     if (CGDisplaySamplesPerPixel(displayID) != 3) {
         rfbLog("screen format not supported.  exiting.\n");
-        exit(1);
+        exit(-1);
     }
 
     if (rfbLocalBuffer) {
@@ -617,7 +617,7 @@ static void usage(void) {
     bundlesPerformSelector(@selector(rfbUsage));
     fprintf(stderr, "\n");
 
-    exit(1);
+    exit(-1);
 }
 
 static void checkForUsage(int argc, char *argv[]) {
