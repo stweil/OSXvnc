@@ -33,7 +33,6 @@
     IBOutlet NSButton *startServerButton;
     IBOutlet NSButton *stopServerButton;
 
-    int displayNumber;
     int port;
 
     BOOL alwaysShared;
@@ -64,6 +63,7 @@
 - (IBAction) changePort: sender;
 - (IBAction) changeSharing: sender;
 - (IBAction) changePassword: sender;
+- (IBAction) changeDisplayName: sender;
 - (IBAction) optionChanged: sender;
 
 - (void) checkForRestart;

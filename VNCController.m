@@ -45,7 +45,6 @@ static void rfbShutdownOnSignal(int signal) {
 - init {
     [super init];
 
-    displayNumber = 0;
     port = 5900;
 
     alwaysShared = FALSE;
@@ -79,16 +78,12 @@ static void rfbShutdownOnSignal(int signal) {
     if ([startServerOnLaunchCheckbox state])
         [self startServer: self];
 
-    [displayNumberField selectItemAtIndex:displayNumber];
     [portField setIntValue:port];
 }
 
 // This is sent when the server's screen params change, the server can't handle this right now so we'll restart
 - (void)applicationDidChangeScreenParameters:(NSNotification *)aNotification {
     [statusMessageField setStringValue:@"Screen Resolution changed - reinitializing server"];
-
-    //[self stopServer: self];
-    //[self startServer: self];
 }
 
 - (void) loadUserDefaults: sender {
@@ -98,10 +93,13 @@ static void rfbShutdownOnSignal(int signal) {
     
     if (portDefault) {
         port = [portDefault intValue];
-        [portField setStringValue:portDefault];
-        [self changePort:self];
+        [portField setIntValue:port];
+        if (port < 5900 || port > 5909)
+            [displayNumberField selectItemAtIndex:10];
+        else
+            [displayNumberField selectItemAtIndex:port-5900];
     }
-
+        
     if ([vncauth length]) {
         [vncauth writeToFile:passwordFile atomically:YES];
         [passwordField setStringValue:@"********"];
@@ -305,30 +303,31 @@ static void rfbShutdownOnSignal(int signal) {
 
 
 - (void) changeDisplayNumber: sender {
-    displayNumber = [displayNumberField indexOfSelectedItem];
+    if (port != [displayNumberField indexOfSelectedItem] + 5900) {
+        if ([displayNumberField indexOfSelectedItem] < 10) {
+            port = [displayNumberField indexOfSelectedItem] + 5900;
+            [portField setIntValue:port];
+        }
 
-    if (displayNumber < 10) {
-        port = displayNumber + 5900;
-        [portField setIntValue:port];
-    }
-
-    if (sender != self) {
-        [self saveUserDefaults: self];
-        [self checkForRestart];
+        if (sender != self) {
+            [self saveUserDefaults: self];
+            [self checkForRestart];
+        }
     }
 }
 
 - (void) changePort: sender {
-    port = [portField intValue];
-    displayNumber = port - 5900;
-    if (displayNumber < 0 || displayNumber > 9) {
-        displayNumber = 10;
-    }
-    [displayNumberField selectItemAtIndex:displayNumber];
-
-    if (sender != self) {
-        [self saveUserDefaults: self];
-        [self checkForRestart];
+    if (port != [portField intValue]) {
+        port = [portField intValue];
+        if (port < 5900 || port > 5909)
+            [displayNumberField selectItemAtIndex:10];
+        else
+            [displayNumberField selectItemAtIndex:port-5900];
+        
+        if (sender != self) {
+            [self saveUserDefaults: self];
+            [self checkForRestart];
+        }
     }
 }
 
@@ -358,16 +357,28 @@ static void rfbShutdownOnSignal(int signal) {
 }
 
 - (void) changePassword: sender {
-    [[NSFileManager defaultManager] removeFileAtPath:passwordFile handler:nil];
+    if ((![[passwordField stringValue] isEqualToString:@"********"] && [[passwordField stringValue] length]) ||
+        (![[passwordField stringValue] length] && [[NSUserDefaults standardUserDefaults] objectForKey:@"vncauth"])) {
+        [[NSFileManager defaultManager] removeFileAtPath:passwordFile handler:nil];
 
-    if ([[passwordField stringValue] length]) {
-        if (vncEncryptAndStorePasswd((char *)[[passwordField stringValue] cString], (char *)[passwordFile cString]) != 0) {
-            [statusMessageField setStringValue:@"Problem - Unable to store password."];
-            [passwordField setStringValue:nil];
+        if ([[passwordField stringValue] length]) {
+            if (vncEncryptAndStorePasswd((char *)[[passwordField stringValue] cString], (char *)[passwordFile cString]) != 0) {
+                [statusMessageField setStringValue:@"Problem - Unable to store password."];
+                [passwordField setStringValue:nil];
+            }
+            else
+                [passwordField setStringValue:@"********"];
+        }
+        
+        if (sender != self) {
+            [self saveUserDefaults: self];
+            [self checkForRestart];
         }
     }
+}
 
-    if (sender != self) {
+- (IBAction) changeDisplayName: sender {
+    if (![[displayNameField stringValue] isEqualToString:[[NSUserDefaults standardUserDefaults] objectForKey:@"desktopName"]] && sender != self) {
         [self saveUserDefaults: self];
         [self checkForRestart];
     }

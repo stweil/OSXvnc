@@ -267,7 +267,7 @@
 	<key>CFBundleExecutable</key>
 	<string>OSXvnc</string>
 	<key>CFBundleGetInfoString</key>
-	<string>1.12Dev - Copyright January 18th, 2003 Redstone Software </string>
+	<string>1.2Dev - Copyright © 2003 Redstone Software </string>
 	<key>CFBundleIconFile</key>
 	<string>OSXvnc.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -279,11 +279,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.12Dev</string>
+	<string>1.2Dev</string>
 	<key>CFBundleSignature</key>
 	<string>OSXv</string>
 	<key>CFBundleVersion</key>
-	<string>1.12Dev</string>
+	<string>1.2Dev</string>
 	<key>NSAppleScriptEnabled</key>
 	<false/>
 	<key>NSHelpFile</key>

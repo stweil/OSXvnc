@@ -8,6 +8,7 @@
         }, 
         {
             ACTIONS = {
+                changeDisplayName = id; 
                 changeDisplayNumber = id; 
                 changePassword = id; 
                 changePort = id; 
