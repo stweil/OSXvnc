@@ -71,8 +71,10 @@ void rfbSetCutText(rfbClientPtr cl, char *str, int len) {
 		[clientCutText release];
 		clientCutText = [[NSString alloc] initWithCString:str length:len];
 		cl->pasteBoardLastChange = -1; // Don't resend to original client
-		
 		[pasteboardLock unlock];
+		// Since subsequent operations might require the pasteboard, we'll stall until it gets picked up
+		while (clientCutText)
+			usleep(10000);
 	}
 			
     [pool release];

@@ -317,7 +317,7 @@ typedef struct {
 
 */
 #define rfbImmediateUpdate   0x80000000
-#define rfbPasteboardError   0x80010000
+#define rfbPasteboardRequest 0x80010000
 
 /* TightVNC
  *

@@ -642,12 +642,9 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                         rfbLog("\tEnabling Immediate updates for client " "%s\n", cl->host);
                         cl->immediateUpdate = TRUE;
                         break;
-					case rfbPasteboardError:
-					    /* REDSTONE - Have new client keep his PB currently UNLESS We don't have PB support */
-						if (!pasteBoardLastChangeCount) {
-							rfbLog("\tEnabling Pasteboard Error Message" "%s\n", cl->host);
-							cl->pasteBoardLastChange = -2; // This will cause it to send a single update that shows that the PB isn't accessible
-						}
+					case rfbPasteboardRequest:
+						rfbLog("\tEnabling Pasteboard Request" "%s\n", cl->host);
+						cl->pasteBoardLastChange = -2; // This will cause it to send a single update that shows the current PB
 						break;
 
                         // Tight encoding options
