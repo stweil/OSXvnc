@@ -191,6 +191,11 @@ rfbClientPtr rfbNewClient(int sock) {
     cl->translateFn = rfbTranslateNone;
     cl->translateLookupTable = NULL;
 
+    /* SERVER SCALING EXTENSIONS -- Server Scaling is off by default */
+    cl->scalingFactor = 1;
+    cl->scalingFrameBuffer = rfbGetFramebuffer();
+	cl->scalingPaddedWidthInBytes = rfbScreen.paddedWidthInBytes;
+
     cl->tightCompressLevel = TIGHT_DEFAULT_COMPRESSION;
     cl->tightQualityLevel = -1;
     for (i = 0; i < 4; i++)
@@ -295,6 +300,11 @@ void rfbClientConnectionGone(rfbClientPtr cl) {
 
     if (cl->translateLookupTable)
         free(cl->translateLookupTable);
+
+    /* SERVER SCALING EXTENSIONS */
+    if( cl->scalingFrameBuffer && cl->scalingFrameBuffer != rfbGetFramebuffer() ){
+        free(cl->scalingFrameBuffer);
+    }
 
     pthread_cond_destroy(&cl->updateCond);
     pthread_mutex_destroy(&cl->updateMutex);
@@ -492,7 +502,7 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
     switch (msg.type) {
 
         case rfbSetPixelFormat:
-
+		{
             if ((n = ReadExact(cl, ((char *)&msg) + 1,
                                sz_rfbSetPixelFormatMsg - 1)) <= 0) {
                 if (n != 0)
@@ -514,9 +524,10 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
 
             rfbSetTranslateFunction(cl);
             return;
-
+		}
 
         case rfbFixColourMapEntries:
+		{
             if ((n = ReadExact(cl, ((char *)&msg) + 1,
                                sz_rfbFixColourMapEntriesMsg - 1)) <= 0) {
                 if (n != 0)
@@ -528,8 +539,8 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                    "FixColourMapEntries unsupported\n");
             rfbCloseClient(cl);
             return;
-
-
+		}
+			
         case rfbSetEncodings: {
             int i;
             CARD32 enc;
@@ -578,13 +589,15 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                     case rfbEncodingZRLE:
                         if (cl->preferredEncoding == -1) {
                             cl->preferredEncoding = enc;
-                            rfbLog("Using %s encoding for client %s\n", encNames[cl->preferredEncoding], cl->host);
+                            rfbLog("ENCODING: %s for client %s\n", encNames[cl->preferredEncoding], cl->host);
                         }
                         break;
-                        
+					case rfbEncodingUltra:
+						rfbLog("\tULTRA Encoding not supported(ignored): %u (%X)\n", (int)enc, (int)enc);
+						break;
                         /* PSEUDO_ENCODINGS */
                     case rfbEncodingLastRect:
-                        rfbLog("Enabling LastRect protocol extension for client %s\n", cl->host);
+                        rfbLog("\tEnabling LastRect protocol extension for client %s\n", cl->host);
                         cl->enableLastRectEncoding = TRUE;
                         break;
                     case rfbEncodingXCursor:
@@ -592,23 +605,24 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                         cl->enableXCursorShapeUpdates = TRUE;
                         break;
                     case rfbEncodingRichCursor:
-                        rfbLog("Enabling Cursor Shape protocol extension for client %s\n", cl->host);
+                        rfbLog("\tEnabling Cursor Shape protocol extension for client %s\n", cl->host);
                         cl->useRichCursorEncoding = TRUE;
                         cl->currentCursorSeed = 0;
                         break;
                     case rfbEncodingPointerPos:
-                        rfbLog("Enabling Cursor Position protocol extension for client %s\n", cl->host);
+                        rfbLog("\tEnabling Cursor Position protocol extension for client %s\n", cl->host);
                         cl->enableCursorPosUpdates = TRUE;
                         cl->clientCursorLocation = CGPointMake(-1.0, -1.0);
                         break;
                     case rfbEncodingDesktopResize:
-                        rfbLog("Enabling Dynamic Desktop Sizing for client %s\n", cl->host);
+                        rfbLog("\tEnabling Dynamic Desktop Sizing for client %s\n", cl->host);
                         cl->desktopSizeUpdate = TRUE;
                         break;
                     case rfbImmediateUpdate:
-                        rfbLog("Enabling Immediate updates for client " "%s\n", cl->host);
+                        rfbLog("\tEnabling Immediate updates for client " "%s\n", cl->host);
                         cl->immediateUpdate = TRUE;
                         break;
+
 
                         // Tight encoding options
                     default:
@@ -616,17 +630,17 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                              enc <= (CARD32)rfbEncodingCompressLevel9 ) {
                             cl->zlibCompressLevel = enc & 0x0F;
                             cl->tightCompressLevel = enc & 0x0F;
-                            rfbLog("Using compression level %d for client %s\n",
+                            rfbLog("\tUsing compression level %d for client %s\n",
                                    cl->tightCompressLevel, cl->host);
                         }
                         else if ( enc >= (CARD32)rfbEncodingQualityLevel0 &&
                                     enc <= (CARD32)rfbEncodingQualityLevel9 ) {
                             cl->tightQualityLevel = enc & 0x0F;
-                            rfbLog("Using image quality level %d for client %s\n",
+                            rfbLog("\tUsing jpeg image quality level %d for client %s\n",
                                    cl->tightQualityLevel, cl->host);
                         }
                         else {
-                            rfbLog("rfbProcessClientNormalMessage: ignoring unknown encoding %d\n", (int)enc);
+                            rfbLog("\tUnknown Encoding Type(ignored): %u (%X)\n", (int)enc, (int)enc);
                         }
                 }
             }
@@ -660,10 +674,10 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
 
             //rfbLog("FUR: %d (%d,%d x %d,%d)\n", msg.fur.incremental, msg.fur.x, msg.fur.y,  msg.fur.w, msg.fur.h);
 
-            box.x1 = Swap16IfLE(msg.fur.x);
-            box.y1 = Swap16IfLE(msg.fur.y);
-            box.x2 = box.x1 + Swap16IfLE(msg.fur.w);
-            box.y2 = box.y1 + Swap16IfLE(msg.fur.h);
+            box.x1 = Swap16IfLE(msg.fur.x)*cl->scalingFactor;
+            box.y1 = Swap16IfLE(msg.fur.y)*cl->scalingFactor;
+            box.x2 = (box.x1 + Swap16IfLE(msg.fur.w))*cl->scalingFactor;
+            box.y2 = (box.y1 + Swap16IfLE(msg.fur.h))*cl->scalingFactor;
             SAFE_REGION_INIT(pScreen,&tmpRegion,&box,0);
 
             pthread_mutex_lock(&cl->updateMutex);
@@ -681,7 +695,7 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
         }
 
         case rfbKeyEvent:
-
+		{
             if (!cl->disableRemoteEvents)
                 cl->rfbKeyEventsRcvd++;
 
@@ -697,7 +711,7 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                     KbdAddEvent(msg.ke.down, (KeySym)Swap32IfLE(msg.ke.key), cl);
 
                 return;
-
+		}
         case rfbPointerEvent: {
             if (!cl->disableRemoteEvents)
                 cl->rfbPointerEventsRcvd++;
@@ -717,7 +731,10 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
             else
                 pointerClient = cl;
 
-            PtrAddEvent(msg.pe.buttonMask, Swap16IfLE(msg.pe.x), Swap16IfLE(msg.pe.y), cl);
+            PtrAddEvent(msg.pe.buttonMask,
+                (Swap16IfLE(msg.pe.x)+cl->scalingFactor-1)*cl->scalingFactor,
+                (Swap16IfLE(msg.pe.y)+cl->scalingFactor-1)*cl->scalingFactor,
+                cl);
 
             return;
         }
@@ -751,17 +768,74 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
             return;
         }
 
-        case rfbServerScale: {
-            rfbLog("Server Scaling currently unsupported: message type %d\n", msg.type);
+        /* SERVER SCALING EXTENSIONS */
+		case rfbSetScaleFactorULTRA:
+		case rfbSetScaleFactor: 
+		{
+            rfbReSizeFrameBufferMsg rsfb;
+            if ((n = ReadExact(cl, ((char *)&msg) + 1,
+                               sz_rfbSetScaleFactorMsg-1)) <= 0) {
+                if (n != 0)
+                    rfbLogPerror("rfbProcessClientNormalMessage: read");
+                rfbCloseClient(cl);
+                return;
+            }
+
+            if( cl->scalingFactor != msg.ssf.scale ){
+				const unsigned long csh = (rfbScreen.height+msg.ssf.scale-1) / msg.ssf.scale;
+				const unsigned long csw = (rfbScreen.width +msg.ssf.scale-1) / msg.ssf.scale;
+
+                cl->scalingFactor = msg.ssf.scale;
+
+				rfbLog("Server Side Scaling: %d for client %s\n", msg.ssf.scale, cl->host);
+							
+				if (cl->scalingFrameBuffer && cl->scalingFrameBuffer != rfbGetFramebuffer())
+					free(cl->scalingFrameBuffer);
+				
+				if (cl->scalingFactor == 1) {
+					cl->scalingFrameBuffer = rfbGetFramebuffer();
+					cl->scalingPaddedWidthInBytes = rfbScreen.paddedWidthInBytes;
+				}
+				else {					
+					cl->scalingFrameBuffer = malloc( csw*csh*rfbScreen.bitsPerPixel/8 );
+					cl->scalingPaddedWidthInBytes = csw * rfbScreen.bitsPerPixel/8;
+				}
+
+				/* Now notify the client of the new desktop area */
+				if (msg.type == rfbSetScaleFactor) {
+					rsfb.type = rfbReSizeFrameBuffer;
+					rsfb.desktop_w = Swap16IfLE(rfbScreen.width);
+					rsfb.desktop_h = Swap16IfLE(rfbScreen.height);
+					rsfb.buffer_w = Swap16IfLE(csw);
+					rsfb.buffer_h = Swap16IfLE(csh);
+					
+					if (WriteExact(cl, (char *)&rsfb, sizeof(rsfb)) < 0) {
+						rfbLogPerror("rfbProcessClientNormalMessage: write");
+						rfbCloseClient(cl);
+						return;
+					}
+				}
+				else {
+					// What does UltraVNC expect here probably just a resize event
+					rfbFramebufferUpdateMsg *fu = (rfbFramebufferUpdateMsg *)cl->updateBuf;
+                    fu->type = rfbFramebufferUpdate;
+                    fu->nRects = Swap16IfLE(1);
+                    cl->ublen = sz_rfbFramebufferUpdateMsg;
+					
+                    rfbSendScreenUpdateEncoding(cl);
+				}
+			}
+			
             return;
         }
 
-        default:
-
-            rfbLog("rfbProcessClientNormalMessage: unknown message type %d\n", msg.type);
-            rfbLog(" ... closing connection\n");
+        default: 
+		{
+            rfbLog("ERROR: Client Sent Message: unknown message type %d\n", msg.type);
+            rfbLog("...... Closing connection to client %s\n", cl->host);
             rfbCloseClient(cl);
             return;
+		}
     }
 }
 
@@ -874,6 +948,9 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
         int w = REGION_RECTS(&updateRegion)[i].x2 - x;
         int h = REGION_RECTS(&updateRegion)[i].y2 - y;
 
+		if (cl->scalingFactor != 1)
+			CopyScalingRect( cl, &x, &y, &w, &h, TRUE);
+		
         cl->rfbRawBytesEquivalent += (sz_rfbFramebufferUpdateRectHeader
                                       + w * (cl->format.bitsPerPixel / 8) * h);
 
@@ -932,7 +1009,7 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
 
 Bool rfbSendScreenUpdateEncoding(rfbClientPtr cl) {
     rfbFramebufferUpdateRectHeader rect;
-
+				
     if (cl->ublen + sz_rfbFramebufferUpdateRectHeader > UPDATE_BUF_SIZE) {
         if (!rfbSendUpdateBuf(cl))
             return FALSE;
@@ -940,8 +1017,8 @@ Bool rfbSendScreenUpdateEncoding(rfbClientPtr cl) {
 
     rect.r.x = 0;
     rect.r.y = 0;
-    rect.r.w = Swap16IfLE(rfbScreen.width);
-    rect.r.h = Swap16IfLE(rfbScreen.height);
+    rect.r.w = Swap16IfLE((rfbScreen.width +cl->scalingFactor-1) / cl->scalingFactor);
+    rect.r.h = Swap16IfLE((rfbScreen.height+cl->scalingFactor-1) / cl->scalingFactor);
     rect.encoding = Swap32IfLE(rfbEncodingDesktopResize);
 
     memcpy(&cl->updateBuf[cl->ublen], (char *)&rect,sz_rfbFramebufferUpdateRectHeader);
@@ -962,7 +1039,7 @@ Bool rfbSendRectEncodingRaw(rfbClientPtr cl, int x, int y, int w, int h) {
     rfbFramebufferUpdateRectHeader rect;
     int nlines;
     int bytesPerLine = w * (cl->format.bitsPerPixel / 8);
-    char *fbptr = (rfbGetFramebuffer() + (rfbScreen.paddedWidthInBytes * y)
+    char *fbptr = (cl->scalingFrameBuffer + (cl->scalingPaddedWidthInBytes * y)
                    + (x * (rfbScreen.bitsPerPixel / 8)));
 
     if (cl->ublen + sz_rfbFramebufferUpdateRectHeader > UPDATE_BUF_SIZE) {
@@ -991,7 +1068,7 @@ Bool rfbSendRectEncodingRaw(rfbClientPtr cl, int x, int y, int w, int h) {
 
         (*cl->translateFn)(cl->translateLookupTable, &rfbServerFormat,
                            &cl->format, fbptr, &cl->updateBuf[cl->ublen],
-                           rfbScreen.paddedWidthInBytes, w, nlines);
+                           cl->scalingPaddedWidthInBytes, w, nlines);
 
         cl->ublen += nlines * bytesPerLine;
         h -= nlines;
@@ -1004,7 +1081,7 @@ Bool rfbSendRectEncodingRaw(rfbClientPtr cl, int x, int y, int w, int h) {
         if (!rfbSendUpdateBuf(cl))
             return FALSE;
 
-        fbptr += (rfbScreen.paddedWidthInBytes * nlines);
+        fbptr += (cl->scalingPaddedWidthInBytes * nlines);
 
         nlines = (UPDATE_BUF_SIZE - cl->ublen) / bytesPerLine;
         if (nlines == 0) {
@@ -1121,3 +1198,116 @@ void rfbSendServerCutText(rfbClientPtr cl, char *str, int len) {
      rfbReleaseClientIterator(iterator);
  }
  */
+
+/* SERVER SCALING EXTENSIONS */
+void CopyScalingRect( rfbClientPtr cl, int* x, int* y, int* w, int* h, Bool bDoScaling ){
+    unsigned long cx, cy, cw, ch;
+    unsigned long rx, ry, rw, rh;
+    unsigned char* srcptr;
+    unsigned char* dstptr;
+    unsigned char* tmpptr;
+    unsigned long pixel_value=0, red, green, blue;
+    unsigned long xx, yy, u, v;
+    const unsigned long bytesPerPixel = rfbScreen.bitsPerPixel/8;
+    const unsigned long csh = (rfbScreen.height+cl->scalingFactor-1)/ cl->scalingFactor;
+    const unsigned long csw = (rfbScreen.width +cl->scalingFactor-1)/ cl->scalingFactor;
+
+    cy = (*y) / cl->scalingFactor;
+    ch = (*h+cl->scalingFactor-1) / cl->scalingFactor+1;
+    cx = (*x) / cl->scalingFactor;
+    cw = (*w+cl->scalingFactor-1) / cl->scalingFactor+1;
+
+    if( cy > csh ){
+        cy = csh;
+    }
+    if( cy + ch > csh ){
+        ch = csh - cy;
+    }
+    if( cx > csw ){
+        cx = csw;
+    }
+    if( cx + cw > csw ){
+        cw = csw - cx;
+    }
+
+    if( bDoScaling ){
+        ry = cy * cl->scalingFactor;
+        rh = ch * cl->scalingFactor;
+        rx = cx * cl->scalingFactor;
+        rw = cw * cl->scalingFactor;
+
+        /* Copy and scale data from screen buffer to scaling buffer */
+        srcptr = (unsigned char*)rfbGetFramebuffer()
+            + (ry * rfbScreen.paddedWidthInBytes ) + (rx * bytesPerPixel);
+        dstptr = (unsigned char*)cl->scalingFrameBuffer
+            + (cy * cl->scalingPaddedWidthInBytes) + (cx * bytesPerPixel);
+
+        if( cl->format.trueColour ){ /* Blend neighbouring pixels together */
+            for( yy=0; yy < ch; yy++ ){
+                for( xx=0; xx < cw; xx++ ){
+                    red = green = blue = 0;
+                    for( v = 0; v < (unsigned long)cl->scalingFactor; v++ ){
+                        tmpptr = srcptr;
+                        for( u = 0; u < (unsigned long)cl->scalingFactor; u++ ){
+                            switch( bytesPerPixel ){
+                            case 1:
+                                pixel_value = (unsigned long)*(unsigned char* )tmpptr;
+                                break;
+                            case 2:
+                                pixel_value = (unsigned long)*(unsigned short*)tmpptr;
+                                break;
+                            case 3:    /* 24bpp may cause bus error? */
+                            case 4:
+                                pixel_value = (unsigned long)*(unsigned long* )tmpptr;
+                                break;
+                            }
+                            red   += (pixel_value >> rfbServerFormat.redShift  )& rfbServerFormat.redMax;
+                            green += (pixel_value >> rfbServerFormat.greenShift)& rfbServerFormat.greenMax;
+                            blue  += (pixel_value >> rfbServerFormat.blueShift )& rfbServerFormat.blueMax;
+                            tmpptr  += rfbScreen.paddedWidthInBytes;
+                        }
+                        srcptr  += bytesPerPixel;
+                    }
+                    red   /= cl->scalingFactor * cl->scalingFactor;
+                    green /= cl->scalingFactor * cl->scalingFactor;
+                    blue  /= cl->scalingFactor * cl->scalingFactor;
+
+                    pixel_value = (red   << rfbServerFormat.redShift)
+                                + (green << rfbServerFormat.greenShift)
+                                + (blue  << rfbServerFormat.blueShift);
+
+                    switch( bytesPerPixel ){
+                    case 1:
+                        *(unsigned char* )dstptr = (unsigned char )pixel_value;
+                        break;
+                    case 2:
+                        *(unsigned short*)dstptr = (unsigned short)pixel_value;
+                        break;
+                    case 3:    /* 24bpp may cause bus error? */
+                    case 4:
+                        *(unsigned long* )dstptr = (unsigned long )pixel_value;
+                        break;
+                    }
+                    dstptr += bytesPerPixel;
+                }
+                srcptr += (rfbScreen.paddedWidthInBytes - cw * bytesPerPixel)* cl->scalingFactor;
+                dstptr += cl->scalingPaddedWidthInBytes - cw * bytesPerPixel;
+            }
+        }else{ /* Not truecolour, so we can't blend. Just use the top-left pixel instead */
+            for( yy=0; yy < ch; yy++ ){
+                for( xx=0; xx < cw; xx++ ){
+                    memcpy( dstptr, srcptr, bytesPerPixel);
+                    srcptr += bytesPerPixel * cl->scalingFactor;
+                    dstptr += bytesPerPixel;
+                }
+                srcptr += (rfbScreen.paddedWidthInBytes - cw * bytesPerPixel)* cl->scalingFactor;
+                dstptr += cl->scalingPaddedWidthInBytes - cw * bytesPerPixel;
+            }
+        }
+    }
+
+    *y = cy;
+    *h = ch;
+    *x = cx;
+    *w = cw;
+}

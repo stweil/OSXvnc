@@ -263,7 +263,7 @@ typedef struct {
 #define rfbSetColourMapEntries 1
 #define rfbBell 2
 #define rfbServerCutText 3
-
+#define rfbReSizeFrameBuffer 0xF
 
 /* client -> server */
 
@@ -275,7 +275,8 @@ typedef struct {
 #define rfbPointerEvent 5
 #define rfbClientCutText 6
 
-#define rfbServerScale 15
+#define rfbSetScaleFactorULTRA 8
+#define rfbSetScaleFactor 0xF
 
 
 
@@ -294,6 +295,7 @@ typedef struct {
 #define rfbEncodingZlib 6
 #define rfbEncodingTight 7
 #define rfbEncodingZlibHex 8
+#define rfbEncodingUltra 9
 
 #define rfbStatsRichCursor         10
 #define rfbStatsCursorPosition     11
@@ -590,6 +592,25 @@ typedef struct {
 
 #define sz_rfbServerCutTextMsg 8
 
+/*-----------------------------------------------------------------------------
+ * ReSizeFrameBuffer - tell the RFB client to alter its framebuffer, either
+ * due to a resize of the server desktop or a client-requested scaling factor.
+ * The pixel format remains unchanged.
+ */
+
+typedef struct {
+    CARD8 type;			/* always rfbReSizeFrameBuffer */
+	CARD8 pad1;
+	CARD16 desktop_w;	/* Desktop width */
+	CARD16 desktop_h;	/* Desktop height */
+	CARD16 buffer_w;	/* FrameBuffer width */
+	CARD16 buffer_h;	/* Framebuffer height */
+    CARD16 pad2;
+
+} rfbReSizeFrameBufferMsg;
+
+#define sz_rfbReSizeFrameBufferMsg (12)
+
 
 /*-----------------------------------------------------------------------------
  * Union of all server->client messages.
@@ -601,6 +622,7 @@ typedef union {
     rfbSetColourMapEntriesMsg scme;
     rfbBellMsg b;
     rfbServerCutTextMsg sct;
+    rfbReSizeFrameBufferMsg rsfb;
 } rfbServerToClientMsg;
 
 
@@ -663,6 +685,18 @@ typedef struct {
 
 #define sz_rfbSetEncodingsMsg 4
 
+/*-----------------------------------------------------------------------------
+ * SetScaleFactor - tell the RFB server to alter the scale factor for the
+ * client buffer.
+ */
+
+typedef struct {
+    CARD8 type;			/* always rfbSetScaleFactor */
+    CARD8 scale;		/* Scale factor (positive non-zero integer) */
+    CARD16 pad2;
+} rfbSetScaleFactorMsg;
+
+#define sz_rfbSetScaleFactorMsg (4)
 
 /*-----------------------------------------------------------------------------
  * FramebufferUpdateRequest - request for a framebuffer update.  If incremental
@@ -770,6 +804,7 @@ typedef struct {
 typedef union {
     CARD8 type;
     rfbSetPixelFormatMsg spf;
+    rfbSetScaleFactorMsg ssf;
     rfbFixColourMapEntriesMsg fcme;
     rfbSetEncodingsMsg se;
     rfbFramebufferUpdateRequestMsg fur;

@@ -143,6 +143,11 @@ typedef struct rfbClientRec {
 
     rfbPixelFormat format;
 
+    /* SERVER SCALING EXTENSIONS */
+    int	  scalingFactor;
+    char* scalingFrameBuffer;
+    int   scalingPaddedWidthInBytes;
+
     /* statistics */
 
     int rfbBytesSent[MAX_ENCODINGS];
@@ -382,6 +387,8 @@ extern Bool rfbSendRectEncodingRaw(rfbClientPtr cl, int x,int y,int w,int h);
 extern Bool rfbSendUpdateBuf(rfbClientPtr cl);
 extern void rfbSendServerCutText(rfbClientPtr cl, char *str, int len);
 
+extern void setScaling (rfbClientPtr cl);
+extern void CopyScalingRect( rfbClientPtr cl, int* x, int* y, int* w, int* h, Bool bDoScaling );
 
 /* translate.c */
 

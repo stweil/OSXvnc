@@ -288,10 +288,26 @@ void rfbCheckForScreenResolutionChange() {
 
                     rfbSendScreenUpdateEncoding(cl);
 
+					// Reset Frame Buffer
+					if (cl->scalingFrameBuffer && cl->scalingFrameBuffer != rfbGetFramebuffer())
+						free(cl->scalingFrameBuffer);
+					
+					if (cl->scalingFactor == 1) {
+						cl->scalingFrameBuffer = rfbGetFramebuffer();
+						cl->scalingPaddedWidthInBytes = rfbScreen.paddedWidthInBytes;
+					}
+					else {
+						const unsigned long csh = (rfbScreen.height+cl->scalingFactor-1)/ cl->scalingFactor;
+						const unsigned long csw = (rfbScreen.width +cl->scalingFactor-1)/ cl->scalingFactor;
+						
+						cl->scalingFrameBuffer = malloc( csw*csh*rfbScreen.bitsPerPixel/8 );
+						cl->scalingPaddedWidthInBytes = csw * rfbScreen.bitsPerPixel/8;
+					}
+					
                     box.x1 = box.y1 = 0;
                     box.x2 = rfbScreen.width;
                     box.y2 = rfbScreen.height;
-                    REGION_INIT(pScreen,&cl->modifiedRegion,&box,0);
+					REGION_INIT(pScreen,&cl->modifiedRegion,&box,0);
                     //cl->needNewScreenSize = TRUE;
                 }
                 else
