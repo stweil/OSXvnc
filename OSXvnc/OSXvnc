@@ -2,16 +2,20 @@
 . /etc/rc.common
 
 #
-# Start OSXvnc Version 1.3
+# Start OSXvnc Version 1.31
 # 
 # The OSXvnc application will OVERWRITE this file if you ask it to Setup the Startup Item
 #
 
-VNCPATH=/Applications/OSXvnc.app
+VNCPATH="/Applications/OSXvnc.app"
 VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnect"
 
 #
 # Modification Log:
+#
+# 1.31
+# Modified Startup parameters to work better on some systems
+# Modified so that OSXvnc can live in directories with spaces
 #
 # 1.3
 # Modified so that OSXvnc app can configure
@@ -38,13 +42,13 @@ if [ ${1:-noset} = "setpassword" ]; then
 fi
 
 if [ ${1:-noset} = "stop" ]; then
-  ConsoleMessage "Stopping OSXvnc Server"
-
+  ConsoleMessage "Stopping OSXvnc KeepAlive"
   OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc-keepalive | grep -v grep | awk 'NF > 2 {print \$2}'`
   if [ "${OSXVNCPID:=""}" ]; then
     kill $OSXVNCPID
   fi
 
+  ConsoleMessage "Stopping OSXvnc Server"
   OSXVNCPID=`/bin/ps -auxwwww | grep OSXvnc-keepalive | grep -v grep | awk 'NF > 2 {print \$2}'`
   if [ "${OSXVNCPID:=""}" != "" ]; then
 	ConsoleMessage "OSXvnc stop: problem stopping OSXvnc-keepalive"
@@ -71,7 +75,7 @@ if [ -x "$VNCPATH" ]; then
     /bin/mv /var/log/osxvnc.log /var/log/osxvnc.log.1
   fi
 
-  $0-keepalive $VNCPATH/OSXvnc-server $VNCARGS > /var/log/osxvnc.log 2>&1 &
+  $0-keepalive "$VNCPATH/OSXvnc-server" $VNCARGS > /var/log/osxvnc.log 2>&1 &
   exit 0
 else
   ConsoleMessage "Unable to find OSXvnc"

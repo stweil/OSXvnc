@@ -245,7 +245,7 @@
 	<key>CFBundleExecutable</key>
 	<string>OSXvnc</string>
 	<key>CFBundleGetInfoString</key>
-	<string>1.3 - Copyright © 2003 Redstone Software </string>
+	<string>1.31 - Copyright © 2003 Redstone Software </string>
 	<key>CFBundleIconFile</key>
 	<string>OSXvnc.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -257,11 +257,11 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.3</string>
+	<string>1.31</string>
 	<key>CFBundleSignature</key>
 	<string>OSXv</string>
 	<key>CFBundleVersion</key>
-	<string>1.3</string>
+	<string>1.31</string>
 	<key>NSAppleScriptEnabled</key>
 	<false/>
 	<key>NSHelpFile</key>
@@ -667,6 +667,8 @@
 			children = (
 				F538E00C02F9812901A80186,
 				F538E10F02F9812C01A80186,
+				F58DDDE7056A861001A8015E,
+				F58DDDE8056A861001A8015E,
 				F5C9A8F6038C74D301A80117,
 				F538E11302F9812C01A80186,
 				F538E11402F9812C01A80186,
@@ -2587,6 +2589,16 @@
 			isa = PBXBuildFile;
 			settings = {
 			};
+		};
+		F58DDDE7056A861001A8015E = {
+			isa = PBXFileReference;
+			path = VNCServer.h;
+			refType = 4;
+		};
+		F58DDDE8056A861001A8015E = {
+			isa = PBXFileReference;
+			path = VNCServer.m;
+			refType = 4;
 		};
 		F5C9A8F1038C6F5D01A80117 = {
 			fileEncoding = 30;
