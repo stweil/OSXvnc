@@ -597,20 +597,12 @@ static void terminateOnSignal(int signal) {
     [[NSWorkspace sharedWorkspace] openFile:openPath];
 }
 
-- (IBAction) installAsService: sender {
-    // In the future we may not always overwrite (look at Version # or something)
+- (void) installService {
+	// In the future we may not always overwrite (look at Version # or something)
     BOOL overwrite = TRUE;
     NSMutableString *startupScript = nil;
     NSRange lineRange;
-
-    if (!myAuthorization)
-        myAuthorization = [[NSAuthorization alloc] init];
-    
-    if (!myAuthorization) {
-        [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: No Authorization")];
-        return;
-    }
-    
+	
     // If StartupItems directory doesn't exist then create it
     if (![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems"]) {
 		BOOL success = TRUE;
@@ -621,7 +613,7 @@ static void terminateOnSignal(int signal) {
 										  withArgs:[NSArray arrayWithObjects:@"-R", @"root", @"/Library/StartupItems", nil]];
         if (!success) {
             [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to setup StartupItems folder")];
-            return;
+			return;
         }
     }
         
@@ -640,15 +632,27 @@ static void terminateOnSignal(int signal) {
             return;
         }
 		
+		// Copy Server Executable
 		[copyArgsArray removeAllObjects];
 		[copyArgsArray addObject:@"-R"]; // Recursive
         [copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
         [copyArgsArray addObject:[[[[[NSProcessInfo processInfo] arguments] objectAtIndex:0] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"OSXvnc-server"]];
-        //[copyArgsArray addObject:[[NSBundle mainBundle] pathForResource:@"OSXvnc-server" ofType:nil]];
         [copyArgsArray addObject:@"/Library/StartupItems/OSXvnc"];
 		
         if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
             [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to copy OSXvnc-server executable")];
+            return;
+        }
+		
+		// Copy JaguarBundle
+		[copyArgsArray removeAllObjects];
+		[copyArgsArray addObject:@"-R"]; // Recursive
+        [copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
+        [copyArgsArray addObject:[[NSBundle mainBundle] pathForResource:@"JaguarBundle" ofType:@"bundle"]];
+        [copyArgsArray addObject:@"/Library/StartupItems/OSXvnc/Resources"];
+		
+        if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
+            [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to copy JaguarBundle")];
             return;
         }
 		
@@ -732,6 +736,22 @@ static void terminateOnSignal(int signal) {
     [disableStartupButton setEnabled:YES];
 }
 
+- (IBAction) installAsService: sender {
+    if (!myAuthorization)
+        myAuthorization = [[NSAuthorization alloc] init];
+    
+    if (!myAuthorization) {
+        [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: No Authorization")];
+        return;
+    }
+	
+	[self installService];
+	
+	[myAuthorization release];
+	myAuthorization = nil;
+}
+
+
 - (IBAction) removeService: sender {
 	BOOL success = TRUE;
 
@@ -753,12 +773,17 @@ static void terminateOnSignal(int signal) {
     }
     else {
         [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unabled to remove startup item")];
-    }    
+    }
+
+	[myAuthorization release];
+	myAuthorization = nil;
 }
 
 - (void) dealloc {
     [passwordFile release];
     [logFile release];
+	[myAuthorization release];
+	myAuthorization = nil;
 
     [super dealloc];
 }
