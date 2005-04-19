@@ -694,8 +694,15 @@ static void checkForUsage(int argc, char *argv[]) {
 }
 
 static void processArguments(int argc, char *argv[]) {
+	char argString[1024] = "Arguments: ";
     int i;
-
+	
+    for (i = 1; i < argc; i++) {
+		strcat(argString, argv[i]);
+		strcat(argString, " ");
+	}
+	rfbLog(argString);
+	
     for (i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-rfbport") == 0) { // -rfbport port
             if (i + 1 >= argc) usage();
@@ -725,12 +732,12 @@ static void processArguments(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-display") == 0) {  // -display DisplayID
             CGDisplayCount displayCount;
             CGDirectDisplayID activeDisplays[100];
-
+			
             CGGetActiveDisplayList(100, activeDisplays, &displayCount);
-
+			
             if (i + 1 >= argc || atoi(argv[i+1]) >= displayCount)
                 usage();
-
+			
             displayID = activeDisplays[atoi(argv[++i])];
         } else if (strcmp(argv[i], "-alwaysshared") == 0) {
             rfbAlwaysShared = TRUE;
@@ -769,6 +776,9 @@ static void processArguments(int argc, char *argv[]) {
 			}
 		}
 	}
+	
+	if (!rfbAuthPasswdFile)
+		rfbLog("Note: No password file specified, running with no authentication");
 }
 
 void rfbShutdown(void) {
