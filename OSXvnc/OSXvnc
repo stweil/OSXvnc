@@ -13,6 +13,9 @@ VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnec
 #
 # Modification Log:
 #
+# 1.6
+# Added missing backslashes to the Awk command when stopping OSXvnc-keepalive
+#
 # 1.5
 # Switched VNCPath to /Library/StartupItems/OSXvnc by default, we now copy in the executable 
 # Added -f option to log move so it won't hang when started up (when run as authenticated/non-root user)
@@ -47,26 +50,26 @@ VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnec
 
 if [ ${1:-noset} == "stop" ] || [ ${1:-noset} == "restart" ]; then
     ConsoleMessage "Stopping OSXvnc KeepAlive"
-    OSXVNCPID=`/bin/ps auxwwww | /usr/bin/awk '[O]SXvnc-keepalive/ && NR > 2 {print $2}'`
+    OSXVNCPID=`/bin/ps auxww | /usr/bin/awk '/[O]SXvnc-keepalive/ {print $2}'`
     if [ "${OSXVNCPID:=""}" ]; then
         kill -KILL $OSXVNCPID
         sleep 1
     fi
     # make sure it's dead
-    OSXVNCPID=`/bin/ps -auxwwww | /usr/bin/awk '[O]SXvnc-keepalive/ && NR > 2 {print $2}'`
+    OSXVNCPID=`/bin/ps -auxww | /usr/bin/awk '/[O]SXvnc-keepalive/ {print $2}'`
     if [ "${OSXVNCPID:=""}" != "" ]; then
         ConsoleMessage "OSXvnc $1: problem stopping OSXvnc-keepalive"
         exit -1
     fi
 
     ConsoleMessage "Stopping OSXvnc Server"
-    OSXVNCPID=`/bin/ps -auxwwww | /usr/bin/awk '/Library\/StartupItems\/OSXvnc\/[O]SXvnc-server/ && NR > 2 {print $2}'`
+    OSXVNCPID=`/bin/ps -auxww | /usr/bin/awk '/Library\/StartupItems\/OSXvnc\/[O]SXvnc-server/ {print $2}'`
     if [ "${OSXVNCPID:=""}" ]; then
         kill -KILL $OSXVNCPID
         sleep 1
     fi
     # make sure it's dead
-    OSXVNCPID=`/bin/ps -auxwwww | /usr/bin/awk '/Library\/StartupItems\/OSXvnc\/[O]SXvnc-server/ && NR > 2 {print $2}'`
+    OSXVNCPID=`/bin/ps -auxww | /usr/bin/awk '/Library\/StartupItems\/OSXvnc\/[O]SXvnc-server/ {print $2}'`
     if [ "${OSXVNCPID:=""}" != "" ]; then
         ConsoleMessage "OSXvnc $1: problem stopping OSXvnc-server $OSXVNCPID"
         exit -1
