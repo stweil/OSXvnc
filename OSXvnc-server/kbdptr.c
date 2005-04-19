@@ -47,7 +47,7 @@ BOOL pressModsForKeys = FALSE;
 static int mouseWheelDistance;
 
 void loadKeyTable() {
-    int i;
+    unsigned int i;
 
     // Initialize them all to 0xFFFF
     for (i = 0; i < keyTableSize; i++) {
@@ -115,12 +115,12 @@ void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl) {
 }
 
 void keyboardReleaseKeysForClient(rfbClientPtr cl) {
-    int index = keyTable[XK_Alt_L];
+    int i = keyTable[XK_Alt_L];
 
-    for (index = keyTable[XK_Alt_L]; index <= keyTable[XK_Control_L]; index++) {
-        if (cl->modiferKeys[index]) {
-            CGPostKeyboardEvent(0, index, 0); // Release all modifier keys that were held down
-                                              //rfbLog("Released Key: %d", index);
+    for (i = keyTable[XK_Alt_L]; i <= keyTable[XK_Control_L]; i++) {
+        if (cl->modiferKeys[i]) {
+            CGPostKeyboardEvent(0, i, 0); // Release all modifier keys that were held down
+										  //rfbLog("Released Key: %d", index);
         }
     }
 }

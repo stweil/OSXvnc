@@ -83,6 +83,14 @@ typedef void (*rfbTranslateFnType)(char *table,
  * Per-client structure.
  */
 
+enum client_state {
+	RFB_PROTOCOL_VERSION,   /* establishing protocol version */
+	RFB_AUTH_VERSION,       /* establishing authentication version (3.7) */
+	RFB_AUTHENTICATION,     /* authenticating */
+	RFB_INITIALISATION,     /* sending initialisation messages */
+	RFB_NORMAL              /* normal protocol messages */
+} ;
+
 typedef struct rfbClientRec {
 
     int sock;
@@ -93,13 +101,7 @@ typedef struct rfbClientRec {
     pthread_mutex_t outputMutex;
 
                                 /* Possible client states: */
-    enum {
-        RFB_PROTOCOL_VERSION,   /* establishing protocol version */
-        RFB_AUTH_VERSION,       /* establishing authentication version (3.7) */
-        RFB_AUTHENTICATION,     /* authenticating */
-        RFB_INITIALISATION,     /* sending initialisation messages */
-        RFB_NORMAL              /* normal protocol messages */
-    } state;
+    enum client_state state;
 
     int correMaxWidth, correMaxHeight;
     void* zrleData;

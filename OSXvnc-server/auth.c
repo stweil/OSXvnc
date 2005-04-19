@@ -6,7 +6,6 @@
  */
 
 /*
- *  OSXvnc Copyright (C) 2001 Dan McGuirk <mcguirk@incompleteness.net>.
  *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.  
  *  All Rights Reserved.
  *
@@ -30,9 +29,40 @@
 #include <stdlib.h>
 #include "rfb.h"
 
-
 char *rfbAuthPasswdFile = NULL;
 
+void rfbSecurityResultMessage(rfbClientPtr cl, BOOL result, char *errorString) {
+	if (result) {
+		CARD32 authResult = Swap32IfLE(rfbVncAuthOK);
+		
+		if (WriteExact(cl, (char *)&authResult, 4) < 0) {
+			rfbLogPerror("rfbSecurityResultMessage: write");
+			rfbCloseClient(cl);
+		}		
+	}
+	else {
+		int len=0;
+		char buf[256]; // For Error Messages
+		
+		*(CARD32 *)&buf[len] = Swap32IfLE(rfbVncAuthFailed);
+		len+=4;
+		
+		if ((cl->major == 3) && (cl->minor >= 8)) { // Return Error String
+			int errorLength = strlen(errorString);
+			*(CARD32 *)&buf[len] = Swap32IfLE(errorLength);
+			len+=4;
+			
+			memcpy(&buf[len], errorString, errorLength);
+			len+=errorLength;
+		}
+		
+		rfbLog(errorString);
+		if (WriteExact(cl, buf, len) < 0) {
+			rfbLogPerror("rfbSecurityResultMessage: write");
+			rfbCloseClient(cl);
+		}
+	}	
+}
 
 /*
  * rfbAuthNewClient is called when we reach the point of authenticating
@@ -41,21 +71,37 @@ char *rfbAuthPasswdFile = NULL;
  */
 
 void rfbAuthNewClient(rfbClientPtr cl) {
-    char buf[4 + CHALLENGESIZE];
+    char buf[4 + CHALLENGESIZE+256];// 256 for error messages
     int len = 0;
-
-    if (0 && cl->minor >= 7) { // This doesn't seem to behave as documented
-        buf[len++] = 1; // 1 Type
-        
-        if (rfbAuthPasswdFile && !cl->reverseConnection && (vncDecryptPasswdFromFile(rfbAuthPasswdFile) != NULL)) {
+	
+    if (cl->major== 3 && cl->minor >= 7) {
+		len++;
+		
+		/** JAMF AUTH **/
+		if (0) {
+			buf[len++] = rfbJAMF;
+			cl->state = RFB_AUTH_VERSION;
+		}
+		else if (!cl->reverseConnection && rfbAuthPasswdFile) {
             buf[len++] = rfbVncAuth;
             cl->state = RFB_AUTH_VERSION;
         }
-        else {
+        else if (1) { // currently we don't disable no-auth
             buf[len++] = rfbNoAuth;
-            cl->state = RFB_INITIALISATION;
+            cl->state = RFB_AUTH_VERSION; //RFB_INITIALISATION;
         }
-
+		buf[0] = (len-1); // Record How Many Auth Types
+		
+		if (len == 0) { // if we disable no-auth, for example
+			char *errorString = "No Supported Security Types";
+			int errorLength = strlen(errorString);
+			*(CARD32 *)&buf[len] = Swap32IfLE(errorLength);
+			len+=4;
+			
+			memcpy(&buf[len], errorString, errorLength);
+			len+=errorLength;
+		}
+		rfbLog(buf);
         if (WriteExact(cl, buf, len) < 0) {
             rfbLogPerror("rfbAuthNewClient: write");
             rfbCloseClient(cl);
@@ -63,12 +109,13 @@ void rfbAuthNewClient(rfbClientPtr cl) {
         }
     }
     else {
-        // If We have a valid password - Send Challenge Request
-        if (rfbAuthPasswdFile && !cl->reverseConnection && (vncDecryptPasswdFromFile(rfbAuthPasswdFile) != NULL)) {
+        // If We have a password file specified - Send Challenge Request
+        if (!cl->reverseConnection && rfbAuthPasswdFile) {
             *(CARD32 *)buf = Swap32IfLE(rfbVncAuth);
             vncRandomBytes(cl->authChallenge);
-            memcpy(&buf[4], (char *)cl->authChallenge, CHALLENGESIZE);
-            len = 4 + CHALLENGESIZE;
+			len+=4;
+            memcpy(&buf[len], (char *)cl->authChallenge, CHALLENGESIZE);
+            len+=CHALLENGESIZE;
 
             cl->state = RFB_AUTHENTICATION;
         }
@@ -98,7 +145,7 @@ void rfbProcessAuthVersion(rfbClientPtr cl) {
         rfbCloseClient(cl);
         return;
     }
-
+	
     switch (securityType) {
         case rfbVncAuth: {
             char buf[CHALLENGESIZE];
@@ -117,10 +164,27 @@ void rfbProcessAuthVersion(rfbClientPtr cl) {
             cl->state = RFB_AUTHENTICATION;
             break;
         }
-        default:
-            rfbLogPerror("rfbProcessAuthVersion: Invalid Authorization Type");
-            rfbCloseClient(cl);
+        case rfbNoAuth: {
+			if (!cl->reverseConnection && rfbAuthPasswdFile) {
+				rfbLog("rfbProcessAuthVersion: Invalid Authorization Type from %s\n", cl->host);
+				rfbSecurityResultMessage(cl, 0, "Invalid Security Type");
+				rfbCloseClient(cl);
+				return;
+			}
+			else {
+				if ((cl->major == 3) && (cl->minor >= 8))
+					rfbSecurityResultMessage(cl, 1, NULL);
+				
+				cl->state = RFB_INITIALISATION;
+			}
+			
             break;
+        }
+        default:
+			rfbLog("rfbProcessAuthVersion: Invalid Authorization Type from %s\n", cl->host);
+			rfbSecurityResultMessage(cl, 0, "Invalid Security Type");
+			rfbCloseClient(cl);
+			return;
     }
 }
 
@@ -133,7 +197,6 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
     char *passwd;
     int i, n;
     CARD8 response[CHALLENGESIZE];
-    CARD32 authResult;
 
     if ((n = ReadExact(cl, (char *)response, CHALLENGESIZE)) <= 0) {
         if (n != 0)
@@ -143,16 +206,9 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
     }
 
     passwd = vncDecryptPasswdFromFile(rfbAuthPasswdFile);
-
     if (passwd == NULL) {
-        rfbLog("rfbAuthProcessClientMessage: could not get password from %s\n",
-               rfbAuthPasswdFile);
-
-        authResult = Swap32IfLE(rfbVncAuthFailed);
-
-        if (WriteExact(cl, (char *)&authResult, 4) < 0) {
-            rfbLogPerror("rfbAuthProcessClientMessage: write");
-        }
+        rfbLog("rfbAuthProcessClientMessage: Could not access password from %s\n", rfbAuthPasswdFile);
+		rfbSecurityResultMessage(cl, 0, "Could not access password file");
         rfbCloseClient(cl);
         return;
     }
@@ -163,29 +219,16 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
     for (i = strlen(passwd); i >= 0; i--) {
         passwd[i] = '\0';
     }
-
     free((char *)passwd);
 
     if (memcmp(cl->authChallenge, response, CHALLENGESIZE) != 0) {
-        rfbLog("rfbAuthProcessClientMessage: authentication failed from %s\n",
-               cl->host);
-
-        authResult = Swap32IfLE(rfbVncAuthFailed);
-
-        if (WriteExact(cl, (char *)&authResult, 4) < 0) {
-            rfbLogPerror("rfbAuthProcessClientMessage: write");
-        }
+        rfbLog("rfbAuthProcessClientMessage: Authentication failed from %s\n", cl->host);
+		rfbSecurityResultMessage(cl, 0, "Incorrect Password");
         rfbCloseClient(cl);
         return;
     }
 
-    authResult = Swap32IfLE(rfbVncAuthOK);
-
-    if (WriteExact(cl, (char *)&authResult, 4) < 0) {
-        rfbLogPerror("rfbAuthProcessClientMessage: write");
-        rfbCloseClient(cl);
-        return;
-    }
+	rfbSecurityResultMessage(cl, 1, NULL);
 
     cl->state = RFB_INITIALISATION;
 }

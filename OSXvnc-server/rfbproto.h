@@ -153,7 +153,7 @@ typedef struct {
 
 #define rfbProtocolVersionFormat "RFB %03d.%03d\n"
 #define rfbProtocolMajorVersion 3
-#define rfbProtocolMinorVersion 3
+#define rfbProtocolMinorVersion 8
 
 typedef char rfbProtocolVersionMsg[13]; /* allow extra byte for null */
 
@@ -172,6 +172,15 @@ typedef char rfbProtocolVersionMsg[13]; /* allow extra byte for null */
 #define rfbConnFailed 0
 #define rfbNoAuth 1
 #define rfbVncAuth 2
+
+// Defined (but unsupported Authentication Protocols)
+#define rfbRA2     5
+#define rfbRA2ne   6
+#define rfbTight   16
+#define rfbUltra   17
+#define rfbTLS     18
+
+#define rfbJAMF    32
 
 /*
  * rfbConnFailed:       For some reason the connection failed (e.g. the server
