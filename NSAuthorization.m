@@ -60,16 +60,16 @@
                                                   copyArguments, 
                                                   (sync ? &communicationStream : NULL)); // FILE HANDLE for I/O
 
-	if (!myStatus && sync) {
+	if (sync) { // !myStatus && 
 		while (!feof(communicationStream) && fgets(outputString, 1024, communicationStream) && time(NULL)-startTime<10) {
 			if (strlen(outputString) > 1)
 				NSLog(@"NSAuthorization: %s",outputString);
-			else
-				break;
+			//else
+			//	break;
 		}
 		fclose(communicationStream);
 	}
-	
+
     free(copyArguments);
     
     if (myStatus != errAuthorizationSuccess)
