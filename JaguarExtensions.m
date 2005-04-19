@@ -17,7 +17,8 @@
 
 @implementation JaguarExtensions
 
-static NSNetService *service;
+static NSNetService *rfbService;
+static NSNetService *vncService;
 static BOOL keyboardLoading;
 
 static KeyboardLayoutRef loadedKeyboardRef;
@@ -240,34 +241,56 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 }
 
 + (void) registerRendezvous {
-	BOOL loadRendezvous = YES;
+	BOOL loadRendezvousVNC = NO;
+	BOOL loadRendezvousRFB = YES;
 	int argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-rendezvous"];
-	
+	RendezvousDelegate *rendezvousDelegate = [[RendezvousDelegate alloc] init];
+
     if (argumentIndex != NSNotFound) {
         NSString *value = nil;
         
         if ([[[NSProcessInfo processInfo] arguments] count] > argumentIndex + 1)
             value = [[[NSProcessInfo processInfo] arguments] objectAtIndex:argumentIndex+1];
         
-        if ([value hasPrefix:@"n"] || [value hasPrefix:@"N"] || [value hasPrefix:@"0"])
-            loadRendezvous = NO;
-        else
-            loadRendezvous = YES;
+        if ([value hasPrefix:@"n"] || [value hasPrefix:@"N"] || [value hasPrefix:@"0"]) {
+            loadRendezvousVNC = NO; loadRendezvousRFB = NO;
+		}
+		else if ([value hasPrefix:@"y"] || [value hasPrefix:@"Y"] || [value hasPrefix:@"1"]) {
+			loadRendezvousVNC = YES; loadRendezvousRFB = YES; 
+		}
+		else if ([value hasPrefix:@"rfb"]) {
+			loadRendezvousVNC = NO; loadRendezvousRFB = YES;
+		}
+		else if ([value hasPrefix:@"vnc"]) {
+			loadRendezvousVNC = YES; loadRendezvousRFB = NO;
+		}
     }
 	
 	// Register For Rendezvous
-    if (loadRendezvous) {
-		 service = [[NSNetService alloc] initWithDomain:@""
+    if (loadRendezvousRFB) {
+		rfbService = [[NSNetService alloc] initWithDomain:@""
 												   type:@"_rfb._tcp." 
 												   name:[NSString stringWithCString:theServer->desktopName]
 												   port:(int) theServer->rfbPort];
-		[service setDelegate:[[RendezvousDelegate alloc] init]];		
-
-		if (![service publish])
+		[rfbService setDelegate:rendezvousDelegate];		
+		if (![rfbService publish])
 			NSLog(@"An error occurred publishing the Rendezvous Net Service");
 	}
 	else
-		NSLog(@"Rendezvous - Disabled");
+		NSLog(@"Rendezvous(RFB) - Disabled");
+
+	if (loadRendezvousVNC) {
+		vncService = [[NSNetService alloc] initWithDomain:@""
+												  type:@"_vnc._tcp." 
+												  name:[NSString stringWithCString:theServer->desktopName]
+												  port:(int) theServer->rfbPort];
+		[vncService setDelegate:rendezvousDelegate];		
+		
+		if (![vncService publish])
+			NSLog(@"An error occurred publishing the Rendezvous Net Service");
+	}
+	else
+		NSLog(@"Rendezvous(VNC) - Disabled");
 }
 
 + (void) rfbPoll {
@@ -290,8 +313,8 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 
 + (void) rfbShutdown {
     NSLog(@"Unloading Jaguar Extensions");
-	if (service)
-		[service stop];
+	[rfbService stop];
+	[vncService stop];
 }
 
 @end
