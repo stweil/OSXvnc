@@ -460,21 +460,21 @@ static void *clientInput(void *data) {
 
 static void *listenerRun(void *ignore) {
     int listen_fd, client_fd;
-    struct sockaddr_in sin, peer;
+    struct sockaddr_in6 sin, peer;
     pthread_t client_thread;
     rfbClientPtr cl;
     int len, value;
 
     bzero(&sin, sizeof(sin));
-    sin.sin_len = sizeof(sin);
-    sin.sin_family = AF_INET;
+    sin.sin6_len = sizeof(sin);
+    sin.sin6_family = AF_INET6;
     if (rfbLocalhostOnly)
-        sin.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        sin.sin6_addr = in6addr_loopback;
     else
-        sin.sin_addr.s_addr = htonl(INADDR_ANY);
-    sin.sin_port = htons(rfbPort);
+        sin.sin6_addr = in6addr_any;
+    sin.sin6_port = htons(rfbPort);
 
-    if ((listen_fd = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+    if ((listen_fd = socket(PF_INET6, SOCK_STREAM, 0)) < 0) {
         return NULL;
     }
     value = 1;
@@ -505,10 +505,16 @@ static void *listenerRun(void *ignore) {
 
     // This will block while wait for an accept
     while ((client_fd = accept(listen_fd, (struct sockaddr *)&peer, &len))) {
+		int one=1; 
+
         if (!rfbClientsConnected())
             rfbCheckForScreenResolutionChange();
 
         pthread_mutex_lock(&listenerAccepting);
+		
+		if (setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, (char *)&one, sizeof(one)) < 0)
+			rfbLog("setsockopt TCP_NODELAY failed\n"); 
+		
         if (rfbLocalBuffer && !rfbClientsConnected())
             rfbLocalBufferSyncAll();
 
@@ -997,9 +1003,8 @@ CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask 
     }
 
 		[tempPool release];
-	
 
-        rfbShutdown();
+	rfbShutdown();
 
     return 0;
 }

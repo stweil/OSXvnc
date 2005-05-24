@@ -107,27 +107,26 @@ void rfbNewClientConnection(int sock) {
  */
 rfbClientPtr rfbReverseConnection(char *host, int port) {
     int sock;
-    struct sockaddr_in sin;
+    struct sockaddr_in6 sin;
+	struct addrinfo *res, hint;
+	int errCode;
     rfbClientPtr cl;
 	
     bzero(&sin, sizeof(sin));
-    sin.sin_len = sizeof(sin);
-    sin.sin_family = AF_INET;
-    sin.sin_addr.s_addr = inet_addr(host);
-    sin.sin_port = htons(port);
-    if ((int)sin.sin_addr.s_addr == -1) {
-        struct hostent *hostinfo;
-        hostinfo = gethostbyname(host);
-        if (hostinfo && hostinfo->h_addr) {
-            sin.sin_addr.s_addr = ((struct in_addr *)hostinfo->h_addr)->s_addr;
-        }
-        else {
-            rfbLog("Error resolving reverse host %s\n", host);
-            return NULL;
-        }
+	sin.sin6_len = sizeof(sin);
+	sin.sin6_family = AF_INET6;
+	sin.sin6_port = htons(port);
+	memset(&hint, 0, sizeof(hint));
+	hint.ai_family = PF_INET6;
+	hint.ai_socktype = SOCK_STREAM;
+	if ((errCode = getaddrinfo(host, NULL, &hint, &res)) != 0) {
+		rfbLog("Error resolving reverse host %s: %s\n", host, gai_strerror(errCode));
+		return NULL;
     }
-	
-    if ((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+	sin.sin6_addr = ((struct sockaddr_in6 *)res->ai_addr)->sin6_addr;
+	freeaddrinfo(res);
+
+    if ((sock = socket(PF_INET6, SOCK_STREAM, 0)) < 0) {
         rfbLog("Error creating reverse socket\n");
         return NULL;
     }
