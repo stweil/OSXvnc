@@ -98,6 +98,8 @@
 - (BOOL) validateMenuItem: (NSMenuItem *) menuItem ;
 
 - (IBAction) openLog:(id) sender;
+- (IBAction) openGPL:(id) sender;
+- (IBAction) openReleaseNotes:(id) sender;
 - (IBAction) openFile:(id) sender;
 
 - (IBAction) installAsService: sender;

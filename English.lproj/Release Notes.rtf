@@ -1,8 +1,8 @@
 {\rtf1\mac\ansicpg10000\cocoartf102
-{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fnil\fcharset77 Monaco;
-\f3\fswiss\fcharset77 Helvetica-BoldOblique;}
+\readonlydoc1{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fnil\fcharset77 Monaco;
+\f3\fswiss\fcharset77 Helvetica-Oblique;\f4\fswiss\fcharset77 Helvetica-BoldOblique;}
 {\colortbl;\red255\green255\blue255;\red137\green19\blue21;\red25\green35\blue255;}
-\vieww16220\viewh14740\viewkind0
+\vieww13520\viewh12000\viewkind0
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\qc
 
 \f0\b\fs36 \cf0 OSXvnc \
@@ -12,13 +12,19 @@ Release Notes\
 \f1\b0\fs24 \cf0 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f0\b \cf0 Version 1.X, Released \
+\f0\b \cf0 Version 1.6, Released ??/??/2005:\
 	Modified by Jonathan Gillaspie for Redstone Software, Inc.\
 	osxvnc@redstonesoftware.com
 \f1\b0 \
 \
 	Fixed a problem with the startup script being unable to kill running Startup Items\
 	Fixed a problem with the startup item not supporting Rendezvous\
+\
+	Added IPv6 Support, Special Thanks To Jens-Uwe Mager for the patch.\
+\
+	Added 
+\f2\fs20 \CocoaLigature0 TCP_NODELAY 
+\f1\fs24 \CocoaLigature1 on socket to improve performance, particularly with ???2vnc type applications.\
 \
 	Added a backwards compatibility flag for old rendezvous service name. 
 \f0\b \
@@ -45,9 +51,15 @@ Version 1.5, Released 2/1/2005:\
 	Added French Localization\
 \pard\tx1440\tx2160\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
 \cf0 		Special Thanks to Pascal Frey\
+		
+\f3\i Traduction fran\'8daise par Pascal Frey\
+		Pas de modification structurelle. Simple localisation de l'interface\
+		Documentation partiellement traduite et adapt\'8ee
+\f0\i0\b \
+
+\f1\b0 	\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
-\cf0 \
-	Switch Rendezvous (zero-conf) support to use _rfb._tcp for compatibility with other servers.\
+\cf0 	Switch Rendezvous (zero-conf) support to use _rfb._tcp for compatibility with other servers.\
 	Turned KeyboardLoading OFF by default since it is currently detrimental for international keyboard users.\
 	Fixed a problem doing startup on OSX 10.1.5.\
 	Fixed a problem doing startup on OSX 10.4 (TIGER).\
@@ -251,7 +263,7 @@ Version 1.11, Released 1/18/2003:\
 	Allows Autostart server on launch\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f3\i\b \cf3 \
+\f4\i\b \cf3 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\i0\b0 \cf0 \

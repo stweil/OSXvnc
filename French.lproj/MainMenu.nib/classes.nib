@@ -16,7 +16,9 @@
                 installAsService = id; 
                 loadUserDefaults = id; 
                 openFile = id; 
+                openGPL = id; 
                 openLog = id; 
+                openReleaseNotes = id; 
                 optionChanged = id; 
                 removeService = id; 
                 saveUserDefaults = id; 

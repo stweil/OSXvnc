@@ -113,7 +113,7 @@ static void terminateOnSignal(int signal) {
 
     [window setTitle:[NSString stringWithFormat:@"%@ (%@)",
         [infoDictionary objectForKey:@"CFBundleName"],
-        [infoDictionary objectForKey:@"CFBundleShortVersionString"]]];
+        [infoDictionary objectForKey:@"CFBundleVersion"]]];
     
     [window setFrameUsingName:@"Server Panel"];
     [window setFrameAutosaveName:@"Server Panel"];
@@ -579,6 +579,18 @@ static void terminateOnSignal(int signal) {
 
 - (IBAction) openLog:(id) sender {
     [[NSWorkspace sharedWorkspace] openFile:logFile];
+}
+
+- (IBAction) openGPL:(id) sender {
+    NSString *openPath = [[NSBundle mainBundle] pathForResource:@"Copying" ofType:@"rtf"];
+	
+    [[NSWorkspace sharedWorkspace] openFile:openPath];
+}
+
+- (IBAction) openReleaseNotes:(id) sender {
+    NSString *openPath = [[NSBundle mainBundle] pathForResource:@"Release Notes" ofType:@"rtf"];
+	
+    [[NSWorkspace sharedWorkspace] openFile:openPath];
 }
 
 - (IBAction) openFile:(id) sender {

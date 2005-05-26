@@ -160,17 +160,16 @@
 		};
 		29B97317FDCFA39411CA2CEA = {
 			children = (
-				ABD7FE7E07AFF8B4004D0B81,
-				ABCCC8B203D9C60A00A80117,
-				AB541C2907A0264F00B63668,
-				F5F3A78903B395AA01A80117,
-				F54B48D8038C32FA01A80117,
-				F570ED1002F9DA7601A80186,
-				AB541C3B07A0273500B63668,
-				AB541C2B07A0265E00B63668,
 				096B69DC0097995A7F000001,
+				ABCCC8B203D9C60A00A80117,
+				ABD7FE7E07AFF8B4004D0B81,
+				AB541C2907A0264F00B63668,
+				AB541C3B07A0273500B63668,
 				F57BB467027E036F014B5D3F,
 				29B97318FDCFA39411CA2CEA,
+				F5F3A78903B395AA01A80117,
+				F570ED1002F9DA7601A80186,
+				F54B48D8038C32FA01A80117,
 			);
 			isa = PBXGroup;
 			name = Resources;
@@ -182,6 +181,7 @@
 			children = (
 				29B97319FDCFA39411CA2CEA,
 				ABD7FEA607AFF92B004D0B81,
+				ABC7279A084399FD00F755B3,
 			);
 			isa = PBXVariantGroup;
 			name = MainMenu.nib;
@@ -262,8 +262,6 @@
 	<string>OSXvnc</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>CFBundleShortVersionString</key>
-	<string>1.6</string>
 	<key>CFBundleSignature</key>
 	<string>OSXv</string>
 	<key>CFBundleVersion</key>
@@ -300,7 +298,6 @@
 				F57BB469027E036F014B5D3F,
 				AB541C2A07A0264F00B63668,
 				AB541C3C07A0273500B63668,
-				AB541C2C07A0265E00B63668,
 				ABD7FE8007AFF8B4004D0B81,
 				F570ED1102F9DA7601A80186,
 				F5753F410343991101A80186,
@@ -573,7 +570,6 @@
 		AB541C2907A0264F00B63668 = {
 			children = (
 				F55FDAB502FB44CE01A80117,
-				AB541C3E07A0276200B63668,
 			);
 			isa = PBXVariantGroup;
 			name = "Release Notes.rtf";
@@ -586,34 +582,11 @@
 			settings = {
 			};
 		};
-		AB541C2B07A0265E00B63668 = {
-			children = (
-				F5753F460343ACD501A80186,
-				AB541C3007A0269F00B63668,
-			);
-			isa = PBXVariantGroup;
-			name = Readme.rtf;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		AB541C2C07A0265E00B63668 = {
-			fileRef = AB541C2B07A0265E00B63668;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		AB541C3007A0269F00B63668 = {
-			isa = PBXFileReference;
-			lastKnownFileType = text.rtf;
-			name = "Lisez Moi.rtf";
-			path = "French.lproj/Lisez Moi.rtf";
-			refType = 4;
-			sourceTree = "<group>";
-		};
 		AB541C3B07A0273500B63668 = {
 			children = (
 				F5753F450343ACD501A80186,
 				AB541C3D07A0273900B63668,
+				ABC727AD08439A7800F755B3,
 			);
 			isa = PBXVariantGroup;
 			name = Copying.rtf;
@@ -631,14 +604,6 @@
 			lastKnownFileType = text.rtf;
 			name = Licence.rtf;
 			path = French.lproj/Licence.rtf;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		AB541C3E07A0276200B63668 = {
-			isa = PBXFileReference;
-			lastKnownFileType = text.rtf;
-			name = "Notes de version.rtf";
-			path = "French.lproj/Notes de version.rtf";
 			refType = 4;
 			sourceTree = "<group>";
 		};
@@ -684,6 +649,38 @@
 			settings = {
 			};
 		};
+		ABC7279A084399FD00F755B3 = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.nib;
+			name = Japanese;
+			path = Japanese.lproj/MainMenu.nib;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		ABC7279D08439A0400F755B3 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.plist.strings;
+			name = Japanese;
+			path = Japanese.lproj/Localizable.strings;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		ABC727AD08439A7800F755B3 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.rtf;
+			name = "ライセンス.rtf";
+			path = "Japanese.lproj/ライセンス.rtf";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		ABC728CD0846576B00F755B3 = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.rtf;
+			name = Japanese;
+			path = Japanese.lproj/Credits.rtf;
+			refType = 4;
+			sourceTree = "<group>";
+		};
 		ABCCC8B203D9C60A00A80117 = {
 			includeInIndex = 1;
 			isa = PBXFileReference;
@@ -713,6 +710,7 @@
 		ABD7FE7E07AFF8B4004D0B81 = {
 			children = (
 				ABD7FE7F07AFF8B4004D0B81,
+				ABC7279D08439A0400F755B3,
 			);
 			isa = PBXVariantGroup;
 			name = Localizable.strings;
@@ -2858,18 +2856,11 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
-		F5753F460343ACD501A80186 = {
-			isa = PBXFileReference;
-			lastKnownFileType = text.rtf;
-			name = English;
-			path = English.lproj/Readme.rtf;
-			refType = 4;
-			sourceTree = "<group>";
-		};
 		F57BB467027E036F014B5D3F = {
 			children = (
 				F57BB468027E036F014B5D3F,
 				AB541C5B07A027AA00B63668,
+				ABC728CD0846576B00F755B3,
 			);
 			isa = PBXVariantGroup;
 			name = Credits.rtf;
