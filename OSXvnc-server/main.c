@@ -264,12 +264,13 @@ void rfbCheckForScreenResolutionChange() {
         // Block listener from accepting new connections while we restart
         pthread_mutex_lock(&listenerAccepting);
 
-        iterator = rfbGetClientIterator();
-        // Disconnect Existing Clients
         rfbLog("Screen Geometry Changed - (%d,%d) Depth: %d\n",
                CGDisplayPixelsWide(displayID),
                CGDisplayPixelsHigh(displayID),
                CGDisplayBitsPerPixel(displayID));
+
+        iterator = rfbGetClientIterator();
+        // Disconnect Existing Clients
         while ((cl = rfbClientIteratorNext(iterator))) {
             pthread_mutex_lock(&cl->updateMutex);
             // Keep locked until after screen change
@@ -317,6 +318,8 @@ void rfbCheckForScreenResolutionChange() {
                     rfbCloseClient(cl);
             }
             else {
+				// In theory we shouldn't need to disconnect them but some state in the cl record seems to cause a problem
+				rfbCloseClient(cl);
                 rfbSetTranslateFunction(cl);
             }
 

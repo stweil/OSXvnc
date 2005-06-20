@@ -156,7 +156,10 @@ rfbTranslateNone(char *table, rfbPixelFormat *in, rfbPixelFormat *out,
 Bool rfbSetTranslateFunction(rfbClientPtr cl) {
     rfbLog("Pixel format for client %s:\n",cl->host);
     PrintPixelFormat(&cl->format);
-
+    //cl->format = rfbServerFormat;
+    cl->translateFn = rfbTranslateNone;
+    cl->translateLookupTable = NULL;
+	
     return rfbSetTranslateFunctionUsingFormat(cl, rfbServerFormat);
 }
 
