@@ -71,6 +71,40 @@ static void terminateOnSignal(int signal) {
         return [[NSFileManager defaultManager] isWritableFileAtPath:[path stringByDeletingLastPathComponent]];
 }
 
+// Display Host Names
+- (void) updateHostName {
+	NSMutableArray *commonHostNames = [[[NSHost currentHost] names] mutableCopy];
+	
+	[commonHostNames removeObject:@"localhost"];
+	
+	if ([commonHostNames count] > 1) {
+		[hostNamesLabel setStringValue:LocalizedString(@"Host Names:")];
+	}
+	[hostNamesField setStringValue:[commonHostNames componentsJoinedByString:@"\n"]];        
+}
+
+// Display IP Info
+- (void) updateIPAddresses {
+	NSCharacterSet *ipv6Chars = [NSCharacterSet characterSetWithCharactersInString:@"ABCDEFabcdef:"];
+	NSMutableArray *commonIPAddresses = [[[NSHost currentHost] addresses] mutableCopy];
+	NSEnumerator *ipEnum = nil;
+	NSString *anIP = nil;
+	
+	// 10.1 didn't seem to give a value here let's try the base - that didn't work either, just duplicated it on 10.2+
+	//[commonIPAddresses addObject:[[NSHost currentHost] address]];
+	ipEnum = [commonIPAddresses reverseObjectEnumerator];
+	
+	while (anIP = [ipEnum nextObject]) {
+		if ([anIP isEqualToString:@"127.0.0.1"] || [anIP rangeOfCharacterFromSet:ipv6Chars].location != NSNotFound)
+			[commonIPAddresses removeObject:anIP];
+	}
+	
+	if ([commonIPAddresses count] > 1) {
+		[ipAddressesLabel setStringValue:LocalizedString(@"IP Addresses:")];
+	}
+	[ipAddressesField setStringValue:[commonIPAddresses componentsJoinedByString:@"\n"]];        
+}
+
 - (void) awakeFromNib {
     id infoDictionary = [[NSBundle mainBundle] infoDictionary];
     NSArray *passwordFiles = [NSArray arrayWithObjects:
@@ -123,45 +157,19 @@ static void terminateOnSignal(int signal) {
     [optionsTabView selectTabViewItemAtIndex:0];
 
     [disableStartupButton setEnabled:[[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems/OSXvnc"]];
-    
-    // Display Host Names
-    {
-        NSMutableArray *commonHostNames = [[[NSHost currentHost] names] mutableCopy];
-        
-        [commonHostNames removeObject:@"localhost"];
-        
-        if ([commonHostNames count] > 1) {
-            [hostNamesLabel setStringValue:LocalizedString(@"Host Names:")];
-        }
-        [hostNamesField setStringValue:[commonHostNames componentsJoinedByString:@"\n"]];        
-    }
-    // Display IP Info
-    {
-        NSCharacterSet *ipv6Chars = [NSCharacterSet characterSetWithCharactersInString:@"ABCDEFabcdef:"];
-        NSMutableArray *commonIPAddresses = [[[NSHost currentHost] addresses] mutableCopy];
-        NSEnumerator *ipEnum = nil;
-        NSString *anIP = nil;
-
-        // 10.1 didn't seem to give a value here let's try the base - that didn't work either, just duplicated it on 10.2+
-        //[commonIPAddresses addObject:[[NSHost currentHost] address]];
-        ipEnum = [commonIPAddresses reverseObjectEnumerator];
-        
-        while (anIP = [ipEnum nextObject]) {
-            if ([anIP isEqualToString:@"127.0.0.1"] || [anIP rangeOfCharacterFromSet:ipv6Chars].location != NSNotFound)
-                [commonIPAddresses removeObject:anIP];
-        }
-        
-        if ([commonIPAddresses count] > 1) {
-            [ipAddressesLabel setStringValue:LocalizedString(@"IP Addresses:")];
-        }
-        [ipAddressesField setStringValue:[commonIPAddresses componentsJoinedByString:@"\n"]];        
-    }
-        
+		
+	[NSHost flushHostCache];
+	[self updateHostName];
+	[self updateIPAddresses];
+	
     if ([startServerOnLaunchCheckbox state])
         [self startServer: self];
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification {
+	[NSHost flushHostCache];
+	[self updateHostName];
+	[self updateIPAddresses];
     [window makeKeyAndOrderFront:self];
 }
 
