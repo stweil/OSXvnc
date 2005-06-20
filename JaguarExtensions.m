@@ -78,14 +78,16 @@ rfbserver *theServer;
 + (void) rfbUsage {
     fprintf(stderr,
             "-keyboardLoading flag  This BETA feature allows OSXvnc to look at the users selected keyboard and map keystrokes using it.\n"
-            "                       Disabling this returns OSXvnc to 1.2 (U.S. Keyboard) which may work better with Dead Keys.\n"
+            "                       Disabling this returns OSXvnc to standard (U.S. Keyboard) which may work better with Dead Keys.\n"
             "                       (default: no), 10.2+ ONLY\n"
             "-pressModsForKeys flag If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it.\n"
             "                       This flag works well if you have different keyboards on the local and remote machines.\n"
             "                       Only works if -keyboardLoading is on\n"
             "                       (default: no), 10.2+ ONLY\n"
 	        "-rendezvous flag       Allow OSXvnc to advertise VNC server using Rendezvous discovery services.\n"
-            "                       (default: yes), 10.2+ ONLY\n");
+			"                       'VNC' will enable the service named VNC (For Eggplant & Chicken 2.02b)\n"
+			"                       'Both' or '2' will enable the services named RFB and VNC\n"
+			"                       (default: RFB:YES VNC:NO), 10.2+ ONLY\n");
 }
 
 
@@ -255,11 +257,11 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
         if ([value hasPrefix:@"n"] || [value hasPrefix:@"N"] || [value hasPrefix:@"0"]) {
             loadRendezvousVNC = NO; loadRendezvousRFB = NO;
 		}
-		else if ([value hasPrefix:@"y"] || [value hasPrefix:@"Y"] || [value hasPrefix:@"1"]) {
-			loadRendezvousVNC = YES; loadRendezvousRFB = YES; 
-		}
-		else if ([value hasPrefix:@"rfb"]) {
+		else if ([value hasPrefix:@"y"] || [value hasPrefix:@"Y"] || [value hasPrefix:@"1"] || [value hasPrefix:@"rfb"]) {
 			loadRendezvousVNC = NO; loadRendezvousRFB = YES;
+		}
+		else if ([value hasPrefix:@"b"] || [value hasPrefix:@"B"] || [value hasPrefix:@"2"]) {
+			loadRendezvousVNC = YES; loadRendezvousRFB = YES; 
 		}
 		else if ([value hasPrefix:@"vnc"]) {
 			loadRendezvousVNC = YES; loadRendezvousRFB = NO;
