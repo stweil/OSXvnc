@@ -5,22 +5,6 @@
 	};
 	objectVersion = 39;
 	objects = {
-		080E96DCFE201CFB7F000001 = {
-			fileRef = 29B97318FDCFA39411CA2CEA;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-//080
-//081
-//082
-//083
-//084
-//090
-//091
-//092
-//093
-//094
 		096B69DC0097995A7F000001 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -47,34 +31,11 @@
 			refType = 0;
 			sourceTree = "<absolute>";
 		};
-		1058C7A3FEA54F0111CA2CBB = {
-			fileRef = 1058C7A1FEA54F0111CA2CBB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 //100
 //101
 //102
 //103
 //104
-//170
-//171
-//172
-//173
-//174
-		17587328FF379C6511CA2CBB = {
-			explicitFileType = wrapper.application;
-			isa = PBXFileReference;
-			path = OSXvnc.app;
-			refType = 3;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-//170
-//171
-//172
-//173
-//174
 //190
 //191
 //192
@@ -82,10 +43,10 @@
 //194
 		19C28FACFE9D520D11CA2CBB = {
 			children = (
-				F538E4B402F9B73F01A80186,
-				F5F3AB0C03B3CB7C01A80117,
-				17587328FF379C6511CA2CBB,
-				AB3598E604BF8A3D00A80117,
+				AB25D83808686B520065843D,
+				AB25D87E08686C7D0065843D,
+				AB82605708689AC00010AB63,
+				AB82605B08689AC00010AB63,
 			);
 			isa = PBXGroup;
 			name = Products;
@@ -114,9 +75,10 @@
 			mainGroup = 29B97314FDCFA39411CA2CEA;
 			projectDirPath = "";
 			targets = (
-				29B97326FDCFA39411CA2CEA,
-				F538DFFB02F9808801A80186,
-				AB3598E504BF8A3D00A80117,
+				AB25D81508686B520065843D,
+				AB25D87108686C7D0065843D,
+				AB25D88E08686FC40065843D,
+				AB25D98F086876B80065843D,
 			);
 		};
 		29B97314FDCFA39411CA2CEA = {
@@ -133,6 +95,8 @@
 				29B97317FDCFA39411CA2CEA,
 				29B97323FDCFA39411CA2CEA,
 				19C28FACFE9D520D11CA2CBB,
+				AB25D83708686B520065843D,
+				AB25D87D08686C7D0065843D,
 			);
 			isa = PBXGroup;
 			name = OSXvnc;
@@ -199,144 +163,22 @@
 		};
 		29B97323FDCFA39411CA2CEA = {
 			children = (
+				AB25DA3C086884420065843D,
+				AB25DA3A0868842E0065843D,
 				ABF191B704E447A400A80117,
 				1058C7A1FEA54F0111CA2CBB,
 				ABEE28F804C8745B00A80117,
 				AB41881F04C5986E00A80117,
+				AB25D9B10868799D0065843D,
+				AB25D9AB086878BA0065843D,
+				AB25D99C086878550065843D,
+				AB25D9930868777B0065843D,
 			);
 			isa = PBXGroup;
 			name = Frameworks;
 			path = "";
 			refType = 4;
 			sourceTree = "<group>";
-		};
-		29B97326FDCFA39411CA2CEA = {
-			buildPhases = (
-				29B97327FDCFA39411CA2CEA,
-				29B97328FDCFA39411CA2CEA,
-				29B9732BFDCFA39411CA2CEA,
-				29B9732DFDCFA39411CA2CEA,
-				F538E4AA02F9B5FB01A80186,
-				F5F3AB0F03B3CBA401A80117,
-				AB2A165007313D6B007E2408,
-			);
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "";
-				HEADER_SEARCH_PATHS = "";
-				INSTALL_PATH = /OSXvnc/;
-				LIBRARY_SEARCH_PATHS = "";
-				OPTIMIZATION_CFLAGS = "-O3";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				PRODUCT_NAME = OSXvnc;
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
-				WRAPPER_EXTENSION = app;
-			};
-			dependencies = (
-				F538DFFC02F9808B01A80186,
-				AB3598E704BF8A3D00A80117,
-			);
-			isa = PBXApplicationTarget;
-			name = OSXvnc;
-			productInstallPath = /OSXvnc/;
-			productName = OSXvnc;
-			productReference = 17587328FF379C6511CA2CBB;
-			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string>OSXvnc</string>
-	<key>CFBundleGetInfoString</key>
-	<string>1.6 - Copyright © 2002-2005 Redstone Software </string>
-	<key>CFBundleIconFile</key>
-	<string>OSXvnc.icns</string>
-	<key>CFBundleIdentifier</key>
-	<string>OSXvnc</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string>OSXvnc</string>
-	<key>CFBundlePackageType</key>
-	<string>APPL</string>
-	<key>CFBundleSignature</key>
-	<string>OSXv</string>
-	<key>CFBundleVersion</key>
-	<string>1.6</string>
-	<key>NSAppleScriptEnabled</key>
-	<false/>
-	<key>NSHelpFile</key>
-	<string>OSXvnc.html</string>
-	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2002-2005 Redstone Software</string>
-	<key>NSMainNibFile</key>
-	<string>MainMenu</string>
-	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
-</dict>
-</plist>
-";
-		};
-		29B97327FDCFA39411CA2CEA = {
-			buildActionMask = 2147483647;
-			files = (
-				F5456A2B02FAD08901A80117,
-				F5456DB102FAD57801A80117,
-				F5EA267803B7CFCD01A80186,
-				ABD8EC09058A0BD600C84739,
-			);
-			isa = PBXHeadersBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		29B97328FDCFA39411CA2CEA = {
-			buildActionMask = 2147483647;
-			files = (
-				080E96DCFE201CFB7F000001,
-				F57BB469027E036F014B5D3F,
-				AB541C2A07A0264F00B63668,
-				AB541C3C07A0273500B63668,
-				ABD7FE8007AFF8B4004D0B81,
-				F570ED1102F9DA7601A80186,
-				F5753F410343991101A80186,
-				F571340803C4C18D01A80186,
-				ABCCC8B703D9C60A00A80117,
-				AB15010E04F6A94500A80117,
-				ABFD5F69069C843E00721AF2,
-			);
-			isa = PBXResourcesBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		29B9732BFDCFA39411CA2CEA = {
-			buildActionMask = 2147483647;
-			files = (
-				29B9732CFDCFA39411CA2CEA,
-				F5456A2A02FAD08901A80117,
-				F5456DB002FAD57701A80117,
-				F5456DB202FAD57901A80117,
-				ABD8EC0A058A0BD600C84739,
-			);
-			isa = PBXSourcesBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		29B9732CFDCFA39411CA2CEA = {
-			fileRef = 29B97316FDCFA39411CA2CEA;
-			isa = PBXBuildFile;
-			settings = {
-				ATTRIBUTES = (
-				);
-			};
-		};
-		29B9732DFDCFA39411CA2CEA = {
-			buildActionMask = 2147483647;
-			files = (
-				1058C7A3FEA54F0111CA2CBB,
-				ABEE28F904C8745B00A80117,
-			);
-			isa = PBXFrameworksBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
 		};
 //290
 //291
@@ -351,7 +193,6 @@
 		4A9504D3FFE6A4CB11CA0CBA = {
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -368,10 +209,10 @@
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp;
+				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				INSTALL_MODE_FLAG = "a+rwX";
 				MACOSX_DEPLOYMENT_TARGET = 10.1;
-				MAC_OS_X_VERSION_MIN_REQUIRED = "";
 				REMOVE_CVS_FROM_RESOURCES = YES;
 				ZERO_LINK = NO;
 			};
@@ -396,19 +237,219 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
-		AB15010E04F6A94500A80117 = {
+		AB25D81508686B520065843D = {
+			buildPhases = (
+				AB25D81808686B520065843D,
+				AB25D81D08686B520065843D,
+				AB25D82908686B520065843D,
+				AB25D82F08686B520065843D,
+				AB25D83208686B520065843D,
+				AB25D83508686B520065843D,
+				AB25D83608686B520065843D,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				FRAMEWORK_SEARCH_PATHS = "";
+				HEADER_SEARCH_PATHS = "";
+				INFOPLIST_FILE = "Info-OSXvnc.plist";
+				INSTALL_PATH = /OSXvnc/;
+				LIBRARY_SEARCH_PATHS = "";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = OSXvnc;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+				WRAPPER_EXTENSION = app;
+			};
+			dependencies = (
+				AB52324708689C02003F66AC,
+				AB25DA5D08688EE80065843D,
+				AB25D81708686B520065843D,
+			);
+			isa = PBXNativeTarget;
+			name = OSXvnc;
+			productInstallPath = /OSXvnc/;
+			productName = OSXvnc;
+			productReference = AB25D83808686B520065843D;
+			productType = "com.apple.product-type.application";
+		};
+		AB25D81708686B520065843D = {
+			isa = PBXTargetDependency;
+			target = AB25D87108686C7D0065843D;
+			targetProxy = ABD8EAFF0588D4AB00C84739;
+		};
+		AB25D81808686B520065843D = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB25D81D08686B520065843D = {
+			buildActionMask = 2147483647;
+			files = (
+				AB25D81E08686B520065843D,
+				AB25D81F08686B520065843D,
+				AB25D82008686B520065843D,
+				AB25D82108686B520065843D,
+				AB25D82208686B520065843D,
+				AB25D82308686B520065843D,
+				AB25D82408686B520065843D,
+				AB25D82508686B520065843D,
+				AB25D82708686B520065843D,
+				AB25DA5108688E100065843D,
+				AB25D82608686B520065843D,
+			);
+			isa = PBXResourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB25D81E08686B520065843D = {
+			fileRef = 29B97318FDCFA39411CA2CEA;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D81F08686B520065843D = {
+			fileRef = F57BB467027E036F014B5D3F;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D82008686B520065843D = {
+			fileRef = AB541C2907A0264F00B63668;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D82108686B520065843D = {
+			fileRef = AB541C3B07A0273500B63668;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D82208686B520065843D = {
+			fileRef = ABD7FE7E07AFF8B4004D0B81;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D82308686B520065843D = {
+			fileRef = F570ED1002F9DA7601A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D82408686B520065843D = {
+			fileRef = 096B69DC0097995A7F000001;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D82508686B520065843D = {
+			fileRef = F5F3A78903B395AA01A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D82608686B520065843D = {
+			fileRef = ABCCC8B203D9C60A00A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D82708686B520065843D = {
 			fileRef = AB15010D04F6A94500A80117;
 			isa = PBXBuildFile;
 			settings = {
 			};
 		};
-		AB15011104F6CB7600A80117 = {
-			fileRef = ABF191B704E447A400A80117;
+		AB25D82908686B520065843D = {
+			buildActionMask = 2147483647;
+			files = (
+				AB25D82A08686B520065843D,
+				AB25D82B08686B520065843D,
+				AB25D82C08686B520065843D,
+				AB25D82D08686B520065843D,
+				AB25D82E08686B520065843D,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB25D82A08686B520065843D = {
+			fileRef = 29B97316FDCFA39411CA2CEA;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+				);
+			};
+		};
+		AB25D82B08686B520065843D = {
+			fileRef = F5456A2802FAD08901A80117;
 			isa = PBXBuildFile;
 			settings = {
 			};
 		};
-		AB2A165007313D6B007E2408 = {
+		AB25D82C08686B520065843D = {
+			fileRef = F538E0CB02F9812B01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D82D08686B520065843D = {
+			fileRef = F538E0CF02F9812B01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D82E08686B520065843D = {
+			fileRef = ABD8EC08058A0BD600C84739;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D82F08686B520065843D = {
+			buildActionMask = 2147483647;
+			files = (
+				AB25D83008686B520065843D,
+				AB25D83108686B520065843D,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB25D83008686B520065843D = {
+			fileRef = 1058C7A1FEA54F0111CA2CBB;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D83108686B520065843D = {
+			fileRef = ABEE28F804C8745B00A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D83208686B520065843D = {
+			buildActionMask = 12;
+			dstPath = "";
+			dstSubfolderSpec = 6;
+			files = (
+				AB82605A08689AC00010AB63,
+				AB82605E08689AC00010AB63,
+			);
+			isa = PBXCopyFilesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB25D83508686B520065843D = {
+			buildActionMask = 2147483647;
+			files = (
+			);
+			isa = PBXShellScriptBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "pushd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/;\n/bin/ln -s Contents/MacOS/OSXvnc-server .;\n/bin/ln -s Contents/MacOS/storepasswd .;\n/bin/ln -s Contents/MacOS/OSXvnc-server Contents/Resources;\n/bin/ln -s Contents/MacOS/storepasswd Contents/Resources;\npopd";
+		};
+		AB25D83608686B520065843D = {
 			buildActionMask = 8;
 			files = (
 			);
@@ -419,45 +460,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "hdiutil create -ov -srcfolder $INSTALL_DIR $INSTALL_DIR/../$PROJECT_NAME.dmg;\nhdiutil internet-enable $INSTALL_DIR/../$PROJECT_NAME.dmg";
+			shellScript = "hdiutil create -ov -format UDZO -imagekey zlib-level=9 -srcfolder $INSTALL_DIR $INSTALL_DIR/../$PROJECT_NAME.dmg;\nhdiutil internet-enable $INSTALL_DIR/../$PROJECT_NAME.dmg";
 		};
-		AB3598E004BF8A3D00A80117 = {
-			buildActionMask = 2147483647;
-			files = (
-				AB3598EB04BF8A6500A80117,
-				AB82E81B04FA629800A80117,
-				AB82E81C04FA66B900A80117,
-				AB82E81E04FA6D0A00A80117,
-			);
-			isa = PBXHeadersBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
+		AB25D83708686B520065843D = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.xml;
+			path = "Info-OSXvnc.plist";
+			refType = 4;
+			sourceTree = "<group>";
 		};
-		AB3598E204BF8A3D00A80117 = {
-			buildActionMask = 2147483647;
-			files = (
-				AB3598EC04BF8A6500A80117,
-			);
-			isa = PBXSourcesBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
+		AB25D83808686B520065843D = {
+			explicitFileType = wrapper.application;
+			includeInIndex = 0;
+			isa = PBXFileReference;
+			path = OSXvnc.app;
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		AB3598E304BF8A3D00A80117 = {
-			buildActionMask = 2147483647;
-			files = (
-				AB41881E04C5985100A80117,
-				AB15011104F6CB7600A80117,
-				AB41882004C5986E00A80117,
-			);
-			isa = PBXFrameworksBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		AB3598E504BF8A3D00A80117 = {
+		AB25D87108686C7D0065843D = {
 			buildPhases = (
-				AB3598E004BF8A3D00A80117,
-				AB3598E204BF8A3D00A80117,
-				AB3598E304BF8A3D00A80117,
+				AB25D87208686C7D0065843D,
+				AB25D87708686C7D0065843D,
+				AB25D87908686C7D0065843D,
+			);
+			buildRules = (
 			);
 			buildSettings = {
-				OPTIMIZATION_CFLAGS = "-O3";
+				GCC_OPTIMIZATION_LEVEL = 3;
+				INFOPLIST_FILE = "Info-JaguarBundle.plist";
 				OTHER_CFLAGS = "";
 				OTHER_LDFLAGS = "";
 				OTHER_REZFLAGS = "";
@@ -468,54 +498,483 @@
 			};
 			dependencies = (
 			);
-			isa = PBXBundleTarget;
+			isa = PBXNativeTarget;
 			name = JaguarBundle;
 			productInstallPath = "$(USER_LIBRARY_DIR)/Bundles";
 			productName = JaguarBundle;
-			productReference = AB3598E604BF8A3D00A80117;
-			productSettingsXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
-<!DOCTYPE plist PUBLIC \"-//Apple Computer//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
-<plist version=\"1.0\">
-<dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
-	<key>CFBundleExecutable</key>
-	<string></string>
-	<key>CFBundleGetInfoString</key>
-	<string></string>
-	<key>CFBundleIconFile</key>
-	<string></string>
-	<key>CFBundleIdentifier</key>
-	<string></string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
-	<key>CFBundleName</key>
-	<string></string>
-	<key>CFBundlePackageType</key>
-	<string>BNDL</string>
-	<key>CFBundleShortVersionString</key>
-	<string></string>
-	<key>CFBundleSignature</key>
-	<string>????</string>
-	<key>CFBundleVersion</key>
-	<string>0.0.1d1</string>
-	<key>NSPrincipalClass</key>
-	<string>JaguarExtensions</string>
-</dict>
-</plist>
-";
+			productReference = AB25D87E08686C7D0065843D;
+			productType = "com.apple.product-type.bundle";
 		};
-		AB3598E604BF8A3D00A80117 = {
+		AB25D87208686C7D0065843D = {
+			buildActionMask = 2147483647;
+			files = (
+				AB25D87308686C7D0065843D,
+				AB25D87408686C7D0065843D,
+				AB25D87508686C7D0065843D,
+				AB25D87608686C7D0065843D,
+			);
+			isa = PBXHeadersBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB25D87308686C7D0065843D = {
+			fileRef = AB3598E904BF8A6500A80117;
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+				);
+			};
+		};
+		AB25D87408686C7D0065843D = {
+			fileRef = AB82E81904FA629800A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D87508686C7D0065843D = {
+			fileRef = F538E01A02F9812901A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D87608686C7D0065843D = {
+			fileRef = AB82E81D04FA6D0A00A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D87708686C7D0065843D = {
+			buildActionMask = 2147483647;
+			files = (
+				AB25D87808686C7D0065843D,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB25D87808686C7D0065843D = {
+			fileRef = AB3598EA04BF8A6500A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D87908686C7D0065843D = {
+			buildActionMask = 2147483647;
+			files = (
+				AB25D87A08686C7D0065843D,
+				AB25D87B08686C7D0065843D,
+				AB25D87C08686C7D0065843D,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB25D87A08686C7D0065843D = {
+			fileRef = 1058C7A1FEA54F0111CA2CBB;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D87B08686C7D0065843D = {
+			fileRef = ABF191B704E447A400A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D87C08686C7D0065843D = {
+			fileRef = AB41881F04C5986E00A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D87D08686C7D0065843D = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.xml;
+			path = "Info-JaguarBundle.plist";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		AB25D87E08686C7D0065843D = {
 			explicitFileType = wrapper.cfbundle;
+			includeInIndex = 0;
 			isa = PBXFileReference;
 			path = JaguarBundle.bundle;
 			refType = 3;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		AB3598E704BF8A3D00A80117 = {
+		AB25D88C08686FC40065843D = {
+			buildActionMask = 2147483647;
+			files = (
+				AB25D895086870420065843D,
+				AB25D896086870430065843D,
+				AB25D897086870430065843D,
+				AB25D898086870440065843D,
+				AB25D899086870460065843D,
+				AB25D89A086870490065843D,
+				AB25D89B0868704A0065843D,
+				AB25D89C0868704B0065843D,
+				AB25D89D0868704B0065843D,
+				AB25D89E0868704C0065843D,
+				AB25D89F0868704C0065843D,
+				AB25D8A00868704D0065843D,
+				AB25D8A10868704E0065843D,
+				AB25D8A20868704E0065843D,
+				AB25D8A30868704F0065843D,
+				AB25D8A5086870530065843D,
+				AB25D8A6086870540065843D,
+				AB25D8A7086870540065843D,
+				AB25D8A8086870550065843D,
+				AB25D8A9086870550065843D,
+				AB25D8AA086870560065843D,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB25D88D08686FC40065843D = {
+			buildActionMask = 2147483647;
+			files = (
+				AB25D8AC0868707C0065843D,
+				AB25D9400868707E0065843D,
+				AB25D9B20868799D0065843D,
+				AB25D99D086878550065843D,
+				AB25D9AC086878BA0065843D,
+				AB25DA3B0868842E0065843D,
+				AB25DA3D086884420065843D,
+				AB25DA3E086884550065843D,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB25D88E08686FC40065843D = {
+			buildPhases = (
+				AB25D88C08686FC40065843D,
+				AB25D88D08686FC40065843D,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				GCC_INPUT_FILETYPE = automatic;
+				HEADER_SEARCH_PATHS = "OSXvnc-server OSXvnc-server/include include/Xserver libvncauth libjpeg";
+				LIBRARY_SEARCH_PATHS = "OSXvnc-server/libjpeg OSXvnc-server/rdr /usr/lib/gcc/darwin/3.3 OSXvnc-server/libvncauth";
+				OTHER_CFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = "OSXvnc-server";
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+			};
+			dependencies = (
+			);
+			isa = PBXNativeTarget;
+			name = "OSXvnc-server";
+			productName = "OSXvnc-server";
+			productReference = AB82605B08689AC00010AB63;
+			productType = "com.apple.product-type.tool";
+		};
+		AB25D895086870420065843D = {
+			fileRef = F538E01002F9812901A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D896086870430065843D = {
+			fileRef = F538E01302F9812901A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D897086870430065843D = {
+			fileRef = F538E01402F9812901A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D898086870440065843D = {
+			fileRef = F538E01502F9812901A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D899086870460065843D = {
+			fileRef = F58DDDE8056A861001A8015E;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D89A086870490065843D = {
+			fileRef = F5C9A8F1038C6F5D01A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D89B0868704A0065843D = {
+			fileRef = F538E01602F9812901A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D89C0868704B0065843D = {
+			fileRef = F538E03502F9812901A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D89D0868704B0065843D = {
+			fileRef = F5C9A8F4038C747101A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D89E0868704C0065843D = {
+			fileRef = F538E10E02F9812C01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D89F0868704C0065843D = {
+			fileRef = F538E11002F9812C01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D8A00868704D0065843D = {
+			fileRef = F538E11502F9812C01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D8A10868704E0065843D = {
+			fileRef = F538E11602F9812C01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D8A20868704E0065843D = {
+			fileRef = F538E11702F9812C01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D8A30868704F0065843D = {
+			fileRef = F538E11802F9812C01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D8A5086870530065843D = {
+			fileRef = F538E11D02F9812C01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D8A6086870540065843D = {
+			fileRef = F538E11F02F9812C01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D8A7086870540065843D = {
+			fileRef = F538E12002F9812C01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D8A8086870550065843D = {
+			fileRef = F538E12102F9812C01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D8A9086870550065843D = {
+			fileRef = F538E12202F9812C01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D8AA086870560065843D = {
+			fileRef = F5C9B02C038DA64501A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D8AC0868707C0065843D = {
+			fileRef = ABF191B704E447A400A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D9400868707E0065843D = {
+			fileRef = 1058C7A1FEA54F0111CA2CBB;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D98D086876B80065843D = {
+			buildActionMask = 2147483647;
+			files = (
+				AB25D992086877000065843D,
+			);
+			isa = PBXSourcesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB25D98E086876B80065843D = {
+			buildActionMask = 2147483647;
+			files = (
+				AB25D9940868777B0065843D,
+			);
+			isa = PBXFrameworksBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AB25D98F086876B80065843D = {
+			buildPhases = (
+				AB25D98D086876B80065843D,
+				AB25D98E086876B80065843D,
+			);
+			buildRules = (
+			);
+			buildSettings = {
+				LIBRARY_SEARCH_PATHS = "OSXvnc-server/libvncauth";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = storepasswd;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
+			};
+			dependencies = (
+			);
+			isa = PBXNativeTarget;
+			name = storepasswd;
+			productName = storepasswd;
+			productReference = AB82605708689AC00010AB63;
+			productType = "com.apple.product-type.tool";
+		};
+		AB25D992086877000065843D = {
+			fileRef = F538E11902F9812C01A80186;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D9930868777B0065843D = {
+			isa = PBXFileReference;
+			lastKnownFileType = archive.ar;
+			name = libvncauth.a;
+			path = "OSXvnc-server/libvncauth/libvncauth.a";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		AB25D9940868777B0065843D = {
+			fileRef = AB25D9930868777B0065843D;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D99C086878550065843D = {
+			isa = PBXFileReference;
+			lastKnownFileType = archive.ar;
+			name = libjpeg.a;
+			path = "OSXvnc-server/libjpeg/libjpeg.a";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		AB25D99D086878550065843D = {
+			fileRef = AB25D99C086878550065843D;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D9AB086878BA0065843D = {
+			isa = PBXFileReference;
+			lastKnownFileType = archive.ar;
+			name = librdr.a;
+			path = "OSXvnc-server/rdr/librdr.a";
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		AB25D9AC086878BA0065843D = {
+			fileRef = AB25D9AB086878BA0065843D;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25D9B10868799D0065843D = {
+			isa = PBXFileReference;
+			lastKnownFileType = archive.ar;
+			name = "libstdc++.a";
+			path = "/usr/lib/gcc/darwin/3.3/libstdc++.a";
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		AB25D9B20868799D0065843D = {
+			fileRef = AB25D9B10868799D0065843D;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25DA3A0868842E0065843D = {
+			isa = PBXFileReference;
+			lastKnownFileType = wrapper.framework;
+			name = IOKit.framework;
+			path = /System/Library/Frameworks/IOKit.framework;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		AB25DA3B0868842E0065843D = {
+			fileRef = AB25DA3A0868842E0065843D;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25DA3C086884420065843D = {
+			isa = PBXFileReference;
+			lastKnownFileType = "compiled.mach-o.dylib";
+			name = libz.dylib;
+			path = /usr/lib/libz.dylib;
+			refType = 0;
+			sourceTree = "<absolute>";
+		};
+		AB25DA3D086884420065843D = {
+			fileRef = AB25DA3C086884420065843D;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25DA3E086884550065843D = {
+			fileRef = AB25D9930868777B0065843D;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25DA5108688E100065843D = {
+			fileRef = AB25D87E08686C7D0065843D;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB25DA5C08688EE80065843D = {
+			containerPortal = 29B97313FDCFA39411CA2CEA;
+			isa = PBXContainerItemProxy;
+			proxyType = 1;
+			remoteGlobalIDString = AB25D98F086876B80065843D;
+			remoteInfo = storepasswd;
+		};
+		AB25DA5D08688EE80065843D = {
 			isa = PBXTargetDependency;
-			target = AB3598E504BF8A3D00A80117;
-			targetProxy = ABD8EAFF0588D4AB00C84739;
+			target = AB25D98F086876B80065843D;
+			targetProxy = AB25DA5C08688EE80065843D;
+		};
+		AB25DA93086897440065843D = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.rtf;
+			name = Japanese;
+			path = Japanese.lproj/Copying.rtf;
+			refType = 4;
+			sourceTree = "<group>";
+		};
+		AB25DA9C0868987B0065843D = {
+			isa = PBXFileReference;
+			lastKnownFileType = text.rtf;
+			name = French;
+			path = French.lproj/Copying.rtf;
+			refType = 4;
+			sourceTree = "<group>";
 		};
 		AB3598E904BF8A6500A80117 = {
 			fileEncoding = 4;
@@ -533,26 +992,6 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
-		AB3598EB04BF8A6500A80117 = {
-			fileRef = AB3598E904BF8A6500A80117;
-			isa = PBXBuildFile;
-			settings = {
-				ATTRIBUTES = (
-				);
-			};
-		};
-		AB3598EC04BF8A6500A80117 = {
-			fileRef = AB3598EA04BF8A6500A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		AB41881E04C5985100A80117 = {
-			fileRef = 1058C7A1FEA54F0111CA2CBB;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		AB41881F04C5986E00A80117 = {
 			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
@@ -561,11 +1000,17 @@
 			refType = 0;
 			sourceTree = "<absolute>";
 		};
-		AB41882004C5986E00A80117 = {
-			fileRef = AB41881F04C5986E00A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
+		AB52324608689C02003F66AC = {
+			containerPortal = 29B97313FDCFA39411CA2CEA;
+			isa = PBXContainerItemProxy;
+			proxyType = 1;
+			remoteGlobalIDString = AB25D88E08686FC40065843D;
+			remoteInfo = "OSXvnc-server";
+		};
+		AB52324708689C02003F66AC = {
+			isa = PBXTargetDependency;
+			target = AB25D88E08686FC40065843D;
+			targetProxy = AB52324608689C02003F66AC;
 		};
 		AB541C2907A0264F00B63668 = {
 			children = (
@@ -576,34 +1021,14 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
-		AB541C2A07A0264F00B63668 = {
-			fileRef = AB541C2907A0264F00B63668;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		AB541C3B07A0273500B63668 = {
 			children = (
 				F5753F450343ACD501A80186,
-				AB541C3D07A0273900B63668,
-				ABC727AD08439A7800F755B3,
+				AB25DA9C0868987B0065843D,
+				AB25DA93086897440065843D,
 			);
 			isa = PBXVariantGroup;
 			name = Copying.rtf;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		AB541C3C07A0273500B63668 = {
-			fileRef = AB541C3B07A0273500B63668;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		AB541C3D07A0273900B63668 = {
-			isa = PBXFileReference;
-			lastKnownFileType = text.rtf;
-			name = Licence.rtf;
-			path = French.lproj/Licence.rtf;
 			refType = 4;
 			sourceTree = "<group>";
 		};
@@ -615,6 +1040,34 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
+		AB82605708689AC00010AB63 = {
+			explicitFileType = "compiled.mach-o.executable";
+			includeInIndex = 0;
+			isa = PBXFileReference;
+			path = storepasswd;
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		AB82605A08689AC00010AB63 = {
+			fileRef = AB82605708689AC00010AB63;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		AB82605B08689AC00010AB63 = {
+			explicitFileType = "compiled.mach-o.executable";
+			includeInIndex = 0;
+			isa = PBXFileReference;
+			path = "OSXvnc-server";
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		AB82605E08689AC00010AB63 = {
+			fileRef = AB82605B08689AC00010AB63;
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
 		AB82E81904FA629800A80117 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
@@ -623,18 +1076,6 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
-		AB82E81B04FA629800A80117 = {
-			fileRef = AB82E81904FA629800A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		AB82E81C04FA66B900A80117 = {
-			fileRef = F538E01A02F9812901A80186;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		AB82E81D04FA6D0A00A80117 = {
 			fileEncoding = 4;
 			isa = PBXFileReference;
@@ -642,12 +1083,6 @@
 			path = rfbserver.h;
 			refType = 4;
 			sourceTree = "<group>";
-		};
-		AB82E81E04FA6D0A00A80117 = {
-			fileRef = AB82E81D04FA6D0A00A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		ABC7279A084399FD00F755B3 = {
 			isa = PBXFileReference;
@@ -662,14 +1097,6 @@
 			lastKnownFileType = text.plist.strings;
 			name = Japanese;
 			path = Japanese.lproj/Localizable.strings;
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		ABC727AD08439A7800F755B3 = {
-			isa = PBXFileReference;
-			lastKnownFileType = text.rtf;
-			name = "ライセンス.rtf";
-			path = "Japanese.lproj/ライセンス.rtf";
 			refType = 4;
 			sourceTree = "<group>";
 		};
@@ -688,24 +1115,6 @@
 			path = OSXvnc;
 			refType = 4;
 			sourceTree = "<group>";
-		};
-		ABCCC8B703D9C60A00A80117 = {
-			fileRef = ABCCC8B203D9C60A00A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		ABCCC8BA03D9C6A000A80117 = {
-			fileRef = F538E4B402F9B73F01A80186;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		ABCCC8BB03D9C6A000A80117 = {
-			fileRef = F5F3AB0C03B3CB7C01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		ABD7FE7E07AFF8B4004D0B81 = {
 			children = (
@@ -727,12 +1136,6 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
-		ABD7FE8007AFF8B4004D0B81 = {
-			fileRef = ABD7FE7E07AFF8B4004D0B81;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		ABD7FEA607AFF92B004D0B81 = {
 			isa = PBXFileReference;
 			lastKnownFileType = wrapper.nib;
@@ -747,13 +1150,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = AB3598E504BF8A3D00A80117;
 			remoteInfo = JaguarBundle;
-		};
-		ABD8EB000588D4AB00C84739 = {
-			containerPortal = 29B97313FDCFA39411CA2CEA;
-			isa = PBXContainerItemProxy;
-			proxyType = 1;
-			remoteGlobalIDString = F538DFFB02F9808801A80186;
-			remoteInfo = "OSXvnc-server";
 		};
 		ABD8EC07058A0BD600C84739 = {
 			fileEncoding = 4;
@@ -771,18 +1167,6 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
-		ABD8EC09058A0BD600C84739 = {
-			fileRef = ABD8EC07058A0BD600C84739;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		ABD8EC0A058A0BD600C84739 = {
-			fileRef = ABD8EC08058A0BD600C84739;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		ABEE28F804C8745B00A80117 = {
 			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
@@ -791,12 +1175,6 @@
 			refType = 0;
 			sourceTree = "<absolute>";
 		};
-		ABEE28F904C8745B00A80117 = {
-			fileRef = ABEE28F804C8745B00A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		ABF191B704E447A400A80117 = {
 			isa = PBXFileReference;
 			lastKnownFileType = wrapper.framework;
@@ -804,12 +1182,6 @@
 			path = /System/Library/Frameworks/Carbon.framework;
 			refType = 0;
 			sourceTree = "<absolute>";
-		};
-		ABFD5F69069C843E00721AF2 = {
-			fileRef = AB3598E604BF8A3D00A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 //AB0
 //AB1
@@ -821,32 +1193,6 @@
 //F52
 //F53
 //F54
-		F538DFFB02F9808801A80186 = {
-			buildArgumentsString = $ACTION;
-			buildPhases = (
-			);
-			buildSettings = {
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
-				PRODUCT_NAME = "OSXvnc-server";
-				SECTORDER_FLAGS = "";
-				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
-			};
-			buildToolPath = /usr/bin/gnumake;
-			buildWorkingDirectory = "OSXvnc-server";
-			dependencies = (
-			);
-			isa = PBXLegacyTarget;
-			name = "OSXvnc-server";
-			passBuildSettingsInEnvironment = 1;
-			productName = "OSXvnc-server";
-		};
-		F538DFFC02F9808B01A80186 = {
-			isa = PBXTargetDependency;
-			target = F538DFFB02F9808801A80186;
-			targetProxy = ABD8EB000588D4AB00C84739;
-		};
 		F538E00B02F9812901A80186 = {
 			children = (
 				F538E00C02F9812901A80186,
@@ -918,9 +1264,9 @@
 			sourceTree = "<group>";
 		};
 		F538E01402F9812901A80186 = {
+			explicitFileType = sourcecode.c.objc;
 			fileEncoding = 30;
 			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.c.c;
 			path = cutpaste.c;
 			refType = 4;
 			sourceTree = "<group>";
@@ -934,9 +1280,9 @@
 			sourceTree = "<group>";
 		};
 		F538E01602F9812901A80186 = {
+			explicitFileType = sourcecode.c.c;
 			fileEncoding = 30;
 			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.c.c;
 			path = hextile.c;
 			refType = 4;
 			sourceTree = "<group>";
@@ -1211,9 +1557,9 @@
 			sourceTree = "<group>";
 		};
 		F538E03502F9812901A80186 = {
+			explicitFileType = sourcecode.c.objc;
 			fileEncoding = 30;
 			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.c.c;
 			path = kbdptr.c;
 			refType = 4;
 			sourceTree = "<group>";
@@ -2599,9 +2945,9 @@
 			sourceTree = "<group>";
 		};
 		F538E10E02F9812C01A80186 = {
+			explicitFileType = sourcecode.c.objc;
 			fileEncoding = 30;
 			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.c.c;
 			path = main.c;
 			refType = 4;
 			sourceTree = "<group>";
@@ -2639,9 +2985,9 @@
 			sourceTree = "<group>";
 		};
 		F538E11502F9812C01A80186 = {
+			explicitFileType = sourcecode.c.objc;
 			fileEncoding = 30;
 			isa = PBXFileReference;
-			lastKnownFileType = sourcecode.c.c;
 			lineEnding = 0;
 			path = rfbserver.c;
 			refType = 4;
@@ -2743,25 +3089,6 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
-		F538E4AA02F9B5FB01A80186 = {
-			buildActionMask = 12;
-			dstPath = "";
-			dstSubfolderSpec = 6;
-			files = (
-				ABCCC8BA03D9C6A000A80117,
-				ABCCC8BB03D9C6A000A80117,
-			);
-			isa = PBXCopyFilesBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F538E4B402F9B73F01A80186 = {
-			isa = PBXFileReference;
-			lastKnownFileType = "compiled.mach-o.executable";
-			name = "OSXvnc-server";
-			path = "OSXvnc-server/OSXvnc-server";
-			refType = 4;
-			sourceTree = "<group>";
-		};
 		F5456A2802FAD08901A80117 = {
 			fileEncoding = 30;
 			isa = PBXFileReference;
@@ -2777,36 +3104,6 @@
 			path = VNCController.h;
 			refType = 4;
 			sourceTree = "<group>";
-		};
-		F5456A2A02FAD08901A80117 = {
-			fileRef = F5456A2802FAD08901A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5456A2B02FAD08901A80117 = {
-			fileRef = F5456A2902FAD08901A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5456DB002FAD57701A80117 = {
-			fileRef = F538E0CB02F9812B01A80186;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5456DB102FAD57801A80117 = {
-			fileRef = F538E0CC02F9812B01A80186;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5456DB202FAD57901A80117 = {
-			fileRef = F538E0CF02F9812B01A80186;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		F54B48D8038C32FA01A80117 = {
 			isa = PBXFileReference;
@@ -2829,24 +3126,6 @@
 			path = OSXvnc.icns;
 			refType = 2;
 			sourceTree = SOURCE_ROOT;
-		};
-		F570ED1102F9DA7601A80186 = {
-			fileRef = F570ED1002F9DA7601A80186;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F571340803C4C18D01A80186 = {
-			fileRef = F5F3A78903B395AA01A80117;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		F5753F410343991101A80186 = {
-			fileRef = 096B69DC0097995A7F000001;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		F5753F450343ACD501A80186 = {
 			isa = PBXFileReference;
@@ -2875,12 +3154,6 @@
 			path = English.lproj/Credits.rtf;
 			refType = 4;
 			sourceTree = "<group>";
-		};
-		F57BB469027E036F014B5D3F = {
-			fileRef = F57BB467027E036F014B5D3F;
-			isa = PBXBuildFile;
-			settings = {
-			};
 		};
 		F58DDDE7056A861001A8015E = {
 			isa = PBXFileReference;
@@ -3124,35 +3397,12 @@
 			refType = 4;
 			sourceTree = "<group>";
 		};
-		F5EA267803B7CFCD01A80186 = {
-			fileRef = F538E0D002F9812B01A80186;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		F5F3A78903B395AA01A80117 = {
 			isa = PBXFileReference;
 			lastKnownFileType = image.jpeg;
 			path = OSXvnc.jpg;
 			refType = 4;
 			sourceTree = "<group>";
-		};
-		F5F3AB0C03B3CB7C01A80117 = {
-			isa = PBXFileReference;
-			lastKnownFileType = "compiled.mach-o.executable";
-			name = storepasswd;
-			path = "OSXvnc-server/storepasswd";
-			refType = 4;
-			sourceTree = "<group>";
-		};
-		F5F3AB0F03B3CBA401A80117 = {
-			buildActionMask = 2147483647;
-			files = (
-			);
-			isa = PBXShellScriptBuildPhase;
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "pushd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/;/bin/ln -s Contents/MacOS/OSXvnc-server .;/bin/ln -s Contents/MacOS/storepasswd .;/bin/ln -s ../MacOS/OSXvnc-server Contents/Resources;/bin/ln -s ../MacOS/storepasswd Contents/Resources;popd";
 		};
 	};
 	rootObject = 29B97313FDCFA39411CA2CEA;
