@@ -323,6 +323,7 @@ void rfbCheckForScreenResolutionChange() {
                 rfbSetTranslateFunction(cl);
             }
 
+			sleep(2); // We may detect the new depth before OS X has quite finished getting everything ready for it.
             pthread_mutex_unlock(&cl->updateMutex);
             pthread_cond_signal(&cl->updateCond);
         }
@@ -488,7 +489,7 @@ static void *listenerRun(void *ignore) {
     if (bind(listen_fd, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
         rfbLog("Failed to Bind Socket: Port %d may be in use by another VNC\n", rfbPort);
 		if (strlen(reverseHost)) {
-			rfbLog("Listener Disabled\n", rfbPort);
+			rfbLog("Listener Disabled\n");
 			return NULL;
 		}
 		else {
@@ -530,7 +531,7 @@ static void *listenerRun(void *ignore) {
         pthread_cond_signal(&listenerGotNewClient);
     }
 
-    rfbLog("accept failed %d\n", errno);
+    rfbLog("Accept failed %d\n", errno);
     exit(1);
 }
 
