@@ -32,6 +32,8 @@
 #include <unistd.h>
 #include <signal.h>
 
+#include <sys/sysctl.h>
+
 #include "rfb.h"
 #include "localbuffer.h"
 
@@ -40,12 +42,32 @@
 
 #import "../RFBBundleProtocol.h"
 
+// This fix should be in CGDirectDisplay.h
+#undef kCGDirectMainDisplay
+
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_2
+#define kCGDirectMainDisplay ((CGDirectDisplayID)0)
+#warning Using Obsolete kCGDirectMainDisplay for backwards compatibility to 10.1
+#else
+#define kCGDirectMainDisplay CGMainDisplayID()
+#endif
+
+/* That's great that they #define it to use the new symbol that doesn't exist in older versions
+better to just not even define it - but give a warning or something  */
+// This should be in CGRemoteOperationApi.h
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_3
+#undef CGSetLocalEventsFilterDuringSupressionState
+#warning Using Obsolete CGSetLocalEventsFilterDuringSupressionState for backwards compatibility to 10.2
+CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask filter, CGEventSuppressionState state);
+#endif
+
 ScreenRec hackScreen;
 rfbScreenInfo rfbScreen;
 
 char desktopName[255] = "";
 
-static int rfbPort = 5900;
+BOOL littleEndian = FALSE;
+int  rfbPort = 0; //5900;
 int  rfbMaxBitDepth = 0;
 Bool rfbAlwaysShared = FALSE;
 Bool rfbNeverShared = FALSE;
@@ -54,19 +76,20 @@ Bool rfbLocalhostOnly = FALSE;
 Bool rfbInhibitEvents = FALSE;
 Bool rfbReverseMods = FALSE;
 
-Bool rfbSwapButtons = FALSE;
+Bool rfbSwapButtons = TRUE;
 Bool rfbDisableRemote = FALSE;
 Bool rfbRemapShortcuts = FALSE;
 BOOL rfbShouldSendUpdates = TRUE;
 BOOL registered = FALSE;
 BOOL restartOnUserSwitch = FALSE;
+BOOL useIP4 = TRUE;
 
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
 Bool rfbLocalBuffer = FALSE;
 static pthread_mutex_t logMutex;
 
-static pthread_mutex_t listenerAccepting;
-static pthread_cond_t listenerGotNewClient;
+pthread_mutex_t listenerAccepting;
+pthread_cond_t listenerGotNewClient;
 
 /* OSXvnc 0.8 for screensaver .... */
 // setup screen saver disabling timer
@@ -154,7 +177,10 @@ void loadDynamicBundles(BOOL startup) {
 	thisServer.vncServer = vncServerObject;
 	thisServer.desktopName = desktopName;
 	thisServer.rfbPort = rfbPort;
-
+	thisServer.rfbLocalhostOnly = rfbLocalhostOnly;
+	thisServer.listenerAccepting = listenerAccepting;
+	thisServer.listenerGotNewClient = listenerGotNewClient;
+	
     thisServer.keyTable = keyTable;
     thisServer.keyTableMods = keyTableMods;
     thisServer.pressModsForKeys = &pressModsForKeys;
@@ -199,7 +225,7 @@ void loadDynamicBundles(BOOL startup) {
     }
 
 	// We might choose to RESYNC back from the server data if the bundles wanted to change some of the server state
-	
+
     [startPool release];
 }
 
@@ -428,7 +454,7 @@ static void *clientOutput(void *data) {
     return NULL;
 }
 
-static void *clientInput(void *data) {
+void *clientInput(void *data) {
     rfbClientPtr cl = (rfbClientPtr)data;
     pthread_t output_thread;
 
@@ -462,86 +488,98 @@ static void *clientInput(void *data) {
     return NULL;
 }
 
-static void *listenerRun(void *ignore) {
-    int listen_fd, client_fd;
-    struct sockaddr_in6 sin, peer;
-    pthread_t client_thread;
+void rfbStartClientWithFD(int client_fd) {
     rfbClientPtr cl;
-    int len, value;
+    pthread_t client_thread;
+	int one=1;
+	
+	if (!rfbClientsConnected())
+		rfbCheckForScreenResolutionChange();
+	
+	pthread_mutex_lock(&listenerAccepting);
+	
+	if (setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, (void *)&one, sizeof(one)) < 0)
+		rfbLogPerror("setsockopt TCP_NODELAY failed"); 
+	
+	if (rfbLocalBuffer && !rfbClientsConnected())
+		rfbLocalBufferSyncAll();
+	
+	rfbUndim();
+	cl = rfbNewClient(client_fd);
+	
+	pthread_create(&client_thread, NULL, clientInput, (void *)cl);
+	
+	pthread_mutex_unlock(&listenerAccepting);
+	pthread_cond_signal(&listenerGotNewClient);	
+}
 
-    bzero(&sin, sizeof(sin));
-    sin.sin6_len = sizeof(sin);
-    sin.sin6_family = AF_INET6;
-    if (rfbLocalhostOnly)
-        sin.sin6_addr = in6addr_loopback;
-    else
-        sin.sin6_addr = in6addr_any;
-    sin.sin6_port = htons(rfbPort);
+static void *listenerRun(void *ignore) {
+    int listen_fd4=0, client_fd=0;
+	int value=1;  // Need to pass a ptr to this
+	struct sockaddr_in sin4, peer4;
+    int len4=sizeof(sin4);
+	
+	// Must register IPv6 first otherwise it seems to clear our unique binding for IPv4 portNum
+	bundlesPerformSelector(@selector(rfbRunning));
 
-    if ((listen_fd = socket(PF_INET6, SOCK_STREAM, 0)) < 0) {
-        return NULL;
-    }
-    value = 1;
-    if (setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-        rfbLog("setsockopt SO_REUSEADDR failed\n");
-    }
+	// Ok, we are leaving IPv4 binding on even with IPv6 on so that OSXvnc will bind up the port regardless 
+	// When both are enabled you can't have another VNC server "steal" the IPv4 port
+	if (useIP4) {
+		bzero(&sin4, sizeof(sin4));
+		sin4.sin_len = sizeof(sin4);
+		sin4.sin_family = AF_INET;
+		sin4.sin_port = htons(rfbPort);
+		if (rfbLocalhostOnly)
+			sin4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+		else
+			sin4.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    if (bind(listen_fd, (struct sockaddr *)&sin, sizeof(sin)) < 0) {
-        rfbLog("Failed to Bind Socket: Port %d may be in use by another VNC\n", rfbPort);
+		if ((listen_fd4 = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+			rfbLogPerror("Unable to open socket");
+		}
+		/*
+	    else if (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0) {
+			rfbLogPerror("fcntl O_NONBLOCK failed\n");
+		}
+		 */
+	    else if (setsockopt(listen_fd4, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
+			rfbLogPerror("setsockopt SO_REUSEADDR failed\n");
+		}
+		else if (bind(listen_fd4, (struct sockaddr *) &sin4, len4) < 0) {
+			rfbLog("Failed to Bind Socket: Port %d may be in use by another VNC\n", rfbPort);
+		}
+		else if (listen(listen_fd4, 5) < 0) {
+			rfbLogPerror("Listen failed\n");
+		}
+		else {
+			rfbLog("Started Listener Thread on port %d\n", rfbPort);
+
+			// Thread stays here forever unless something goes wrong
+			while ((client_fd = accept(listen_fd4, (struct sockaddr *) &peer4, &len4)) !=-1) {
+				rfbStartClientWithFD(client_fd);
+			}
+			
+			rfbLog("Accept failed %d\n", errno);
+			exit(1);
+		}
+
 		if (strlen(reverseHost)) {
 			rfbLog("Listener Disabled\n");
-			return NULL;
 		}
 		else {
 			exit(250);
 		}
-    }
-
-    if (listen(listen_fd, 5) < 0) {
-        rfbLog("listen failed\n");
-        exit(255);
-    }
-
-    len = sizeof(peer);
-    rfbLog("Started Listener Thread on port %d\n", rfbPort);
-	
-	bundlesPerformSelector(@selector(rfbRunning));
-
-    // This will block while wait for an accept
-    while ((client_fd = accept(listen_fd, (struct sockaddr *)&peer, &len))) {
-		int one=1; 
-
-        if (!rfbClientsConnected())
-            rfbCheckForScreenResolutionChange();
-
-        pthread_mutex_lock(&listenerAccepting);
-		
-		if (setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, (char *)&one, sizeof(one)) < 0)
-			rfbLog("setsockopt TCP_NODELAY failed\n"); 
-		
-        if (rfbLocalBuffer && !rfbClientsConnected())
-            rfbLocalBufferSyncAll();
-
-        rfbUndim();
-        cl = rfbNewClient(client_fd);
-
-        pthread_create(&client_thread, NULL, clientInput, (void *)cl);
-
-        pthread_mutex_unlock(&listenerAccepting);
-        pthread_cond_signal(&listenerGotNewClient);
-    }
-
-    rfbLog("Accept failed %d\n", errno);
-    exit(1);
+	}
+	return NULL;
 }
 
-static void connectReverseClient() {
+static void connectReverseClient(char *hostName, int portNum) {
     pthread_t client_thread;
     rfbClientPtr cl;
 	
 	pthread_mutex_lock(&listenerAccepting);
     rfbUndim();
-    cl = rfbReverseConnection(reverseHost, reversePort);
+    cl = rfbReverseConnection(hostName, portNum);
 	if (cl) {	
 		pthread_create(&client_thread, NULL, clientInput, (void *)cl);
 		pthread_mutex_unlock(&listenerAccepting);
@@ -585,25 +623,41 @@ static void rfbScreenInit(void) {
     }
     rfbServerFormat.bitsPerPixel = rfbScreen.bitsPerPixel;
     rfbServerFormat.depth = rfbScreen.depth;
-    rfbServerFormat.bigEndian = !(rfbEndianTest);
 /*
     if ((rfbScreen.bitsPerPixel) == 8) {
         rfbServerFormat.trueColour = FALSE;
     }
     else 
  */
-	{
+	
+	if (littleEndian) {
         int bitsPerSample = CGDisplayBitsPerSample(displayID);
 
+		rfbServerFormat.bigEndian = 1;
         rfbServerFormat.trueColour = TRUE;
 
+        rfbServerFormat.redMax = (1 << bitsPerSample) - 1;
+        rfbServerFormat.greenMax = (1 << bitsPerSample) - 1;
+        rfbServerFormat.blueMax = (1 << bitsPerSample) - 1;
+        rfbServerFormat.redShift = bitsPerSample * 1;
+        rfbServerFormat.greenShift = bitsPerSample * 2;
+        rfbServerFormat.blueShift  = bitsPerSample * 3;
+		rfbLog("Running in Little Endian");
+    }
+	else {
+		int bitsPerSample = CGDisplayBitsPerSample(displayID);
+		
+		rfbServerFormat.bigEndian = 1;
+        rfbServerFormat.trueColour = TRUE;
+		
         rfbServerFormat.redMax = (1 << bitsPerSample) - 1;
         rfbServerFormat.greenMax = (1 << bitsPerSample) - 1;
         rfbServerFormat.blueMax = (1 << bitsPerSample) - 1;
         rfbServerFormat.redShift = bitsPerSample * 2;
         rfbServerFormat.greenShift = bitsPerSample;
         rfbServerFormat.blueShift = 0;
-    }
+		rfbLog("Running in Big Endian");
+	}		
 
     /* We want to use the X11 REGION_* macros without having an actual
         X11 ScreenPtr, so we do this.  Pretty ugly, but at least it lets us
@@ -631,7 +685,7 @@ static void rfbScreenInit(void) {
 static void usage(void) {
     fprintf(stderr, "\nAvailable options:\n\n");
 
-    fprintf(stderr, "-rfbport port          TCP port for RFB protocol\n");
+    fprintf(stderr, "-rfbport port          TCP port for RFB protocol (0=autodetect first open port 5900-5909)\n");
     fprintf(stderr, "-rfbwait time          max time in ms to wait for RFB client\n");
     fprintf(stderr, "-rfbauth passwd-file   use authentication on RFB protocol\n"
             "                       (use 'storepasswd' to create a password file)\n");
@@ -654,13 +708,20 @@ static void usage(void) {
     fprintf(stderr, "-disableScreenSaver    Disable screen saver while users are connected\n"
             "                       (default: no, allow screen saver to engage)\n");
     fprintf(stderr, "-swapButtons           swap mouse buttons 2 & 3\n"
-            "                       (default: no)\n");
+            "                       (default: YES)\n");
+    fprintf(stderr, "-dontswapButtons       disable swap mouse buttons 2 & 3\n"
+            "                       (default: NO)\n");
     fprintf(stderr, "-disableRemoteEvents   ignore remote keyboard, pointer, and pasteboard event\n"
             "                       (default: no, process them)\n");
 	fprintf(stderr, "-connectHost host      Host Name or IP of listening client to establishing a reverse conneect\n");
 	fprintf(stderr, "-connectPort port      TCP port of listening client to establishing a reverse conneect\n"
 			"                       (default: 5500)\n");
 	fprintf(stderr, "-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n");
+	fprintf(stderr, "-bigEndian             Force Big-Endian mode (PPC)\n"
+			"                       (default: detect)\n");
+	fprintf(stderr, "-littleEndian          Force Little-Endian mode (INTEL)\n"
+			"                       (default: detect)\n");
+	
     /* This isn't ready to go yet
     {
         CGDisplayCount displayCount;
@@ -705,7 +766,7 @@ static void checkForUsage(int argc, char *argv[]) {
 
 static void processArguments(int argc, char *argv[]) {
 	char argString[1024] = "Arguments: ";
-    int i;
+    int i, j;
 	
     for (i = 1; i < argc; i++) {
 		strcat(argString, argv[i]);
@@ -714,6 +775,10 @@ static void processArguments(int argc, char *argv[]) {
 	rfbLog(argString);
 	
     for (i = 1; i < argc; i++) {
+		// Lowercase it
+		for (j=0;j<strlen(argv[i]);j++)
+			argv[i][j] = tolower(argv[i][j]);
+			
         if (strcmp(argv[i], "-rfbport") == 0) { // -rfbport port
             if (i + 1 >= argc) usage();
             rfbPort = atoi(argv[++i]);
@@ -723,11 +788,11 @@ static void processArguments(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-rfbauth") == 0) {  // -rfbauth passwd-file
             if (i + 1 >= argc) usage();
             rfbAuthPasswdFile = argv[++i];
-        } else if (strcmp(argv[i], "-connectHost") == 0) {  // -connect host
+        } else if (strcmp(argv[i], "-connecthost") == 0) {  // -connect host
             if (i + 1 >= argc) usage();
 			strncpy(reverseHost, argv[++i], 255);
             if (strlen(reverseHost) == 0) usage();
-        } else if (strcmp(argv[i], "-connectPort") == 0) {  // -connect host
+        } else if (strcmp(argv[i], "-connectport") == 0) {  // -connect host
             if (i + 1 >= argc) usage();
             reversePort = atoi(argv[++i]);
 		} else if (strcmp(argv[i], "-deferupdate") == 0) {  // -deferupdate ms
@@ -761,13 +826,15 @@ static void processArguments(int argc, char *argv[]) {
             rfbNoSleep = FALSE;
         } else if (strcmp(argv[i], "-reversemods") == 0) {
             rfbReverseMods = TRUE;
-        } else if (strcmp(argv[i], "-disableScreenSaver") == 0) {
+        } else if (strcmp(argv[i], "-disablescreensaver") == 0) {
             rfbDisableScreenSaver = TRUE;
-        } else if (strcmp(argv[i], "-swapButtons") == 0) {
+        } else if (strcmp(argv[i], "-swapbuttons") == 0) {
             rfbSwapButtons = TRUE;
-        } else if (strcmp(argv[i], "-disableRemoteEvents") == 0) {
+        } else if (strcmp(argv[i], "-dontswapbuttons") == 0) {
+            rfbSwapButtons = FALSE;
+        } else if (strcmp(argv[i], "-disableremoteevents") == 0) {
             rfbDisableRemote = TRUE;
-        } else if (strcmp(argv[i], "-rfbLocalBuffer") == 0) {
+        } else if (strcmp(argv[i], "-rfblocalbuffer") == 0) {
             rfbLog("WARNING - rfbLocalBuffer option is Deprecated and will be removed soon");
             rfbLocalBuffer = TRUE;
         } else if (strcmp(argv[i], "-localhost") == 0) {
@@ -776,8 +843,13 @@ static void processArguments(int argc, char *argv[]) {
             rfbInhibitEvents = TRUE;
 		} else if (strcmp(argv[i], "-noupdates") == 0) {
 			rfbShouldSendUpdates = FALSE;
-		} 	
-		else if (strcmp(argv[i], "-restartonuserswitch") == 0) {
+		} else if (strcmp(argv[i], "-littleendian") == 0) {
+			littleEndian = TRUE;
+		} else if (strcmp(argv[i], "-bigendian") == 0) {
+			littleEndian = FALSE;
+		} else if (strcmp(argv[i], "-ipv6") == 0) { // Ok so the code to enable is in the Bundle, but this disables 4
+			useIP4 = FALSE;
+		} else if (strcmp(argv[i], "-restartonuserswitch") == 0) {
 			if (i + 1 >= argc) 
 				usage();
 			else {
@@ -786,7 +858,7 @@ static void processArguments(int argc, char *argv[]) {
 			}
 		}
 	}
-	
+
 	if (!rfbAuthPasswdFile)
 		rfbLog("Note: No password file specified, running with no authentication");
 }
@@ -849,9 +921,68 @@ void daemonize( void ) {
     /* from this point on we should only send output to server log or syslog */
 }
 
+int scanForOpenPort() {
+	int tryPort = 5900;
+    int listen_fd4=0;
+    int value=1;
+	struct sockaddr_in sin4;	
+
+	bzero(&sin4, sizeof(sin4));
+	sin4.sin_len = sizeof(sin4);
+	sin4.sin_family = AF_INET;
+	
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnly"])
+		sin4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    else 
+		sin4.sin_addr.s_addr = htonl(INADDR_ANY);
+    
+	while (tryPort < 5910) {
+		sin4.sin_port = htons(tryPort);
+		
+		if ((listen_fd4 = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+			//NSLog(@"Socket Init failed %d\n", tryPort);
+		}
+		else if (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0) {
+			//rfbLogPerror("fcntl O_NONBLOCK failed\n");
+		}
+		else if (setsockopt(listen_fd4, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
+			//NSLog(@"setsockopt SO_REUSEADDR failed %d\n", tryPort);
+		}
+		else if (bind(listen_fd4, (struct sockaddr *) &sin4, sizeof(sin4)) < 0) {
+			//NSLog(@"Failed to Bind Socket: Port %d may be in use by another VNC\n", tryPort);
+		}
+		else if (listen(listen_fd4, 5) < 0) {
+			//NSLog(@"Listen failed %d\n", tryPort);
+		}
+		else {
+			close(listen_fd4);
+			
+			return tryPort;
+		}
+		close(listen_fd4);
+		
+		tryPort++;
+	}
+	
+	rfbLog("Unable to find open port 5900-5909");
+	
+	return 0;
+}
+
+// ONCE WE ARE NO LONGER RUNNING THROUGH ROSETTA WE WILL CALL
+// CFByteOrderGetCurrent
+// But for the moment rosetta is so complete that it obsucres even that call
+Bool runningLittleEndian ( void ) {
+    int hasMMX = 0;
+    size_t length = sizeof(hasMMX);
+	// No Error and it does have MMX
+	return (!sysctlbyname("hw.optional.mmx", &hasMMX, &length, NULL, 0) && hasMMX);
+}
+	
 int main(int argc, char *argv[]) {
 	NSAutoreleasePool *tempPool = [[NSAutoreleasePool alloc] init];
     vncServerObject = [[VNCServer alloc] init];
+	littleEndian = runningLittleEndian();
     checkForUsage(argc,argv);
     
     // This guarantees separating us from any terminal - 
@@ -868,17 +999,7 @@ int main(int argc, char *argv[]) {
     signal(SIGTERM, rfbShutdownOnSignal);
     signal(SIGINT, rfbShutdownOnSignal);
     signal(SIGQUIT, rfbShutdownOnSignal);
-
-    // This fix should be in CGDirectDisplay.h
-#undef kCGDirectMainDisplay
-    
-#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_2
-#define kCGDirectMainDisplay ((CGDirectDisplayID)0)
-#warning Using Obsolete kCGDirectMainDisplay for backwards compatibility to 10.1
-#else
-#define kCGDirectMainDisplay CGMainDisplayID()
-#endif
-    
+   
     displayID = kCGDirectMainDisplay;
 
     pthread_t listener_thread;
@@ -891,13 +1012,16 @@ int main(int argc, char *argv[]) {
 
     processArguments(argc, argv);
 
+	if (rfbPort == 0)
+		rfbPort = scanForOpenPort();
+
+	loadDynamicBundles(TRUE);
+	
 	// If no Desktop Name Provided Try to Get it
 	if (strlen(desktopName) == 0) {
 		[[[NSProcessInfo processInfo] hostName] getCString:desktopName];
 	}
 	
-	loadDynamicBundles(TRUE);
-
     if (rfbLocalBuffer)
         rfbLocalBufferInit();
 
@@ -920,16 +1044,14 @@ int main(int argc, char *argv[]) {
                                                                  object:nil];
     }
     
+	// Setup Notifications so other Bundles can post user connect
+	{
+		[[NSNotificationCenter defaultCenter] addObserver:vncServerObject
+												 selector:@selector(clientConnected:)
+													 name:@"NewRFBClient"
+												   object:nil];
+	}
 	
-    /* That's great that they #define it to use the new symbol that doesn't exist in older versions
-        better to just not even define it - but give a warning or something  */
-    // This should be in CGRemoteOperationApi.h
-#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_3
-#undef CGSetLocalEventsFilterDuringSupressionState
-#warning Using Obsolete CGSetLocalEventsFilterDuringSupressionState for backwards compatibility to 10.2
-CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask filter, CGEventSuppressionState state);
-#endif
-    
     // Does this need to be in 10.1 and greater (does any of this stuff work in 10.0?)
     if (!rfbInhibitEvents) {
         //NSLog(@"Core Graphics - Event Suppression Turned Off");
@@ -952,7 +1074,7 @@ CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask 
     pthread_create(&listener_thread, NULL, listenerRun, NULL);
 		
 	if (strlen(reverseHost) > 0)
-		connectReverseClient();
+		connectReverseClient(reverseHost, reversePort);
 	
     // This segment is what is responsible for causing the server to shutdown when a user logs out
     // The problem being that OS X sends it first a SIGTERM and then a SIGKILL (un-trappable)
@@ -977,7 +1099,6 @@ CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask 
                     rfbLog("Waiting for clients\n");
                     
                 pthread_cond_wait(&listenerGotNewClient, &listenerAccepting);
-
                 pthread_mutex_unlock(&listenerAccepting);
             }
             bundlesPerformSelector(@selector(rfbPoll));
@@ -985,7 +1106,7 @@ CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask 
             rfbCheckForPasteboardChange();
             rfbCheckForCursorChange();
             rfbCheckForScreenResolutionChange();
-            // Run The Event loop a moment to see if we have a screen update
+            // Run The Event loop a moment to see if we have a screen update or NSNotification
             // No better luck with RunApplicationEventLoop() avoiding the shutdown on logout problem
             resultCode = RunCurrentEventLoop(kEventDurationSecond/30); //EventTimeout
             if (resultCode != eventLoopTimedOutErr) {
