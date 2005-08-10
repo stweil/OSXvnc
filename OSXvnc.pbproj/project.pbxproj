@@ -196,8 +196,8 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_MODE_FLAG = "a+rwX";
 				MACOSX_DEPLOYMENT_TARGET = 10.1;
-				OPTIMIZATION_CFLAGS = "-O0";
 				ZERO_LINK = NO;
 			};
 			isa = PBXBuildStyle;
@@ -205,11 +205,10 @@
 		};
 		4A9504D4FFE6A4CB11CA0CBA = {
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
+				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp;
-				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				INSTALL_MODE_FLAG = "a+rwX";
 				MACOSX_DEPLOYMENT_TARGET = 10.1;
@@ -250,15 +249,11 @@
 			buildRules = (
 			);
 			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = "";
-				HEADER_SEARCH_PATHS = "";
+				GCC_DYNAMIC_NO_PIC = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = "Info-OSXvnc.plist";
 				INSTALL_PATH = /OSXvnc/;
-				LIBRARY_SEARCH_PATHS = "";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = OSXvnc;
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
 				WRAPPER_EXTENSION = app;
 			};
@@ -487,12 +482,10 @@
 			);
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 3;
+				HEADER_SEARCH_PATHS = "OSXvnc-server OSXvnc-server/include include/Xserver libvncauth libjpeg";
 				INFOPLIST_FILE = "Info-JaguarBundle.plist";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
+				LIBRARY_SEARCH_PATHS = "OSXvnc-server/libjpeg OSXvnc-server/rdr /usr/lib/gcc/darwin/3.3 OSXvnc-server/libvncauth";
 				PRODUCT_NAME = JaguarBundle;
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
 				WRAPPER_EXTENSION = bundle;
 			};
@@ -511,7 +504,7 @@
 				AB25D87308686C7D0065843D,
 				AB25D87408686C7D0065843D,
 				AB25D87508686C7D0065843D,
-				AB25D87608686C7D0065843D,
+				AB3F8B8F089952230076668A,
 			);
 			isa = PBXHeadersBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
@@ -532,12 +525,6 @@
 		};
 		AB25D87508686C7D0065843D = {
 			fileRef = F538E01A02F9812901A80186;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		AB25D87608686C7D0065843D = {
-			fileRef = AB82E81D04FA6D0A00A80117;
 			isa = PBXBuildFile;
 			settings = {
 			};
@@ -650,14 +637,13 @@
 			buildRules = (
 			);
 			buildSettings = {
+				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_INPUT_FILETYPE = automatic;
+				GCC_OPTIMIZATION_LEVEL = 3;
 				HEADER_SEARCH_PATHS = "OSXvnc-server OSXvnc-server/include include/Xserver libvncauth libjpeg";
 				LIBRARY_SEARCH_PATHS = "OSXvnc-server/libjpeg OSXvnc-server/rdr /usr/lib/gcc/darwin/3.3 OSXvnc-server/libvncauth";
 				OTHER_CFLAGS = "-ObjC";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = "OSXvnc-server";
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
 			};
 			dependencies = (
@@ -830,12 +816,10 @@
 			buildRules = (
 			);
 			buildSettings = {
+				GCC_DYNAMIC_NO_PIC = YES;
+				GCC_OPTIMIZATION_LEVEL = s;
 				LIBRARY_SEARCH_PATHS = "OSXvnc-server/libvncauth";
-				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "";
-				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = storepasswd;
-				SECTORDER_FLAGS = "";
 				WARNING_CFLAGS = "-Wmost -Wno-four-char-constants -Wno-unknown-pragmas";
 			};
 			dependencies = (
@@ -991,6 +975,12 @@
 			path = JaguarExtensions.m;
 			refType = 4;
 			sourceTree = "<group>";
+		};
+		AB3F8B8F089952230076668A = {
+			fileRef = AB82E81D04FA6D0A00A80117;
+			isa = PBXBuildFile;
+			settings = {
+			};
 		};
 		AB41881F04C5986E00A80117 = {
 			isa = PBXFileReference;
