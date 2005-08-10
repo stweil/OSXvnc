@@ -14,13 +14,18 @@
 
 @implementation VNCServer
 
-- userSwitched: (NSNotification *) aNotification {
+- (void) userSwitched: (NSNotification *) aNotification {
     NSLog(@"User Switched Restarting - %@", [aNotification name]);
 
     sleep(10);
     rfbShutdown();
 
     exit(2);
+}
+
+- (void) clientConnected: (NSNotification *) aNotification {
+    NSLog(@"New IPv6 Client Notification - %@", [aNotification name]);
+	rfbStartClientWithFD([[aNotification object] intValue]);
 }
 
 @end
