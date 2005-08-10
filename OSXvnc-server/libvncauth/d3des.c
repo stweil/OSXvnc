@@ -69,6 +69,10 @@ static unsigned char pc2[48] = {
 	40, 51, 30, 36, 46, 54, 29, 39, 50, 44, 32, 47,
 	43, 48, 38, 55, 33, 52, 45, 41, 49, 35, 28, 31 };
 
+void preventWarningAboutUnusedVariables() {
+	if (KnR || Kn3 || Df_Key);
+}
+
 void deskey(key, edf)	/* Thanks to James Gillogly & Phil Karn! */
 unsigned char *key;
 int edf;
