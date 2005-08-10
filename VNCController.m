@@ -27,8 +27,17 @@
 
 #import "OSXvnc-server/libvncauth/vncauth.h"
 #import <signal.h>
+#import <unistd.h>
+#import <sys/socket.h>
+#import <netinet/in.h>
+#include <fcntl.h>
 
 #define LocalizedString(X)      [[NSBundle mainBundle] localizedStringForKey:(X) value:nil table:nil]
+
+// So we can still build on Panther
+#ifndef NSAppKitVersionNumber10_3
+#define NSAppKitVersionNumber10_3 743
+#endif
 
 @implementation VNCController
 
@@ -41,13 +50,15 @@ static void terminateOnSignal(int signal) {
     [super init];
 
     [[NSUserDefaults standardUserDefaults] registerDefaults: [NSDictionary dictionaryWithObjectsAndKeys:
+		@"YES", @"startServerOnLaunch",
+		@"NO", @"terminateOnFastUserSwitch",
+		@"YES", @"serverKeepAlive",
         @"", @"PasswordFile",
         @"", @"LogFile",
+		[NSNumber numberWithInt:0], @"portNumber",
 		[NSNumber numberWithBool:TRUE], @"allowRendezvous",
         nil]];
     
-    port = 5900;
-
     alwaysShared = FALSE;
     neverShared = FALSE;
     userStopped = FALSE;
@@ -95,8 +106,15 @@ static void terminateOnSignal(int signal) {
 	ipEnum = [commonIPAddresses reverseObjectEnumerator];
 	
 	while (anIP = [ipEnum nextObject]) {
-		if ([anIP isEqualToString:@"127.0.0.1"] || [anIP rangeOfCharacterFromSet:ipv6Chars].location != NSNotFound)
+		if ([anIP isEqualToString:@"127.0.0.1"] || 
+			[anIP isEqualToString:@"fe80::1"] ||
+			[anIP isEqualToString:@"::1"]) { // localhost entries
 			[commonIPAddresses removeObject:anIP];
+		}
+		else if ([anIP rangeOfCharacterFromSet:ipv6Chars].location != NSNotFound) {
+			[commonIPAddresses removeObject:anIP];
+			[commonIPAddresses addObject:[anIP stringByAppendingString:@" (IPv6)"]];
+		}
 	}
 	
 	if ([commonIPAddresses count] > 1) {
@@ -141,6 +159,8 @@ static void terminateOnSignal(int signal) {
         }
     }
     
+	[window setInitialFirstResponder: displayNameField];
+	
     [displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
 
     [self loadUserDefaults: self];
@@ -151,8 +171,6 @@ static void terminateOnSignal(int signal) {
     
     [window setFrameUsingName:@"Server Panel"];
     [window setFrameAutosaveName:@"Server Panel"];
-
-    [portField setIntValue:port];
 
     [optionsTabView selectTabViewItemAtIndex:0];
 
@@ -182,19 +200,108 @@ static void terminateOnSignal(int signal) {
     [NSApp addWindowsItem:window title:[window title] filename:NO];
 }
 
+- (int) scanForOpenPort: (int) tryPort {
+    int listen_fd4=0;
+    int value=1;
+	struct sockaddr_in sin4;	
+	// I'm going to only scan on IPv4 since our OSXvnc is going to register in both spaces
+	//  struct sockaddr_in6 sin6;
+	// 	int listen_fd6=0;
+
+	bzero(&sin4, sizeof(sin4));
+	sin4.sin_len = sizeof(sin4);
+	sin4.sin_family = AF_INET;
+
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnly"])
+		sin4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+    else 
+		sin4.sin_addr.s_addr = htonl(INADDR_ANY);
+	/*
+	bzero(&sin6, sizeof(sin6));
+	sin6.sin6_len = sizeof(sin6);
+	sin6.sin6_family = AF_INET6;
+	 if ([[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnly"])
+		 sin6.sin6_addr = in6addr_loopback;
+	 else 
+		 sin6.sin6_addr = in6addr_any;
+	 */
+    
+	while (tryPort < 5910) {
+		sin4.sin_port = htons(tryPort);
+		//sin6.sin6_port = htons(tryPort);
+		
+		if ((listen_fd4 = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+			//NSLog(@"Socket Init failed %d\n", tryPort);
+		}
+		else if (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0) {
+			//rfbLogPerror("fcntl O_NONBLOCK failed\n");
+		}
+		else if (setsockopt(listen_fd4, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
+			//NSLog(@"setsockopt SO_REUSEADDR failed %d\n", tryPort);
+		}
+		else if (bind(listen_fd4, (struct sockaddr *) &sin4, sizeof(sin4)) < 0) {
+			//NSLog(@"Failed to Bind Socket: Port %d may be in use by another VNC\n", tryPort);
+		}
+		else if (listen(listen_fd4, 5) < 0) {
+			//NSLog(@"Listen failed %d\n", tryPort);
+		}
+		/*
+		 else if ((listen_fd6 = socket(PF_INET6, SOCK_STREAM, 0)) < 0) {
+			 // NSLog(@"Socket Init 6 failed %d\n", tryPort);
+		 }
+		 else if (fcntl(listen_fd6, F_SETFL, O_NONBLOCK) < 0) {
+			 // rfbLogPerror("IPv6: fcntl O_NONBLOCK failed\n");
+		 }
+		 else if (setsockopt(listen_fd6, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
+			 //NSLog(@"setsockopt 6 SO_REUSEADDR failed %d\n", tryPort);
+		 }
+		 else if (bind(listen_fd6, (struct sockaddr *) &sin6, sizeof(sin6)) < 0) {
+			 //NSLog(@"Failed to Bind Socket: Port %d may be in use by another VNC\n", tryPort);
+		 }
+		 else if (listen(listen_fd6, 5) < 0) {
+			 //NSLog(@"Listen failed %d\n", tryPort);
+		 }
+		 */
+		else {
+			close(listen_fd4);
+			//close(listen_fd6);
+			if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
+				[portField setStringValue:@""];
+				[[portField cell] setPlaceholderString:[NSString stringWithFormat:@"%d",tryPort]];
+			}
+			else 
+				[portField setIntValue:tryPort];
+			
+			return tryPort;
+		}
+		close(listen_fd4);
+		//close(listen_fd6);
+
+		tryPort++;
+	}
+	
+	[startupItemStatusMessageField setStringValue:LocalizedString(@"Unable to find open port 5900-5909")];
+	
+	return 0;
+}
+
 - (void) loadUserDefaults: sender {
-    NSString *portDefault = [[NSUserDefaults standardUserDefaults] stringForKey:@"portNumber"];
     NSData *vncauth = [[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"];
     int sharingMode = [[NSUserDefaults standardUserDefaults] integerForKey:@"sharingMode"];
+	
+	port = [[NSUserDefaults standardUserDefaults] integerForKey:@"portNumber"];
 
-    if (portDefault) {
-        port = [portDefault intValue];
-        [portField setIntValue:port];
+	if (port) {
         if (port < 5900 || port > 5909)
-            [displayNumberField selectItemAtIndex:10];
+            [displayNumberField selectItemWithTitle:@"--"];
         else
-            [displayNumberField selectItemAtIndex:port-5900];
+            [displayNumberField selectItemWithTitle:[NSString stringWithFormat:@"%d", port-5900]];
+        [portField setIntValue:port];
     }
+	else {
+		[self scanForOpenPort:5900];
+		[displayNumberField selectItemWithTitle:@"Auto"];
+	}
 
     if (passwordFile && [vncauth length]) {
         [vncauth writeToFile:passwordFile atomically:YES];
@@ -203,8 +310,13 @@ static void terminateOnSignal(int signal) {
 
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"desktopName"])
         [displayNameField setStringValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"desktopName"]];
-    else
-        [displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
+    else {
+		if (NSAppKitVersionNumber > NSAppKitVersionNumber10_3)
+			[displayNameField setStringValue:
+				[NSString stringWithFormat:@"%@ (%@)", NSUserName(), [[NSProcessInfo processInfo] hostName]]];
+		else
+			[displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
+	}
     
     [sharingMatrix selectCellWithTag:sharingMode];
     [self changeSharing:self];
@@ -252,7 +364,10 @@ static void terminateOnSignal(int signal) {
 }
 
 - (void) saveUserDefaults: sender {
-    [[NSUserDefaults standardUserDefaults] setInteger:port forKey:@"portNumber"];
+	if ([displayNumberField indexOfSelectedItem] == 0)
+		[[NSUserDefaults standardUserDefaults] setInteger:0 forKey:@"portNumber"];
+	else
+		[[NSUserDefaults standardUserDefaults] setInteger:[portField intValue] forKey:@"portNumber"];
 
     if (passwordFile && [[NSFileManager defaultManager] fileExistsAtPath:passwordFile])
         [[NSUserDefaults standardUserDefaults] setObject:[NSData dataWithContentsOfFile:passwordFile] forKey:@"vncauth"];
@@ -298,11 +413,15 @@ static void terminateOnSignal(int signal) {
     if (![window makeFirstResponder:window])
         [window endEditingFor:nil];
 
+	if ([displayNumberField indexOfSelectedItem] == 0) {
+		[self scanForOpenPort:5900];
+	}
+
     if (argv = [self formCommandLine]) {
         NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
 
         NSString *executionPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server"];
-        NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting OSXvnc Version %@\n", [NSDate date], [infoDictionary valueForKey:@"CFBundleShortVersionString"]];
+        NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting OSXvnc Version %@\n", [NSDate date], [infoDictionary valueForKey:@"CFBundleVersion"]];
 
         if (![[NSFileManager defaultManager] fileExistsAtPath:logFile]) {
             [[NSFileManager defaultManager] createFileAtPath:logFile contents:nil attributes:nil];
@@ -405,13 +524,15 @@ static void terminateOnSignal(int signal) {
 - (NSArray *) formCommandLine {
     NSMutableArray *argv = [NSMutableArray array];
 
-    if (![[portField stringValue] length]) {
-        [statusMessageField setStringValue:LocalizedString(@"Need a valid Port or Display Number")];
-        return nil;
-    }
-
+	/* Now Using "AUTO Detect", the CLI is slightly better in that it loads the Jag Bundle and can also detect IPv6 ports
+	 if (!port) {
+		 [statusMessageField setStringValue:LocalizedString(@"Need a valid Port or Display Number")];
+		 return nil;
+	 }
+	 */
+	
     [argv addObject:@"-rfbport"];
-    [argv addObject:[portField stringValue]];
+    [argv addObject:[NSString stringWithFormat:@"%d", port]];
     if ([[displayNameField stringValue] length]) {
         [argv addObject:@"-desktop"];
         [argv addObject:[displayNameField stringValue]];
@@ -464,32 +585,38 @@ static void terminateOnSignal(int signal) {
 
 
 - (void) changeDisplayNumber: sender {
-    if (port != [displayNumberField indexOfSelectedItem] + 5900) {
+	if ([displayNumberField indexOfSelectedItem] == 0) {
+		[self scanForOpenPort:5900];
+	}
+	else  if (port != [[[displayNumberField selectedItem] title] intValue] + 5900) {
         if ([displayNumberField indexOfSelectedItem] < 10) {
-            port = [displayNumberField indexOfSelectedItem] + 5900;
+            port = [[[displayNumberField selectedItem] title] intValue] + 5900;
             [portField setIntValue:port];
         }
+	}
 
-        if (sender != self) {
-            [self saveUserDefaults: self];
-            [self checkForRestart];
-        }
-    }
+	if (sender != self) {
+		[self saveUserDefaults: self];
+		[self checkForRestart];
+	}
 }
 
 - (void) changePort: sender {
-    if (port != [portField intValue]) {
-        port = [portField intValue];
-        if (port < 5900 || port > 5909)
-            [displayNumberField selectItemAtIndex:10];
-        else
-            [displayNumberField selectItemAtIndex:port-5900];
+   // if (port != [portField intValue]) {
+	port = [portField intValue];
+	if (!port) {
+		[displayNumberField selectItemWithTitle:@"Auto"];
+		[self scanForOpenPort:5900];
+	}
+	else if (port < 5900 || port > 5909)
+		[displayNumberField selectItemWithTitle:@"--"];
+	else
+		[displayNumberField selectItemWithTitle:[NSString stringWithFormat:@"%d", port-5900]];
 
-        if (sender != self) {
-            [self saveUserDefaults: self];
-            [self checkForRestart];
-        }
-    }
+	if (sender != self) {
+		[self saveUserDefaults: self];
+		[self checkForRestart];
+	}
 }
 
 - (void) changeSharing: sender {
