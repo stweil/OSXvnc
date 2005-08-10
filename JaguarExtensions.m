@@ -15,13 +15,32 @@
 #include "keysymdef.h"
 #include "kbdptr.h"
 
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include <unistd.h>
+#include <signal.h>
+
+#include "rfb.h"
+#include "localbuffer.h"
+
+#include "rfbserver.h"
+#import "VNCServer.h"
+
+#import "../RFBBundleProtocol.h"
+
 @implementation JaguarExtensions
 
 static NSNetService *rfbService;
 static NSNetService *vncService;
-static BOOL keyboardLoading;
+static BOOL keyboardLoading = FALSE;
 
 static KeyboardLayoutRef loadedKeyboardRef;
+static BOOL useIP6 = TRUE;
+static BOOL listenerFinished = FALSE;
 
 void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef);
 
@@ -32,7 +51,6 @@ rfbserver *theServer;
 
     theServer = aServer;
 	
-    keyboardLoading = NO;
     argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-keyboardLoading"];
     if (argumentIndex != NSNotFound) {
         NSString *value = nil;
@@ -45,7 +63,6 @@ rfbserver *theServer;
         else
             keyboardLoading = YES;
     }
-
     if (keyboardLoading) {
         NSLog(@"Keyboard Loading - Enabled");
 
@@ -73,10 +90,16 @@ rfbserver *theServer;
         NSLog(@"Keyboard Loading - Disabled");
         NSLog(@"Press Modifiers For Character - Disabled");
     }
+	
+	argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-ipv4"];
+    if (argumentIndex != NSNotFound) {
+		useIP6 = FALSE;
+	}
 }
 
 + (void) rfbUsage {
     fprintf(stderr,
+            "\nJAGUAR BUNDLE OPTIONS (10.2+):\n"
             "-keyboardLoading flag  This BETA feature allows OSXvnc to look at the users selected keyboard and map keystrokes using it.\n"
             "                       Disabling this returns OSXvnc to standard (U.S. Keyboard) which may work better with Dead Keys.\n"
             "                       (default: no), 10.2+ ONLY\n"
@@ -87,7 +110,10 @@ rfbserver *theServer;
 	        "-rendezvous flag       Allow OSXvnc to advertise VNC server using Rendezvous discovery services.\n"
 			"                       'VNC' will enable the service named VNC (For Eggplant & Chicken 2.02b)\n"
 			"                       'Both' or '2' will enable the services named RFB and VNC\n"
-			"                       (default: RFB:YES VNC:NO), 10.2+ ONLY\n");
+			"                       (default: RFB:YES VNC:NO), 10.2+ ONLY\n"
+	        "-ipv4                  Listen For Connections on IPv4 ONLY (Default: Off). 10.2+ ONLY\n"
+	        "-ipv6                  Listen For Connections on IPv6 ONLY (Default: Off). 10.2+ ONLY\n"
+			);
 }
 
 
@@ -240,6 +266,67 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 
 + (void) rfbRunning {	
 	[JaguarExtensions registerRendezvous];
+	if (useIP6) {
+		[NSThread detachNewThreadSelector:@selector(setupIPv6:) toTarget:self withObject:nil];
+		// Wait for the IP6 to bind, if it binds later it confuses the IPv4 binding into allowing others on the port
+		while (!listenerFinished)
+			usleep(1000); 
+	}
+}
+
++ (void) setupIPv6: argument {
+    int listen_fd6=0, client_fd=0;
+	int value=1;  // Need to pass a ptr to this
+	struct sockaddr_in6 sin6, peer6;
+	int len6=sizeof(sin6);
+	
+	bzero(&sin6, sizeof(sin6));
+	sin6.sin6_len = sizeof(sin6);
+	sin6.sin6_family = AF_INET6;
+	sin6.sin6_port = htons(theServer->rfbPort);
+	if (theServer->rfbLocalhostOnly)
+		sin6.sin6_addr = in6addr_loopback;
+	else
+		sin6.sin6_addr = in6addr_any;
+	
+	if ((listen_fd6 = socket(PF_INET6, SOCK_STREAM, 0)) < 0) {
+		NSLog(@"IPv6: Unable to open socket");
+	}
+	/*
+	    else if (fcntl(listen_fd6, F_SETFL, O_NONBLOCK) < 0) {
+			NSLog(@"IPv6: fcntl O_NONBLOCK failed\n");
+		}
+	 */
+	else if (setsockopt(listen_fd6, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
+		NSLog(@"IPv6: setsockopt SO_REUSEADDR failed\n");
+	}
+	else if (bind(listen_fd6, (struct sockaddr *) &sin6, len6) < 0) {
+		NSLog(@"IPv6: Failed to Bind Socket: Port %d may be in use by another VNC\n", theServer->rfbPort);
+	}
+	else if (listen(listen_fd6, 5) < 0) {
+		NSLog(@"IPv6: Listen failed\n");
+	}
+	else {
+		NSLog(@"IPv6: Started Listener Thread on port %d\n", theServer->rfbPort);
+		listenerFinished = TRUE;
+		
+	    while ((client_fd = accept(listen_fd6, (struct sockaddr *) &peer6, &len6)) !=-1) {
+			NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
+			
+			[[NSNotificationCenter defaultCenter] postNotification:
+				[NSNotification notificationWithName:@"NewRFBClient" object:[NSNumber numberWithInt:client_fd]]];
+			
+			// We have to trigger a signal so the event loop will pickup (if no clients are connected)
+			pthread_cond_signal(&(theServer->listenerGotNewClient));
+			
+			[pool release];
+		}
+		
+		NSLog(@"IPv6: Accept failed %d\n", errno);
+	}
+	listenerFinished = TRUE;
+	
+	return;
 }
 
 + (void) registerRendezvous {
@@ -279,7 +366,7 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 			NSLog(@"An error occurred publishing the Rendezvous Net Service");
 	}
 	else
-		NSLog(@"Rendezvous(RFB) - Disabled");
+		NSLog(@"Rendezvous(_rfb._tcp) - Disabled");
 
 	if (loadRendezvousVNC) {
 		vncService = [[NSNetService alloc] initWithDomain:@""
@@ -292,7 +379,7 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 			NSLog(@"An error occurred publishing the Rendezvous Net Service");
 	}
 	else
-		NSLog(@"Rendezvous(VNC) - Disabled");
+		NSLog(@"Rendezvous(_vnc._tcp) - Disabled");
 }
 
 + (void) rfbPoll {
@@ -326,7 +413,7 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 // Sent when the service is about to publish
 
 - (void)netServiceWillPublish:(NSNetService *)netService {
-	NSLog(@"Registering Rendezvous Service - %@", [netService name]);
+	NSLog(@"Registering Rendezvous Service(%@) - %@", [netService type], [netService name]);
 }
 
 // Sent if publication fails
