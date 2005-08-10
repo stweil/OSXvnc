@@ -288,12 +288,16 @@ typedef struct rfbClientRec {
                    (((l) & 0x0000ff00) << 8)  | \
                    ((l) << 24))
 
-#define rfbEndianTest 0
+
+// NSByteOrder.h
+// kCGBitmapByteOrder32Host __i386__ __ppc__
+// kCGBitmapByteOrder16Big AC_C_BIGENDIAN
+// #define rfbEndianTest (0)
 
 /* At this point in time OS X only runs on PowerPCs, so we're big-endian. */
 #ifdef RFB_LITTLE_ENDIAN
-#define Swap16IfLE(s) (Swap16(s))
-#define Swap32IfLE(l) (Swap32(l))
+#define Swap16IfLE(s) Swap16(s)
+#define Swap32IfLE(l) Swap32(l)
 #else
 #define Swap16IfLE(s) (s)
 #define Swap32IfLE(l) (l)
@@ -302,11 +306,14 @@ typedef struct rfbClientRec {
 
 extern char *rfbGetFramebuffer();
 
+extern void rfbStartClientWithFD(int client_fd);
+
 extern ScreenRec hackScreen;
 extern rfbScreenInfo rfbScreen;
 
 extern char desktopName[255];
 
+extern BOOL littleEndian;
 extern Bool rfbAlwaysShared;
 extern Bool rfbNeverShared;
 extern Bool rfbDontDisconnect;
@@ -321,7 +328,6 @@ extern void rfbLog(char *format, ...);
 extern void rfbLogPerror(char *str);
 
 extern void rfbShutdown();
-
 
 /* sockets.c */
 
