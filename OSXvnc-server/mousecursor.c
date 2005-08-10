@@ -1,9 +1,9 @@
 /*
- *  untitled.c
+ *  mousecursor.c
  *  OSXvnc
  *
  *  Created by Jonathan Gillaspie on Wed Nov 20 2002.
- *  Copyright (c) 2002 __MyCompanyName__. All rights reserved.
+ *  Copyright (c) 2002 Redstone Software. All rights reserved.
  *
  */
 
@@ -171,6 +171,7 @@ Bool rfbSendCursorPos(rfbClientPtr cl) {
 Problems with occasional artifacts - turning off the cursor didn't seem to help
     Perhaps if we resend the area where the cursor just was..
 
+// QDGetCursorData
 */
 
 Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
@@ -226,15 +227,31 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
         return FALSE;
     }
 
+	
+	if (cursorDataSize > UPDATE_BUF_SIZE) {
+		// Wow That's one big cursor! We don't handle cursors this big 
+		// (they are probably cursors with lots of states and that doesn't work so good for VNC.
+		// For now just ignore them
+		cl->currentCursorSeed = CGSCurrentCursorSeed();
+		return FALSE;
+	}
+	
     // For This We Don't send location just the cursor shape (and Hot Spot)
-    cursorFormat.depth = cursorDepth;
+    cursorFormat.depth = (cursorDepth == 32 ? 24 : cursorDepth);
     cursorFormat.bitsPerPixel = cursorDepth;
     cursorFormat.bigEndian = TRUE;
     cursorFormat.trueColour = TRUE;
     cursorFormat.redMax = cursorFormat.greenMax = cursorFormat.blueMax = (unsigned short) ((1<<cursorBitsPerComponent) - 1);
-    cursorFormat.redShift = (unsigned char) cursorBitsPerComponent * 2;
-    cursorFormat.greenShift = (unsigned char) cursorBitsPerComponent;
-    cursorFormat.blueShift = 0;
+	if (littleEndian) {
+        cursorFormat.redShift   = (unsigned char) (cursorBitsPerComponent * 1);
+        cursorFormat.greenShift = (unsigned char) (cursorBitsPerComponent * 2);
+        cursorFormat.blueShift  = (unsigned char) (cursorBitsPerComponent * 3);
+	}
+	else {
+		cursorFormat.redShift   = (unsigned char) (cursorBitsPerComponent * 2);
+		cursorFormat.greenShift = (unsigned char) (cursorBitsPerComponent * 1);
+		cursorFormat.blueShift  = (unsigned char) (cursorBitsPerComponent * 0);
+	}
     //GetCursorInfo();
     //PrintPixelFormat(&cursorFormat);
     cursorIsDifferentFormat = !(PF_EQ(cursorFormat,rfbServerFormat));
@@ -264,32 +281,32 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
     // This requires us to jump ahead to write in the update buffer
     bufferMaskOffset = cl->ublen + cursorSize;
 
-    // For starters we'll set it all off
+    // For starters we'll set mask to OFF (transparent) everywhere)
     memset(&cl->updateBuf[bufferMaskOffset], 0, cursorMaskSize);
     // This algorithm assumes the Alpha channel is the first component
     {
         unsigned char *cursorRowData = cursorData;
         unsigned char *cursorColumnData = cursorData;
         unsigned int cursorBytesPerPixel = (cursorDepth/8);
-        unsigned int alphaShift = 8 - cursorBitsPerComponent;
         unsigned char mask = 0;
-        unsigned char fullOn = 0x00FF >> alphaShift;
-        unsigned char alphaThreshold = 0x60 >> alphaShift; // Only include the pixel if it's coverage is greater than this
+		unsigned int alphaShift = (8 - cursorBitsPerComponent);
+        unsigned char fullOn = (0xFF) >> alphaShift;
+        unsigned char alphaThreshold = (0x60) >> alphaShift; // Only include the pixel if it's coverage is greater than this
         int dataX, dataY, componentIndex;
 
         for (dataY = 0; dataY < cursorRect.size.height; dataY++) {
             cursorColumnData = cursorRowData;
             for (dataX = 0; dataX < cursorRect.size.width; dataX++) {
-                mask = (unsigned char)(*cursorColumnData) >> alphaShift;
+				if (littleEndian)
+					mask = (unsigned char)(*(cursorColumnData+(cursorBytesPerPixel-1))) >> alphaShift;
+				else
+					mask = (unsigned char)(*cursorColumnData) >> alphaShift;
                 if (mask > alphaThreshold) {
-                    // Write the Bit For The Mask to be ON
-                    cl->updateBuf[bufferMaskOffset+(dataX/8)] |= 0x0080 >> (dataX % 8);
-                    // Composite Alpha into real cursors other channels - only for 32 bit
+                    // Write the Bit For The Mask to be ON (opaque)
+                    cl->updateBuf[bufferMaskOffset+(dataX/8)] |= (0x0080 >> (dataX % 8));
+                    // Composite Alpha into the cursors other channels - only for 32 bit
                     if (cursorDepth == 32 && mask != fullOn) {
-                        // Set Alpha Pixel
-                        *cursorColumnData = (unsigned char) 0x00;
-                        cursorColumnData++;
-                        for (componentIndex = 1; componentIndex < components; componentIndex++) {
+                        for (componentIndex = 0; componentIndex < components; componentIndex++) {
                             *cursorColumnData = (unsigned char) (fullOn - mask + ((*cursorColumnData * mask)/fullOn)) & 0xFF;
                             cursorColumnData++;
                         }
