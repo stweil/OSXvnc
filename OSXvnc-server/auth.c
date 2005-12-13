@@ -139,7 +139,7 @@ void rfbProcessAuthVersion(rfbClientPtr cl) {
     int n;
     CARD8 securityType;
 
-    if ((n = ReadExact(cl, &securityType, 1)) <= 0) {
+    if ((n = ReadExact(cl, (char *) &securityType, 1)) <= 0) {
         if (n != 0)
             rfbLogPerror("rfbProcessAuthVersion: read");
         rfbCloseClient(cl);
