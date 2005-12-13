@@ -43,18 +43,18 @@ extern "C" {
 #define EXTRA_ARGS , rfbClientPtr cl
 
 #define BPP 8
-#include <libvncauth/zrleEncode.h>
+#include <zrleEncode.h>
 #undef BPP
 #define BPP 16
-#include <libvncauth/zrleEncode.h>
+#include <zrleEncode.h>
 #undef BPP
 #define BPP 32
-#include <libvncauth/zrleEncode.h>
+#include <zrleEncode.h>
 #define CPIXEL 24A
-#include <libvncauth/zrleEncode.h>
+#include <zrleEncode.h>
 #undef CPIXEL
 #define CPIXEL 24B
-#include <libvncauth/zrleEncode.h>
+#include <zrleEncode.h>
 #undef CPIXEL
 #undef BPP
 
