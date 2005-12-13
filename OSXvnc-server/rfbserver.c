@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <errno.h>
 #include <pwd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -106,42 +107,77 @@ void rfbNewClientConnection(int sock) {
  * connection to a "listening" RFB client.
  */
 rfbClientPtr rfbReverseConnection(char *host, int port) {
-    int sock;
-    struct sockaddr_in6 sin;
-	struct addrinfo *res, hint;
+    int sock= -1;
+	struct addrinfo *res, *res0, hint;
 	int errCode;
     rfbClientPtr cl;
-	
-    bzero(&sin, sizeof(sin));
-	sin.sin6_len = sizeof(sin);
-	sin.sin6_family = AF_INET6;
-	sin.sin6_port = htons(port);
-	memset(&hint, 0, sizeof(hint));
-	hint.ai_family = PF_INET6;
-	hint.ai_socktype = SOCK_STREAM;
-	if ((errCode = getaddrinfo(host, NULL, &hint, &res)) != 0) {
-		rfbLog("Error resolving reverse host %s: %s\n", host, gai_strerror(errCode));
-		return NULL;
-    }
-	sin.sin6_addr = ((struct sockaddr_in6 *)res->ai_addr)->sin6_addr;
-	freeaddrinfo(res);
 
-    if ((sock = socket(PF_INET6, SOCK_STREAM, 0)) < 0) {
-        rfbLog("Error creating reverse socket\n");
-        return NULL;
-    }
+	
+	{
+		// Old IPV4 stuff
+		struct sockaddr_in sin;
+	    bzero(&sin, sizeof(sin));
+		sin.sin_len = sizeof(sin);
+		sin.sin_family = AF_INET;
+		sin.sin_addr.s_addr = inet_addr(host);
+		sin.sin_port = htons(port);
+		if ((int)sin.sin_addr.s_addr == -1) {
+			struct hostent *hostinfo;
+			hostinfo = gethostbyname(host);
+			if (hostinfo && hostinfo->h_addr) {
+				sin.sin_addr.s_addr = ((struct in_addr *)hostinfo->h_addr)->s_addr;
+			}
+			else {
+				rfbLog("Error resolving reverse host %s\n", host);
+				return NULL;
+			}
+		}
+		
+		if ((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+			rfbLog("Error creating reverse socket\n");
+		}
+		if (connect(sock, (struct sockaddr *)&sin, sizeof(sin)) != 0) {
+			rfbLog("Error connecting to reverse host %s:%d\n", host, port);
+			sock = -1;
+		}		
+	}	
+	
+	if (sock == -1) {
+		hint.ai_family = PF_UNSPEC;
+		hint.ai_socktype = SOCK_STREAM;
+		if ((errCode = getaddrinfo(host, NULL, &hint, &res0)) != 0) {
+			rfbLog("Error resolving reverse host %s: %s\n", host, gai_strerror(errCode));
+		}
+	
+		// Iterate over all the resources looking for one we can connect with with.
+		for(res=res0; res && (sock < 0); res = res->ai_next) {
+			if (res->ai_family == PF_INET6) 
+				((struct sockaddr_in6 *)(res->ai_addr))->sin6_port = port;
+			else if (res->ai_family == PF_INET) 
+				((struct sockaddr_in *)(res->ai_addr))->sin_port = port;
+			else {
+				rfbLog("Error creating reverse socket: Unrecognized protocol family %d\n", res->ai_family);
+				continue;
+			}
     
-    if (connect(sock, (struct sockaddr *)&sin, sizeof(sin)) != 0) {
-        rfbLog("Error connecting to reverse host %s:%d\n", host, port);
-        return NULL;
-    }
+			if ((sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) < 0) {
+				rfbLog("Error creating reverse socket:%s\n", strerror(errno));
+			} else if (connect(sock, res->ai_addr, res->ai_addrlen) != 0) {
+				rfbLog("Error connecting to reverse host%s:%d: %s\n", host, port, strerror(errno));
+				sock = -1;
+			}	
+		}
+		freeaddrinfo(res0);
+	}
 	
-    cl = rfbNewClient(sock);
-	
-    if (cl) {
-        cl->reverseConnection = TRUE;
-    }
-
+	if (sock < 0)
+		return NULL;
+				
+	cl = rfbNewClient(sock);
+	if (cl) {
+		cl->reverseConnection = TRUE;
+	}
+ 	
     return cl;
 }
 
@@ -155,7 +191,8 @@ rfbClientPtr rfbNewClient(int sock) {
     rfbClientPtr cl;
     BoxRec box;
     struct sockaddr_in addr;
-    int i, addrlen = sizeof(struct sockaddr_in);
+    int i;
+	socklen_t addrlen = sizeof(struct sockaddr_in);
 
     /*
      {
@@ -868,7 +905,7 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
 
 Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
     int i;
-    int nUpdateRegionRects;
+    int nUpdateRegionRects = 0;
     Bool sendRichCursorEncoding = FALSE;
     Bool sendCursorPositionEncoding = FALSE;
 
@@ -878,13 +915,7 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
 
     cl->rfbFramebufferUpdateMessagesSent++;
 
-    if (cl->needNewScreenSize) {
-        nUpdateRegionRects++;
-    }
-        
     if (cl->preferredEncoding == rfbEncodingCoRRE) {
-        nUpdateRegionRects = 0;
-
         for (i = 0; i < REGION_NUM_RECTS(&updateRegion); i++) {
             int x = REGION_RECTS(&updateRegion)[i].x1;
             int y = REGION_RECTS(&updateRegion)[i].y1;
@@ -894,8 +925,6 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
                                    * ((h-1) / cl->correMaxHeight + 1));
         }
     } else if (cl->preferredEncoding == rfbEncodingZlib) {
-        nUpdateRegionRects = 0;
-
         for (i = 0; i < REGION_NUM_RECTS(&updateRegion); i++) {
             int x = REGION_RECTS(&updateRegion)[i].x1;
             int y = REGION_RECTS(&updateRegion)[i].y1;
@@ -904,8 +933,6 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
             nUpdateRegionRects += (((h-1) / (ZLIB_MAX_SIZE( w ) / w)) + 1);
         }
     } else if (cl->preferredEncoding == rfbEncodingTight) {
-        nUpdateRegionRects = 0;
-
         for (i = 0; i < REGION_NUM_RECTS(&updateRegion); i++) {
             int x = REGION_RECTS(&updateRegion)[i].x1;
             int y = REGION_RECTS(&updateRegion)[i].y1;
@@ -933,6 +960,9 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
             sendCursorPositionEncoding = TRUE;
             nUpdateRegionRects++;
         }
+		if (cl->needNewScreenSize) {
+			nUpdateRegionRects++;
+		}        
     }
 
     fu->type = rfbFramebufferUpdate;
