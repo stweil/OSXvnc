@@ -24,7 +24,7 @@ static int lastCursorSeed = 0;
 static CGPoint lastCursorPosition;
 
 // Is the CGSConnection thread safe? or should each client have one...
-static CGSConnectionRef sharedConnection = NULL;
+static CGSConnectionRef sharedConnection = 0;
 
 CGPoint currentCursorLoc() {
     CGPoint cursorLoc;
@@ -177,7 +177,7 @@ Problems with occasional artifacts - turning off the cursor didn't seem to help
 Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
     rfbFramebufferUpdateRectHeader rect;
     rfbPixelFormat cursorFormat;
-    char *cursorData;
+    unsigned char *cursorData;
     int bufferMaskOffset;
     int cursorSize; // Size of cursor data from size
     int cursorRowBytes;
@@ -199,7 +199,7 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
 
     if (!sharedConnection) {
         if (CGSNewConnection(NULL, &sharedConnection) != kCGErrorSuccess) {
-            rfbLog("Error obtaining CGSConnection - cursor not sent\n");
+			rfbLog("Error obtaining CGSConnection - cursor not sent\n");
             return FALSE;
         }
     }
@@ -228,7 +228,7 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
     }
 
 	
-	if (cursorDataSize > UPDATE_BUF_SIZE) {
+	if (cursorRect.size.height > 128 || cursorRect.size.width > 128) {
 		// Wow That's one big cursor! We don't handle cursors this big 
 		// (they are probably cursors with lots of states and that doesn't work so good for VNC.
 		// For now just ignore them
@@ -242,17 +242,12 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
     cursorFormat.bigEndian = TRUE;
     cursorFormat.trueColour = TRUE;
     cursorFormat.redMax = cursorFormat.greenMax = cursorFormat.blueMax = (unsigned short) ((1<<cursorBitsPerComponent) - 1);
-	if (littleEndian) {
-        cursorFormat.redShift   = (unsigned char) (cursorBitsPerComponent * 1);
-        cursorFormat.greenShift = (unsigned char) (cursorBitsPerComponent * 2);
-        cursorFormat.blueShift  = (unsigned char) (cursorBitsPerComponent * 3);
-	}
-	else {
-		cursorFormat.redShift   = (unsigned char) (cursorBitsPerComponent * 2);
-		cursorFormat.greenShift = (unsigned char) (cursorBitsPerComponent * 1);
-		cursorFormat.blueShift  = (unsigned char) (cursorBitsPerComponent * 0);
-	}
-    //GetCursorInfo();
+	cursorFormat.bigEndian = !littleEndian;
+	cursorFormat.redShift   = (unsigned char) (cursorBitsPerComponent * 2);
+	cursorFormat.greenShift = (unsigned char) (cursorBitsPerComponent * 1);
+	cursorFormat.blueShift  = (unsigned char) (cursorBitsPerComponent * 0);
+		
+	//GetCursorInfo();
     //PrintPixelFormat(&cursorFormat);
     cursorIsDifferentFormat = !(PF_EQ(cursorFormat,rfbServerFormat));
     
@@ -331,7 +326,7 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
     (*cl->translateFn)(cl->translateLookupTable, // The Lookup Table
                        &cursorFormat, // Our Cursor format
                        &cl->format, // Client Format
-                       cursorData, // Data we're sending
+                       (char *)cursorData, // Data we're sending
                        &cl->updateBuf[cl->ublen], // where to write it
                        cursorRowBytes, // bytesBetweenInputLines
                        cursorRect.size.width,
