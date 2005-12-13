@@ -16,5 +16,6 @@
 
 - (void) userSwitched: (NSNotification *) aNotification;
 - (void) clientConnected: (NSNotification *) aNotification;
+- (void) connectHost: (NSNotification *) aNotification;
 
 @end

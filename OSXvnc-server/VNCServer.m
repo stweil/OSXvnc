@@ -28,4 +28,17 @@
 	rfbStartClientWithFD([[aNotification object] intValue]);
 }
 
+- (void) connectHost: (NSNotification *) aNotification {
+	NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
+	
+//	char *reverseHost = [[[aNotification userInfo] objectForKey:@"ConnectHost"] cStringUsingEncoding:NSASCIIStringEncoding];
+	char *reverseHost = (char *)[[[aNotification userInfo] objectForKey:@"ConnectHost"] cString];
+	int reversePort = [[[aNotification userInfo] objectForKey:@"ConnectPort"] intValue];
+	
+    NSLog(@"Connecting VNC Client %s(%d)",reverseHost,reversePort);
+	connectReverseClient(reverseHost,reversePort);
+
+	[pool release];	
+}
+
 @end
