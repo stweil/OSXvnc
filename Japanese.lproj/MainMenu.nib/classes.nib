@@ -13,6 +13,7 @@
                 changePassword = id; 
                 changePort = id; 
                 changeSharing = id; 
+                connectHost = id; 
                 installAsService = id; 
                 loadUserDefaults = id; 
                 openFile = id; 
@@ -33,6 +34,8 @@
                 allowPressModsForKeys = NSButton; 
                 allowRendezvousCheckbox = NSButton; 
                 allowSleepCheckbox = NSButton; 
+                connectHost = NSTextField; 
+                connectPort = NSTextField; 
                 disableRemoteEventsCheckbox = NSButton; 
                 disableStartupButton = NSButton; 
                 displayNameField = NSTextField; 
