@@ -294,19 +294,15 @@ typedef struct rfbClientRec {
 // kCGBitmapByteOrder16Big AC_C_BIGENDIAN
 // #define rfbEndianTest (0)
 
-/* At this point in time OS X only runs on PowerPCs, so we're big-endian. */
-#ifdef RFB_LITTLE_ENDIAN
-#define Swap16IfLE(s) Swap16(s)
-#define Swap32IfLE(l) Swap32(l)
-#else
-#define Swap16IfLE(s) (s)
-#define Swap32IfLE(l) (l)
-#endif
+#define Swap16IfLE(s) htons(s)
+#define Swap32IfLE(l) htonl(l)
+
 /* main.c */
 
 extern char *rfbGetFramebuffer();
 
 extern void rfbStartClientWithFD(int client_fd);
+extern void connectReverseClient(char *hostName, int portNum);
 
 extern ScreenRec hackScreen;
 extern rfbScreenInfo rfbScreen;
