@@ -25,7 +25,7 @@
 
 #import "VNCController.h"
 
-#import "OSXvnc-server/libvncauth/vncauth.h"
+#import "OSXvnc-server/vncauth.h"
 #import <signal.h>
 #import <unistd.h>
 #import <sys/socket.h>
@@ -113,7 +113,8 @@ static void terminateOnSignal(int signal) {
 		}
 		else if ([anIP rangeOfCharacterFromSet:ipv6Chars].location != NSNotFound) {
 			[commonIPAddresses removeObject:anIP];
-			[commonIPAddresses addObject:[anIP stringByAppendingString:@" (IPv6)"]];
+			// Nobody types these in
+			//[commonIPAddresses addObject:[anIP stringByAppendingString:@" (IPv6)"]];
 		}
 	}
 	
@@ -159,6 +160,13 @@ static void terminateOnSignal(int signal) {
         }
     }
     
+	if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
+		[connectPort setStringValue:@""];
+		[[connectPort cell] setPlaceholderString:@"5500"];
+	}
+	else 
+		[connectPort setIntValue:5500];
+	
 	[window setInitialFirstResponder: displayNameField];
 	
     [displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
@@ -283,6 +291,18 @@ static void terminateOnSignal(int signal) {
 	[startupItemStatusMessageField setStringValue:LocalizedString(@"Unable to find open port 5900-5909")];
 	
 	return 0;
+}
+
+
+- (int) runningPortNum {
+	if (port)
+		return port;
+	else {
+		if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) 
+			return [[[portField cell] placeholderString] intValue];
+		else 
+			return [portField intValue];
+	}
 }
 
 - (void) loadUserDefaults: sender {
@@ -678,6 +698,34 @@ static void terminateOnSignal(int signal) {
         [self saveUserDefaults: sender];
         [self checkForRestart];
     }
+}
+
+// This will issue a Distributed Notification to add a VNC client
+- (IBAction) connectHost: sender {
+	NSMutableDictionary *argumentsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:[connectHost stringValue],@"ConnectHost",[connectPort stringValue],@"ConnectPort",nil];
+	
+	if (![[connectHost stringValue] length]) {
+		[statusMessageField setStringValue:LocalizedString(@"Please specify a Connect Host to establish a connection")];
+		return;
+	}
+	if (![connectPort intValue]) {
+		[argumentsDict setObject:@"5500" forKey:@"ConnectPort"];
+	}
+		
+	if (!controller) {
+		[self startServer: self];
+		usleep(250000); // Give that server time to start
+	}
+	
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"VNCConnectHost"
+																   object:[NSString stringWithFormat:@"OSXvnc%d",[self runningPortNum]]
+																 userInfo:argumentsDict
+													   deliverImmediately:YES];
+	
+	if (kill([controller processIdentifier], SIGCONT) == 0)
+		[statusMessageField setStringValue:LocalizedString(@"Connection invitation sent to Connect Host")];
+	else
+		[statusMessageField setStringValue:[NSString stringWithFormat:LocalizedString(@"Error sending invitation: %s"), strerror(errno)]];
 }
 
 - (void) checkForRestart {

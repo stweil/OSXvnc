@@ -21,7 +21,10 @@
     IBOutlet NSTextField *portField;
     IBOutlet NSTextField *passwordField;
     IBOutlet NSTextField *displayNameField;
-    
+
+	IBOutlet NSTextField *connectHost;
+    IBOutlet NSTextField *connectPort;
+	
     IBOutlet NSTextField *hostNamesField;
     IBOutlet NSTextField *hostNamesLabel;
     IBOutlet NSTextField *ipAddressesLabel;
@@ -90,6 +93,8 @@
 - (IBAction) changePassword: sender;
 - (IBAction) changeDisplayName: sender;
 - (IBAction) optionChanged: sender;
+
+- (IBAction) connectHost: sender;
 
 - (void) checkForRestart;
 
