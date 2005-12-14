@@ -278,7 +278,7 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
     int listen_fd6=0, client_fd=0;
 	int value=1;  // Need to pass a ptr to this
 	struct sockaddr_in6 sin6, peer6;
-	int len6=sizeof(sin6);
+	unsigned int len6=sizeof(sin6);
 	
 	bzero(&sin6, sizeof(sin6));
 	sin6.sin6_len = sizeof(sin6);
@@ -362,8 +362,7 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 												   name:[NSString stringWithCString:theServer->desktopName]
 												   port:(int) theServer->rfbPort];
 		[rfbService setDelegate:rendezvousDelegate];		
-		if (![rfbService publish])
-			NSLog(@"An error occurred publishing the Rendezvous Net Service");
+		[rfbService publish];
 	}
 	else
 		NSLog(@"Rendezvous(_rfb._tcp) - Disabled");
@@ -375,8 +374,7 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 												  port:(int) theServer->rfbPort];
 		[vncService setDelegate:rendezvousDelegate];		
 		
-		if (![vncService publish])
-			NSLog(@"An error occurred publishing the Rendezvous Net Service");
+		[vncService publish];
 	}
 	else
 		NSLog(@"Rendezvous(_vnc._tcp) - Disabled");
