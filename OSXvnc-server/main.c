@@ -236,6 +236,7 @@ void refreshCallback(CGRectCount count, const CGRect *rectArray, void *ignore) {
     rfbClientPtr cl = NULL;
     int i;
 
+	//NSLog(@"REFRESH CALLBACK");
     if (rfbLocalBuffer && rfbClientsConnected()) {
         CGRect*		newRectArray = NULL;
 
@@ -517,7 +518,7 @@ static void *listenerRun(void *ignore) {
     int listen_fd4=0, client_fd=0;
 	int value=1;  // Need to pass a ptr to this
 	struct sockaddr_in sin4, peer4;
-    int len4=sizeof(sin4);
+    unsigned int len4=sizeof(sin4);
 	
 	// Must register IPv6 first otherwise it seems to clear our unique binding for IPv4 portNum
 	bundlesPerformSelector(@selector(rfbRunning));
@@ -573,7 +574,7 @@ static void *listenerRun(void *ignore) {
 	return NULL;
 }
 
-static void connectReverseClient(char *hostName, int portNum) {
+void connectReverseClient(char *hostName, int portNum) {
     pthread_t client_thread;
     rfbClientPtr cl;
 	
@@ -599,11 +600,15 @@ char *rfbGetFramebuffer(void)
 }
 
 static void rfbScreenInit(void) {
+	int bitsPerSample = 8;
+
     (void) GetMainDevice();
     // necessary to init the display manager,
-    // otherwise CGDisplayBitsPerPixel doesn't
+    
+	// otherwise CGDisplayBitsPerPixel doesn't
     // always works correctly after a resolution change
-
+	bitsPerSample = CGDisplayBitsPerSample(displayID);
+	
     if (CGDisplaySamplesPerPixel(displayID) != 3) {
         rfbLog("screen format not supported.  exiting.\n");
         exit(255);
@@ -618,46 +623,26 @@ static void rfbScreenInit(void) {
         rfbScreen.width = CGDisplayPixelsWide(displayID);
         rfbScreen.height = CGDisplayPixelsHigh(displayID);
         rfbScreen.bitsPerPixel = CGDisplayBitsPerPixel(displayID);
-        rfbScreen.depth = CGDisplaySamplesPerPixel(displayID) * CGDisplayBitsPerSample(displayID);
+        rfbScreen.depth = CGDisplaySamplesPerPixel(displayID) * bitsPerSample;
         rfbScreen.paddedWidthInBytes = CGDisplayBytesPerRow(displayID);
     }
     rfbServerFormat.bitsPerPixel = rfbScreen.bitsPerPixel;
     rfbServerFormat.depth = rfbScreen.depth;
-/*
-    if ((rfbScreen.bitsPerPixel) == 8) {
-        rfbServerFormat.trueColour = FALSE;
-    }
-    else 
- */
+	rfbServerFormat.trueColour = TRUE;
 	
-	if (littleEndian) {
-        int bitsPerSample = CGDisplayBitsPerSample(displayID);
-
-		rfbServerFormat.bigEndian = 1;
-        rfbServerFormat.trueColour = TRUE;
-
-        rfbServerFormat.redMax = (1 << bitsPerSample) - 1;
-        rfbServerFormat.greenMax = (1 << bitsPerSample) - 1;
-        rfbServerFormat.blueMax = (1 << bitsPerSample) - 1;
-        rfbServerFormat.redShift = bitsPerSample * 1;
-        rfbServerFormat.greenShift = bitsPerSample * 2;
-        rfbServerFormat.blueShift  = bitsPerSample * 3;
+	rfbServerFormat.redMax = (1 << bitsPerSample) - 1;
+	rfbServerFormat.greenMax = (1 << bitsPerSample) - 1;
+	rfbServerFormat.blueMax = (1 << bitsPerSample) - 1;
+	
+	if (littleEndian)
 		rfbLog("Running in Little Endian");
-    }
-	else {
-		int bitsPerSample = CGDisplayBitsPerSample(displayID);
-		
-		rfbServerFormat.bigEndian = 1;
-        rfbServerFormat.trueColour = TRUE;
-		
-        rfbServerFormat.redMax = (1 << bitsPerSample) - 1;
-        rfbServerFormat.greenMax = (1 << bitsPerSample) - 1;
-        rfbServerFormat.blueMax = (1 << bitsPerSample) - 1;
-        rfbServerFormat.redShift = bitsPerSample * 2;
-        rfbServerFormat.greenShift = bitsPerSample;
-        rfbServerFormat.blueShift = 0;
+	else
 		rfbLog("Running in Big Endian");
-	}		
+
+	rfbServerFormat.bigEndian = !littleEndian;
+	rfbServerFormat.redShift = bitsPerSample * 2;
+	rfbServerFormat.greenShift = bitsPerSample * 1;
+	rfbServerFormat.blueShift = bitsPerSample * 0;
 
     /* We want to use the X11 REGION_* macros without having an actual
         X11 ScreenPtr, so we do this.  Pretty ugly, but at least it lets us
@@ -872,6 +857,8 @@ void rfbShutdown(void) {
     rfbDimmingShutdown();
 
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver: vncServerObject];
+	[[NSNotificationCenter defaultCenter] removeObserver:vncServerObject];
+	[[NSDistributedNotificationCenter defaultCenter] removeObserver:vncServerObject];
 
     if (rfbDisableScreenSaver) {
         /* remove the screensaver timer */
@@ -883,6 +870,10 @@ void rfbShutdown(void) {
         rfbLocalBufferShutdown();
 }
 
+static void executeEventLoop (int signal) {
+	pthread_cond_signal(&listenerGotNewClient);	
+}
+	
 static void rfbShutdownOnSignal(int signal) {
     rfbLog("OSXvnc-server received signal: %d\n", signal);
     rfbShutdown();
@@ -969,14 +960,15 @@ int scanForOpenPort() {
 	return 0;
 }
 
-// ONCE WE ARE NO LONGER RUNNING THROUGH ROSETTA WE WILL CALL
-// CFByteOrderGetCurrent
-// But for the moment rosetta is so complete that it obsucres even that call
-Bool runningLittleEndian ( void ) {
+BOOL runningLittleEndian ( void ) {	
+	return (CFByteOrderGetCurrent() == CFByteOrderLittleEndian);
+	/*
+	 // rosetta is so complete that it obsucres even CFByteOrderGetCurrent
     int hasMMX = 0;
     size_t length = sizeof(hasMMX);
 	// No Error and it does have MMX
 	return (!sysctlbyname("hw.optional.mmx", &hasMMX, &length, NULL, 0) && hasMMX);
+	 */
 }
 	
 int main(int argc, char *argv[]) {
@@ -996,8 +988,10 @@ int main(int argc, char *argv[]) {
     // Let's not shutdown on a SIGHUP at some point perhaps we can use that to reload configuration
     signal(SIGHUP, SIG_IGN);
     signal(SIGPIPE, SIG_IGN);
+    signal(SIGCONT, executeEventLoop);
     signal(SIGTERM, rfbShutdownOnSignal);
     signal(SIGINT, rfbShutdownOnSignal);
+    signal(SIGQUIT, rfbShutdownOnSignal);
     signal(SIGQUIT, rfbShutdownOnSignal);
    
     displayID = kCGDirectMainDisplay;
@@ -1044,12 +1038,18 @@ int main(int argc, char *argv[]) {
                                                                  object:nil];
     }
     
-	// Setup Notifications so other Bundles can post user connect
 	{
+		// Setup Notifications so other Bundles can post user connect
 		[[NSNotificationCenter defaultCenter] addObserver:vncServerObject
 												 selector:@selector(clientConnected:)
 													 name:@"NewRFBClient"
 												   object:nil];
+
+		// Setup Notifications so we can add listening hosts
+		[[NSDistributedNotificationCenter defaultCenter] addObserver:vncServerObject 
+															selector:@selector(connectHost:)
+																name:@"VNCConnectHost" 
+															  object:[NSString stringWithFormat:@"OSXvnc%d", rfbPort]];
 	}
 	
     // Does this need to be in 10.1 and greater (does any of this stuff work in 10.0?)
@@ -1086,21 +1086,21 @@ int main(int argc, char *argv[]) {
         while (keepRunning) {
             // No Clients - go into hibernation
             if (!rfbClientsConnected()) {
-                pthread_mutex_lock(&listenerAccepting);
-
-                // You would think that there is no point in getting events with no clients
-                // But it seems that unregistering but keeping the process (or event loop) around can cause a stuttering behavior in OS X.
-                if (0 && registered) {
-                    rfbLog("UnRegistering Screen Update Notification - waiting for clients\n");
-                    CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
-                    registered = NO;
-                }
-                else
-                    rfbLog("Waiting for clients\n");
-                    
-                pthread_cond_wait(&listenerGotNewClient, &listenerAccepting);
-                pthread_mutex_unlock(&listenerAccepting);
-            }
+				pthread_mutex_lock(&listenerAccepting);
+				
+				// You would think that there is no point in getting screen updates with no clients connected
+				// But it seems that unregistering but keeping the process (or event loop) around can cause a stuttering behavior in OS X.
+				if (0 && registered) {
+					rfbLog("UnRegistering Screen Update Notification - waiting for clients\n");
+					CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
+					registered = NO;
+				}
+				else
+					rfbLog("Waiting for clients\n");
+				
+				pthread_cond_wait(&listenerGotNewClient, &listenerAccepting);
+				pthread_mutex_unlock(&listenerAccepting);
+			}
             bundlesPerformSelector(@selector(rfbPoll));
 
             rfbCheckForPasteboardChange();
