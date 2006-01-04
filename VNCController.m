@@ -721,6 +721,8 @@ static void terminateOnSignal(int signal) {
 																   object:[NSString stringWithFormat:@"OSXvnc%d",[self runningPortNum]]
 																 userInfo:argumentsDict
 													   deliverImmediately:YES];
+
+	usleep(250000); // Give notification time to post
 	
 	if (kill([controller processIdentifier], SIGCONT) == 0)
 		[statusMessageField setStringValue:LocalizedString(@"Connection invitation sent to Connect Host")];
@@ -895,9 +897,9 @@ static void terminateOnSignal(int signal) {
     }
     if ([startupScript writeToFile:@"/tmp/OSXvnc.script" atomically:YES]) {
 		BOOL success = TRUE;
-        NSArray *mvArguments = [NSArray arrayWithObjects:@"-f", @"/tmp/OSXvnc.script", @"/Library/StartupItems/OSXvnc/OSXvnc", nil];
 		
-		success &= [myAuthorization executeCommand:@"/bin/mv" withArgs:mvArguments];
+		success &= [myAuthorization executeCommand:@"/bin/mv" 
+										  withArgs:[NSArray arrayWithObjects:@"-f", @"/tmp/OSXvnc.script", @"/Library/StartupItems/OSXvnc/OSXvnc", nil]];
         success &= [myAuthorization executeCommand:@"/usr/sbin/chown" 
 										  withArgs:[NSArray arrayWithObjects:@"-R", @"root", @"/Library/StartupItems/OSXvnc", nil]];
 		success &= [myAuthorization executeCommand:@"/usr/bin/chgrp" 
@@ -906,8 +908,10 @@ static void terminateOnSignal(int signal) {
 										  withArgs:[NSArray arrayWithObjects:@"-R", @"0", @"/Library/StartupItems/OSXvnc", nil]];
         success &= [myAuthorization executeCommand:@"/bin/chmod" 
 										  withArgs:[NSArray arrayWithObjects:@"-R", @"744", @"/Library/StartupItems/OSXvnc", nil]];
-		success &= [myAuthorization executeCommand:@"/bin/chmod" 
+		success &= [myAuthorization executeCommand:@"/bin/chmod"
 										  withArgs:[NSArray arrayWithObjects:@"755", @"/Library/StartupItems/OSXvnc", nil]];
+		success &= [myAuthorization executeCommand:@"/bin/chmod"
+										  withArgs:[NSArray arrayWithObjects:@"755", @"/Library/StartupItems/OSXvnc/Resources", nil]];
 		
 		if (!success) {
 			[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Replace OSXvnc Script File")];
@@ -917,10 +921,10 @@ static void terminateOnSignal(int signal) {
 		[myAuthorization executeCommand:@"/Library/StartupItems/OSXvnc/OSXvnc" 
 							   withArgs:[NSArray arrayWithObjects:@"restart", nil]];
 
-		/* SystemStarter needs to actually be run as root (and calling sudo requests a password again, so this doesn't work 
-		[myAuthorization executeCommand:@"/usr/bin/sudo"
-							   withArgs:[NSArray arrayWithObjects:@"SystemStarter",@"start", @"VNC", nil]];
-		 */
+		// SystemStarter needs to actually be run as root (and calling sudo requests a password again, so this doesn't work 
+/*		[myAuthorization executeCommand:@"/bin/sh"
+							   withArgs:[NSArray arrayWithObjects:@"-c", @"/sbin/SystemStarter -d start VNC", nil]];
+*/
     }
     else {
         [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Write out Temporary Script File")];
@@ -945,7 +949,6 @@ static void terminateOnSignal(int signal) {
 	[myAuthorization release];
 	myAuthorization = nil;
 }
-
 
 - (IBAction) removeService: sender {
 	BOOL success = TRUE;
