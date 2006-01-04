@@ -442,7 +442,7 @@
 			isa = PBXShellScriptBuildPhase;
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "pushd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/;\n/bin/ln -s Contents/MacOS/OSXvnc-server .;\n/bin/ln -s Contents/MacOS/storepasswd .;\n/bin/ln -s Contents/MacOS/OSXvnc-server Contents/Resources;\n/bin/ln -s Contents/MacOS/storepasswd Contents/Resources;\npopd";
+			shellScript = "pushd $TARGET_BUILD_DIR/$PRODUCT_NAME.app/;\n/bin/ln -s Contents/MacOS/OSXvnc-server .;\n/bin/ln -s Contents/MacOS/storepasswd .;\ncd Contents/Resources\n/bin/ln -s ../MacOS/OSXvnc-server .;\n/bin/ln -s ../MacOS/storepasswd .;\npopd";
 		};
 		AB25D83608686B520065843D = {
 			buildActionMask = 8;
@@ -455,7 +455,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "hdiutil create -ov -format UDZO -imagekey zlib-level=9 -srcfolder $INSTALL_DIR $INSTALL_DIR/../$PROJECT_NAME.dmg;\nhdiutil internet-enable $INSTALL_DIR/../$PROJECT_NAME.dmg";
+			shellScript = "# This removes any re-link reference to the $INSTALL_DIR\nrm -f $INSTALL_DIR/$PRODUCT_NAME.app/$PRODUCT_NAME.app\n\nhdiutil create -ov -format UDZO -imagekey zlib-level=9 -srcfolder $INSTALL_DIR $INSTALL_DIR/../$PROJECT_NAME.dmg;\nhdiutil internet-enable $INSTALL_DIR/../$PROJECT_NAME.dmg\n";
 		};
 		AB25D83708686B520065843D = {
 			isa = PBXFileReference;
