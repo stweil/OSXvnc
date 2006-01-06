@@ -190,9 +190,8 @@ rfbClientPtr rfbNewClient(int sock) {
     rfbProtocolVersionMsg pv;
     rfbClientPtr cl;
     BoxRec box;
-    struct sockaddr_in addr;
     int i;
-	unsigned int addrlen = sizeof(struct sockaddr_in);
+	unsigned int addrlen;
 
     /*
      {
@@ -210,9 +209,23 @@ rfbClientPtr rfbNewClient(int sock) {
     cl = (rfbClientPtr)xalloc(sizeof(rfbClientRec));
 
     cl->sock = sock;
-    getpeername(sock, (struct sockaddr *)&addr, &addrlen);
-    cl->host = strdup(inet_ntoa(addr.sin_addr));
+	{
+		struct sockaddr_in6 addr;
+		char host[NI_MAXHOST];
+		
+		addrlen = sizeof(struct sockaddr_in6);
 
+		host[0] = 0;
+		getnameinfo((struct sockaddr *)&addr, addrlen, host, sizeof(host), NULL, 0, NI_NUMERICHOST);
+		cl->host = strdup(host);
+	}
+	if (!strlen(cl->host)) {
+		struct sockaddr_in addr;
+		addrlen = sizeof(struct sockaddr_in);
+		getpeername(sock, (struct sockaddr *)&addr, &addrlen);
+		cl->host = strdup(inet_ntoa(addr.sin_addr));
+	}
+	
     pthread_mutex_init(&cl->outputMutex, NULL);
 
     cl->state = RFB_PROTOCOL_VERSION;
