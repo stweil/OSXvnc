@@ -101,7 +101,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
 			memcpy(&buf[len], errorString, errorLength);
 			len+=errorLength;
 		}
-		rfbLog(buf);
+
         if (WriteExact(cl, buf, len) < 0) {
             rfbLogPerror("rfbAuthNewClient: write");
             rfbCloseClient(cl);
