@@ -53,6 +53,8 @@ static void terminateOnSignal(int signal) {
 		@"YES", @"startServerOnLaunch",
 		@"NO", @"terminateOnFastUserSwitch",
 		@"YES", @"serverKeepAlive",
+		@"YES", @"allowDimming",
+		@"YES", @"allowScreenSaver",
         @"", @"PasswordFile",
         @"", @"LogFile",
 		[NSNumber numberWithInt:0], @"portNumber",
@@ -162,7 +164,7 @@ static void terminateOnSignal(int signal) {
     
 	if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
 		[connectPort setStringValue:@""];
-		[[connectPort cell] setPlaceholderString:@"5500"];
+		[[connectPort cell] performSelector:@selector(setPlaceholderString:) withObject:@"5500"];
 	}
 	else 
 		[connectPort setIntValue:5500];
@@ -275,7 +277,7 @@ static void terminateOnSignal(int signal) {
 			//close(listen_fd6);
 			if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
 				[portField setStringValue:@""];
-				[[portField cell] setPlaceholderString:[NSString stringWithFormat:@"%d",tryPort]];
+				[[connectPort cell] performSelector:@selector(setPlaceholderString:) withObject:[NSString stringWithFormat:@"%d",tryPort]];
 			}
 			else 
 				[portField setIntValue:tryPort];
@@ -299,7 +301,7 @@ static void terminateOnSignal(int signal) {
 		return port;
 	else {
 		if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) 
-			return [[[portField cell] placeholderString] intValue];
+			return [[[portField cell] performSelector:@selector(placeholderString)] intValue];
 		else 
 			return [portField intValue];
 	}
@@ -356,12 +358,15 @@ static void terminateOnSignal(int signal) {
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"dontDisconnectClients"])
         [dontDisconnectCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"dontDisconnectClients"]];
 
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowSleep"])
+        [allowSleepCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowSleep"]];
+	
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowDimming"])
         [allowDimmingCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowDimming"]];
 
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowSleep"])
-        [allowSleepCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowSleep"]];
-
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowScreenSaver"])
+        [allowScreenSaverCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowScreenSaver"]];
+	
 	if ([[NSUserDefaults standardUserDefaults] objectForKey:@"protocolVersion"])
         [protocolVersion selectItemWithTitle:[[NSUserDefaults standardUserDefaults] stringForKey:@"protocolVersion"]];
 
@@ -415,8 +420,9 @@ static void terminateOnSignal(int signal) {
     [[NSUserDefaults standardUserDefaults] setBool:[terminateOnFastUserSwitch state] forKey:@"terminateOnFastUserSwitch"];
     [[NSUserDefaults standardUserDefaults] setBool:[serverKeepAliveCheckbox state] forKey:@"serverKeepAlive"];
 
-    [[NSUserDefaults standardUserDefaults] setBool:[allowDimmingCheckbox state] forKey:@"allowDimming"];
     [[NSUserDefaults standardUserDefaults] setBool:[allowSleepCheckbox state] forKey:@"allowSleep"];
+    [[NSUserDefaults standardUserDefaults] setBool:[allowDimmingCheckbox state] forKey:@"allowDimming"];
+    [[NSUserDefaults standardUserDefaults] setBool:[allowScreenSaverCheckbox state] forKey:@"allowScreenSaver"];
 
 	if ([[protocolVersion titleOfSelectedItem] floatValue] > 0.0)
 		[[NSUserDefaults standardUserDefaults] setFloat:[[protocolVersion titleOfSelectedItem] floatValue] forKey:@"protocolVersion"];
@@ -580,10 +586,13 @@ static void terminateOnSignal(int signal) {
         [argv addObject:@"-nevershared"];
     if ([dontDisconnectCheckbox state] && !alwaysShared)
         [argv addObject:@"-dontdisconnect"];
-    if (![allowDimmingCheckbox state])
-        [argv addObject:@"-nodimming"];
-    if ([allowSleepCheckbox state])
+
+	if ([allowSleepCheckbox state])
         [argv addObject:@"-allowsleep"];
+	if (![allowDimmingCheckbox state])
+        [argv addObject:@"-nodimming"];
+	if (![allowScreenSaverCheckbox state])
+        [argv addObject:@"-disableScreenSaver"];
 
 	if ([[protocolVersion titleOfSelectedItem] floatValue] > 0.0) {
 		[argv addObject:@"-protocol"];
@@ -737,7 +746,7 @@ static void terminateOnSignal(int signal) {
 		
 	if (!controller) {
 		[self startServer: self];
-		usleep(250000); // Give that server time to start
+		usleep(500000); // Give that server time to start
 	}
 	
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"VNCConnectHost"
@@ -745,7 +754,7 @@ static void terminateOnSignal(int signal) {
 																 userInfo:argumentsDict
 													   deliverImmediately:YES];
 
-	usleep(250000); // Give notification time to post
+	usleep(500000); // Give notification time to post
 	
 	if (kill([controller processIdentifier], SIGCONT) == 0)
 		[statusMessageField setStringValue:LocalizedString(@"Connection invitation sent to Connect Host")];

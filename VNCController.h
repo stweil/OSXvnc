@@ -30,8 +30,9 @@
     IBOutlet NSTextField *ipAddressesLabel;
     IBOutlet NSTextField *ipAddressesField;
     
-    IBOutlet NSButton *allowDimmingCheckbox;
     IBOutlet NSButton *allowSleepCheckbox;
+    IBOutlet NSButton *allowDimmingCheckbox;
+    IBOutlet NSButton *allowScreenSaverCheckbox;
 
     IBOutlet NSPopUpButton *protocolVersion;
     IBOutlet NSTextField *otherArguments;
