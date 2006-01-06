@@ -503,10 +503,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB25D9B20868799D0065843D /* libstdc++.a in Frameworks */,
 				AB25D8AC0868707C0065843D /* Carbon.framework in Frameworks */,
 				AB25D9400868707E0065843D /* Cocoa.framework in Frameworks */,
 				AB25DA3B0868842E0065843D /* IOKit.framework in Frameworks */,
-				AB25D9B20868799D0065843D /* libstdc++.a in Frameworks */,
 				AB25DA3D086884420065843D /* libz.dylib in Frameworks */,
 				ABA7B68F094A15C700CD7499 /* libjpg.a in Frameworks */,
 				ABA7B560094A080200CD7499 /* librdr.a in Frameworks */,
@@ -1495,6 +1495,7 @@
 					libjpeg,
 				);
 				LIBRARY_SEARCH_PATHS = /usr/lib/gcc/darwin/3.3;
+				MACH_O_TYPE = mh_execute;
 				OTHER_CFLAGS = "-ObjC";
 				PREBINDING = NO;
 				PRODUCT_NAME = "OSXvnc-server";
@@ -1624,10 +1625,11 @@
 		ABECD3EF08E46414009C84A0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = ppc;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				MACOSX_DEPLOYMENT_TARGET = 10.1;
+				GCC_VERSION_ppc = 3.3;
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
 				REMOVE_CVS_FROM_RESOURCES = YES;
+				SDKROOT_ppc = /Developer/SDKs/MacOSX10.2.8.sdk;
 			};
 			name = Development;
 		};
@@ -1636,8 +1638,10 @@
 			buildSettings = {
 				DEPLOYMENT_POSTPROCESSING = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				MACOSX_DEPLOYMENT_TARGET = 10.1;
+				GCC_VERSION_ppc = 3.3;
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
 				REMOVE_CVS_FROM_RESOURCES = YES;
+				SDKROOT_ppc = /Developer/SDKs/MacOSX10.2.8.sdk;
 				STRIP_INSTALLED_PRODUCT = YES;
 			};
 			name = Deployment;
