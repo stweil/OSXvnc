@@ -152,8 +152,9 @@ typedef struct {
  */
 
 #define rfbProtocolVersionFormat "RFB %03d.%03d\n"
-#define rfbProtocolMajorVersion 3
-#define rfbProtocolMinorVersion 8
+// Want to allow this to be specified
+//#define rfbProtocolMajorVersion 3
+//#define rfbProtocolMinorVersion 8
 
 typedef char rfbProtocolVersionMsg[13]; /* allow extra byte for null */
 

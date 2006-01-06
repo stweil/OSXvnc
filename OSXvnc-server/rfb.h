@@ -299,6 +299,9 @@ typedef struct rfbClientRec {
 
 /* main.c */
 
+extern int rfbProtocolMajorVersion;
+extern int rfbProtocolMinorVersion;
+
 extern char *rfbGetFramebuffer();
 
 extern void rfbStartClientWithFD(int client_fd);

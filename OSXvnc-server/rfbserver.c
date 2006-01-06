@@ -192,7 +192,7 @@ rfbClientPtr rfbNewClient(int sock) {
     BoxRec box;
     struct sockaddr_in addr;
     int i;
-	socklen_t addrlen = sizeof(struct sockaddr_in);
+	int addrlen = sizeof(struct sockaddr_in);
 
     /*
      {

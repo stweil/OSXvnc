@@ -58,11 +58,14 @@ better to just not even define it - but give a warning or something  */
 #if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_3
 #undef CGSetLocalEventsFilterDuringSupressionState
 #warning Using Obsolete CGSetLocalEventsFilterDuringSupressionState for backwards compatibility to 10.2
-CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask filter, CGEventSuppressionState state);
+CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask filter, CGEventSupressionState state);
 #endif
 
 ScreenRec hackScreen;
 rfbScreenInfo rfbScreen;
+
+int rfbProtocolMajorVersion = 3;
+int rfbProtocolMinorVersion = 8;
 
 char desktopName[255] = "";
 
@@ -702,6 +705,8 @@ static void usage(void) {
 	fprintf(stderr, "-connectPort port      TCP port of listening client to establishing a reverse conneect\n"
 			"                       (default: 5500)\n");
 	fprintf(stderr, "-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n");
+	fprintf(stderr, "-protocol protocol     Force a particular protocol version (eg 3.3)\n");
+	fprintf(stderr, "                       default:" rfbProtocolVersionFormat, rfbProtocolMajorVersion, rfbProtocolMinorVersion);
 	fprintf(stderr, "-bigEndian             Force Big-Endian mode (PPC)\n"
 			"                       (default: detect)\n");
 	fprintf(stderr, "-littleEndian          Force Little-Endian mode (INTEL)\n"
@@ -713,7 +718,7 @@ static void usage(void) {
         CGDirectDisplayID activeDisplays[100];
         int index = 0;
 
-        fprintf(stderr, "-display DisplayID     server displayID to indicate which display to serve\n");
+        fprintf(stderr, "-display DisplayID     displayID to indicate which display to serve\n");
 
         CGGetActiveDisplayList(100, activeDisplays, &displayCount);
 
@@ -767,6 +772,17 @@ static void processArguments(int argc, char *argv[]) {
         if (strcmp(argv[i], "-rfbport") == 0) { // -rfbport port
             if (i + 1 >= argc) usage();
             rfbPort = atoi(argv[++i]);
+        } else if (strcmp(argv[i], "-protocol") == 0) { // -rfbport port
+			double protocol;
+            if (i + 1 >= argc) usage();
+            protocol = atof(argv[++i]);
+			rfbProtocolMajorVersion = MIN(rfbProtocolMajorVersion, floor(protocol));
+			protocol = protocol-floor(protocol); // Now just the fractional part
+			// Ok some folks think of it as 3.3 others as 003.003, so let's repeat...
+			while (protocol > 0 && protocol < 1)
+				protocol *= 10;
+			rfbProtocolMinorVersion = MIN(rfbProtocolMinorVersion, rint(protocol));
+			rfbLog("Forcing: " rfbProtocolVersionFormat,rfbProtocolMajorVersion, rfbProtocolMinorVersion);
         } else if (strcmp(argv[i], "-rfbwait") == 0) {  // -rfbwait ms
             if (i + 1 >= argc) usage();
             rfbMaxClientWait = atoi(argv[++i]);
