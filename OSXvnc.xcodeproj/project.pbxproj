@@ -1636,10 +1636,14 @@
 		ABECD3F008E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					ppc,
+					i386,
+				);
 				DEPLOYMENT_POSTPROCESSING = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_VERSION_ppc = 3.3;
-				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.1;
 				REMOVE_CVS_FROM_RESOURCES = YES;
 				SDKROOT_ppc = /Developer/SDKs/MacOSX10.2.8.sdk;
 				STRIP_INSTALLED_PRODUCT = YES;
