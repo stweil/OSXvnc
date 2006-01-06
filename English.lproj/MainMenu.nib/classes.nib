@@ -47,8 +47,10 @@
                 ipAddressesLabel = NSTextField; 
                 limitToLocalConnections = NSButton; 
                 optionsTabView = NSTabView; 
+                otherArguments = NSTextField; 
                 passwordField = NSTextField; 
                 portField = NSTextField; 
+                protocolVersion = NSPopUpButton; 
                 serverKeepAliveCheckbox = NSButton; 
                 setStartupButton = NSButton; 
                 sharingMatrix = NSMatrix; 

@@ -33,6 +33,9 @@
     IBOutlet NSButton *allowDimmingCheckbox;
     IBOutlet NSButton *allowSleepCheckbox;
 
+    IBOutlet NSPopUpButton *protocolVersion;
+    IBOutlet NSTextField *otherArguments;
+
     IBOutlet NSButton *allowKeyboardLoading;
     IBOutlet NSButton *allowPressModsForKeys;
 

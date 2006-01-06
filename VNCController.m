@@ -362,6 +362,12 @@ static void terminateOnSignal(int signal) {
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowSleep"])
         [allowSleepCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowSleep"]];
 
+	if ([[NSUserDefaults standardUserDefaults] objectForKey:@"protocolVersion"])
+        [protocolVersion selectItemWithTitle:[[NSUserDefaults standardUserDefaults] stringForKey:@"protocolVersion"]];
+
+	if ([[NSUserDefaults standardUserDefaults] objectForKey:@"otherArguments"])
+        [protocolVersion setStringValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"otherArguments"]];
+	
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowKeyboardLoading"]) {
         [allowKeyboardLoading setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowKeyboardLoading"]];
         [allowPressModsForKeys setEnabled:[allowKeyboardLoading state]];
@@ -412,6 +418,16 @@ static void terminateOnSignal(int signal) {
     [[NSUserDefaults standardUserDefaults] setBool:[allowDimmingCheckbox state] forKey:@"allowDimming"];
     [[NSUserDefaults standardUserDefaults] setBool:[allowSleepCheckbox state] forKey:@"allowSleep"];
 
+	if ([[protocolVersion titleOfSelectedItem] floatValue] > 0.0)
+		[[NSUserDefaults standardUserDefaults] setFloat:[[protocolVersion titleOfSelectedItem] floatValue] forKey:@"protocolVersion"];
+	else
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"protocolVersion"];
+
+	if ([[otherArguments stringValue] length])
+		[[NSUserDefaults standardUserDefaults] setObject:[otherArguments stringValue] forKey:@"otherArguments"];
+	else
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"otherArguments"];
+	
     [[NSUserDefaults standardUserDefaults] setBool:[allowKeyboardLoading state] forKey:@"allowKeyboardLoading"];
     [[NSUserDefaults standardUserDefaults] setBool:[allowPressModsForKeys state] forKey:@"allowPressModsForKeys"];
     
@@ -569,6 +585,11 @@ static void terminateOnSignal(int signal) {
     if ([allowSleepCheckbox state])
         [argv addObject:@"-allowsleep"];
 
+	if ([[protocolVersion titleOfSelectedItem] floatValue] > 0.0) {
+		[argv addObject:@"-protocol"];
+		[argv addObject:[protocolVersion titleOfSelectedItem]];
+	}
+		
     [argv addObject:@"-restartonuserswitch"];
     [argv addObject:([terminateOnFastUserSwitch state] ? @"Y" : @"N")];
 
@@ -600,6 +621,9 @@ static void terminateOnSignal(int signal) {
         [argv addObject:[[NSUserDefaults standardUserDefaults] stringForKey:@"rfbDeferUpdateTime"]];
     }
 
+	if ([[otherArguments stringValue] length])
+		[argv addObjectsFromArray:[[otherArguments stringValue] componentsSeparatedByString:@" "]];
+	
     return argv;
 }
 
@@ -693,7 +717,6 @@ static void terminateOnSignal(int signal) {
 }
 
 - (IBAction) optionChanged: sender {
-    [allowPressModsForKeys setEnabled:[allowKeyboardLoading state]];
     if (sender != self) {
         [self saveUserDefaults: sender];
         [self checkForRestart];
