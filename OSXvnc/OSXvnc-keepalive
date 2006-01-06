@@ -7,6 +7,9 @@
 # 
 # Modification Log:
 #
+# 1.7
+# Only restart on items where the first bit is NOT set (less than 128)
+#
 # 1.5
 # Replace spurious ls -l entry with a much more appropriate pwd
 #
@@ -26,7 +29,7 @@ RESULT=15
 pwd
 # OS X will send a SIGINT or SIGTERM to shutdown OSXvnc-server
 # On a negative SIGNAL we'll stop properly (this is what the server returns internally when an error occurs)
-while [[ "$RESULT" -lt "200" ]]
+while [[ "$RESULT" -lt "128" ]]
 do
 	echo "$0: Starting Server"
 	"$@" # Run our parameters
