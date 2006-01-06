@@ -1,7 +1,7 @@
 {
     IBClasses = (
         {
-            ACTIONS = {optionChanged = id; }; 
+            ACTIONS = {"" = id; optionChanged = id; }; 
             CLASS = FirstResponder; 
             LANGUAGE = ObjC; 
             SUPERCLASS = NSObject; 
@@ -33,6 +33,7 @@
                 allowKeyboardLoading = NSButton; 
                 allowPressModsForKeys = NSButton; 
                 allowRendezvousCheckbox = NSButton; 
+                allowScreenSaverCheckbox = NSButton; 
                 allowSleepCheckbox = NSButton; 
                 connectHost = NSTextField; 
                 connectPort = NSTextField; 
