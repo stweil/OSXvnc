@@ -277,7 +277,7 @@ static void terminateOnSignal(int signal) {
 			//close(listen_fd6);
 			if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
 				[portField setStringValue:@""];
-				[[connectPort cell] performSelector:@selector(setPlaceholderString:) withObject:[NSString stringWithFormat:@"%d",tryPort]];
+				[[portField cell] performSelector:@selector(setPlaceholderString:) withObject:[NSString stringWithFormat:@"%d",tryPort]];
 			}
 			else 
 				[portField setIntValue:tryPort];
