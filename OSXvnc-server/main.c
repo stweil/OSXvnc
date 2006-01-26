@@ -35,7 +35,7 @@
 #include <sys/sysctl.h>
 
 #include "rfb.h"
-#include "localbuffer.h"
+//#include "localbuffer.h"
 
 #include "rfbserver.h"
 #import "VNCServer.h"
@@ -88,7 +88,7 @@ BOOL restartOnUserSwitch = FALSE;
 BOOL useIP4 = TRUE;
 
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
-Bool rfbLocalBuffer = FALSE;
+// Bool rfbLocalBuffer = FALSE;
 static pthread_mutex_t logMutex;
 
 pthread_mutex_t listenerAccepting;
@@ -240,27 +240,6 @@ void refreshCallback(CGRectCount count, const CGRect *rectArray, void *ignore) {
     int i;
 
 	//NSLog(@"REFRESH CALLBACK");
-    if (rfbLocalBuffer && rfbClientsConnected()) {
-        CGRect*		newRectArray = NULL;
-
-        newRectArray = (CGRect*)malloc(sizeof(CGRect) * (count + 2));
-        assert(newRectArray);
-
-        if (count)
-            memcpy(newRectArray, rectArray, sizeof(CGRect) * count);
-
-        newRectArray[count] = rfbLocalBufferGetMouseRect();
-
-        rfbLocalBufferSync(count, rectArray);
-
-        newRectArray[count + 1] = rfbLocalBufferGetMouseRect();
-
-        count += 2;
-        rectArray = newRectArray;
-
-        free(newRectArray);
-    }
-
     for (i = 0; i < count; i++) {
         box.x1 = rectArray[i].origin.x;
         box.y1 = rectArray[i].origin.y;
@@ -505,9 +484,6 @@ void rfbStartClientWithFD(int client_fd) {
 	if (setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, (void *)&one, sizeof(one)) < 0)
 		rfbLogPerror("setsockopt TCP_NODELAY failed"); 
 	
-	if (rfbLocalBuffer && !rfbClientsConnected())
-		rfbLocalBufferSyncAll();
-	
 	rfbUndim();
 	cl = rfbNewClient(client_fd);
 	
@@ -596,10 +572,7 @@ void connectReverseClient(char *hostName, int portNum) {
 
 char *rfbGetFramebuffer(void)
 {
-    if (rfbLocalBuffer)
-        return rfbFrontBufferBaseAddress();
-    else
-        return (char *)CGDisplayBaseAddress(displayID);
+	return (char *)CGDisplayBaseAddress(displayID);
 }
 
 static void rfbScreenInit(void) {
@@ -614,21 +587,15 @@ static void rfbScreenInit(void) {
 	
     if (CGDisplaySamplesPerPixel(displayID) != 3) {
         rfbLog("screen format not supported.  exiting.\n");
-        exit(255);
+        exit(1);
     }
 
-    if (rfbLocalBuffer) {
-        rfbLocalBufferInfo(&rfbScreen.width, &rfbScreen.height,
-                           &rfbScreen.bitsPerPixel, &rfbScreen.depth,
-                           &rfbScreen.paddedWidthInBytes);
-    }
-    else {
-        rfbScreen.width = CGDisplayPixelsWide(displayID);
-        rfbScreen.height = CGDisplayPixelsHigh(displayID);
-        rfbScreen.bitsPerPixel = CGDisplayBitsPerPixel(displayID);
-        rfbScreen.depth = CGDisplaySamplesPerPixel(displayID) * bitsPerSample;
-        rfbScreen.paddedWidthInBytes = CGDisplayBytesPerRow(displayID);
-    }
+	rfbScreen.width = CGDisplayPixelsWide(displayID);
+	rfbScreen.height = CGDisplayPixelsHigh(displayID);
+	rfbScreen.bitsPerPixel = CGDisplayBitsPerPixel(displayID);
+	rfbScreen.depth = CGDisplaySamplesPerPixel(displayID) * bitsPerSample;
+	rfbScreen.paddedWidthInBytes = CGDisplayBytesPerRow(displayID);
+
     rfbServerFormat.bitsPerPixel = rfbScreen.bitsPerPixel;
     rfbServerFormat.depth = rfbScreen.depth;
 	rfbServerFormat.trueColour = TRUE;
@@ -677,7 +644,7 @@ static void usage(void) {
     fprintf(stderr, "-rfbwait time          max time in ms to wait for RFB client\n");
     fprintf(stderr, "-rfbauth passwd-file   use authentication on RFB protocol\n"
             "                       (use 'storepasswd' to create a password file)\n");
-    fprintf(stderr, "-deferupdate time      time in ms to defer updates (default 0)\n");
+    fprintf(stderr, "-deferupdate time      time in ms to defer updates (default %d)\n", rfbDeferUpdateTime);
     fprintf(stderr, "-desktop name          VNC desktop name (default \"MacOS X\")\n");
     fprintf(stderr, "-alwaysshared          always treat new clients as shared\n");
     fprintf(stderr, "-nevershared           never treat new clients as shared\n");
@@ -835,9 +802,9 @@ static void processArguments(int argc, char *argv[]) {
             rfbSwapButtons = FALSE;
         } else if (strcmp(argv[i], "-disableremoteevents") == 0) {
             rfbDisableRemote = TRUE;
-        } else if (strcmp(argv[i], "-rfblocalbuffer") == 0) {
-            rfbLog("WARNING - rfbLocalBuffer option is Deprecated and will be removed soon");
-            rfbLocalBuffer = TRUE;
+//        } else if (strcmp(argv[i], "-rfblocalbuffer") == 0) {
+//            rfbLog("WARNING - rfbLocalBuffer option is Deprecated and will be removed soon");
+//            rfbLocalBuffer = TRUE;
         } else if (strcmp(argv[i], "-localhost") == 0) {
             rfbLocalhostOnly = TRUE;
         } else if (strcmp(argv[i], "-inhibitevents") == 0) {
@@ -881,9 +848,6 @@ void rfbShutdown(void) {
         RemoveEventLoopTimer(screensaverTimer);
         DisposeEventLoopTimerUPP(screensaverTimerUPP);
     }
-
-    if (rfbLocalBuffer)
-        rfbLocalBufferShutdown();
 }
 
 static void executeEventLoop (int signal) {
@@ -1032,9 +996,6 @@ int main(int argc, char *argv[]) {
 		[[[NSProcessInfo processInfo] hostName] getCString:desktopName];
 	}
 	
-    if (rfbLocalBuffer)
-        rfbLocalBufferInit();
-
     rfbScreenInit();
     rfbClientListInit();
     rfbDimmingInit();
