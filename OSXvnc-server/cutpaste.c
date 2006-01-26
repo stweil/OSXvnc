@@ -23,7 +23,7 @@
  *  USA.
  */
 
-#include <Cocoa/Cocoa.h>
+#import <Cocoa/Cocoa.h>
 
 #include <stdio.h>
 #include <pthread.h>
@@ -44,11 +44,12 @@ NSString *pasteboardString = nil;
 NSString *clientCutText = nil;
 
 int pasteBoardLastChangeCount=-1;
-NSStringEncoding pasteboardStringEncoding = 0;
+NSStringEncoding pasteboardStringEncoding = NSWindowsCP1252StringEncoding; // RFBProto 003.008
 
 void initPasteboard() {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	pasteboardLock = [[NSLock alloc] init];
+	
 	if (![NSPasteboard generalPasteboard]) {
 		rfbLog("Pasteboard Inaccessible - Pasteboard sharing disabled");
 		pasteBoardLastChangeCount = 0; // This will signal that we don't have pasteboard access
@@ -69,7 +70,7 @@ void rfbSetCutText(rfbClientPtr cl, char *str, int len) {
 	if (pasteBoardLastChangeCount != 0) {
 		[pasteboardLock lock];
 		[clientCutText release];
-		clientCutText = [[NSString alloc] initWithCString:str length:len];
+		clientCutText = [[NSString alloc] initWithData:[NSData dataWithBytes:str length:len] encoding: pasteboardStringEncoding];
 		cl->pasteBoardLastChange = -1; // Don't resend to original client
 		[pasteboardLock unlock];
 		// Since subsequent operations might require the pasteboard, we'll stall until it gets picked up
@@ -90,7 +91,6 @@ void rfbCheckForPasteboardChange() {
 		if ([[NSPasteboard generalPasteboard] declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil]) {
 			NS_DURING
 				[[NSPasteboard generalPasteboard] setString:clientCutText forType:NSStringPboardType];
-				NSLog(@"Received New Text:%@", clientCutText);
 			NS_HANDLER
 				NSLog(@"Problem Writing Cut Text To Pasteboard: %@", localException);
 			NS_ENDHANDLER
@@ -140,21 +140,11 @@ void rfbClientUpdatePasteboard(rfbClientPtr cl) {
 			cl->pasteBoardLastChange = pasteBoardLastChangeCount;
 		
 		if (cl->pasteBoardLastChange != pasteBoardLastChangeCount) {
-			const char *pbString = NULL;
-			
 			if (pasteboardString) {
-				// If we've specified that another encoding is acceptable 
-				if (pasteboardStringEncoding) {
-					NSData *encodedString = [pasteboardString dataUsingEncoding:pasteboardStringEncoding allowLossyConversion:YES];
-					pbString = [encodedString bytes];
-				}
-				// Otherwise just a lossy C-String
-				else { 
-					pbString = [pasteboardString lossyCString];
-				}
-				
-				if (pbString && strlen(pbString))
-					rfbSendServerCutText(cl, (char *) pbString, strlen(pbString));
+				NSData *encodedString = [pasteboardString dataUsingEncoding:pasteboardStringEncoding allowLossyConversion:YES];
+
+				if ([encodedString length])
+					rfbSendServerCutText(cl, (char *) [encodedString bytes], [encodedString length]);
 			}
 			
 			cl->pasteBoardLastChange = pasteBoardLastChangeCount;
