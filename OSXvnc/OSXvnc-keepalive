@@ -7,6 +7,9 @@
 # 
 # Modification Log:
 #
+# 1.71
+# For no documentable reason I can discern the server gets a 137 code when a user logs out
+#
 # 1.7
 # Only restart on items where the first bit is NOT set (less than 128)
 #
@@ -28,12 +31,17 @@
 RESULT=15
 pwd
 # OS X will send a SIGINT or SIGTERM to shutdown OSXvnc-server
-# On a negative SIGNAL we'll stop properly (this is what the server returns internally when an error occurs)
+# On a high SIGNAL (over 128) we'll stop properly (this is what the server returns internally when an error occurs)
 while [[ "$RESULT" -lt "128" ]]
 do
 	echo "$0: Starting Server"
 	"$@" # Run our parameters
 	RESULT=$? # Record Result
+	# On logout it seems get a 137 exit? why?
+	if [[ "$RESULT" -eq "137" ]] 
+	then
+		RESULT=9
+	fi
 	echo $RESULT
 	sleep 5
 done
