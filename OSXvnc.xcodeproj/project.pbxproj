@@ -37,7 +37,6 @@
 		AB25D89A086870490065843D /* mousecursor.c in Sources */ = {isa = PBXBuildFile; fileRef = F5C9A8F1038C6F5D01A80117 /* mousecursor.c */; };
 		AB25D89B0868704A0065843D /* hextile.c in Sources */ = {isa = PBXBuildFile; fileRef = F538E01602F9812901A80186 /* hextile.c */; };
 		AB25D89C0868704B0065843D /* kbdptr.c in Sources */ = {isa = PBXBuildFile; fileRef = F538E03502F9812901A80186 /* kbdptr.c */; };
-		AB25D89D0868704B0065843D /* localbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = F5C9A8F4038C747101A80117 /* localbuffer.c */; };
 		AB25D89E0868704C0065843D /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = F538E10E02F9812C01A80186 /* main.c */; };
 		AB25D89F0868704C0065843D /* miregion.c in Sources */ = {isa = PBXBuildFile; fileRef = F538E11002F9812C01A80186 /* miregion.c */; };
 		AB25D8A00868704D0065843D /* rfbserver.c in Sources */ = {isa = PBXBuildFile; fileRef = F538E11502F9812C01A80186 /* rfbserver.c */; };
@@ -1231,7 +1230,6 @@
 				AB25D89A086870490065843D /* mousecursor.c in Sources */,
 				AB25D89B0868704A0065843D /* hextile.c in Sources */,
 				AB25D89C0868704B0065843D /* kbdptr.c in Sources */,
-				AB25D89D0868704B0065843D /* localbuffer.c in Sources */,
 				AB25D89E0868704C0065843D /* main.c in Sources */,
 				AB25D89F0868704C0065843D /* miregion.c in Sources */,
 				AB25D8A00868704D0065843D /* rfbserver.c in Sources */,
@@ -1514,6 +1512,7 @@
 		ABECD3E408E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				PREBINDING = NO;
 				PRODUCT_NAME = storepasswd;
 			};
 			name = Deployment;
@@ -1645,6 +1644,7 @@
 				GCC_VERSION_ppc = 3.3;
 				MACOSX_DEPLOYMENT_TARGET_ppc = 10.1;
 				REMOVE_CVS_FROM_RESOURCES = YES;
+				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
 				SDKROOT_ppc = /Developer/SDKs/MacOSX10.2.8.sdk;
 				STRIP_INSTALLED_PRODUCT = YES;
 			};
