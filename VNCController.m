@@ -909,10 +909,11 @@ static void terminateOnSignal(int signal) {
     lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCARGS="]];
     if (lineRange.location != NSNotFound) {
 		NSData *vncauth = [[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"];
-        NSMutableString *replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLine] componentsJoinedByString:@" "]];
+        NSMutableString *replaceString = nil;
+		NSString *oldPasswordFile = passwordFile;
+		NSString *oldDesktopName = [displayNameField stringValue];
 			
 		if ([vncauth length]) {
-			NSString *oldPasswordFile = passwordFile;
 			NSArray *mvArguments = [NSArray arrayWithObjects:@"-f", @"/tmp/.osxvncauth", @"/Library/StartupItems/OSXvnc/.osxvncauth", nil];
 
 			[vncauth writeToFile:@"/tmp/.osxvncauth" atomically:YES];
@@ -921,12 +922,20 @@ static void terminateOnSignal(int signal) {
 				return;
 			}
 			passwordFile = @"/Library/StartupItems/OSXvnc/.osxvncauth";
-			replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLine] componentsJoinedByString:@" "]];
-			passwordFile = oldPasswordFile;
 		}
 		
+		// Coerce the CommandLine string with slight modifications
+		if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_1)) {
+			NSMutableString *newDesktopName = [[oldDesktopName mutableCopy] autorelease];
+			[newDesktopName replaceOccurrencesOfString:@" " withString:@"_" options:nil range:NSMakeRange(0,[oldDesktopName length])];
+			[displayNameField setStringValue:newDesktopName];
+		}
+		replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLine] componentsJoinedByString:@" "]];
         [startupScript replaceCharactersInRange:lineRange withString:replaceString];
-    }
+
+		[displayNameField setStringValue:oldDesktopName];
+		passwordFile = oldPasswordFile;
+	}
     if ([startupScript writeToFile:@"/tmp/OSXvnc.script" atomically:YES]) {
 		BOOL success = TRUE;
 		
