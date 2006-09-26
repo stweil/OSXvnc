@@ -1,0 +1,448 @@
+{\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf330
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\froman\fcharset77 Times-Roman;
+\f3\fnil\fcharset77 Monaco;\f4\fnil\fcharset77 Geneva;\f5\fswiss\fcharset77 Helvetica-BoldOblique;
+}
+{\colortbl;\red255\green255\blue255;\red137\green19\blue21;\red25\green35\blue255;}
+\vieww20080\viewh13280\viewkind0
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\qc
+
+\f0\b\fs36 \cf0 OSXvnc \
+Note di Rilascio\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0\fs24 \cf0 \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 \
+\
+Versione 1.72, Realizzata il : \
+	    Modificata da Jonathan Gillaspie per Redstone Software, Inc.\
+	    osxvnc@redstonesoftware.com\
+                 \
+                            
+\f1\b0 Aggiunta lingua Italiana\
+                            Ringraziamenti speciali a Claudio Santucci
+\f0\b \
+Versione 1.71, Realizzata il: 01/26/2006:\
+	    Modificata da Jonathan Gillaspie per Redstone Software, Inc.\
+	    osxvnc@redstonesoftware.com\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 \
+	    Aggiunto il supporto per Appunti ISO Latin come per RFB Spec 3.8 (Compatibile con TightVNC)\
+\
+	    Corretto un problema con un'elemento di avvio non spengibile dopo il logout dell'utente\
+	    Corretto un problema con un'elemento di avvio con spazi nel Nome Display	    Corretto un problema riporortante valore timer DeferUpdate per difetto\
+	\
+	    Corretti problemi nel compilare per MacIntel su MacPPC\
+\
+\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 Versione 1.7,   Released 01/06/2006:\
+	    Modificata da Jonathan Gillaspie per Redstone Software, Inc.\
+	    osxvnc@redstonesoftware.com\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\pardeftab720\ql\qnatural
+\cf0 		     Aggiunto Supporto di interfaccia grafica per stabilire connessioni inverse per ascoltare gli utenti VNC:\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+\cf0 		Puoi ora aggiungere quanti host di ascolto voluti direttamente dall'interfaccia.\
+\
+	     OSXvnc ora \'8f Universal Binary per una migliorata compatibilit\'88 con i MacIntel.\
+\
+	     Aggiunto un modo per forzare la retro-compatibilit\'88 per vecchie versioni di protocollo (3.3).\
+	     Aggiunta un'opzione per disabilitare il salvaschermo quando i clienti si connettono.\
+\
+	     Aggiustato un problema con gli aggiornamenti schermo su Prerelease INTEL 10.4.2 e superiore.\
+	     Aggiustato un problema con Estensioni Jaguar (Bonjour) quando "Configurazione degli Elementi di Avvio" prima, funzionavano su avvii susseguenti.\
+\
+	     Aggiustato un problema con l'opzione "ConnectHost" alla specificazione degli indirizzi IPv4 o nomi host risulti su IPv4.\
+	     Aggiustato un problema dove l'applicazione potrebbe usare cicli CPU anche se nessun utente si connette.\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\pardeftab720\ql\qnatural
+\cf0 	     Aggiustato un problema con nomi host IPv6 non mostrati.\
+	     Aggiustato un problema con ripetute chiusure inaspettate senza uscire dagli script attivi.
+\f0\b \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+\cf0 \
+Versione 1.61, Realizzata il 3 Agosto 2005:\
+	    Modificata da Jonathan Gillaspie per Redstone Software, Inc.\
+	    osxvnc@redstonesoftware.com
+\f1\b0 \
+\
+	    Nuovo con Tiger! Scrivanie multiple su Mac OS X:
+\f2 \
+\pard\tx1440\tx2160\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+
+\f1 \cf0 		Per cortesia leggi la guida separata riguardo le {\field{\*\fldinst{HYPERLINK "http://www.redstonesoftware.com/multidesktop.html"}}{\fldrslt sessioni Desktop Multiple su Mac OS 10.4 - TIGER}}.\
+		Migliorate le preferenze preimpostate per lavorare al meglio sulle le Sessioni Desktop Multiple Mac OS X. \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+\cf0 \
+	    Corretta la mappatura colore per i Mac che usano Intel.\
+	    Corretto un problema con lo script d'avvio che non riusciva a far cessare alcuni elementi di avvio.	    Corretto un problema con un elemento d'avvio che non supportava il Rendezvous.\
+	    Corretto un problema dove al cambio della profondit\'88 di colore il server dava dati errati al cliente.\
+	    Corretto una chiusura/disconnessione improvvisa con certi cursori animati.\
+\
+	    Aggiunto "Auto" per visualizzare la selezione del numero/porta (0 dalla linea di comando), \
+                            ci\'98 trover\'88 la prima porta aperta 5900-5909.\
+	    Aggiunto supporto per aggiornare l'indirizzo IP e le sezioni del nome Host al cambio della rete (Solo 10.4+)\
+	    Aggiunto supporto RFB per protocollo versione 003.008\
+	    Aggiunto supporto IPv6 (Solo 10.2+)\
+                                    Ringraziamenti speciali a Jens-Uwe Mager per la correzione.\
+\
+	    Aggiunto 
+\f3\fs20 \CocoaLigature0 TCP_NODELAY 
+\f1\fs24 \CocoaLigature1 su presa per migliorare la prestazione, in particolare con applicazioni di tipo 
+\f4 *
+\f1 2vnc.\
+\
+	    Aggiunto una compatibilit\'88 retroattiva (-rendezvous VNC) per il vecchio servizio rendezvous.
+\f0\b \
+\
+
+\f1\b0 	    Aggiunta lingua Giapponese\
+\pard\tx1440\tx2160\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 		Ringraziamenti speciali ad Aaron Madlon-Kay\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 \
+\
+Versione 1.5, Realizzata l' 1 Febbraio 2005:\
+	  Modificata da Jonathan Gillaspie per Redstone Software, Inc.\
+	  osxvnc@redstonesoftware.com\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 \
+	  Aggiunto supporto per il ridimensionamento server (Server Side Scaling sia per PalmVNC che UltraVNC)\
+\pard\tx1440\tx2160\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 		Ringraziamenti speciali a Noriaki Yamazaki\
+		Amministratore di micro-VNC\
+		Hitachi System & Service, Ltd.\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+\cf0 \
+	  Aggiunta linea di comando per connessioni invertite.\
+\pard\tx1440\tx2160\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 		Ringraziamenti speciali a Mark Lentczner\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+\cf0 \
+	  Aggiunta lingua Francese\
+\pard\tx1440\tx2160\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
+\cf0 		Ringraziamenti speciali a  Pascal Frey\
+		\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+\cf0 	  Supporto cambio Rendezvous (zero-conf) per use _rfb._tcp per compatibilit\'88 con altri servers.\
+	  Spenta l'impostazione predefinita del caricamento tastiera perch\'8e fuorviante su tastiere internazionali.\
+	  Corretto un problema all'avvio di OSX 10.1.5.\
+	  Corretto un problema all'avvio di OSX 10.4 (TIGER).\
+	  Corretta una chiusura inaspettata con accesso agli appunti quando pi\'9d clienti si erano connessi.\
+	  Aggiunta una pseudo-codifica cos\'93 che OSXvnc possa riportarla quando gli appunti sono inaccessibili.\
+\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 \
+Versione 1.4, Realizzata il 17 Agosto 2004:\
+	  Modificata da Jonathan Gillaspie per Redstone Software, Inc.\
+	  osxvnc@redstonesoftware.com\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 \
+	  Aggiunto supporto Rendezvous (zero-conf) usando _vnc._tcp.\
+	  VNC Discovery funzioner\'88 con 
+\f0\b Chicken of The VNC
+\f1\b0  ed 
+\f0\b Eggplant
+\f1\b0 \
+	  Corretto un problema dove l'opzione "Non condividere la connessione" era ignorata dall'interfaccia\
+	  Corretto un problema dove un archivio 0 spurio era creato all'esecuzione dello script d'avvio\
+	  Corretto un problema dove lo script per tenere la connessione attiva non si chiudeva durante errori irreversibili.\
+	\
+\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 Versione 1.33, Realizzata il 18 Marzo 2004:\
+	  Modificata da Jonathan Gillaspie per Redstone Software, Inc.\
+	  osxvnc@redstonesoftware.com\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 \
+	  Aggiunto supporto tastiera.\
+	  Corretto un piccolo problema con la profondit\'88 che riportava di 32 bit gli schermi a 24 bit.\
+	  Aggiunto un contrassegno -noupdates per utenti di x2vnc o win2vnc.\
+	  Corretta la parola d'accesso con un elemento d'avvio che a volte usava /tmp/.osxvncauth, e che ora \'8f scritto con l'elemento di avvio.\
+	  Corretto un problema con lo script di auto partenza su 10.2.8\
+	  Il Server ora ritorna su un numero negativo per errori irreversibili (per riferire allo script di riavvio senza riavviare).\
+	  Migliorato il tempismo della creazione di elementi d'avvio cos\'93 che tutte le chiamate autorizzate termino prima che si proceda.\
+	  Migliorato script per l'uso pi\'9d efficiente di AWK.\
+	  Aggiustati permessi sugli elementi d'avvio.\
+	  Aggiunta una direttiva di 
+\f0\b restart
+\f1\b0  all'elemento di avvio.\
+	  Aggiunta 
+\f0\b PasswordFile
+\f3\b0\fs20 \cf2 \CocoaLigature0  
+\f1\fs24 \cf0 \CocoaLigature1 preimpostata da sovrascrivere quando la parola chiave viene immagazzinata (per l'interfaccia GUI).\
+	  Aggiunto 
+\f0\b LogFile
+\f3\b0\fs20 \cf2 \CocoaLigature0  
+\f1\fs24 \cf0 \CocoaLigature1 preimpostato da sovrascrivere quando la parola chiave viene immagazzinata (per l'interfaccia GUI).\
+\
+\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 Versione 1.32, Realizzata il 12 Dicembre 2003:\
+	  Modificata da Jonathan Gillaspie per Redstone Software, Inc.\
+	  osxvnc@redstonesoftware.com\
+\
+	  
+\f1\b0 Corretto un problema con clienti inattivi che venivano sconnessi\
+	  Aggiunti i nomi Host ed indirizzi IP sul pannello generale\
+	  Aggiunto un pulsante "Rimuovi elementi di avvio"\
+	  Aggiunto supporto Interfaccia Grafica Utente (GUI) per terminare connessioni dopo il cambio di utenza rapido (ancora in lavorazione per un miglior comportamento di tale supporto)\
+	  L'autenticazione ora persiste sulla interfaccia in OSXvnc\
+	  Spostato su XCode e aggiustati problemi ed incompatibilit\'88 retroattive\
+	  Corretto un problema con un contrassegno -restartonuserswitch non riconoscendo il "si" con Si"\
+	  Aggiunto una preimpostazione per sovrascrivere le locazioni del registro e parola di accesso per Gui (LogFile e PasswordFile, rispettivamente)\
+
+\f0\b \
+\
+Versione 1.31, Realizzata il 02 Febbraio 2003:\
+	 Modificata da Jonathan Gillaspie per Redstone Software, Inc.\
+	 osxvnc@redstonesoftware.com\
+        \
+	 
+\f1\b0 Corretto un problema con degli Script di Avvio non capaci a gestire gli spazi nel percorso
+\f0\b \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0         	 Corretto un problema con StartupItem non in avvio su alcuni sistemi a causa di un incorretto StartupItem.plist\
+                	 Corretto un problema alla connessione di alcuni clienti durante l'esecuzione su 10.1.5 (Unknown Auth Type)\
+                         Corretto una chiusura inaspettata al disconnettersi di un cliente non-ZRLE\
+                         Corretto un problema con un contrassegno GUI autorestart che non sempre si riavviava\
+	 Messaggio cambiato in Clarify Screen Resolution.\
+	 Aggiunto un contrassegno di linea comando -restartonuserswitch per uscire dal server (e permettere di riavviarlo) ad un cambio utenza\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 	 
+\f1\b0 Migliorata prestazione col rispetto della registrazione per gli aggiornamenti locali dello schermo (Win2VNC e X2VNC)\
+	 Cambiato l'aiuto Mac OS, instabile quando nessun cliente era connesso\
+
+\f0\b \
+\
+Versione 1.3, Realizzata il 17 Settembre 2003:\
+	  Modificata da Jonathan Gillaspie per Redstone Software, Inc.\
+	  osxvnc@redstonesoftware.com\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 \
+	  L'interfaccia utente OSXvnc \'8f stata risezionata per permettere pi\'9d opzioni di accostarsi ai pannelli preferenze.\
+	  Aggiunti controlli interfaccia per regolare l'avvio del sistema (Inclusa Autenticazione)\
+		ATTENZIONE: OSXvnc all'avvio non si sincronizza con gli Appunti\
+	  Aggiunto supporto cursore Mac OS X\
+		Aggiunto RichCursorSupport (RFB 3.7 + Tight) \
+		Aggiunto CursorPositionUpdate Support (Tight)\
+	  Supporto Misura Schermo Dinamico (i clienti non devono pi\'9d riconnettersi dopo un ridimensionamento schermo - RFB 3.7)\
+\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 	  
+\f1\b0 Corretto un difetto di chiusura quando certi tasti sconosciuti avrebbero fatto chiudere OSXvnc inaspettatamente
+\f0\b \
+	  Corretto un problema
+\f1\b0  con Shift-Tab (mandato da OS X) ma ignorato perch\'8e ritenuto come carattere End Of Medium, quando l'intero server non si spegneva.
+\f0\b \
+	  Corretto un problema
+\f1\b0  con OSXvnc che causava interruzioni server quando nessun cliente vi era connesso disabilitando lo scrutinio per gli aggiornamenti dello schermo (Difetto-770661)\
+	  Ora cerca di passare il CGCharCode, migliorandone la stabilit\'88  (nessun crash durante eventi di tastiera come il tasto di Ritorno).\
+	  Aggiunto Caricamento del Pacchetto che dovrebbe permettere ad OSXvnc di eseguirsi su 10.0 ed usare specifiche funzioni per 10.2 e 10.3\
+	  Corretto un problema a volte che mandava senza comando un rettangolo\
+	  Corretto un raro difetto dove era a volte possibile per i clienti di perdersi una copia di evento accaduta sul server.
+\f0\b \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 	  Corretto un difetto cos\'93 che gli eventi della rotella del mouse non abbiano perdite grazie all'aggiunta di NSAutoreleasePool (Difetto-760383)\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 	  
+\f1\b0 Corretti problemi di appunti al copia/incolla di alcuni elementi che non erano solamente testo\
+
+\f0\b 	  
+\f1\b0 Miglioramenti di prestazioni minori sul ritardo tra le notifiche\
+\
+\
+
+\f0\b Versione 1.2, Realizzata il 7 Maggio 2003:\
+	  Modificata da Jonathan Gillaspie per Redstone Software, Inc.\
+	  osxvnc@redstonesoftware.com\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 	  Miglioramenti allo script degli elementi di avvio per l'avvio del sistema\
+	  Corretto un difetto dove ora i tasti premuti da un cliente vengono rilasciati automaticamente alla disconnessione del cliente\
+	  Corretti gli appunti dove la funzione taglia testo del server era mandato solo in risposta agli aggiornamenti dello schermo ed a volte dentro un RFB\
+	  Corretto un problema dove il server a volte dice di aver bisogno di un riavvio anche quando non c'\'8frano cambiamenti\
+	  Corretto una chiusura inaspettata su "Disconnetti" in 10.1\
+	  Corretto un problema con conversione dispersiva alle CStrings per i contenuti degli appunti con caratteri non-roman.\
+	  Impostazione run-loop per scrutinare lo schermo quando i clienti sono connessi, per una migliore prestazione.\
+	  Cambiare la locazione degli archivi temporanei /tmp se il pacchetto applicazione non \'8f scrivibile. (solo 10.2)\
+	\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 \
+Versione 1.11, Realizzata il1/18/2003:\
+	  Modificata da Jonathan Gillaspie per Redstone Software, Inc.\
+	  osxvnc@redstonesoftware.com\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0         	  * Contributi da (OSXvncPlus) di Steven Tamm\
+                	  * Contributi da (OSXvnc 0.8) di Mihai Parparita\
+                	  * Contibuto Cool Icon di Martin Goneau ( http://www.goneau.com )\
+	  Inclusa cartella degli elementi d'avvio per l'avvio del sistema\
+	  Versione 1.11 dello script degli elementi di avvia verranno rilanciati dopo l'uscita dell utente (logout)\
+	  L'interfaccia ora offre un Riavvio Server quando necessario\
+                          OSXvnc ora supporta Il mouse con scorrimento continuo (compatibile con RealVNC 3.3.5+)\
+                          OSXvnc ora supporta la codifica zRLE (compatibile con RealVNC 3.3.4+)\
+        	  Il colore ad 8-Bit ora funziona\
+                	  Si pu\'98 opzionalmente impostare per permettere connessioni locali (utili con SSH)\
+                          Aggiornate le FAQ con molte utili informazioni\
+	  Migliorata la mappatura della tastiera\
+                          Compatibilit\'88 con tutte le versioni di Chicken of the VNC\
+        	  Corretto il puntatore quando ogni tanto si bloccava perch\'8e non pi\'9d riconosciuto\
+                          Correzione sulla clientela multipla quando si usano codifiche che usano la compressione Zlib\
+                          Correzione di un problema sul cambio di risoluzione dello schermo che non funzionava se lanciato dalla linea di comando\
+                          Corretto il Zero Size Rect\
+	  Corretta la mappatura tastiera sper i tasti ~ e  `\
+\
+\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 Versione 1.0, Realizzata il 26 Settembre 2002;\
+	Modificata da Jonathan Gillaspie e Doug Simons per Redstone Software, Inc.
+\f1\b0 	
+\f0\b osxvnc@redstonesoftware.com\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 	Il server VNC ripartir\'88 se la risoluzione dello schermo cambia\
+	Ora manda aggiornamenti sulla richiesta per protocollo\
+                	Ora gestisce gli eventi Appunti\
+	Ora gestisce correttamente le connessioni multiple\
+	Ora immagazzina le impostazioni nelle preferenze\
+	Ora prende il nome dell'host e lo mette in visione\
+	Ora mostra per la porta predefinita il numero 0 = Port 5900\
+	Non fa partire pi\'9d una seconda icona sul dock\
+	Ora \'8f capace di scambiare i tasti destri del mouse sul #2/#3\
+        	Permette di disabilitare la tastiera remota e mouse\
+	Permette l'autopartenza del server all'avvio del programma\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f5\i\b \cf3 \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\i0\b0 \cf0 \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 Versione 0.7, Realizzata il 23 Aprile 2002:\
+	 Modificata da Mahmud Haque mahmud@bcm.tmc.edu\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 	 Aggiunto supporto per zlib e codifica tight ( codici da sorgente Tightvnc ).\
+	 Aggiunto supporto per codifica zlibhex (  codici da sorgente Tridia ).\
+	\
+\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 Versione 0.6, Realizzata il 14 Maggio 2001:	\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 	 Aggiunto supporto per il controllo dell'oscuramento del visore e completo stop basato su una\
+	 correzione mandata da Jed Davis <jldavis@cs.oberlin.edu>.  Un visore oscurato ora si reillumina ad ogni comando VNC.\
+	 Vari aggiustamenti minori dell'interfaccia utente: rimossa uscita console errori; aggiunto lo 0 alla lista dei numeri display; \
+                         cambiato il numero display preimpostato su "Mac OS X";  non si disabilita pi\'9d l'interfaccia quando il server non risponde pi\'9d.\
+\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 Versione 0.5, Realizzata il 25 Aprile 2001:\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 	 Prima realizzazione.\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 \
+\
+\
+Cose da fare:\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f0\b \cf0 Ancora da fare:\
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+
+\f1\b0 \cf0 	 Su OS X 10.2 e superiore \'8f stato aggiunto il supporto per il rilevamento della tastiera, OSXvnc dovrebbe ora colpire ogni SINGOLO tasto che \'8f presente nella tastiera selezionata dall'utente\
+	 Lo schermo pieno ha problemi nella modalit\'88 a 256 colori\
+	 L'ottimizzazione dell'intera prestazione\
+	 Test pressMods per i tasti con tastiera straniera\
+		Funziona ma non per un tasto premuto a lung - ci\'98 fa caricare un comportamento in particolare\
+		Cosi come ha problemi con cose tipo MAIUSCOLO tasti Freccia, CTRL, ecc.\
+\
+	 Muovi Disable Logic To Puma Bundle - necessario per 10.0?\
+	 Aggiunta Interfaccia per disabilitare il Mod Key Swtiching (includendo l'interfaccia)\
+\
+Cursore Mouse:\
+	 Artefatti occasionali del cursore (disabilitando la visione del cursore non sembra aiutare)\
+	 Problema con una trasparenza parziale su cursori - visualizzato usando il la soglia\
+\
+Problemi dove gli appunti non sono condivisi quando il programma si avvia automaticamente tramite gli elementi di avvio configurati.\
+	 Scherzi: il loginserver in specifico si disconnette la nostra porta al pbs, si potrebbe provare qualcosa con -LoginHook per riconnettersi.\
+\
+Riparare il problema cosi che Il server non muoia quando l'utente si sconnette \
+	 Si \'8f provato a demonizzarlo, ma non sembra funzionare, Penso che abbia bisogno di eseguire un ciclo  che poi lo spegne\
+\
+Riparare il problema che il server non lo fa eseguire sotto 10.0\
+	 Beta testing\
+\
+Aggiungere il pannello preferenze per la configurazione degli elementi di avvio (Preference Pane)\
+\
+Aggiornare l'icona dock con etichetta numerica alla connessione di un cliente\
+	 Quando il server \'8f avviato mostrare l'etichetta con 0\
+\
+Opzione per impostare uno sfondo su nero alla connessione\
+	 (
+\f3\fs20 /System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine -background -module "" &)\
+
+\f1\fs24 \
+Aggiungere capacit\'88 di connessione inversa dall'interfaccia utente\
+\
+Migliorato il supporto della tastiera internazionale:\
+	 Cercate di capire come lavorare con le Sticky keys\
+	 Dynamicall Determine \
+\
+Disabilitazione dello schermo nero/salva-schermo mentre i clienti sono connessi\
+	 lo fa a volte, verificare\
+\
+Correggere difetto quando si esegue con la modalit\'88 a 256 Colori\
+\
+Correggere difetto in CoRRE\
+\
+Supporto per Schermi Fisici Multipli\
+	 Ho un p\'98 di basi ma non ho risolto trattando con schermi multipli come parte di un'are dello schermo pi\'9d grande (bisogna tradurre gli eventi, ecc.)\
+	\
+Cercate di capire se possiamo far funzionare display senza la barra del titolo sopra\
+\
+Da sostituire  -localhost
+\f3\fs20 \cf2 \CocoaLigature0  
+\f1\fs24 \cf0 \CocoaLigature1 con l'archivio file -vncauth\
+\
+Aggiungere supporto inetd/xinetd\
+	 Cosicch\'8e OSXvnc si avvier\'88 a richiesta	\
+	 Guardate in RealVNC 4.0 per un esempio\
+\
+Aggiungere la modalit\'88  "Manda a Tutto Schermo" - Utile per cose come Keynote che raggira l'API CGRemoteOperations\
+	 Rilevare possibilmente quando la macchina entra in tale modalit\'88 - ad esempio se parte con Keynote in esecuzione\
+\
+Dipingere usando il Cursore del Mouse\
+	 Farne un'opzione\
+	 Provare ad usare la logica rfbLocalBuffer - MA anzich\'8e eseguire l'intero schermo attraverso esso \
+	 Basta mandare un aggiornamento per la posizione del cursore quando esso si muove. O quando altri aggiornamenti usciranno.\
+\
+}
