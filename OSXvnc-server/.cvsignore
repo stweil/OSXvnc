@@ -1,4 +1,6 @@
 .DS_Store
 .depend
+libvncauth
+libzlib
 OSXvnc-server
 storepasswd
