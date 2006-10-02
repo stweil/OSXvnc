@@ -57,7 +57,7 @@ better to just not even define it - but give a warning or something  */
 // This should be in CGRemoteOperationApi.h
 #if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_3
 #undef CGSetLocalEventsFilterDuringSupressionState
-#warning Using Obsolete CGSetLocalEventsFilterDuringSupressionState for backwards compatibility to 10.2
+//#warning Using Obsolete CGSetLocalEventsFilterDuringSupressionState for backwards compatibility to 10.2
 CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask filter, CGEventSupressionState state);
 #endif
 
@@ -86,6 +86,7 @@ BOOL rfbShouldSendUpdates = TRUE;
 BOOL registered = FALSE;
 BOOL restartOnUserSwitch = FALSE;
 BOOL useIP4 = TRUE;
+BOOL unregisterWhenNoConnections = FALSE;
 
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
 // Bool rfbLocalBuffer = FALSE;
@@ -802,9 +803,6 @@ static void processArguments(int argc, char *argv[]) {
             rfbSwapButtons = FALSE;
         } else if (strcmp(argv[i], "-disableremoteevents") == 0) {
             rfbDisableRemote = TRUE;
-//        } else if (strcmp(argv[i], "-rfblocalbuffer") == 0) {
-//            rfbLog("WARNING - rfbLocalBuffer option is Deprecated and will be removed soon");
-//            rfbLocalBuffer = TRUE;
         } else if (strcmp(argv[i], "-localhost") == 0) {
             rfbLocalhostOnly = TRUE;
         } else if (strcmp(argv[i], "-inhibitevents") == 0) {
@@ -817,6 +815,10 @@ static void processArguments(int argc, char *argv[]) {
 			littleEndian = FALSE;
 		} else if (strcmp(argv[i], "-ipv6") == 0) { // Ok so the code to enable is in the Bundle, but this disables 4
 			useIP4 = FALSE;
+		} else if (strcmp(argv[i], "-keepregistration") == 0) {
+			unregisterWhenNoConnections = FALSE;
+		} else if (strcmp(argv[i], "-dontkeepregistration") == 0) {
+			unregisterWhenNoConnections = TRUE;
 		} else if (strcmp(argv[i], "-restartonuserswitch") == 0) {
 			if (i + 1 >= argc) 
 				usage();
@@ -957,6 +959,10 @@ int main(int argc, char *argv[]) {
 	littleEndian = runningLittleEndian();
     checkForUsage(argc,argv);
     
+	// The bug with unregistering from user updates may have been fixed in 10.4 Tiger
+	if (floor(NSAppKitVersionNumber) > 743) // should be this but need to compile on older OSes floor(NSAppKitVersionNumber10_3))
+		unregisterWhenNoConnections = TRUE;
+	
     // This guarantees separating us from any terminal - 
 	// Right now this causes problems with the keep-alive script and the GUI app (since it causes the process to return right away)
 	// it allows you to survive when launched in SSH, etc but doesn't solves the problem of being killed on GUI logout.
@@ -1067,7 +1073,7 @@ int main(int argc, char *argv[]) {
 				
 				// You would think that there is no point in getting screen updates with no clients connected
 				// But it seems that unregistering but keeping the process (or event loop) around can cause a stuttering behavior in OS X.
-				if (0 && registered) {
+				if (registered && unregisterWhenNoConnections) {
 					rfbLog("UnRegistering Screen Update Notification - waiting for clients\n");
 					CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
 					registered = NO;
@@ -1110,4 +1116,3 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
-
