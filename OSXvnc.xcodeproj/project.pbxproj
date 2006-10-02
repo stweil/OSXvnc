@@ -121,37 +121,6 @@
 		ABA7B6D6094A171A00CD7499 /* d3des.c in Sources */ = {isa = PBXBuildFile; fileRef = ABA7B3D10948CB5D00CD7499 /* d3des.c */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXBuildStyle section */
-		4A9504D3FFE6A4CB11CA0CBA /* Development */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
-				GCC_OPTIMIZATION_LEVEL = 0;
-				INSTALL_MODE_FLAG = "a+rwX";
-				MACOSX_DEPLOYMENT_TARGET = 10.1;
-				ZERO_LINK = NO;
-			};
-			name = Development;
-		};
-		4A9504D4FFE6A4CB11CA0CBA /* Deployment */ = {
-			isa = PBXBuildStyle;
-			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				DEPLOYMENT_LOCATION = YES;
-				DEPLOYMENT_POSTPROCESSING = YES;
-				DSTROOT = /tmp;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				INSTALL_MODE_FLAG = "a+rwX";
-				MACOSX_DEPLOYMENT_TARGET = 10.1;
-				REMOVE_CVS_FROM_RESOURCES = YES;
-				ZERO_LINK = NO;
-			};
-			name = Deployment;
-		};
-/* End PBXBuildStyle section */
-
 /* Begin PBXContainerItemProxy section */
 		AB25DA5C08688EE80065843D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -222,9 +191,8 @@
 		AB3598E904BF8A6500A80117 /* JaguarExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JaguarExtensions.h; sourceTree = "<group>"; };
 		AB3598EA04BF8A6500A80117 /* JaguarExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JaguarExtensions.m; sourceTree = "<group>"; };
 		AB41881F04C5986E00A80117 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
-		AB541C5B07A027AA00B63668 /* French */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = French; path = French.lproj/Credits.rtf; sourceTree = "<group>"; };
 		AB82605708689AC00010AB63 /* storepasswd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = storepasswd; sourceTree = BUILT_PRODUCTS_DIR; };
-		AB82605B08689AC00010AB63 /* OSXvnc-server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "OSXvnc-server"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB82605B08689AC00010AB63 /* OSXvnc-server */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "compiled.mach-o.executable"; path = "OSXvnc-server"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB82E81904FA629800A80117 /* kbdptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kbdptr.h; sourceTree = "<group>"; };
 		AB82E81D04FA6D0A00A80117 /* rfbserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rfbserver.h; sourceTree = "<group>"; };
 		ABA7B3D10948CB5D00CD7499 /* d3des.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = d3des.c; sourceTree = "<group>"; };
@@ -236,12 +204,15 @@
 		ABA7B636094A0A5000CD7499 /* libjpg.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjpg.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABC7279A084399FD00F755B3 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Japanese; path = Japanese.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		ABC7279D08439A0400F755B3 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/Localizable.strings; sourceTree = "<group>"; };
-		ABC728CD0846576B00F755B3 /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = Japanese; path = Japanese.lproj/Credits.rtf; sourceTree = "<group>"; };
 		ABCCC8B203D9C60A00A80117 /* OSXvnc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = OSXvnc; sourceTree = "<group>"; };
 		ABD7FE7F07AFF8B4004D0B81 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABD7FEA607AFF92B004D0B81 /* French */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = French; path = French.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		ABD8EC07058A0BD600C84739 /* NSAuthorization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSAuthorization.h; sourceTree = "<group>"; };
 		ABD8EC08058A0BD600C84739 /* NSAuthorization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAuthorization.m; sourceTree = "<group>"; };
+		ABE1EFC20AC9F15500143E2B /* German */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = German; path = German.lproj/MainMenu.nib; sourceTree = "<group>"; };
+		ABE1EFC30AC9F16000143E2B /* Italian */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = Italian; path = Italian.lproj/MainMenu.nib; sourceTree = "<group>"; };
+		ABE1EFD20AC9F2E400143E2B /* Italian */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/Localizable.strings; sourceTree = "<group>"; };
+		ABE1EFD50AC9F4B900143E2B /* German */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = German; path = German.lproj/Copying.rtf; sourceTree = "<group>"; };
 		ABEE28F804C8745B00A80117 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		ABF191B704E447A400A80117 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		F538E00C02F9812901A80186 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
@@ -939,19 +910,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				GCC_DYNAMIC_NO_PIC = YES;
-				GCC_OPTIMIZATION_LEVEL = s;
-				INFOPLIST_FILE = "Info-OSXvnc.plist";
-				INSTALL_PATH = /OSXvnc/;
-				PRODUCT_NAME = OSXvnc;
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = app;
-			};
 			dependencies = (
 				AB52324708689C02003F66AC /* PBXTargetDependency */,
 				AB25DA5D08688EE80065843D /* PBXTargetDependency */,
@@ -973,30 +931,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				GCC_OPTIMIZATION_LEVEL = 3;
-				HEADER_SEARCH_PATHS = (
-					"OSXvnc-server",
-					"OSXvnc-server/include",
-					include/Xserver,
-					libvncauth,
-					libjpeg,
-				);
-				INFOPLIST_FILE = "Info-JaguarBundle.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"OSXvnc-server/libjpeg",
-					"OSXvnc-server/rdr",
-					/usr/lib/gcc/darwin/3.3,
-					"OSXvnc-server/libvncauth",
-				);
-				PRODUCT_NAME = JaguarBundle;
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-				WRAPPER_EXTENSION = bundle;
-			};
 			dependencies = (
 			);
 			name = JaguarBundle;
@@ -1014,31 +948,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				GCC_DYNAMIC_NO_PIC = YES;
-				GCC_INPUT_FILETYPE = automatic;
-				GCC_OPTIMIZATION_LEVEL = 3;
-				HEADER_SEARCH_PATHS = (
-					"OSXvnc-server",
-					"OSXvnc-server/include",
-					include/Xserver,
-					libvncauth,
-					libjpeg,
-				);
-				LIBRARY_SEARCH_PATHS = (
-					"OSXvnc-server/libjpeg",
-					"OSXvnc-server/rdr",
-					/usr/lib/gcc/darwin/3.3,
-					"OSXvnc-server/libvncauth",
-				);
-				OTHER_CFLAGS = "-ObjC";
-				PRODUCT_NAME = "OSXvnc-server";
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 				ABA7B68E094A15AC00CD7499 /* PBXTargetDependency */,
 				ABA7B55B094A07AE00CD7499 /* PBXTargetDependency */,
@@ -1057,17 +966,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				GCC_DYNAMIC_NO_PIC = YES;
-				GCC_OPTIMIZATION_LEVEL = s;
-				LIBRARY_SEARCH_PATHS = "OSXvnc-server/libvncauth";
-				PRODUCT_NAME = storepasswd;
-				WARNING_CFLAGS = (
-					"-Wmost",
-					"-Wno-four-char-constants",
-					"-Wno-unknown-pragmas",
-				);
-			};
 			dependencies = (
 			);
 			name = storepasswd;
@@ -1085,14 +983,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				INSTALL_PATH = /usr/local/lib;
-				PREBINDING = NO;
-				PRODUCT_NAME = rdr;
-				ZERO_LINK = YES;
-			};
 			dependencies = (
 			);
 			name = rdr;
@@ -1110,14 +1000,6 @@
 			);
 			buildRules = (
 			);
-			buildSettings = {
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
-				GCC_MODEL_TUNING = G5;
-				INSTALL_PATH = /usr/local/lib;
-				PREBINDING = NO;
-				PRODUCT_NAME = jpg;
-				ZERO_LINK = YES;
-			};
 			dependencies = (
 			);
 			name = jpg;
@@ -1131,13 +1013,14 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = ABECD3EE08E46414009C84A0 /* Build configuration list for PBXProject "OSXvnc" */;
-			buildSettings = {
-			};
-			buildStyles = (
-				4A9504D3FFE6A4CB11CA0CBA /* Development */,
-				4A9504D4FFE6A4CB11CA0CBA /* Deployment */,
-			);
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+				Italian,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* OSXvnc */;
 			projectDirPath = "";
 			targets = (
@@ -1360,6 +1243,8 @@
 				29B97319FDCFA39411CA2CEA /* English */,
 				ABD7FEA607AFF92B004D0B81 /* French */,
 				ABC7279A084399FD00F755B3 /* Japanese */,
+				ABE1EFC20AC9F15500143E2B /* German */,
+				ABE1EFC30AC9F16000143E2B /* Italian */,
 			);
 			name = MainMenu.nib;
 			sourceTree = "<group>";
@@ -1378,6 +1263,7 @@
 				F5753F450343ACD501A80186 /* English */,
 				AB25DA9C0868987B0065843D /* French */,
 				AB25DA93086897440065843D /* Japanese */,
+				ABE1EFD50AC9F4B900143E2B /* German */,
 			);
 			name = Copying.rtf;
 			sourceTree = "<group>";
@@ -1387,6 +1273,7 @@
 			children = (
 				ABD7FE7F07AFF8B4004D0B81 /* French */,
 				ABC7279D08439A0400F755B3 /* Japanese */,
+				ABE1EFD20AC9F2E400143E2B /* Italian */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -1395,8 +1282,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				F57BB468027E036F014B5D3F /* English */,
-				AB541C5B07A027AA00B63668 /* French */,
-				ABC728CD0846576B00F755B3 /* Japanese */,
 			);
 			name = Credits.rtf;
 			sourceTree = "<group>";
