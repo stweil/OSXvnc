@@ -288,7 +288,9 @@ typedef struct {
 #define rfbSetScaleFactorULTRA 8
 #define rfbSetScaleFactor 0xF
 
-
+#define rfbRichClipboardAvailable   0x83
+#define rfbRichClipboardRequest     0x84
+#define rfbRichClipboardData        0x85
 
 
 /*****************************************************************************
@@ -328,6 +330,8 @@ typedef struct {
 */
 #define rfbImmediateUpdate   0x80000000
 #define rfbPasteboardRequest 0x80010000
+#define rfbRichPasteboard    0x80010001
+
 
 /* TightVNC
  *
