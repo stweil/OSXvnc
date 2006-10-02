@@ -34,6 +34,8 @@
 
 #define LocalizedString(X)      [[NSBundle mainBundle] localizedStringForKey:(X) value:nil table:nil]
 
+#import "RFBBundleProtocol.h"
+
 // So we can still build on Panther
 #ifndef NSAppKitVersionNumber10_3
 #define NSAppKitVersionNumber10_3 743
@@ -77,6 +79,47 @@ static void terminateOnSignal(int signal) {
     return self;
 }
 
+- (void) loadDynamicBundles {
+    NSBundle *osxvncBundle = [NSBundle mainBundle];
+    NSString *execPath =[[NSProcessInfo processInfo] processName];
+		
+    NSLog(@"Main Bundle: %@", [osxvncBundle bundlePath]);
+    if (!osxvncBundle) {
+        // If We Launched Relative - make it absolute
+        if (![execPath isAbsolutePath])
+            execPath = [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent:execPath];
+		
+        execPath = [execPath stringByStandardizingPath];
+        execPath = [execPath stringByResolvingSymlinksInPath];
+		
+        osxvncBundle = [NSBundle bundleWithPath:execPath];
+        //resourcesPath = [[[resourcesPath stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"Resources"];
+    }
+	
+    if (osxvncBundle) {
+        NSArray *bundlePathArray = [NSBundle pathsForResourcesOfType:@"bundle" inDirectory:[osxvncBundle resourcePath]];
+        NSEnumerator *bundleEnum = [bundlePathArray reverseObjectEnumerator];
+        NSString *bundlePath = nil;
+		
+        while ((bundlePath = [bundleEnum nextObject])) {
+            NSBundle *aBundle = [NSBundle bundleWithPath:bundlePath];
+			
+            NSLog(@"Loading Bundle %@", bundlePath);
+			
+            if ([aBundle load]) {
+                if ([[aBundle principalClass] respondsToSelector:@selector(loadGUI)])
+                    [[aBundle principalClass] performSelector:@selector(loadGUI)];
+            }
+            else {
+                NSLog(@"\t-Bundle Load Failed");
+            }
+        }
+    }
+    else {
+        NSLog(@"No Bundles Loaded - Run %@ from inside OSXvnc.app", execPath);
+    }
+}
+
 - (BOOL) canWriteToFile: (NSString *) path {
     if ([[NSFileManager defaultManager] fileExistsAtPath:path])
         return [[NSFileManager defaultManager] isWritableFileAtPath:path];
@@ -92,6 +135,12 @@ static void terminateOnSignal(int signal) {
 	
 	if ([commonHostNames count] > 1) {
 		[hostNamesLabel setStringValue:LocalizedString(@"Host Names:")];
+	}
+	else if ([commonHostNames count] == 1) {
+		[hostNamesLabel setStringValue:LocalizedString(@"Host Name:")];
+	}
+	else {
+		[hostNamesLabel setStringValue:LocalizedString(@"")];
 	}
 	[hostNamesField setStringValue:[commonHostNames componentsJoinedByString:@"\n"]];        
 }
@@ -123,7 +172,21 @@ static void terminateOnSignal(int signal) {
 	if ([commonIPAddresses count] > 1) {
 		[ipAddressesLabel setStringValue:LocalizedString(@"IP Addresses:")];
 	}
+	else if ([commonIPAddresses count] == 1) {
+		[ipAddressesLabel setStringValue:LocalizedString(@"IP Address:")];
+	}
+	else {
+		[ipAddressesLabel setStringValue:@""];
+	}
 	[ipAddressesField setStringValue:[commonIPAddresses componentsJoinedByString:@"\n"]];        
+}
+
+- (NSWindow *) window {
+	return window;
+}
+
+- (int) port {
+	return port;
 }
 
 - (void) awakeFromNib {
@@ -190,8 +253,16 @@ static void terminateOnSignal(int signal) {
 	[self updateHostName];
 	[self updateIPAddresses];
 	
-    if ([startServerOnLaunchCheckbox state])
-        [self startServer: self];
+	[self loadDynamicBundles];
+}
+
+- (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
+	[window makeMainWindow];
+}
+
+- (void)applicationDidFinishLaunching:(NSNotification *)aNotification {	
+	if ([startServerOnLaunchCheckbox state])
+        [self startServer: self];	
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification {

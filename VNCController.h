@@ -80,7 +80,13 @@
 }
 
 - init;
+
+- (NSWindow *) window;
+- (int) runningPortNum;
+
 - (void) awakeFromNib;
+
+- (void) loadDynamicBundles;
 
 - (void) loadUserDefaults: sender;
 - (void) saveUserDefaults: sender;
