@@ -699,11 +699,13 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
 						cl->generalPBLastChange = -2; // This will cause it to send a single update that shows the current PB
 						break;
 					case rfbRichPasteboard:
-						rfbLog("\tEnabling Rich Pasteboard " "%s\n", cl->host);
-						cl->richClipboardSupport = TRUE;
-						// The -2 will already trigger force sending the PB, so we don't need to send the ack.
-						if (cl->generalPBLastChange != -2) 
-							cl->generalPBLastChange = -3;
+						if (!rfbDisableRichClipboards) {
+							rfbLog("\tEnabling Rich Pasteboard " "%s\n", cl->host);
+							cl->richClipboardSupport = TRUE;
+							// The -2 will already trigger force sending the PB, so we don't need to send the ack.
+							if (cl->generalPBLastChange != -2) 
+								cl->generalPBLastChange = -3;
+						}
 						break;
 					
                         // Tight encoding options
