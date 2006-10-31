@@ -339,6 +339,7 @@ extern Bool rfbReverseMods;
 
 extern Bool rfbSwapButtons;
 extern Bool rfbDisableRemote;
+extern Bool rfbDisableRichClipboards;
 
 extern Bool rfbLocalBuffer;
 

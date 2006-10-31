@@ -81,6 +81,7 @@ Bool rfbReverseMods = FALSE;
 
 Bool rfbSwapButtons = TRUE;
 Bool rfbDisableRemote = FALSE;
+Bool rfbDisableRichClipboards = FALSE;
 Bool rfbRemapShortcuts = FALSE;
 BOOL rfbShouldSendUpdates = TRUE;
 BOOL registered = FALSE;
@@ -642,39 +643,41 @@ static void usage(void) {
     fprintf(stderr, "\nAvailable options:\n\n");
 
     fprintf(stderr, "-rfbport port          TCP port for RFB protocol (0=autodetect first open port 5900-5909)\n");
-    fprintf(stderr, "-rfbwait time          max time in ms to wait for RFB client\n");
-    fprintf(stderr, "-rfbauth passwd-file   use authentication on RFB protocol\n"
+    fprintf(stderr, "-rfbwait time          Maximum time in ms to wait for RFB client\n");
+    fprintf(stderr, "-rfbauth passwd-file   Use this password file for RFB protocol\n"
             "                       (use 'storepasswd' to create a password file)\n");
-    fprintf(stderr, "-deferupdate time      time in ms to defer updates (default %d)\n", rfbDeferUpdateTime);
+    fprintf(stderr, "-deferupdate time      Time in ms to defer updates (default %d)\n", rfbDeferUpdateTime);
     fprintf(stderr, "-desktop name          VNC desktop name (default \"MacOS X\")\n");
-    fprintf(stderr, "-alwaysshared          always treat new clients as shared\n");
-    fprintf(stderr, "-nevershared           never treat new clients as shared\n");
-    fprintf(stderr, "-dontdisconnect        don't disconnect existing clients when a new non-shared\n"
+    fprintf(stderr, "-alwaysshared          Always treat new clients as shared\n");
+    fprintf(stderr, "-nevershared           Never treat new clients as shared\n");
+    fprintf(stderr, "-dontdisconnect        Don't disconnect existing clients when a new non-shared\n"
             "                       connection comes in (refuse new connection instead)\n");
-    fprintf(stderr, "-nodimming             never allow the display to dim\n"
+    fprintf(stderr, "-nodimming             Never allow the display to dim\n"
             "                       (default: display can dim, input undims)\n");
-    fprintf(stderr, "-maxdepth bits         maximum allowed bit depth for connecting clients.\n"
+    fprintf(stderr, "-maxdepth bits         Maximum allowed bit depth for connecting clients.\n"
             "                       (default: bit depth of display)\n");
     /*
      fprintf(stderr, "-reversemods           reverse the interpretation of control\n");
      fprintf(stderr, "                       and command (for windows clients)\n");
      */
-    fprintf(stderr, "-allowsleep            allow machine to sleep\n"
+    fprintf(stderr, "-allowsleep            Allow machine to sleep\n"
             "                       (default: sleep is disabled)\n");
     fprintf(stderr, "-disableScreenSaver    Disable screen saver while users are connected\n"
             "                       (default: no, allow screen saver to engage)\n");
-    fprintf(stderr, "-swapButtons           swap mouse buttons 2 & 3\n"
+    fprintf(stderr, "-swapButtons           Swap mouse buttons 2 & 3\n"
             "                       (default: YES)\n");
-    fprintf(stderr, "-dontswapButtons       disable swap mouse buttons 2 & 3\n"
+    fprintf(stderr, "-dontswapButtons       Disable swap mouse buttons 2 & 3\n"
             "                       (default: NO)\n");
-    fprintf(stderr, "-disableRemoteEvents   ignore remote keyboard, pointer, and pasteboard event\n"
+    fprintf(stderr, "-disableRemoteEvents   Ignore remote keyboard, pointer, and clipboard event\n"
+            "                       (default: no, process them)\n");
+    fprintf(stderr, "-disableRichClipboards Don't share rich clipboard events\n"
             "                       (default: no, process them)\n");
 	fprintf(stderr, "-connectHost host      Host Name or IP of listening client to establishing a reverse conneect\n");
 	fprintf(stderr, "-connectPort port      TCP port of listening client to establishing a reverse conneect\n"
 			"                       (default: 5500)\n");
 	fprintf(stderr, "-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n");
 	fprintf(stderr, "-protocol protocol     Force a particular protocol version (eg 3.3)\n");
-	fprintf(stderr, "                       default:" rfbProtocolVersionFormat, rfbProtocolMajorVersion, rfbProtocolMinorVersion);
+	fprintf(stderr, "                       (default:" rfbProtocolVersionFormat ")", rfbProtocolMajorVersion, rfbProtocolMinorVersion);
 	fprintf(stderr, "-bigEndian             Force Big-Endian mode (PPC)\n"
 			"                       (default: detect)\n");
 	fprintf(stderr, "-littleEndian          Force Little-Endian mode (INTEL)\n"
@@ -803,6 +806,8 @@ static void processArguments(int argc, char *argv[]) {
             rfbSwapButtons = FALSE;
         } else if (strcmp(argv[i], "-disableremoteevents") == 0) {
             rfbDisableRemote = TRUE;
+        } else if (strcmp(argv[i], "-disablerichclipboards") == 0) {
+            rfbDisableRichClipboards = TRUE;
         } else if (strcmp(argv[i], "-localhost") == 0) {
             rfbLocalhostOnly = TRUE;
         } else if (strcmp(argv[i], "-inhibitevents") == 0) {
