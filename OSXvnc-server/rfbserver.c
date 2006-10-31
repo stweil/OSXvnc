@@ -123,6 +123,7 @@ rfbClientPtr rfbReverseConnection(char *host, int port) {
 		sin.sin_port = htons(port);
 		if ((int)sin.sin_addr.s_addr == -1) {
 			struct hostent *hostinfo;
+#warning gethostbyname is NOT compatible with 10.1
 			hostinfo = gethostbyname(host);
 			if (hostinfo && hostinfo->h_addr) {
 				sin.sin_addr.s_addr = ((struct in_addr *)hostinfo->h_addr)->s_addr;
@@ -209,14 +210,14 @@ rfbClientPtr rfbNewClient(int sock) {
     cl = (rfbClientPtr)xalloc(sizeof(rfbClientRec));
 
     cl->sock = sock;
-	{
+	if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_1)) {
 		struct sockaddr_in6 addr;
 		char host[NI_MAXHOST];
 		
 		addrlen = sizeof(struct sockaddr_in6);
 
 		host[0] = 0;
-		getnameinfo((struct sockaddr *)&addr, addrlen, host, sizeof(host), NULL, 0, NI_NUMERICHOST);
+		getnameinfo((struct sockaddr *)&addr, addrlen, host, sizeof(host), NULL, 0, NI_NUMERICHOST); // Not available on 10.1
 		cl->host = strdup(host);
 	}
 	if (!strlen(cl->host)) {
@@ -333,6 +334,8 @@ void rfbClientConnectionGone(rfbClientPtr cl) {
     //rfbLog("Client %s release modifier keys\n",cl->host);
     keyboardReleaseKeysForClient(cl);
 
+	freePasteboardForClient(cl);
+	
     pthread_mutex_lock(&rfbClientListMutex);
 
     //rfbLog("Client %s release compression streams\n",cl->host);
@@ -692,10 +695,17 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                         cl->immediateUpdate = TRUE;
                         break;
 					case rfbPasteboardRequest:
-						rfbLog("\tEnabling Pasteboard Request" "%s\n", cl->host);
-						cl->pasteBoardLastChange = -2; // This will cause it to send a single update that shows the current PB
+						rfbLog("\tEnabling Pasteboard Request " "%s\n", cl->host);
+						cl->generalPBLastChange = -2; // This will cause it to send a single update that shows the current PB
 						break;
-
+					case rfbRichPasteboard:
+						rfbLog("\tEnabling Rich Pasteboard " "%s\n", cl->host);
+						cl->richClipboardSupport = TRUE;
+						// The -2 will already trigger force sending the PB, so we don't need to send the ack.
+						if (cl->generalPBLastChange != -2) 
+							cl->generalPBLastChange = -3;
+						break;
+					
                         // Tight encoding options
                     default:
                         if ( enc >= (CARD32)rfbEncodingCompressLevel0 &&
@@ -820,23 +830,23 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                 return;
             }
 
-            if (!cl->disableRemoteEvents) {
-                msg.cct.length = Swap32IfLE(msg.cct.length);
+			msg.cct.length = Swap32IfLE(msg.cct.length);
 
-                str = (char *)xalloc(msg.cct.length);
+			str = (char *)xalloc(msg.cct.length);
+			
+			if ((n = ReadExact(cl, str, msg.cct.length)) <= 0) {
+				if (n != 0)
+					rfbLogPerror("rfbProcessClientNormalMessage: read");
+				xfree(str);
+				rfbCloseClient(cl);
+				return;
+			}
 
-                if ((n = ReadExact(cl, str, msg.cct.length)) <= 0) {
-                    if (n != 0)
-                        rfbLogPerror("rfbProcessClientNormalMessage: read");
-                    xfree(str);
-                    rfbCloseClient(cl);
-                    return;
-                }
-
+			if (!cl->disableRemoteEvents) {
                 rfbSetCutText(cl, str, msg.cct.length);
-
-                xfree(str);
-            }
+			}
+			
+			xfree(str);
             return;
         }
 
@@ -901,6 +911,18 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
             return;
         }
 
+		case rfbRichClipboardAvailable:
+			rfbReceiveRichClipboardAvailable(cl);
+			return;
+			
+		case rfbRichClipboardRequest:
+			rfbReceiveRichClipboardRequest(cl);
+			return;
+			
+		case rfbRichClipboardData:
+			rfbReceiveRichClipboardData(cl);
+			return;
+			
         default: 
 		{
             rfbLog("ERROR: Client Sent Message: unknown message type %d\n", msg.type);
@@ -981,32 +1003,33 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
     fu->type = rfbFramebufferUpdate;
     fu->nRects = Swap16IfLE(nUpdateRegionRects);
     cl->ublen = sz_rfbFramebufferUpdateMsg;
-
-    if (cl->needNewScreenSize) {
-        if (rfbSendScreenUpdateEncoding(cl)) {
-            cl->needNewScreenSize = FALSE;
-        }
-        else {
-            rfbLog("Error Sending Cursor\n");
-            return FALSE;
-        }            
-    }
-    
-    // Sometimes send the mouse cursor update
+	
+    // Sometimes send the mouse cursor update (this can fail with big cursors so we'll try it first
     if (sendRichCursorEncoding) {
         if (!rfbSendRichCursorUpdate(cl)) {
             rfbLog("Error Sending Cursor\n");
-            return FALSE;
+            //return FALSE;  Since this is the first update we can "skip the cursor update" instead of failing the whole thing
+			--nUpdateRegionRects;
+			fu->nRects = Swap16IfLE(nUpdateRegionRects);
         }
     }
     if (sendCursorPositionEncoding) {
         if (!rfbSendCursorPos(cl)) {
-            rfbLog("Error Sending Cursor\n");
+            rfbLog("Error Sending Cursor Position\n");
             return FALSE;
         }
 
     }
-
+	if (cl->needNewScreenSize) {
+        if (rfbSendScreenUpdateEncoding(cl)) {
+            cl->needNewScreenSize = FALSE;
+        }
+        else {
+            rfbLog("Error Sending New Screen Size\n");
+            return FALSE;
+        }            
+    }
+	
     for (i = 0; i < REGION_NUM_RECTS(&updateRegion); i++) {
         int x = REGION_RECTS(&updateRegion)[i].x1;
         int y = REGION_RECTS(&updateRegion)[i].y1;

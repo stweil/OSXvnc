@@ -224,8 +224,27 @@ typedef struct rfbClientRec {
     Bool disableRemoteEvents;      // Ignore PB, Keyboard and Mouse events
     Bool swapMouseButtons23;       // How to interpret mouse buttons 2 & 3
     Bool immediateUpdate;          // To request that we get immediate updates (even 0 rects)
+	
+	Bool richClipboardSupport;     // Client has indicated they support rich clipboards
+	void *richClipboardChangeCounts; // Dictionary of local ChangeCount NSNumbers stored by PB Name
 
-    int pasteBoardLastChange;      // Used to see if we need to send the latest PB
+	/* These store temporary values during a rich clipboard transfer (one at a time per client) */
+	char *richClipboardName;
+	char *richClipboardType;
+	void *richClipboardNSData;
+	int   richClipboardDataChangeCount;
+	
+	void *richClipboardReceivedName;
+	void *richClipboardReceivedType;
+	void *richClipboardReceivedNSData;
+	void *receivedFileTempFolder;
+	int   richClipboardReceivedChangeCount;
+	
+	
+    int generalPBLastChange;      // Used to see if we need to send the latest general PB
+	
+	// Cursor Info
+	
     int currentCursorSeed;         // Used to see if we need to send a new cursor
     CGPoint clientCursorLocation;  // The last location the client left the mouse at
 
@@ -339,13 +358,17 @@ extern int WriteExact(rfbClientPtr cl, char *buf, int len);
 
 /* cutpaste.c */
 
-extern int pasteBoardLastChangeCount;
-
 extern void initPasteboard();
 extern void initPasteboardForClient(rfbClientPtr cl);
+extern void freePasteboardForClient(rfbClientPtr cl);
+
 extern void rfbSetCutText(rfbClientPtr cl, char *str, int len);
 extern void rfbCheckForPasteboardChange();
 extern void rfbClientUpdatePasteboard(rfbClientPtr cl);
+
+extern void rfbReceiveRichClipboardAvailable(rfbClientPtr cl);
+extern void rfbReceiveRichClipboardRequest(rfbClientPtr cl);
+extern void rfbReceiveRichClipboardData(rfbClientPtr cl);
 
 /* kbdptr.c */
 

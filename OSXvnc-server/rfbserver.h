@@ -1,5 +1,5 @@
 
-// This structure represents state of the RFB server
+// This structure represents the entire state of the RFB server
 // We use it for passing off to the bundles
 
 typedef struct rfbserver {
