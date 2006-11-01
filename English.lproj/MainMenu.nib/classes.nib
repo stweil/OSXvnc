@@ -38,6 +38,7 @@
                 connectHost = NSTextField; 
                 connectPort = NSTextField; 
                 disableRemoteEventsCheckbox = NSButton; 
+                disableRichClipboardCheckbox = NSButton; 
                 disableStartupButton = NSButton; 
                 displayNameField = NSTextField; 
                 displayNumberField = NSPopUpButton; 
