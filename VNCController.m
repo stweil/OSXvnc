@@ -455,6 +455,9 @@ static void terminateOnSignal(int signal) {
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"disableRemoteEvents"])
         [disableRemoteEventsCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"disableRemoteEvents"]];
 
+    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"disableRichClipboard"])
+        [disableRichClipboardCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"disableRichClipboard"]];
+		
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"showMouse"])
         [showMouseButton setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"showMouse"]];
 
@@ -484,6 +487,8 @@ static void terminateOnSignal(int signal) {
     [[NSUserDefaults standardUserDefaults] setInteger:[[sharingMatrix selectedCell] tag] forKey:@"sharingMode"];
     [[NSUserDefaults standardUserDefaults] setBool:[dontDisconnectCheckbox state] forKey:@"dontDisconnectClients"];
     [[NSUserDefaults standardUserDefaults] setBool:[disableRemoteEventsCheckbox state] forKey:@"disableRemoteEvents"];
+    [[NSUserDefaults standardUserDefaults] setBool:[disableRichClipboardCheckbox state] forKey:@"disableRichClipboard"];
+	
     [[NSUserDefaults standardUserDefaults] setBool:[limitToLocalConnections state] forKey:@"localhostOnly"];
     [[NSUserDefaults standardUserDefaults] setBool:[allowRendezvousCheckbox state] forKey:@"allowRendezvous"];
 	
@@ -685,6 +690,9 @@ static void terminateOnSignal(int signal) {
         [argv addObject:@"-swapButtons"];
     if ([disableRemoteEventsCheckbox state])
         [argv addObject:@"-disableRemoteEvents"];
+    if ([disableRichClipboardCheckbox state])
+        [argv addObject:@"-disableRichClipboards"];
+		
     if ([limitToLocalConnections state])
         [argv addObject:@"-localhost"];
 	

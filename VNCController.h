@@ -46,6 +46,7 @@
     IBOutlet NSButton *dontDisconnectCheckbox;
     IBOutlet NSButton *swapMouseButtonsCheckbox;
     IBOutlet NSButton *disableRemoteEventsCheckbox;
+    IBOutlet NSButton *disableRichClipboardCheckbox;
     IBOutlet NSButton *limitToLocalConnections;
     IBOutlet NSButton *allowRendezvousCheckbox;
 
