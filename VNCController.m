@@ -116,7 +116,7 @@ static void terminateOnSignal(int signal) {
         }
     }
     else {
-        NSLog(@"No Bundles Loaded - Run %@ from inside OSXvnc.app", execPath);
+        NSLog(@"No Bundles Loaded - Run %@ from inside %@.app", execPath, execPath);
     }
 }
 
@@ -539,7 +539,7 @@ static void terminateOnSignal(int signal) {
         NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
 
         NSString *executionPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server"];
-        NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting OSXvnc Version %@\n", [NSDate date], [infoDictionary valueForKey:@"CFBundleVersion"]];
+        NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting %@ Version %@\n", [NSDate date], [[NSProcessInfo processInfo] processName], [infoDictionary valueForKey:@"CFBundleVersion"]];
 
         if (![[NSFileManager defaultManager] fileExistsAtPath:logFile]) {
             [[NSFileManager defaultManager] createFileAtPath:logFile contents:nil attributes:nil];
@@ -606,7 +606,7 @@ static void terminateOnSignal(int signal) {
     if (userStopped)
         [statusMessageField setStringValue:LocalizedString(@"The server is stopped.")];
     else if ([controller terminationStatus]==250) {
-		NSMutableString *messageString = [NSMutableString stringWithFormat:@"OSXvnc can't listen on the specified port (%d).\n", port];
+		NSMutableString *messageString = [NSMutableString stringWithFormat:@"%@ can't listen on the specified port (%d).\n", [[NSProcessInfo processInfo] processName], port];
 		if ([disableStartupButton isEnabled])
 			[messageString appendString:LocalizedString(@"Probably because the OSXvnc server is already running as a Startup Item.")];
 		else
@@ -718,7 +718,7 @@ static void terminateOnSignal(int signal) {
 
 - (void) changeDisplayNumber: sender {
 	if ([displayNumberField indexOfSelectedItem] == 0) {
-		[self scanForOpenPort:5900];
+		port = [self scanForOpenPort:5900];
 	}
 	else  if (port != [[[displayNumberField selectedItem] title] intValue] + 5900) {
         if ([displayNumberField indexOfSelectedItem] < 10) {
