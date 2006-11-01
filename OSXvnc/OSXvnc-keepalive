@@ -7,6 +7,11 @@
 # 
 # Modification Log:
 #
+# 2.0  Adopted these contributions...
+#
+# 2006-06-07 Marvin Simkin
+# Try to capture a little more detail when it dies
+#
 # 1.71
 # For no documentable reason I can discern the server gets a 137 code when a user logs out
 #
@@ -28,23 +33,46 @@
 # 1.11
 # Initial version
 
+echo "`date '+%Y-%m-%d %H:%M:%S'` $0: Starting"
+echo "`date '+%Y-%m-%d %H:%M:%S'`        pwd: '`pwd`'"
+echo "`date '+%Y-%m-%d %H:%M:%S'`         id: '`id`'"
+echo "`date '+%Y-%m-%d %H:%M:%S'`   uname -a: '`uname -a`'"
+echo "`date '+%Y-%m-%d %H:%M:%S'`     uptime: '`uptime`'"
+
 RESULT=15
-pwd
 # OS X will send a SIGINT or SIGTERM to shutdown OSXvnc-server
 # On a high SIGNAL (over 128) we'll stop properly (this is what the server returns internally when an error occurs)
-while [[ "$RESULT" -lt "128" ]]
+## this seems to be stopping needlessly when it could recover
+##while [[ "$RESULT" -lt "128" ]]
+STOPNOW=0
+while [[ "$STOPNOW" -lt "1" ]]
 do
-	echo "$0: Starting Server"
+	echo "`date '+%Y-%m-%d %H:%M:%S'` $0: Starting Server '$1'"
 	"$@" # Run our parameters
 	RESULT=$? # Record Result
+	echo "`date '+%Y-%m-%d %H:%M:%S'` Server exited with result: $RESULT"
+	echo "`date '+%Y-%m-%d %H:%M:%S'` Server exited with result: $RESULT" >> /var/log/osxvnc_exit.log
+        # check for same problem recurring frequently
+        COUNT=`cut -f1,7 -d' ' < /var/log/osxvnc_exit.log |
+          uniq -c |
+          tail -1 |
+          sed "s/^  *//" |
+          cut -f1 -d' '`
+
+        # set the repeated failures limit here
+        if test $COUNT -gt 4
+        then
+          echo "`date '+%Y-%m-%d %H:%M:%S'` The same error '$RESULT' happened $COUNT times in a row, not restarting!"
+          echo "`date '+%Y-%m-%d %H:%M:%S'` The same error '$RESULT' happened $COUNT times in a row, not restarting!" >> /var/log/osxvnc_exit.log
+          STOPNOW=1
+        fi
+
 	# On logout it seems get a 137 exit? why?
 	if [[ "$RESULT" -eq "137" ]] 
 	then
 		RESULT=9
 	fi
-	echo $RESULT
 	sleep 5
 done
 
-echo "$0 Shutdown with exit status " $RESULT
-
+echo "`date '+%Y-%m-%d %H:%M:%S'` $0: Shutdown with exit status " $RESULT
