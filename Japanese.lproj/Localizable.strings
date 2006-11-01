@@ -6,7 +6,7 @@
 "The server is not running." = "サーバは動作していません。";
 "Start Server" = "サーバを起動";
 "The server is stopped." = "サーバは停止しています。";
-"Probably because the OSXvnc server is already running as a Startup Item." = "OSXvnc サーバが既に起動項目として起動している可能性があります。";
+"Probably because the OSXvnc server is already running as a Startup Item." = "Vine サーバが既に起動項目として起動している可能性があります。";
 "Probably because another VNC is already using this port." = "このポートは既にほかの VNC によって使用されている可能性があります。";
 "The server has stopped running. See Log (%d)\n" = "サーバが停止しました。詳細はログ (%d) を参照してください。\n";
 "The server has stopped running." = "サーバが停止しました。";

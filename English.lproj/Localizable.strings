@@ -1,0 +1,4 @@
+{
+"Probably because the OSXvnc server is already running as a Startup Item." = "Probably because Vine server is already running as a System Server.";
+"Probably because another VNC is already using this port." = "Probably because Apple Remote Desktop or another VNC server is already using";
+}
