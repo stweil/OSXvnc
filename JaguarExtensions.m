@@ -427,3 +427,13 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 
 
 @end
+
+#include <netdb.h>
+
+@implementation NSProcessInfo (VNCExtension)
+
+- (struct hostent *) getHostByName:(char *) host {
+	return gethostbyname(host);
+}
+
+@end
