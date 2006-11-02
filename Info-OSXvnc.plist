@@ -5,33 +5,33 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleExecutable</key>
-	<string>OSXvnc</string>
+	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>2.0A - Copyright © 2002-2006 Redstone Software </string>
+	<string>2.0 - CopyrightÂ© 2002-2006 Redstone Software </string>
 	<key>CFBundleIconFile</key>
-	<string>OSXvnc.icns</string>
+	<string>VineServer.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>OSXvnc</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>OSXvnc</string>
+	<string>Vine Server</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleSignature</key>
 	<string>OSXv</string>
 	<key>CFBundleShortVersion</key>
-	<string>2.0A</string>
+	<string>2.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.0A</string>
+	<string>2.0</string>
 	<key>CFBundleVersion</key>
-	<string>2.0A</string>
+	<string>2.0</string>
 	<key>NSAppleScriptEnabled</key>
 	<false/>
 	<key>NSHelpFile</key>
-	<string>OSXvnc.html</string>
+	<string>Vine Server.pdf</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright © 2002-2006 Redstone Software</string>
+	<string>CopyrightÂ© 2002-2006 Redstone Software</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>

@@ -12,9 +12,7 @@
 		AB25D82008686B520065843D /* Release Notes.rtf in Resources */ = {isa = PBXBuildFile; fileRef = AB541C2907A0264F00B63668 /* Release Notes.rtf */; };
 		AB25D82108686B520065843D /* Copying.rtf in Resources */ = {isa = PBXBuildFile; fileRef = AB541C3B07A0273500B63668 /* Copying.rtf */; };
 		AB25D82208686B520065843D /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABD7FE7E07AFF8B4004D0B81 /* Localizable.strings */; };
-		AB25D82408686B520065843D /* OSXvnc.html in Resources */ = {isa = PBXBuildFile; fileRef = 096B69DC0097995A7F000001 /* OSXvnc.html */; };
 		AB25D82608686B520065843D /* OSXvnc in Resources */ = {isa = PBXBuildFile; fileRef = ABCCC8B203D9C60A00A80117 /* OSXvnc */; };
-		AB25D82708686B520065843D /* RFBBundleProtocol.h in Resources */ = {isa = PBXBuildFile; fileRef = AB15010D04F6A94500A80117 /* RFBBundleProtocol.h */; };
 		AB25D82A08686B520065843D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; settings = {ATTRIBUTES = (); }; };
 		AB25D82B08686B520065843D /* VNCController.m in Sources */ = {isa = PBXBuildFile; fileRef = F5456A2802FAD08901A80117 /* VNCController.m */; };
 		AB25D82E08686B520065843D /* NSAuthorization.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD8EC08058A0BD600C84739 /* NSAuthorization.m */; };
@@ -54,6 +52,7 @@
 		AB25DA3B0868842E0065843D /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB25DA3A0868842E0065843D /* IOKit.framework */; };
 		AB25DA3D086884420065843D /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB25DA3C086884420065843D /* libz.dylib */; };
 		AB25DA5108688E100065843D /* JaguarBundle.bundle in Resources */ = {isa = PBXBuildFile; fileRef = AB25D87E08686C7D0065843D /* JaguarBundle.bundle */; };
+		AB3E27F80AF947FB004AF567 /* Vine Server.pdf in Resources */ = {isa = PBXBuildFile; fileRef = AB3E27F70AF947FB004AF567 /* Vine Server.pdf */; };
 		AB3F8B8F089952230076668A /* rfbserver.h in Headers */ = {isa = PBXBuildFile; fileRef = AB82E81D04FA6D0A00A80117 /* rfbserver.h */; };
 		AB82605A08689AC00010AB63 /* storepasswd in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB82605708689AC00010AB63 /* storepasswd */; };
 		AB82605E08689AC00010AB63 /* OSXvnc-server in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB82605B08689AC00010AB63 /* OSXvnc-server */; };
@@ -189,6 +188,7 @@
 		AB25DA9C0868987B0065843D /* French */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = French; path = French.lproj/Copying.rtf; sourceTree = "<group>"; };
 		AB3598E904BF8A6500A80117 /* JaguarExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JaguarExtensions.h; sourceTree = "<group>"; };
 		AB3598EA04BF8A6500A80117 /* JaguarExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JaguarExtensions.m; sourceTree = "<group>"; };
+		AB3E27F70AF947FB004AF567 /* Vine Server.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Vine Server.pdf"; sourceTree = "<group>"; };
 		AB41881F04C5986E00A80117 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
 		AB82605708689AC00010AB63 /* storepasswd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = storepasswd; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB82605B08689AC00010AB63 /* OSXvnc-server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "OSXvnc-server"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -552,6 +552,7 @@
 		29B97317FDCFA39411CA2CEA /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				AB3E27F70AF947FB004AF567 /* Vine Server.pdf */,
 				096B69DC0097995A7F000001 /* OSXvnc.html */,
 				ABCCC8B203D9C60A00A80117 /* OSXvnc */,
 				ABD7FE7E07AFF8B4004D0B81 /* Localizable.strings */,
@@ -1045,11 +1046,10 @@
 				AB25D82008686B520065843D /* Release Notes.rtf in Resources */,
 				AB25D82108686B520065843D /* Copying.rtf in Resources */,
 				AB25D82208686B520065843D /* Localizable.strings in Resources */,
-				AB25D82408686B520065843D /* OSXvnc.html in Resources */,
-				AB25D82708686B520065843D /* RFBBundleProtocol.h in Resources */,
 				AB25DA5108688E100065843D /* JaguarBundle.bundle in Resources */,
 				AB25D82608686B520065843D /* OSXvnc in Resources */,
 				ABFC222C0AF08CBA00BCE727 /* VineServer.icns in Resources */,
+				AB3E27F80AF947FB004AF567 /* Vine Server.pdf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1076,7 +1076,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "# This removes any re-link reference to the $INSTALL_DIR\nrm -f \"$INSTALL_DIR/$PRODUCT_NAME.app/$PRODUCT_NAME.app\"\n\nhdiutil create -ov -format UDZO -imagekey zlib-level=9 -srcfolder \"$INSTALL_DIR\" \"$INSTALL_DIR/../$PROJECT_NAME.dmg\";\nhdiutil internet-enable \"$INSTALL_DIR/../$PROJECT_NAME.dmg\"\n";
+			shellScript = "# This removes any re-link reference to the $INSTALL_DIR\nrm -f \"$INSTALL_DIR/$PRODUCT_NAME.app/$PRODUCT_NAME.app\"\n# UDIF\nhdiutil create -ov -format UDZO -imagekey zlib-level=9 -srcfolder \"$INSTALL_DIR\" \"$INSTALL_DIR/../$PRODUCT_NAME.dmg\";\nhdiutil internet-enable \"$INSTALL_DIR/../$PRODUCT_NAME.dmg\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
