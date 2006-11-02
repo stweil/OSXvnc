@@ -29,12 +29,6 @@
 #include <pthread.h>
 #include "rfb.h"
 
-@interface NSClipboardProxy : NSObject {
-	rfbClientPtr clientPointer;
-}
-
-@end
-
 #define CorePasteboardFlavor_furl @"CorePasteboardFlavorType 0x6675726C"
 #define CorePasteboardFlavor_icns @"CorePasteboardFlavorType 0x69636E73"
 #define CorePasteboardFlavor_ut16 @"CorePasteboardFlavorType 0x75743136"
@@ -76,6 +70,16 @@
 
 @end
 
+@interface NSClipboardProxy : NSObject {
+	rfbClientPtr clientPointer;
+}
+
+- initWithClientPtr: (rfbClientPtr) cl;
+- (void) removeClient;
+
+@end
+
+
 @implementation NSClipboardProxy
 
 - initWithClientPtr: (rfbClientPtr) cl {
@@ -90,6 +94,9 @@
 - (void)pasteboard:(NSPasteboard *)thePasteboard provideDataForType:(NSString *)type {
 	time_t startTime=time(NULL);
 
+	if (!clientPointer)
+		return;
+
 	pthread_mutex_lock(&clientPointer->updateMutex);
 	
 	// Notify sending thread of request
@@ -101,9 +108,12 @@
 	// which will call rfbSendRichClipboardRequest 
 
 	// Wait for flag indicating returned data
-	while (!clientPointer->richClipboardReceivedNSData && (time(NULL) - startTime < 60)) { // 60 second timeout
+	while (clientPointer && !clientPointer->richClipboardReceivedNSData && (time(NULL) - startTime < 60)) { // 60 second timeout
 		usleep(.10 * 1000000);
 	}
+	if (!clientPointer)
+		return;
+	
 	if (clientPointer->richClipboardReceivedChangeCount >= 0) {
 		NSString *availableType = clientPointer->richClipboardReceivedType;
 		NSData *pasteboardData = clientPointer->richClipboardReceivedNSData;
@@ -179,7 +189,17 @@
 	pthread_mutex_unlock(&clientPointer->updateMutex);
 }
 
+- (void) removeClient {
+	clientPointer = NULL;
+	// Would be nice to tell our PB that we aren't valid
+}
+
 - (void)pasteboardChangedOwner:(NSPasteboard *)sender {
+	if (clientPointer) {
+		pthread_mutex_lock(&clientPointer->updateMutex);
+		clientPointer->clipboardProxy = nil;
+		pthread_mutex_unlock(&clientPointer->updateMutex);
+	}
 	[self autorelease];
 }
 
@@ -271,6 +291,7 @@ void initPasteboardForClient(rfbClientPtr cl) {
 }
 
 void freePasteboardForClient(rfbClientPtr cl) {
+	[(NSClipboardProxy *) cl->clipboardProxy removeClient];
 	[(NSString *)cl->receivedFileTempFolder release];
 	[(NSMutableDictionary *)cl->richClipboardChangeCounts release];
 }
@@ -672,7 +693,8 @@ void rfbReceiveRichClipboardAvailable(rfbClientPtr cl) {
 			addNewDataToPB = YES;
 
 		if (addNewDataToPB) {
-			int newChangeCount = [thePasteboard declareTypes:availableTypes owner:[[NSClipboardProxy alloc] initWithClientPtr:cl]];
+			cl->clipboardProxy = [[NSClipboardProxy alloc] initWithClientPtr:cl];
+			int newChangeCount = [thePasteboard declareTypes:availableTypes owner:cl->clipboardProxy];
 			// Don't send it back to the same client via rich clipboards
 			[(NSMutableDictionary *)cl->richClipboardChangeCounts setObject:[NSNumber numberWithInt:newChangeCount] forKey:pasteboardName]; 
 		}			

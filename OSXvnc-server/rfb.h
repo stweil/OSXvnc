@@ -229,6 +229,7 @@ typedef struct rfbClientRec {
 	void *richClipboardChangeCounts; // Dictionary of local ChangeCount NSNumbers stored by PB Name
 
 	/* These store temporary values during a rich clipboard transfer (one at a time per client) */
+	void *clipboardProxy;
 	char *richClipboardName;
 	char *richClipboardType;
 	void *richClipboardNSData;
