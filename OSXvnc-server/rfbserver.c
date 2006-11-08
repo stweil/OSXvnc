@@ -124,7 +124,7 @@ rfbClientPtr rfbReverseConnection(char *host, int port) {
 		if ((int)sin.sin_addr.s_addr == -1) {
 			struct hostent *hostinfo = NULL;
 			//gethostbyname is NOT compatible with 10.1, we'll try calling a cover method on the Jaguar Bundle
-			if ([[NSProcessInfo processInfo] respondsToSelector:@selector(gethostbyname:)])
+			if ([[NSProcessInfo processInfo] respondsToSelector:@selector(getHostByName:)])
 				hostinfo = (struct hostent *) [[NSProcessInfo processInfo] performSelector:@selector(getHostByName:) withObject:(id)host];
 			if (hostinfo && hostinfo->h_addr) {
 				sin.sin_addr.s_addr = ((struct in_addr *)hostinfo->h_addr)->s_addr;
