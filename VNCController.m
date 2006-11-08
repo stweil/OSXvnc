@@ -532,7 +532,7 @@ static void terminateOnSignal(int signal) {
         [window endEditingFor:nil];
 
 	if ([displayNumberField indexOfSelectedItem] == 0) {
-		[self scanForOpenPort:5900];
+		[self scanForOpenPort:5900]; // To update the UI on the likely port that we will get
 	}
 
     if (argv = [self formCommandLine]) {
@@ -718,7 +718,8 @@ static void terminateOnSignal(int signal) {
 
 - (void) changeDisplayNumber: sender {
 	if ([displayNumberField indexOfSelectedItem] == 0) {
-		port = [self scanForOpenPort:5900];
+		[self scanForOpenPort:5900]; // Even if we don't launch now we'll update with the likely port number
+		port = 0;
 	}
 	else  if (port != [[[displayNumberField selectedItem] title] intValue] + 5900) {
         if ([displayNumberField indexOfSelectedItem] < 10) {
@@ -738,7 +739,7 @@ static void terminateOnSignal(int signal) {
 	port = [portField intValue];
 	if (!port) {
 		[displayNumberField selectItemWithTitle:@"Auto"];
-		[self scanForOpenPort:5900];
+		[self scanForOpenPort:5900];// Even if we don't launch now we'll update with the likely port number
 	}
 	else if (port < 5900 || port > 5909)
 		[displayNumberField selectItemWithTitle:@"--"];
