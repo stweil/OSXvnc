@@ -35,6 +35,7 @@
 #define CorePasteboardFlavor_ustl @"CorePasteboardFlavorType 0x7573746C"
 #define CorePasteboardFlavor_TEXT @"CorePasteboardFlavorType 0x54455854"
 #define CorePasteboardFlavor_styl @"CorePasteboardFlavorType 0x7374796C"
+#define CorePasteboardFlavor_fccc @"CorePasteboardFlavorType 0x66636363"
 
 @interface NSFileManager (RSFileManagerAdditions)
 
@@ -392,6 +393,8 @@ void rfbCheckForPasteboardChange() {
 				if (pasteboardRepresentsExistingFile(thePasteboard)) {
 					pboardTypes = [pboardTypes arrayByAddingObject:NSFileContentsPboardType];
 				}
+				if (![pboardTypes containsObject:CorePasteboardFlavor_fccc])
+					pboardTypes = [pboardTypes arrayByAddingObject:CorePasteboardFlavor_fccc];
 			}
 			[pbInfoArray replaceObjectAtIndex:1 withObject:pboardTypes];
 
@@ -822,6 +825,9 @@ void rfbReceiveRichClipboardRequest(rfbClientPtr cl) {
 				if (!cl->richClipboardNSData) {
 					cl->richClipboardNSData = [[thePasteboard dataForType:theType] retain];
 					cl->richClipboardDataChangeCount = [thePasteboard changeCount];
+					if (!cl->richClipboardNSData && [theType isEqualToString:CorePasteboardFlavor_fccc]) { // 10.3 "Copy" Code
+						cl->richClipboardNSData = [@"copy" dataUsingEncoding:NSUTF8StringEncoding];
+					}					
 				}		
 				if (!cl->richClipboardNSData || 
 					(pbChangeCount >= 0 && pbChangeCount != cl->richClipboardDataChangeCount)) {
