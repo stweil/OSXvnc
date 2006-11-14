@@ -432,8 +432,13 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 
 @implementation NSProcessInfo (VNCExtension)
 
+- (CGDirectDisplayID) CGMainDisplayID {
+	return CGMainDisplayID();
+}
+
 - (struct hostent *) getHostByName:(char *) host {
 	return gethostbyname(host);
 }
 
 @end
+
