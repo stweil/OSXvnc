@@ -42,16 +42,6 @@
 
 #import "../RFBBundleProtocol.h"
 
-// This fix should be in CGDirectDisplay.h
-#undef kCGDirectMainDisplay
-
-#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_2
-#define kCGDirectMainDisplay ((CGDirectDisplayID)0)
-#warning Using Obsolete kCGDirectMainDisplay for backwards compatibility to 10.1
-#else
-#define kCGDirectMainDisplay CGMainDisplayID()
-#endif
-
 /* That's great that they #define it to use the new symbol that doesn't exist in older versions
 better to just not even define it - but give a warning or something  */
 // This should be in CGRemoteOperationApi.h
@@ -91,8 +81,8 @@ BOOL unregisterWhenNoConnections = FALSE;
 
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
 // Bool rfbLocalBuffer = FALSE;
-static pthread_mutex_t logMutex;
 
+static pthread_mutex_t logMutex;
 pthread_mutex_t listenerAccepting;
 pthread_cond_t listenerGotNewClient;
 
@@ -122,7 +112,7 @@ NSMutableArray *bundleArray = nil;
 
 VNCServer *vncServerObject = nil;
 
-static void rfbScreenInit(void);
+static bool rfbScreenInit(void);
 
 /*
  * rfbLog prints a time-stamped message to the log file (stderr).
@@ -271,14 +261,11 @@ void rfbCheckForScreenResolutionChange() {
     if (sizeChange || rfbScreen.bitsPerPixel != CGDisplayBitsPerPixel(displayID)) {
         rfbClientIteratorPtr iterator;
         rfbClientPtr cl = NULL;
+		BOOL screenOK = TRUE;
+		int maxTries = 12;
 
         // Block listener from accepting new connections while we restart
         pthread_mutex_lock(&listenerAccepting);
-
-        rfbLog("Screen Geometry Changed - (%d,%d) Depth: %d\n",
-               CGDisplayPixelsWide(displayID),
-               CGDisplayPixelsHigh(displayID),
-               CGDisplayBitsPerPixel(displayID));
 
         iterator = rfbGetClientIterator();
         // Disconnect Existing Clients
@@ -288,9 +275,19 @@ void rfbCheckForScreenResolutionChange() {
         }
         rfbReleaseClientIterator(iterator);
 
-        rfbScreenInit();
-
-        iterator = rfbGetClientIterator();
+		do {
+			screenOK = rfbScreenInit();
+		} while (!screenOK && maxTries-- && usleep(2100000)==0);
+		if (!screenOK)
+			exit(1);
+		
+		rfbLog("Screen Geometry Changed - (%d,%d) Depth: %d\n",
+               CGDisplayPixelsWide(displayID),
+               CGDisplayPixelsHigh(displayID),
+               CGDisplayBitsPerPixel(displayID));
+				
+		
+		iterator = rfbGetClientIterator();
         while ((cl = rfbClientIteratorNext(iterator))) {
             // Only need to notify them on a SIZE change - other changes just make us re-init
             if (sizeChange) {
@@ -574,13 +571,26 @@ void connectReverseClient(char *hostName, int portNum) {
 
 char *rfbGetFramebuffer(void)
 {
-	return (char *)CGDisplayBaseAddress(displayID);
+	char *returnValue = CGDisplayBaseAddress(displayID);
+	while (!returnValue) {
+		usleep(500000); // Buffer goes away while screen is "switching", it'll be back
+		returnValue = CGDisplayBaseAddress(displayID);
+	}
+	return returnValue;
 }
 
-static void rfbScreenInit(void) {
+static bool rfbScreenInit(void) {
 	int bitsPerSample = 8;
 
-    (void) GetMainDevice();
+	if (floor(NSAppKitVersionNumber) <= 743) // should be NSAppKitVersionNumber10_3 but need to compile on older OSes
+		(void) GetMainDevice();
+	
+	// This is defined in the Jaguar Bundle so that we can do this on 10.2+ but still be compatible to 10.1
+	if ([[NSProcessInfo processInfo] respondsToSelector:@selector(CGMainDisplayID)])
+		displayID = [[NSProcessInfo processInfo] CGMainDisplayID];
+	else
+		displayID = ((CGDirectDisplayID)0);
+	
     // necessary to init the display manager,
     
 	// otherwise CGDisplayBitsPerPixel doesn't
@@ -588,8 +598,8 @@ static void rfbScreenInit(void) {
 	bitsPerSample = CGDisplayBitsPerSample(displayID);
 	
     if (CGDisplaySamplesPerPixel(displayID) != 3) {
-        rfbLog("screen format not supported.  exiting.\n");
-        exit(1);
+        rfbLog("screen format not supported.\n");
+		return FALSE;
     }
 
 	rfbScreen.width = CGDisplayPixelsWide(displayID);
@@ -637,6 +647,8 @@ static void rfbScreenInit(void) {
     hackScreen.RegionExtents = miRegionExtents;
     hackScreen.RegionAppend = miRegionAppend;
     hackScreen.RegionValidate = miRegionValidate;
+	
+	return TRUE;
 }
 
 static void usage(void) {
@@ -984,8 +996,6 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, rfbShutdownOnSignal);
     signal(SIGQUIT, rfbShutdownOnSignal);
     signal(SIGQUIT, rfbShutdownOnSignal);
-   
-    displayID = kCGDirectMainDisplay;
 
     pthread_t listener_thread;
 
@@ -1007,7 +1017,9 @@ int main(int argc, char *argv[]) {
 		[[[NSProcessInfo processInfo] hostName] getCString:desktopName];
 	}
 	
-    rfbScreenInit();
+	if (!rfbScreenInit())
+		exit(1);
+
     rfbClientListInit();
     rfbDimmingInit();
 
