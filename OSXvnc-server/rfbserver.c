@@ -1039,8 +1039,11 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
         int w = REGION_RECTS(&updateRegion)[i].x2 - x;
         int h = REGION_RECTS(&updateRegion)[i].y2 - y;
 
+		// Refresh with latest pointer (should be "read-locked" throughout here with CG but I don't see that option)
 		if (cl->scalingFactor != 1)
 			CopyScalingRect( cl, &x, &y, &w, &h, TRUE);
+		else 
+			cl->scalingFrameBuffer = rfbGetFramebuffer();
 		
         cl->rfbRawBytesEquivalent += (sz_rfbFramebufferUpdateRectHeader
                                       + w * (cl->format.bitsPerPixel / 8) * h);
@@ -1328,12 +1331,10 @@ void CopyScalingRect( rfbClientPtr cl, int* x, int* y, int* w, int* h, Bool bDoS
         rw = cw * cl->scalingFactor;
 
         /* Copy and scale data from screen buffer to scaling buffer */
-        srcptr = (unsigned char*)rfbGetFramebuffer()
-            + (ry * rfbScreen.paddedWidthInBytes ) + (rx * bytesPerPixel);
-        dstptr = (unsigned char*)cl->scalingFrameBuffer
-            + (cy * cl->scalingPaddedWidthInBytes) + (cx * bytesPerPixel);
+        srcptr = rfbGetFramebuffer() + (ry * rfbScreen.paddedWidthInBytes ) + (rx * bytesPerPixel);
+        dstptr = (unsigned char*)cl->scalingFrameBuffer+ (cy * cl->scalingPaddedWidthInBytes) + (cx * bytesPerPixel);
 
-        if( cl->format.trueColour ){ /* Blend neighbouring pixels together */
+        if( cl->format.trueColour ) { /* Blend neighbouring pixels together */
             for( yy=0; yy < ch; yy++ ){
                 for( xx=0; xx < cw; xx++ ){
                     red = green = blue = 0;
