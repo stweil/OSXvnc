@@ -198,12 +198,14 @@
 		[errorString release];
 	};
 	
-	pthread_mutex_lock(&clientPointer->updateMutex);
-	[(id)clientPointer->richClipboardReceivedNSData release];
-	clientPointer->richClipboardReceivedNSData = nil;
-	[(id)clientPointer->richClipboardReceivedType release];
-	clientPointer->richClipboardReceivedType = nil;
-	pthread_mutex_unlock(&clientPointer->updateMutex);
+	if (clientPointer) {
+		pthread_mutex_lock(&clientPointer->updateMutex);
+		[(id)clientPointer->richClipboardReceivedNSData release];
+		clientPointer->richClipboardReceivedNSData = nil;
+		[(id)clientPointer->richClipboardReceivedType release];
+		clientPointer->richClipboardReceivedType = nil;
+		pthread_mutex_unlock(&clientPointer->updateMutex);
+	}
 }
 
 - (void) removeClient {
