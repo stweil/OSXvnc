@@ -802,8 +802,12 @@ void rfbReceiveRichClipboardRequest(rfbClientPtr cl) {
 						for (index = 0; index < [fileNames count]; index++) {
 							NSString *path = [fileNames objectAtIndex:index];
 							if ([fileManager fileExistsAtPath:path]) {
+								NSFileWrapper *wrapper = [[[NSFileWrapper alloc] initWithPath:path] autorelease];
 								checkTotalSize(&totalSize, path, fileManager);
-								[wrappers setObject:[[[NSFileWrapper alloc] initWithPath:path] autorelease] forKey:path];
+								if (wrapper)
+									[wrappers setObject:wrapper forKey:path];
+								else // Could possibly put a "dummy file" in place indicating the error
+									NSLog(@"Error Unable To Read File:%@", path);
 							}
 						}
 						theWrapper = [[[NSFileWrapper alloc] initDirectoryWithFileWrappers:wrappers] autorelease];
@@ -843,7 +847,7 @@ void rfbReceiveRichClipboardRequest(rfbClientPtr cl) {
 			cl->richClipboardNSData = [[thePasteboard dataForType:theType] retain];
 			cl->richClipboardDataChangeCount = [thePasteboard changeCount];
 			if (!cl->richClipboardNSData && [theType isEqualToString:CorePasteboardFlavor_fccc]) { // 10.3 "Copy" Code
-				cl->richClipboardNSData = [@"copy" dataUsingEncoding:NSUTF8StringEncoding];
+				cl->richClipboardNSData = [[@"copy" dataUsingEncoding:NSUTF8StringEncoding] retain];
 			}					
 		}		
 		if (!cl->richClipboardNSData || 
