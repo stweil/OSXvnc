@@ -1,12 +1,12 @@
 {\rtf1\mac\ansicpg10000\cocoartf824\cocoasubrtf410
-\readonlydoc1{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\fswiss\fcharset77 ArialMS;
-\f3\froman\fcharset77 Times-Roman;\f4\fnil\fcharset77 Monaco;\f5\fnil\fcharset77 Geneva;
-\f6\fswiss\fcharset77 Helvetica-BoldOblique;}
+{\fonttbl\f0\fswiss\fcharset77 Helvetica-Bold;\f1\fswiss\fcharset77 Helvetica;\f2\froman\fcharset77 Times-Roman;
+\f3\fnil\fcharset77 Monaco;\f4\fnil\fcharset77 Geneva;\f5\fswiss\fcharset77 Helvetica-BoldOblique;
+}
 {\colortbl;\red255\green255\blue255;\red137\green19\blue21;\red25\green35\blue255;}
 \vieww15040\viewh12780\viewkind0
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\qc
 
-\f0\b\fs36 \cf0 Vine Server (OSXvnc) 2.0\
+\f0\b\fs36 \cf0 Vine Server (OSXvnc) 2.1\
 Release Notes\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
@@ -14,7 +14,27 @@ Release Notes\
 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f0\b \cf0 Version 2.0, Released 1 November 2006:\
+\f0\b \cf0 Version 2.1, Released 21 November 2006:\
+\pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
+\cf0 	Modified by Jonathan Gillaspie & Doug Simons for Redstone Software, Inc.
+\f1\b0 \
+			\
+			Fixed a problem with Host Name Lookups when doing Reverse Connections\
+			Fixes to move all PB interaction through main thread (required for 10.2 support and probably better all around).\
+Fix to improper behavior when chaning to Auto display number.\
+Add a dynamically loadable call to the CGMainDisplay() function. So OSXvnc will still run on 10.1 and below.\
+\
+Added mutex protection to client pointer's rich text variables. (Prevent Crashes)\
+Don't access the client pointer if it's been cleared.\
+Fix to not retaining the "COPY" string when it's put to the pasteboard.\
+Fix for one of many files when we can't read the file.\
+Hopefully final changes to PB clipboards for 2.1, \
+Improvements to detecting "self connection loops" where we are providing our own Pasteboard Data.\
+
+\f0\b \
+\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
+\cf0 \
+Version 2.0, Released 1 November 2006:\
 \pard\tx480\tx960\tx1440\tx1920\tx2400\tx2880\tx3360\tx3840\tx4320\tx4800\tx5280\tx5760\tx6240\tx6720\tx7200\tx7680\tx8160\tx8640\tx9120\tx9600\tx10080\tx10560\tx11040\tx11520\tx12000\tx12480\tx12960\tx13440\tx13920\tx14400\tx14880\tx15360\tx15840\tx16320\tx16800\tx17280\tx17760\tx18240\tx18720\tx19200\tx19680\tx20160\tx20640\tx21120\tx21600\tx22080\tx22560\tx23040\tx23520\tx24000\tx24480\tx24960\tx25440\tx25920\tx26400\tx26880\tx27360\tx27840\tx28320\tx28800\tx29280\tx29760\tx30240\tx30720\tx31200\tx31680\tx32160\tx32640\tx33120\tx33600\tx34080\tx34560\tx35040\tx35520\tx36000\tx36480\tx36960\tx37440\tx37920\tx38400\tx38880\tx39360\tx39840\tx40320\tx40800\tx41280\tx41760\tx42240\tx42720\tx43200\tx43680\tx44160\tx44640\tx45120\tx45600\tx46080\tx46560\tx47040\tx47520\tx48000\ql\qnatural\pardirnatural
 \cf0 	Modified by Jonathan Gillaspie for Redstone Software, Inc.	\
 \
@@ -24,7 +44,7 @@ Release Notes\
 
 \f0\b \
 			
-\f2\b0 Added Rich Clipboard Support for Mac OS X\
+\f1\b0 Added Rich Clipboard Support for Mac OS X\
 \
 			Vine Server now includes a User Manual\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
@@ -54,17 +74,13 @@ Release Notes\
 		\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f2\b0 \cf0 	Added German Localization\
-		Thanks To 
-\f1 J\'9arg Mehring\
+\f1\b0 \cf0 	Added German Localization\
+		Thanks To J\'9arg Mehring\
 	Added Italian Localization\
 		Thanks to Claudio and Creative Shield ( http://shieldnet.tk/ )\
 	Improved Some Japanese Localized Strings\
-		Thanks to 
-\f2 Hiroshi Saito\
-\pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
-
-\f1 \cf0 \
+		Thanks to Hiroshi Saito\
+\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f0\b \cf0 Version 1.71, Released 01/26/2006:\
@@ -117,7 +133,7 @@ Release Notes\
 \f1\b0 \
 \
 	New With Tiger! Multiple Mac OS X Desktops:
-\f3 \
+\f2 \
 \pard\tx1440\tx2160\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\ql\qnatural
 
 \f1 \cf0 		Please read this separate guide to {\field{\*\fldinst{HYPERLINK "http://www.redstonesoftware.com/multidesktop.html"}}{\fldrslt Multiple Desktop Sessions on Mac OS 10.4 - TIGER}}.\
@@ -137,9 +153,9 @@ Release Notes\
 		Special Thanks To Jens-Uwe Mager for the patch.\
 \
 	Added 
-\f4\fs20 \CocoaLigature0 TCP_NODELAY 
+\f3\fs20 \CocoaLigature0 TCP_NODELAY 
 \f1\fs24 \CocoaLigature1 on socket to improve performance, particularly with 
-\f5 *
+\f4 *
 \f1 2vnc type applications.\
 \
 	Added a backwards compatibility flag (-rendezvous VNC) for old rendezvous service name.
@@ -226,11 +242,11 @@ Version 1.4, Released 8/17/2004:\
 \f1\b0  directive to the startup item.\
 	Added the 
 \f0\b PasswordFile
-\f4\b0\fs20 \cf2 \CocoaLigature0  
+\f3\b0\fs20 \cf2 \CocoaLigature0  
 \f1\fs24 \cf0 \CocoaLigature1 default to override where password file is stored (for GUI).\
 	Added the 
 \f0\b LogFile
-\f4\b0\fs20 \cf2 \CocoaLigature0  
+\f3\b0\fs20 \cf2 \CocoaLigature0  
 \f1\fs24 \cf0 \CocoaLigature1 default to override where password file is stored (for GUI).\
 \
 \
@@ -380,7 +396,7 @@ Version 1.11, Released 1/18/2003:\
 	Allows Autostart server on launch\
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
-\f6\i\b \cf3 \
+\f5\i\b \cf3 \
 \pard\tx1440\tx2880\tx4320\tx5760\tx7200\ql\qnatural
 
 \f1\i0\b0 \cf0 \
@@ -457,7 +473,7 @@ Update Dock Icon with Badging As Users Connect\
 \
 Option to set background to Black on Connect\
 	(
-\f4\fs20 /System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine -background -module "" &)\
+\f3\fs20 /System/Library/Frameworks/ScreenSaver.framework/Resources/ScreenSaverEngine.app/Contents/MacOS/ScreenSaverEngine -background -module "" &)\
 
 \f1\fs24 \
 Add Reverse Connection Ability From GUI\
@@ -479,7 +495,7 @@ Support For Multiple Physical Displays\
 Figure out if we can make headless displays work\
 \
 Replace -localhost
-\f4\fs20 \cf2 \CocoaLigature0  
+\f3\fs20 \cf2 \CocoaLigature0  
 \f1\fs24 \cf0 \CocoaLigature1 with full -vncauth file\
 \
 Add inetd/xinetd support\
