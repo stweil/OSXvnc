@@ -219,7 +219,7 @@ static BOOL debugPB = NO;
 						while (aFilename = [fileEnum nextObject]) {
 							[filenames addObject:[filename stringByAppendingPathComponent:aFilename]];
 						}
-						[theWrapper writeToFile:filename atomically:NO updateFilenames:YES];
+						[theWrapper writeToFile:filename atomically:NO updateFilenames:NO];
 						filename = [filenames objectAtIndex:0]; // this is needed for setting the URL later (must be set to one of the files, not the folder)
 					} else {
 						// for 10.2 and 10.3, can't receive multiple files -- put them in a folder
@@ -227,7 +227,16 @@ static BOOL debugPB = NO;
 						filename = [filename stringByAppendingPathComponent:[NSString stringWithFormat:@"CopiedFiles_%02d",++batchCounter]];
 						[fileManager ensureDirectoryAtPath:filename attributes:nil];
 						[filenames addObject:filename];
-						[theWrapper writeToFile:filename atomically:NO updateFilenames:YES];
+						//[theWrapper writeToFile:filename atomically:NO updateFilenames:NO];
+						// let's avoid saving the extra .tiff files that seem to get written for each file
+						NSDictionary *filesDict = [theWrapper fileWrappers];
+						NSEnumerator *fileEnum = [filesDict keyEnumerator];
+						NSString *aFilename;
+						while (aFilename = [fileEnum nextObject]) {
+							NSFileWrapper *singleItemWrapper = [filesDict objectForKey:aFilename];
+							NSString *singleItemPath = [filename stringByAppendingPathComponent:aFilename];
+							[singleItemWrapper writeToFile:singleItemPath atomically:NO updateFilenames:NO];
+						}
 					}
 					[thePasteboard setPropertyList:filenames forType:NSFilenamesPboardType];
 					//clipBoardReceivedChangeCount = lastChangeCount;
