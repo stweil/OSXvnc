@@ -568,7 +568,11 @@ static void terminateOnSignal(int signal) {
                                                  selector: NSSelectorFromString(@"serverStopped:")
                                                      name: NSTaskDidTerminateNotification
                                                    object: controller];
-        [statusMessageField setStringValue:LocalizedString(@"Server Running")];
+		
+		if (![[passwordField stringValue] length])
+			[statusMessageField setStringValue:[NSString stringWithFormat:@"%@ - %@", LocalizedString(@"Server Running"), LocalizedString(@"No Authentication")]];
+		else
+			[statusMessageField setStringValue:LocalizedString(@"Server Running")];
         [startServerButton setEnabled:FALSE];
         [stopServerButton setEnabled:TRUE];
         [startServerButton setKeyEquivalent:@""];
@@ -1039,24 +1043,39 @@ static void terminateOnSignal(int signal) {
 			return;
 		}
 
-		[myAuthorization executeCommand:@"/Library/StartupItems/OSXvnc/OSXvnc" 
-							   withArgs:[NSArray arrayWithObjects:@"restart", nil]];
-
+		// For 10.4 and above we need to execute through the System Starter for it to follow the console properly
+		// Doesn't work
 		// SystemStarter needs to actually be run as root (and calling sudo requests a password again, so this doesn't work 
-/*		[myAuthorization executeCommand:@"/bin/sh"
-							   withArgs:[NSArray arrayWithObjects:@"-c", @"/sbin/SystemStarter -d start VNC", nil]];
-*/
+		if (0 && floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_3)) {
+			[myAuthorization executeCommand:@"/usr/bin/su"
+								   withArgs:[NSArray arrayWithObjects:@"-l", @"root", @"-c", @"/sbin/SystemStarter", @"-d", @"start", @"VNC", nil]];
+		}
+		else
+			[myAuthorization executeCommand:@"/Library/StartupItems/OSXvnc/OSXvnc" 
+								   withArgs:[NSArray arrayWithObjects:@"restart", nil]];
     }
     else {
         [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Write out Temporary Script File")];
         return;
     }
     
-    [startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Configured (Started)")];
+	if (![[passwordField stringValue] length])
+		[startupItemStatusMessageField setStringValue:[NSString stringWithFormat:@"%@ - %@", LocalizedString(@"Startup Item Configured (Started)"), LocalizedString(@"No Authentication")]];
+	else
+		[startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Configured (Started)")];
+
     [disableStartupButton setEnabled:YES];
 }
 
 - (IBAction) installAsService: sender {
+	// No password, so double check
+	if (![[passwordField stringValue] length]) {
+		int result=NSRunAlertPanel(LocalizedString(@"System Server"),LocalizedString(@"No password has been specified for the System Server.  The System Server will automatic launch every time your machine is restarted.  Are you sure that you want to install a System Server with no password"),LocalizedString(@"Cancel"),LocalizedString(@"Start Server"),nil);
+		
+		if (result==NSAlertDefaultReturn)
+			return;
+	}
+	
     if (!myAuthorization)
         myAuthorization = [[NSAuthorization alloc] init];
     
