@@ -1022,7 +1022,7 @@ int main(int argc, char *argv[]) {
 
     rfbClientListInit();
     rfbDimmingInit();
-
+	rfbAuthInit();
 	initPasteboard();
 
     // Register for User Switch Notification
