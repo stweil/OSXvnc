@@ -461,6 +461,7 @@ static NSArray *arrayFromFlstData(NSData *flstData) {
 	}
 	return pathArray;
 }
+
 static NSArray *getListOfFilenamesFromPasteboard(NSPasteboard *thePasteboard) {
 	NSArray *pboardTypes = [thePasteboard types];
 	if ([pboardTypes containsObject:CorePasteboardFlavor_flst]) { // 10.2 & 10.3
@@ -470,7 +471,6 @@ static NSArray *getListOfFilenamesFromPasteboard(NSPasteboard *thePasteboard) {
 		return nil;
 	}
 }
-
 
 // We call this in the main thread to see if we have a new pasteboard change and should notify clients to do an update
 void rfbCheckForPasteboardChange() {
@@ -515,15 +515,22 @@ void rfbCheckForPasteboardChange() {
 	while (pasteboardName = [pasteboardsEnum nextObject]) {
 		NSMutableArray *pbInfoArray = [pasteboards objectForKey:pasteboardName];
 		NSPasteboard *thePasteboard = [NSPasteboard pasteboardWithName:pasteboardName];
+
+		// Record the change count first in case another event comes in while we are pulling the Types
+		int pasteboardsChangeCount = [thePasteboard changeCount];
 		
 		[pasteboardVariablesLock lock];
-		if ([[pbInfoArray objectAtIndex:0] intValue] != [thePasteboard changeCount]) {
-			// Record the change count first in case another event comes in while we are pulling the Types
-			[pbInfoArray replaceObjectAtIndex:0 withObject:[NSNumber numberWithInt:[thePasteboard changeCount]]];
-
+		if ([[pbInfoArray objectAtIndex:0] intValue] != pasteboardsChangeCount) {
 			// Check for special file types (URL for a local file, or NSFilenamesPboardType for an existing file)
 			NSArray *pboardTypes = [thePasteboard types];
-			pboardTypes = [[thePasteboard types] arrayByAddingObject:[NSString stringWithFormat:@"RSPBID:%@:%@", NSUserName(), getMACAddressString()]];
+			if (![pboardTypes count]) {
+				NSLog(@"Warning - Pasteboard with no types, ignored");
+				[pasteboardVariablesLock unlock];
+				continue;
+			}
+			[pbInfoArray replaceObjectAtIndex:0 withObject:[NSNumber numberWithInt:pasteboardsChangeCount]];
+			
+			pboardTypes = [pboardTypes arrayByAddingObject:[NSString stringWithFormat:@"RSPBID:%@:%@", NSUserName(), getMACAddressString()]];
 			if (![pboardTypes containsObject:NSFileContentsPboardType]) { // no need to check, if file contents is already there
 				if (pasteboardRepresentsExistingFile(thePasteboard)) {
 					pboardTypes = [pboardTypes arrayByAddingObject:NSFileContentsPboardType];
@@ -838,7 +845,7 @@ void rfbReceiveRichClipboardAvailable(rfbClientPtr cl) {
 		//	addNewDataToPB = YES;
 		//else if (![[thePasteboard types] isEqualToArray:availableTypes])
 		//	addNewDataToPB = YES;
-		if ([thePasteboard changeCount] == pbChangeCount && [availableTypes indexOfObject:[NSString stringWithFormat:@"RSPBID:%@:%@", NSUserName(), getMACAddressString()]] != NSNotFound) {
+		if ([availableTypes indexOfObject:[NSString stringWithFormat:@"RSPBID:%@:%@", NSUserName(), getMACAddressString()]] != NSNotFound) {
 			if (debugPB)
 				NSLog(@"Rich clipboard info appears to be from our own account (%@:%@) -- ignored.", NSUserName(), getMACAddressString());
 		}
