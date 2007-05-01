@@ -194,6 +194,7 @@ rfbClientPtr rfbNewClient(int sock) {
     BoxRec box;
     int i;
 	unsigned int addrlen;
+	int bitsPerSample;
 
     /*
      {
@@ -258,9 +259,30 @@ rfbClientPtr rfbNewClient(int sock) {
 
     REGION_INIT(pScreen,&cl->requestedRegion,NullBox,0);
 
-    cl->format = rfbServerFormat;
-    cl->translateFn = rfbTranslateNone;
-    cl->translateLookupTable = NULL;
+	switch (rfbMaxBitDepth) {
+		case 32:
+		case 16:
+		case 8:		
+			cl->format.bitsPerPixel = max(rfbMaxBitDepth, rfbScreen.bitsPerPixel);
+			bitsPerSample = cl->format.bitsPerPixel << 2;
+			cl->format.depth = bitsPerSample*3;
+			cl->format.bigEndian = !littleEndian;
+			cl->format.trueColour = TRUE;
+			
+			cl->format.redMax = (1 << bitsPerSample) - 1;
+			cl->format.greenMax = (1 << bitsPerSample) - 1;
+			cl->format.blueMax = (1 << bitsPerSample) - 1;
+			
+			cl->format.redShift = bitsPerSample * 2;
+			cl->format.greenShift = bitsPerSample * 1;
+			cl->format.blueShift = bitsPerSample * 0;
+			break;
+		case 0:
+		default:
+			cl->format = rfbServerFormat;
+			break;
+	}
+	rfbSetTranslateFunction(cl);
 
     /* SERVER SCALING EXTENSIONS -- Server Scaling is off by default */
     cl->scalingFactor = 1;
@@ -584,18 +606,22 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                 return;
             }
 
-            cl->format.bitsPerPixel = msg.spf.format.bitsPerPixel;
-            cl->format.depth = msg.spf.format.depth;
-            cl->format.bigEndian = (msg.spf.format.bigEndian ? 1 : 0);
-            cl->format.trueColour = (msg.spf.format.trueColour ? 1 : 0);
-            cl->format.redMax = Swap16IfLE(msg.spf.format.redMax);
-            cl->format.greenMax = Swap16IfLE(msg.spf.format.greenMax);
-            cl->format.blueMax = Swap16IfLE(msg.spf.format.blueMax);
-            cl->format.redShift = msg.spf.format.redShift;
-            cl->format.greenShift = msg.spf.format.greenShift;
-            cl->format.blueShift = msg.spf.format.blueShift;
-
-            rfbSetTranslateFunction(cl);
+			if (!rfbMaxBitDepth || msg.spf.format.bitsPerPixel <= rfbMaxBitDepth) {
+				cl->format.bitsPerPixel = msg.spf.format.bitsPerPixel;
+				cl->format.depth = msg.spf.format.depth;
+				cl->format.bigEndian = (msg.spf.format.bigEndian ? 1 : 0);
+				cl->format.trueColour = (msg.spf.format.trueColour ? 1 : 0);
+				cl->format.redMax = Swap16IfLE(msg.spf.format.redMax);
+				cl->format.greenMax = Swap16IfLE(msg.spf.format.greenMax);
+				cl->format.blueMax = Swap16IfLE(msg.spf.format.blueMax);
+				cl->format.redShift = msg.spf.format.redShift;
+				cl->format.greenShift = msg.spf.format.greenShift;
+				cl->format.blueShift = msg.spf.format.blueShift;
+				rfbSetTranslateFunction(cl);
+			}
+			else
+				rfbLog("rfbProcessClientNormalMessage: Unable to set requested bit depth %d to greater than MaxBitDepth (%d)", msg.spf.format.bitsPerPixel, rfbMaxBitDepth);
+				
             return;
 		}
 
@@ -1331,7 +1357,7 @@ void CopyScalingRect( rfbClientPtr cl, int* x, int* y, int* w, int* h, Bool bDoS
         rw = cw * cl->scalingFactor;
 
         /* Copy and scale data from screen buffer to scaling buffer */
-        srcptr = rfbGetFramebuffer() + (ry * rfbScreen.paddedWidthInBytes ) + (rx * bytesPerPixel);
+        srcptr = (unsigned char*)rfbGetFramebuffer() + (ry * rfbScreen.paddedWidthInBytes ) + (rx * bytesPerPixel);
         dstptr = (unsigned char*)cl->scalingFrameBuffer+ (cy * cl->scalingPaddedWidthInBytes) + (cx * bytesPerPixel);
 
         if( cl->format.trueColour ) { /* Blend neighbouring pixels together */

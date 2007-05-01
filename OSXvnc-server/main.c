@@ -666,7 +666,7 @@ static void usage(void) {
             "                       connection comes in (refuse new connection instead)\n");
     fprintf(stderr, "-nodimming             Never allow the display to dim\n"
             "                       (default: display can dim, input undims)\n");
-    fprintf(stderr, "-maxdepth bits         Maximum allowed bit depth for connecting clients.\n"
+    fprintf(stderr, "-maxdepth bits         Maximum allowed bit depth for connecting clients (32,16,8).\n"
             "                       (default: bit depth of display)\n");
     /*
      fprintf(stderr, "-reversemods           reverse the interpretation of control\n");
@@ -785,6 +785,19 @@ static void processArguments(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-maxdepth") == 0) {  // -maxdepth
             if (i + 1 >= argc) usage();
             rfbMaxBitDepth = atoi(argv[++i]);
+			switch (rfbMaxBitDepth) {
+				case 24:
+					rfbMaxBitDepth = 32;
+					break;
+				case 32:
+				case 16:
+				case 8:
+					break;
+				default:
+					rfbLog("Invalid maxDepth");
+					exit(-1);
+					break;
+			}
         } else if (strcmp(argv[i], "-desktop") == 0) {  // -desktop desktop-name
             if (i + 1 >= argc) usage();
 			strncpy(desktopName, argv[++i], 255);

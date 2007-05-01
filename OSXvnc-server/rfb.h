@@ -333,6 +333,7 @@ extern rfbScreenInfo rfbScreen;
 extern char desktopName[255];
 
 extern BOOL littleEndian;
+extern int  rfbMaxBitDepth;
 extern Bool rfbAlwaysShared;
 extern Bool rfbNeverShared;
 extern Bool rfbDontDisconnect;
