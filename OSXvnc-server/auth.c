@@ -25,15 +25,61 @@
  *  USA.
  */
 
+#import <Cocoa/Cocoa.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "rfb.h"
 
+NSLock *authClientLock=nil;
+NSMutableDictionary *authClientFailures=nil;
+
 char *rfbAuthPasswdFile = NULL;
 
-void rfbSecurityResultMessage(rfbClientPtr cl, BOOL result, char *errorString) {
-	if (result) {
-		CARD32 authResult = Swap32IfLE(rfbVncAuthOK);
+void rfbAuthInit() {
+	authClientLock=[[NSLock alloc] init];
+	authClientFailures=[[NSMutableDictionary alloc] init];
+}
+
+int failedAttemptsForClient(rfbClientPtr cl) {
+	NSString *clientHost = [[NSString alloc] initWithCString:cl->host];
+	int failedAttempts=0;
+	
+	[authClientLock	lock];
+	failedAttempts = [[authClientFailures objectForKey:clientHost] intValue];
+	[authClientLock unlock];
+	[clientHost release];
+	
+	return failedAttempts;
+}
+
+int incrementFailedAttemptsForClient(rfbClientPtr cl) {
+	NSString *clientHost = [[NSString alloc] initWithCString:cl->host];
+	NSNumber *failedNumber = nil;
+	int failedAttempts=0;
+	
+	[authClientLock	lock];
+	failedAttempts = [[authClientFailures objectForKey:clientHost] intValue] + 1;
+	failedNumber = [[NSNumber alloc] initWithInt:failedAttempts];
+	[authClientFailures setObject:failedNumber forKey:clientHost];
+	[authClientLock unlock];
+	[failedNumber release];
+	[clientHost release];
+	
+	return failedAttempts;
+}
+
+void clearFailedAttemptsForClient(rfbClientPtr cl) {
+	NSString *clientHost = [[NSString alloc] initWithCString:cl->host];
+	[authClientLock	lock];
+	[authClientFailures removeObjectForKey:clientHost];
+	[authClientLock	unlock];
+	[clientHost release];
+}
+	
+void rfbSecurityResultMessage(rfbClientPtr cl, int result, char *errorString) {
+	if (result==rfbVncAuthOK) {
+		CARD32 authResult = Swap32IfLE(result);
 		
 		if (WriteExact(cl, (char *)&authResult, 4) < 0) {
 			rfbLogPerror("rfbSecurityResultMessage: write");
@@ -44,7 +90,7 @@ void rfbSecurityResultMessage(rfbClientPtr cl, BOOL result, char *errorString) {
 		int len=0;
 		char buf[256]; // For Error Messages
 		
-		*(CARD32 *)&buf[len] = Swap32IfLE(rfbVncAuthFailed);
+		*(CARD32 *)&buf[len] = Swap32IfLE(result);
 		len+=4;
 		
 		if ((cl->major == 3) && (cl->minor >= 8)) { // Return Error String
@@ -73,6 +119,25 @@ void rfbSecurityResultMessage(rfbClientPtr cl, BOOL result, char *errorString) {
 void rfbAuthNewClient(rfbClientPtr cl) {
     char buf[4 + CHALLENGESIZE+256];// 256 for error messages
     int len = 0;
+	
+	if (failedAttemptsForClient(cl) > 3) {
+		buf[0] = Swap32IfLE(rfbConnFailed); // Record How Many Auth Types
+		len+=4;
+		
+		char *errorString = "Too Many Security Failures";
+		int errorLength = strlen(errorString);
+		*(CARD32 *)&buf[len] = Swap32IfLE(errorLength);
+		len+=4;
+		
+		memcpy(&buf[len], errorString, errorLength);
+		len+=errorLength;
+		if (WriteExact(cl, buf, len) < 0) {
+			rfbLogPerror("rfbAuthNewClient: write");
+		}
+		rfbLog("rfbAuthNewClient: Authentication failed from %s (Too Many Failures)\n", cl->host);
+		rfbCloseClient(cl);
+		return;
+	}
 	
     if (cl->major== 3 && cl->minor >= 7) {
 		len++;
@@ -167,13 +232,13 @@ void rfbProcessAuthVersion(rfbClientPtr cl) {
         case rfbNoAuth: {
 			if (!cl->reverseConnection && rfbAuthPasswdFile) {
 				rfbLog("rfbProcessAuthVersion: Invalid Authorization Type from %s\n", cl->host);
-				rfbSecurityResultMessage(cl, 0, "Invalid Security Type");
+				rfbSecurityResultMessage(cl, rfbVncAuthFailed, "Invalid Security Type");
 				rfbCloseClient(cl);
 				return;
 			}
 			else {
 				if ((cl->major == 3) && (cl->minor >= 8))
-					rfbSecurityResultMessage(cl, 1, NULL);
+					rfbSecurityResultMessage(cl, rfbVncAuthOK, NULL);
 				
 				cl->state = RFB_INITIALISATION;
 			}
@@ -182,7 +247,7 @@ void rfbProcessAuthVersion(rfbClientPtr cl) {
         }
         default:
 			rfbLog("rfbProcessAuthVersion: Invalid Authorization Type from %s\n", cl->host);
-			rfbSecurityResultMessage(cl, 0, "Invalid Security Type");
+			rfbSecurityResultMessage(cl, rfbVncAuthFailed, "Invalid Security Type");
 			rfbCloseClient(cl);
 			return;
     }
@@ -208,7 +273,7 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
     passwd = vncDecryptPasswdFromFile(rfbAuthPasswdFile);
     if (passwd == NULL) {
         rfbLog("rfbAuthProcessClientMessage: Could not access password from %s\n", rfbAuthPasswdFile);
-		rfbSecurityResultMessage(cl, 0, "Could not access password file");
+		rfbSecurityResultMessage(cl, rfbVncAuthFailed, "Could not access password file");
         rfbCloseClient(cl);
         return;
     }
@@ -222,13 +287,15 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
     free((char *)passwd);
 
     if (memcmp(cl->authChallenge, response, CHALLENGESIZE) != 0) {
-        rfbLog("rfbAuthProcessClientMessage: Authentication failed from %s\n", cl->host);
-		rfbSecurityResultMessage(cl, 0, "Incorrect Password");
+		incrementFailedAttemptsForClient(cl);
+        rfbLog("rfbAuthProcessClientMessage: Authentication failed from %s (Incorrect Password)\n", cl->host);
+		rfbSecurityResultMessage(cl, rfbVncAuthFailed, "Incorrect Password");
         rfbCloseClient(cl);
         return;
     }
 
-	rfbSecurityResultMessage(cl, 1, NULL);
+	clearFailedAttemptsForClient(cl);
+	rfbSecurityResultMessage(cl, rfbVncAuthOK, NULL);
 
     cl->state = RFB_INITIALISATION;
 }
