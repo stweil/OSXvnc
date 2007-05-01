@@ -193,7 +193,7 @@ static kern_return_t GetMACAddress(io_iterator_t intfIterator, UInt8 *MACAddress
 																 kCFAllocatorDefault,
 																 0);
             if (MACAddressAsCFData) {
-                CFShow(MACAddressAsCFData); // for display purposes only; output goes to stderr
+                // CFShow(MACAddressAsCFData); // for display purposes only; output goes to stderr
                 
                 // Get the raw bytes of the MAC address from the CFData
                 CFDataGetBytes(MACAddressAsCFData, CFRangeMake(0, kIOEthernetAddressSize), MACAddress);
@@ -213,36 +213,40 @@ static kern_return_t GetMACAddress(io_iterator_t intfIterator, UInt8 *MACAddress
 
 NSString *getMACAddressString()
 {
-    kern_return_t  kernResult = KERN_SUCCESS; // on PowerPC this is an int (4 bytes)
-	/*
-	 *  error number layout as follows (see mach/error.h and IOKit/IOReturn.h):
-	 *
-	 *  hi                lo
-	 *  | system(6) | subsystem(12) | code(14) |
-	 */
+	static NSString *addressString = nil;
 	
-    io_iterator_t  intfIterator;
-    UInt8      MACAddress[kIOEthernetAddressSize];
-	NSString *addressString = nil;
-	
-    kernResult = FindEthernetInterfaces(&intfIterator);
-    
-    if (KERN_SUCCESS != kernResult) {
-        printf("FindEthernetInterfaces returned 0x%08x\n", kernResult);
-    }
-    else {
-        kernResult = GetMACAddress(intfIterator, MACAddress, sizeof(MACAddress));
-        
-        if (KERN_SUCCESS != kernResult) {
-            printf("GetMACAddress returned 0x%08x\n", kernResult);
-        }
-		else {
-			addressString = [NSString stringWithFormat:@"%02x:%02x:%02x:%02x:%02x:%02x",
-				   MACAddress[0], MACAddress[1], MACAddress[2], MACAddress[3], MACAddress[4], MACAddress[5] ];
+	if (!addressString) {
+		kern_return_t  kernResult = KERN_SUCCESS; // on PowerPC this is an int (4 bytes)
+		/*
+		 *  error number layout as follows (see mach/error.h and IOKit/IOReturn.h):
+		 *
+		 *  hi                lo
+		 *  | system(6) | subsystem(12) | code(14) |
+		 */
+		
+		io_iterator_t  intfIterator;
+		UInt8      MACAddress[kIOEthernetAddressSize];
+		
+		kernResult = FindEthernetInterfaces(&intfIterator);
+		
+		if (KERN_SUCCESS != kernResult) {
+			printf("FindEthernetInterfaces returned 0x%08x\n", kernResult);
 		}
-    }
-    
-    (void) IOObjectRelease(intfIterator);  // Release the iterator.
+		else {
+			kernResult = GetMACAddress(intfIterator, MACAddress, sizeof(MACAddress));
+			
+			if (KERN_SUCCESS != kernResult) {
+				printf("GetMACAddress returned 0x%08x\n", kernResult);
+			}
+			else {
+				addressString = [[NSString alloc] initWithFormat:@"%02x:%02x:%02x:%02x:%02x:%02x",
+					MACAddress[0], MACAddress[1], MACAddress[2], MACAddress[3], MACAddress[4], MACAddress[5] ];
+			}
+		}
+		
+		(void) IOObjectRelease(intfIterator);  // Release the iterator.
+	}
 	
     return addressString;
 }
+
