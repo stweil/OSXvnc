@@ -34,6 +34,7 @@
 NSLock *authClientLock=nil;
 NSMutableDictionary *authClientFailures=nil;
 
+int rfbMaxLoginAttempts=3;
 char *rfbAuthPasswdFile = NULL;
 
 void rfbAuthInit() {
@@ -120,7 +121,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
     char buf[4 + CHALLENGESIZE+256];// 256 for error messages
     int len = 0;
 	
-	if (failedAttemptsForClient(cl) > 3) {
+	if (rfbMaxLoginAttempts && (failedAttemptsForClient(cl) > rfbMaxLoginAttempts)) {
 		buf[0] = Swap32IfLE(rfbConnFailed); // Record How Many Auth Types
 		len+=4;
 		

@@ -474,6 +474,7 @@ extern void httpCheckFds();
 
 extern char *rfbAuthPasswdFile;
 extern Bool rfbAuthenticating;
+extern int rfbMaxLoginAttempts;
 
 extern void rfbAuthInit();
 extern void rfbAuthNewClient(rfbClientPtr cl);
