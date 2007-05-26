@@ -285,7 +285,7 @@ void rfbCheckForScreenResolutionChange() {
                CGDisplayPixelsWide(displayID),
                CGDisplayPixelsHigh(displayID),
                CGDisplayBitsPerPixel(displayID));
-				
+		
 		
 		iterator = rfbGetClientIterator();
         while ((cl = rfbClientIteratorNext(iterator))) {
@@ -349,7 +349,7 @@ static void *clientOutput(void *data) {
 
     while (1) {
         haveUpdate = false;
-			
+		
         pthread_mutex_lock(&cl->updateMutex);
         while (!haveUpdate) {
             if (cl->sock == -1) {
@@ -517,9 +517,9 @@ static void *listenerRun(void *ignore) {
 			rfbLogPerror("Unable to open socket");
 		}
 		/*
-	    else if (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0) {
-			rfbLogPerror("fcntl O_NONBLOCK failed\n");
-		}
+		 else if (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0) {
+			 rfbLogPerror("fcntl O_NONBLOCK failed\n");
+		 }
 		 */
 	    else if (setsockopt(listen_fd4, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
 			rfbLogPerror("setsockopt SO_REUSEADDR failed\n");
@@ -656,44 +656,46 @@ static void usage(void) {
 
     fprintf(stderr, "-rfbport port          TCP port for RFB protocol (0=autodetect first open port 5900-5909)\n");
     fprintf(stderr, "-rfbwait time          Maximum time in ms to wait for RFB client\n");
-    fprintf(stderr, "-rfbauth passwd-file   Use this password file for RFB protocol\n"
-            "                       (use 'storepasswd' to create a password file)\n");
+    fprintf(stderr, "-rfbauth passwd-file   Use this password file for RFB protocol\n");
+	fprintf(stderr, "                       (use 'storepasswd' to create a password file)\n");
+    fprintf(stderr, "-maxauthattempts num   Maximum Number of auth tries before disabling access from a host\n");
+	fprintf(stderr, "                       (default: 3), zero disables\n");
     fprintf(stderr, "-deferupdate time      Time in ms to defer updates (default %d)\n", rfbDeferUpdateTime);
     fprintf(stderr, "-desktop name          VNC desktop name (default \"MacOS X\")\n");
     fprintf(stderr, "-alwaysshared          Always treat new clients as shared\n");
     fprintf(stderr, "-nevershared           Never treat new clients as shared\n");
-    fprintf(stderr, "-dontdisconnect        Don't disconnect existing clients when a new non-shared\n"
-            "                       connection comes in (refuse new connection instead)\n");
-    fprintf(stderr, "-nodimming             Never allow the display to dim\n"
-            "                       (default: display can dim, input undims)\n");
-    fprintf(stderr, "-maxdepth bits         Maximum allowed bit depth for connecting clients (32,16,8).\n"
-            "                       (default: bit depth of display)\n");
+    fprintf(stderr, "-dontdisconnect        Don't disconnect existing clients when a new non-shared\n");
+	fprintf(stderr, "                       connection comes in (refuse new connection instead)\n");
+    fprintf(stderr, "-nodimming             Never allow the display to dim\n");
+	fprintf(stderr, "                       (default: display can dim, input undims)\n");
+    fprintf(stderr, "-maxdepth bits         Maximum allowed bit depth for connecting clients (32,16,8).\n");
+	fprintf(stderr, "                       (default: bit depth of display)\n");
     /*
      fprintf(stderr, "-reversemods           reverse the interpretation of control\n");
      fprintf(stderr, "                       and command (for windows clients)\n");
      */
-    fprintf(stderr, "-allowsleep            Allow machine to sleep\n"
-            "                       (default: sleep is disabled)\n");
-    fprintf(stderr, "-disableScreenSaver    Disable screen saver while users are connected\n"
-            "                       (default: no, allow screen saver to engage)\n");
-    fprintf(stderr, "-swapButtons           Swap mouse buttons 2 & 3\n"
-            "                       (default: YES)\n");
-    fprintf(stderr, "-dontswapButtons       Disable swap mouse buttons 2 & 3\n"
-            "                       (default: NO)\n");
-    fprintf(stderr, "-disableRemoteEvents   Ignore remote keyboard, pointer, and clipboard event\n"
-            "                       (default: no, process them)\n");
-    fprintf(stderr, "-disableRichClipboards Don't share rich clipboard events\n"
-            "                       (default: no, process them)\n");
+    fprintf(stderr, "-allowsleep            Allow machine to sleep\n");
+	fprintf(stderr, "                       (default: sleep is disabled)\n");
+    fprintf(stderr, "-disableScreenSaver    Disable screen saver while users are connected\n");
+	fprintf(stderr, "                       (default: no, allow screen saver to engage)\n");
+	fprintf(stderr, "-swapButtons           Swap mouse buttons 2 & 3\n");
+	fprintf(stderr, "                       (default: YES)\n");
+	fprintf(stderr, "-dontswapButtons       Disable swap mouse buttons 2 & 3\n");
+	fprintf(stderr, "                       (default: NO)\n");
+	fprintf(stderr, "-disableRemoteEvents   Ignore remote keyboard, pointer, and clipboard event\n");
+	fprintf(stderr, "                       (default: no, process them)\n");
+	fprintf(stderr, "-disableRichClipboards Don't share rich clipboard events\n");
+	fprintf(stderr, "                       (default: no, process them)\n");
 	fprintf(stderr, "-connectHost host      Host Name or IP of listening client to establishing a reverse conneect\n");
-	fprintf(stderr, "-connectPort port      TCP port of listening client to establishing a reverse conneect\n"
-			"                       (default: 5500)\n");
+	fprintf(stderr, "-connectPort port      TCP port of listening client to establishing a reverse conneect\n");
+	fprintf(stderr, "                       (default: 5500)\n");
 	fprintf(stderr, "-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n");
 	fprintf(stderr, "-protocol protocol     Force a particular protocol version (eg 3.3)\n");
 	fprintf(stderr, "                       (default:" rfbProtocolVersionFormat ")", rfbProtocolMajorVersion, rfbProtocolMinorVersion);
-	fprintf(stderr, "-bigEndian             Force Big-Endian mode (PPC)\n"
-			"                       (default: detect)\n");
-	fprintf(stderr, "-littleEndian          Force Little-Endian mode (INTEL)\n"
-			"                       (default: detect)\n");
+	fprintf(stderr, "-bigEndian             Force Big-Endian mode (PPC)\n");
+	fprintf(stderr, "                       (default: detect)\n");
+	fprintf(stderr, "-littleEndian          Force Little-Endian mode (INTEL)\n");
+	fprintf(stderr, "                       (default: detect)\n");
 	
     /* This isn't ready to go yet
     {
@@ -713,7 +715,7 @@ static void usage(void) {
     fprintf(stderr, "                       If you use SSH and want to stop non-SSH connections from any other hosts \n");
     fprintf(stderr, "                       (default: no, allow remote connections)\n");
     fprintf(stderr, "-restartonuserswitch flag  For Use on Panther 10.3 systems, this will cause the server to restart when a fast user switch occurs");
-    fprintf(stderr, "                           (default: no)\n");
+    fprintf(stderr, "                       (default: no)\n");
     bundlesPerformSelector(@selector(rfbUsage));
     fprintf(stderr, "\n");
 
@@ -751,7 +753,7 @@ static void processArguments(int argc, char *argv[]) {
 		// Lowercase it
 		for (j=0;j<strlen(argv[i]);j++)
 			argv[i][j] = tolower(argv[i][j]);
-			
+		
         if (strcmp(argv[i], "-rfbport") == 0) { // -rfbport port
             if (i + 1 >= argc) usage();
             rfbPort = atoi(argv[++i]);
@@ -761,7 +763,7 @@ static void processArguments(int argc, char *argv[]) {
             protocol = atof(argv[++i]);
 			rfbProtocolMajorVersion = MIN(rfbProtocolMajorVersion, floor(protocol));
 			protocol = protocol-floor(protocol); // Now just the fractional part
-			// Ok some folks think of it as 3.3 others as 003.003, so let's repeat...
+												 // Ok some folks think of it as 3.3 others as 003.003, so let's repeat...
 			while (protocol > 0 && protocol < 1)
 				protocol *= 10;
 			rfbProtocolMinorVersion = MIN(rfbProtocolMinorVersion, rint(protocol));
@@ -772,6 +774,9 @@ static void processArguments(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-rfbauth") == 0) {  // -rfbauth passwd-file
             if (i + 1 >= argc) usage();
             rfbAuthPasswdFile = argv[++i];
+        } else if (strcmp(argv[i], "-maxauthattempts") == 0) {  
+            if (i + 1 >= argc) usage();
+            rfbMaxLoginAttempts = atoi(argv[++i]);
         } else if (strcmp(argv[i], "-connecthost") == 0) {  // -connect host
             if (i + 1 >= argc) usage();
 			strncpy(reverseHost, argv[++i], 255);
@@ -978,8 +983,8 @@ BOOL runningLittleEndian ( void ) {
 	 // rosetta is so complete that it obsucres even CFByteOrderGetCurrent
     int hasMMX = 0;
     size_t length = sizeof(hasMMX);
-	// No Error and it does have MMX
-	return (!sysctlbyname("hw.optional.mmx", &hasMMX, &length, NULL, 0) && hasMMX);
+	 // No Error and it does have MMX
+	 return (!sysctlbyname("hw.optional.mmx", &hasMMX, &length, NULL, 0) && hasMMX);
 	 */
 }
 	
@@ -1071,6 +1076,9 @@ int main(int argc, char *argv[]) {
         // This seems to actually sometimes inhibit REMOTE events as well, but all the same let's let everything pass through for now
         CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateSupressionInterval);
         CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateRemoteMouseDrag);
+		
+		// DON'T Combine with local keyboard state -- this will allow each user to have their own modifiers
+		CGEnableEventStateCombining(FALSE);
     }
 
     if (rfbDisableScreenSaver) {
@@ -1085,7 +1093,7 @@ int main(int argc, char *argv[]) {
     }
 
     pthread_create(&listener_thread, NULL, listenerRun, NULL);
-		
+	
 	if (strlen(reverseHost) > 0)
 		connectReverseClient(reverseHost, reversePort);
 	
