@@ -46,7 +46,7 @@
 
 rfbClientPtr pointerClient = NULL;  /* Mutex for pointer events with buttons down*/
 
-static rfbClientPtr rfbClientHead;
+rfbClientPtr rfbClientHead;  /* tight encoding -- GetClient() in tight.c accesses this list, so make it global */
 
 struct rfbClientIterator {
     rfbClientPtr next;

@@ -33,6 +33,7 @@
 #include <rfbproto.h>
 #include <vncauth.h>
 #include <zlib.h>
+#include "tight.h"
 
 //#include "Keyboards.h"
 //#import <Carbon/Carbon.h>
@@ -215,6 +216,60 @@ typedef struct rfbClientRec {
     
     int preferredEncoding;
     
+    /* tight encoding -- This variable is set on every rfbSendRectEncodingTight() call. */
+    Bool usePixelFormat24;
+    
+    /* tight encoding -- Compression level stuff. */
+
+    int compressLevel;
+    int qualityLevel;
+
+    /* tight encoding -- Stuff dealing with palettes. */
+
+    int paletteNumColors, paletteMaxColors;
+    CARD32 monoBackground, monoForeground;
+    PALETTE palette;
+
+    /* tight encoding -- Pointers to dynamically-allocated buffers. */
+
+    int tightBeforeBufSize;
+    char *tightBeforeBuf;
+
+    int tightAfterBufSize;
+    char *tightAfterBuf;
+
+    int *prevRowBuf;
+
+    /* tight encoding -- JPEG compression stuff. */
+
+    struct jpeg_destination_mgr jpegDstManager;
+    Bool jpegError;
+    int jpegDstDataLen;
+
+    j_compress_ptr cinfo;  /* tight encoding -- GetClient() uses this to map cinfos to client records */
+
+    // These defines will "hopefully" allow us to keep the rest of the code looking roughly the same
+    // but reference them out of the client record pointer, where they need to be, instead of as globals
+#define usePixelFormat24   cl->usePixelFormat24
+
+#define compressLevel      cl->compressLevel
+#define qualityLevel       cl->qualityLevel
+
+#define paletteNumColors   cl->paletteNumColors
+#define paletteMaxColors   cl->paletteMaxColors
+#define monoBackground     cl->monoBackground
+#define monoForeground     cl->monoForeground
+
+#define tightBeforeBufSize cl->tightBeforeBufSize
+#define tightBeforeBuf     cl->tightBeforeBuf
+#define tightAfterBufSize  cl->tightAfterBufSize
+#define tightAfterBuf      cl->tightAfterBuf
+#define prevRowBuf         cl->prevRowBuf
+
+#define jpegDstManager     cl->jpegDstManager
+#define jpegError          cl->jpegError
+#define jpegDstDataLen     cl->jpegDstDataLen
+
     /* ZRLE -- Zlib Run Length Encoding Variable Space */
 
     char client_zrleBeforeBuf[rfbZRLETileWidth * rfbZRLETileHeight * 4 + 4];
@@ -393,6 +448,8 @@ extern void keyboardReleaseKeysForClient(rfbClientPtr cl);
 //extern int ublen;
 
 extern rfbClientPtr pointerClient;
+
+extern rfbClientPtr rfbClientHead;  /* tight encoding -- GetClient() in tight.c accesses this list, so make it global */
 
 extern void rfbProcessClientProtocolVersion(rfbClientPtr cl);
 extern void rfbProcessClientNormalMessage(rfbClientPtr cl);

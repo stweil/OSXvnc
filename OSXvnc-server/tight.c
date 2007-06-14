@@ -25,8 +25,9 @@
  */
 
 #include <stdio.h>
+#include <pthread.h>
 #include "rfb.h"
-#include <jpeglib.h>
+#include "tight.h"
 
 
 /* Note: The following constant should not be changed. */
@@ -39,9 +40,6 @@
 
 /* May be set to TRUE with "-lazytight" Xvnc option. */
 Bool rfbTightDisableGradient = FALSE;
-
-/* This variable is set on every rfbSendRectEncodingTight() call. */
-static Bool usePixelFormat24;
 
 
 /* Compression level stuff. The following array contains various
@@ -69,42 +67,6 @@ static TIGHT_CONF tightConf[10] = {
     { 65536, 2048,  32,  8192, 9, 9, 8, 6, 190, 475,  64, 75,   500,  1200 },
     { 65536, 2048,  32,  8192, 9, 9, 9, 6, 200, 500,  96, 80,   200,   500 }
 };
-
-static int compressLevel;
-static int qualityLevel;
-
-/* Stuff dealing with palettes. */
-
-typedef struct COLOR_LIST_s {
-    struct COLOR_LIST_s *next;
-    int idx;
-    CARD32 rgb;
-} COLOR_LIST;
-
-typedef struct PALETTE_ENTRY_s {
-    COLOR_LIST *listNode;
-    int numPixels;
-} PALETTE_ENTRY;
-
-typedef struct PALETTE_s {
-    PALETTE_ENTRY entry[256];
-    COLOR_LIST *hash[256];
-    COLOR_LIST list[256];
-} PALETTE;
-
-static int paletteNumColors, paletteMaxColors;
-static CARD32 monoBackground, monoForeground;
-static PALETTE palette;
-
-/* Pointers to dynamically-allocated buffers. */
-
-static int tightBeforeBufSize = 0;
-static char *tightBeforeBuf = NULL;
-
-static int tightAfterBufSize = 0;
-static char *tightAfterBuf = NULL;
-
-static int *prevRowBuf = NULL;
 
 
 /* Prototypes for static functions. */
@@ -137,30 +99,30 @@ static Bool CompressData(rfbClientPtr cl, int streamId, int dataLen,
                          int zlibLevel, int zlibStrategy);
 static Bool SendCompressedData(rfbClientPtr cl, int compressedLen);
 
-static void FillPalette8(int count);
-static void FillPalette16(int count);
-static void FillPalette32(int count);
+static void FillPalette8(rfbClientPtr cl, int count);
+static void FillPalette16(rfbClientPtr cl, int count);
+static void FillPalette32(rfbClientPtr cl, int count);
 
-static void PaletteReset(void);
-static int PaletteInsert(CARD32 rgb, int numPixels, int bpp);
+static void PaletteReset(rfbClientPtr cl);
+static int PaletteInsert(rfbClientPtr cl, CARD32 rgb, int numPixels, int bpp);
 
 static void Pack24(char *buf, rfbPixelFormat *fmt, int count);
 
-static void EncodeIndexedRect16(CARD8 *buf, int count);
-static void EncodeIndexedRect32(CARD8 *buf, int count);
+static void EncodeIndexedRect16(rfbClientPtr cl, CARD8 *buf, int count);
+static void EncodeIndexedRect32(rfbClientPtr cl, CARD8 *buf, int count);
 
-static void EncodeMonoRect8(CARD8 *buf, int w, int h);
-static void EncodeMonoRect16(CARD8 *buf, int w, int h);
-static void EncodeMonoRect32(CARD8 *buf, int w, int h);
+static void EncodeMonoRect8(rfbClientPtr cl, CARD8 *buf, int w, int h);
+static void EncodeMonoRect16(rfbClientPtr cl, CARD8 *buf, int w, int h);
+static void EncodeMonoRect32(rfbClientPtr cl, CARD8 *buf, int w, int h);
 
-static void FilterGradient24(char *buf, rfbPixelFormat *fmt, int w, int h);
-static void FilterGradient16(CARD16 *buf, rfbPixelFormat *fmt, int w, int h);
-static void FilterGradient32(CARD32 *buf, rfbPixelFormat *fmt, int w, int h);
+static void FilterGradient24(rfbClientPtr cl, char *buf, rfbPixelFormat *fmt, int w, int h);
+static void FilterGradient16(rfbClientPtr cl, CARD16 *buf, rfbPixelFormat *fmt, int w, int h);
+static void FilterGradient32(rfbClientPtr cl, CARD32 *buf, rfbPixelFormat *fmt, int w, int h);
 
-static int DetectSmoothImage(rfbPixelFormat *fmt, int w, int h);
-static unsigned long DetectSmoothImage24(rfbPixelFormat *fmt, int w, int h);
-static unsigned long DetectSmoothImage16(rfbPixelFormat *fmt, int w, int h);
-static unsigned long DetectSmoothImage32(rfbPixelFormat *fmt, int w, int h);
+static int DetectSmoothImage(rfbClientPtr cl, rfbPixelFormat *fmt, int w, int h);
+static unsigned long DetectSmoothImage24(rfbClientPtr cl, rfbPixelFormat *fmt, int w, int h);
+static unsigned long DetectSmoothImage16(rfbClientPtr cl, rfbPixelFormat *fmt, int w, int h);
+static unsigned long DetectSmoothImage32(rfbClientPtr cl, rfbPixelFormat *fmt, int w, int h);
 
 static Bool SendJpegRect(rfbClientPtr cl, int x, int y, int w, int h,
                          int quality);
@@ -172,7 +134,36 @@ static void PrepareRowForJpeg32(rfbClientPtr cl, CARD8 *dst, int x, int y, int c
 static void JpegInitDestination(j_compress_ptr cinfo);
 static boolean JpegEmptyOutputBuffer(j_compress_ptr cinfo);
 static void JpegTermDestination(j_compress_ptr cinfo);
-static void JpegSetDstManager(j_compress_ptr cinfo);
+static void JpegSetDstManager(rfbClientPtr cl, j_compress_ptr cinfo);
+
+// These defines will "hopefully" allow us to keep the rest of the code looking roughly the same
+// but call them with the client record pointer, instead of without it
+#define FillPalette8(x)              FillPalette8(cl, x)
+#define FillPalette16(x)             FillPalette16(cl, x)
+#define FillPalette32(x)             FillPalette32(cl, x)
+
+#define PaletteReset()               PaletteReset(cl)
+#define PaletteInsert(x, y, z)       PaletteInsert(cl, x, y, z)
+
+#define EncodeIndexedRect16(x, y)    EncodeIndexedRect16(cl, x, y)
+#define EncodeIndexedRect32(x, y)    EncodeIndexedRect32(cl, x, y)
+
+#define EncodeMonoRect8(x, y, z)     EncodeMonoRect8(cl, x, y, z)
+#define EncodeMonoRect16(x, y, z)    EncodeMonoRect16(cl, x, y, z)
+#define EncodeMonoRect32(x, y, z)    EncodeMonoRect32(cl, x, y, z)
+
+#define FilterGradient24(w, x, y, z) FilterGradient24(cl, w, x, y, z)
+#define FilterGradient16(w, x, y, z) FilterGradient16(cl, w, x, y, z)
+#define FilterGradient32(w, x, y, z) FilterGradient32(cl, w, x, y, z)
+
+#define DetectSmoothImage(x, y, z)   DetectSmoothImage(cl, x, y, z)
+#define DetectSmoothImage24(x, y, z) DetectSmoothImage24(cl, x, y, z)
+#define DetectSmoothImage16(x, y, z) DetectSmoothImage16(cl, x, y, z)
+#define DetectSmoothImage32(x, y, z) DetectSmoothImage32(cl, x, y, z)
+
+#define JpegSetDstManager(x)         JpegSetDstManager(cl, x)
+
+#define palette cl->palette
 
 
 /*
@@ -952,8 +943,10 @@ static Bool SendCompressedData(cl, compressedLen)
  * Code to determine how many different colors used in rectangle.
  */
 
+#undef FillPalette8
 static void
-FillPalette8(count)
+FillPalette8(cl, count)
+    rfbClientPtr cl;
     int count;
 {
     CARD8 *data = (CARD8 *)tightBeforeBuf;
@@ -994,11 +987,15 @@ FillPalette8(count)
         paletteNumColors = 2;   /* Two colors */
     }
 }
+#define FillPalette8(x)              FillPalette8(cl, x)
 
+#undef FillPalette16
+#undef FillPalette32
 #define DEFINE_FILL_PALETTE_FUNCTION(bpp)                               \
                                                                         \
 static void                                                             \
-FillPalette##bpp(count)                                                 \
+FillPalette##bpp(cl, count)                                                 \
+    rfbClientPtr cl;                                                    \
     int count;                                                          \
 {                                                                       \
     CARD##bpp *data = (CARD##bpp *)tightBeforeBuf;                      \
@@ -1061,6 +1058,8 @@ FillPalette##bpp(count)                                                 \
 
 DEFINE_FILL_PALETTE_FUNCTION(16)
 DEFINE_FILL_PALETTE_FUNCTION(32)
+#define FillPalette16(x)             FillPalette16(cl, x)
+#define FillPalette32(x)             FillPalette32(cl, x)
 
 
 /*
@@ -1070,15 +1069,19 @@ DEFINE_FILL_PALETTE_FUNCTION(32)
 #define HASH_FUNC16(rgb) ((int)((((rgb) >> 8) + (rgb)) & 0xFF))
 #define HASH_FUNC32(rgb) ((int)((((rgb) >> 16) + ((rgb) >> 8)) & 0xFF))
 
+#undef PaletteReset
 static void
-PaletteReset(void)
+PaletteReset(rfbClientPtr cl)
 {
     paletteNumColors = 0;
     memset(palette.hash, 0, 256 * sizeof(COLOR_LIST *));
 }
+#define PaletteReset()               PaletteReset(cl)
 
+#undef PaletteInsert
 static int
-PaletteInsert(rgb, numPixels, bpp)
+PaletteInsert(cl, rgb, numPixels, bpp)
+    rfbClientPtr cl;
     CARD32 rgb;
     int numPixels;
     int bpp;
@@ -1142,6 +1145,7 @@ PaletteInsert(rgb, numPixels, bpp)
 
     return (++paletteNumColors);
 }
+#define PaletteInsert(x, y, z)       PaletteInsert(cl, x, y, z)
 
 
 /*
@@ -1184,10 +1188,13 @@ static void Pack24(buf, fmt, count)
  * Converting truecolor samples into palette indices.
  */
 
+#undef EncodeIndexedRect16
+#undef EncodeIndexedRect32
 #define DEFINE_IDX_ENCODE_FUNCTION(bpp)                                 \
                                                                         \
 static void                                                             \
-EncodeIndexedRect##bpp(buf, count)                                      \
+EncodeIndexedRect##bpp(cl, buf, count)                                      \
+    rfbClientPtr cl;                                                    \
     CARD8 *buf;                                                         \
     int count;                                                          \
 {                                                                       \
@@ -1220,11 +1227,17 @@ EncodeIndexedRect##bpp(buf, count)                                      \
 
 DEFINE_IDX_ENCODE_FUNCTION(16)
 DEFINE_IDX_ENCODE_FUNCTION(32)
+#define EncodeIndexedRect16(x, y)    EncodeIndexedRect16(cl, x, y)
+#define EncodeIndexedRect32(x, y)    EncodeIndexedRect32(cl, x, y)
 
+#undef EncodeMonoRect8
+#undef EncodeMonoRect16
+#undef EncodeMonoRect32
 #define DEFINE_MONO_ENCODE_FUNCTION(bpp)                                \
                                                                         \
 static void                                                             \
-EncodeMonoRect##bpp(buf, w, h)                                          \
+EncodeMonoRect##bpp(cl, buf, w, h)                                          \
+    rfbClientPtr cl;                                                    \
     CARD8 *buf;                                                         \
     int w, h;                                                           \
 {                                                                       \
@@ -1277,6 +1290,9 @@ EncodeMonoRect##bpp(buf, w, h)                                          \
 DEFINE_MONO_ENCODE_FUNCTION(8)
 DEFINE_MONO_ENCODE_FUNCTION(16)
 DEFINE_MONO_ENCODE_FUNCTION(32)
+#define EncodeMonoRect8(x, y, z)     EncodeMonoRect8(cl, x, y, z)
+#define EncodeMonoRect16(x, y, z)    EncodeMonoRect16(cl, x, y, z)
+#define EncodeMonoRect32(x, y, z)    EncodeMonoRect32(cl, x, y, z)
 
 
 /*
@@ -1285,8 +1301,10 @@ DEFINE_MONO_ENCODE_FUNCTION(32)
  * Color components assumed to be byte-aligned.
  */
 
+#undef FilterGradient24
 static void
-FilterGradient24(buf, fmt, w, h)
+FilterGradient24(cl, buf, fmt, w, h)
+    rfbClientPtr cl;
     char *buf;
     rfbPixelFormat *fmt;
     int w, h;
@@ -1338,16 +1356,20 @@ FilterGradient24(buf, fmt, w, h)
         }
     }
 }
+#define FilterGradient24(w, x, y, z) FilterGradient24(cl, w, x, y, z)
 
 
 /*
  * ``Gradient'' filter for other color depths.
  */
 
+#undef FilterGradient16
+#undef FilterGradient32
 #define DEFINE_GRADIENT_FILTER_FUNCTION(bpp)                             \
                                                                          \
 static void                                                              \
-FilterGradient##bpp(buf, fmt, w, h)                                      \
+FilterGradient##bpp(cl, buf, fmt, w, h)                                      \
+    rfbClientPtr cl;                                                     \
     CARD##bpp *buf;                                                      \
     rfbPixelFormat *fmt;                                                 \
     int w, h;                                                            \
@@ -1409,6 +1431,8 @@ FilterGradient##bpp(buf, fmt, w, h)                                      \
 
 DEFINE_GRADIENT_FILTER_FUNCTION(16)
 DEFINE_GRADIENT_FILTER_FUNCTION(32)
+#define FilterGradient16(w, x, y, z) FilterGradient16(cl, w, x, y, z)
+#define FilterGradient32(w, x, y, z) FilterGradient32(cl, w, x, y, z)
 
 
 /*
@@ -1422,8 +1446,10 @@ DEFINE_GRADIENT_FILTER_FUNCTION(32)
 #define DETECT_MIN_WIDTH       8
 #define DETECT_MIN_HEIGHT      8
 
+#undef DetectSmoothImage
 static int
-DetectSmoothImage (fmt, w, h)
+DetectSmoothImage (cl, fmt, w, h)
+    rfbClientPtr cl;
     rfbPixelFormat *fmt;
     int w, h;
 {
@@ -1463,9 +1489,12 @@ DetectSmoothImage (fmt, w, h)
     }
     return (avgError < tightConf[compressLevel].gradientThreshold);
 }
+#define DetectSmoothImage(x, y, z)   DetectSmoothImage(cl, x, y, z)
 
+#undef DetectSmoothImage24
 static unsigned long
-DetectSmoothImage24 (fmt, w, h)
+DetectSmoothImage24 (cl, fmt, w, h)
+    rfbClientPtr cl;
     rfbPixelFormat *fmt;
     int w, h;
 {
@@ -1522,11 +1551,15 @@ DetectSmoothImage24 (fmt, w, h)
 
     return avgError;
 }
+#define DetectSmoothImage24(x, y, z) DetectSmoothImage24(cl, x, y, z)
 
+#undef DetectSmoothImage16
+#undef DetectSmoothImage32
 #define DEFINE_DETECT_FUNCTION(bpp)                                          \
                                                                              \
 static unsigned long                                                         \
-DetectSmoothImage##bpp (fmt, w, h)                                           \
+DetectSmoothImage##bpp (cl, fmt, w, h)                                           \
+    rfbClientPtr cl;                                                         \
     rfbPixelFormat *fmt;                                                     \
     int w, h;                                                                \
 {                                                                            \
@@ -1605,15 +1638,13 @@ DetectSmoothImage##bpp (fmt, w, h)                                           \
 
 DEFINE_DETECT_FUNCTION(16)
 DEFINE_DETECT_FUNCTION(32)
+#define DetectSmoothImage16(x, y, z) DetectSmoothImage16(cl, x, y, z)
+#define DetectSmoothImage32(x, y, z) DetectSmoothImage32(cl, x, y, z)
 
 
 /*
  * JPEG compression stuff.
  */
-
-static struct jpeg_destination_mgr jpegDstManager;
-static Bool jpegError;
-static int jpegDstDataLen;
 
 static Bool
 SendJpegRect(cl, x, y, w, h, quality)
@@ -1626,6 +1657,8 @@ SendJpegRect(cl, x, y, w, h, quality)
     CARD8 *srcBuf;
     JSAMPROW rowPointer[1];
     int dy;
+
+    cl->cinfo = &cinfo;  /* tight encoding -- GetClient() uses this to map cinfos to client records */
 
     if (rfbServerFormat.bitsPerPixel == 8)
         return SendFullColorRect(cl, w, h);
@@ -1760,9 +1793,22 @@ DEFINE_JPEG_GET_ROW_FUNCTION(32)
  * Destination manager implementation for JPEG library.
  */
 
+/* tight encoding -- Map cinfo to client record */
+#define GetClient(cl, cinfo)                     \
+    for ( cl = rfbClientHead;; cl = cl->next ) { \
+        if (cl == NULL)                          \
+            pthread_exit(NULL);                  \
+                                                 \
+        if (cl->cinfo == cinfo)                  \
+            break;                               \
+    }
+
 static void
 JpegInitDestination(j_compress_ptr cinfo)
 {
+    rfbClientPtr cl;
+
+    GetClient(cl, cinfo);
     jpegError = FALSE;
     jpegDstManager.next_output_byte = (JOCTET *)tightAfterBuf;
     jpegDstManager.free_in_buffer = (size_t)tightAfterBufSize;
@@ -1771,6 +1817,9 @@ JpegInitDestination(j_compress_ptr cinfo)
 static boolean
 JpegEmptyOutputBuffer(j_compress_ptr cinfo)
 {
+    rfbClientPtr cl;
+
+    GetClient(cl, cinfo);
     jpegError = TRUE;
     jpegDstManager.next_output_byte = (JOCTET *)tightAfterBuf;
     jpegDstManager.free_in_buffer = (size_t)tightAfterBufSize;
@@ -1781,11 +1830,15 @@ JpegEmptyOutputBuffer(j_compress_ptr cinfo)
 static void
 JpegTermDestination(j_compress_ptr cinfo)
 {
+    rfbClientPtr cl;
+
+    GetClient(cl, cinfo);
     jpegDstDataLen = tightAfterBufSize - jpegDstManager.free_in_buffer;
 }
 
+#undef JpegSetDstManager
 static void
-JpegSetDstManager(j_compress_ptr cinfo)
+JpegSetDstManager(rfbClientPtr cl, j_compress_ptr cinfo)
 {
     jpegDstManager.init_destination = JpegInitDestination;
     jpegDstManager.empty_output_buffer = JpegEmptyOutputBuffer;

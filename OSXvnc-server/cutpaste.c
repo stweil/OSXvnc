@@ -839,12 +839,6 @@ void rfbReceiveRichClipboardAvailable(rfbClientPtr cl) {
 	}
 		
 	if (!rfbDisableRichClipboards) {
-		//BOOL addNewDataToPB = NO;
-		NSPasteboard *thePasteboard = [NSPasteboard pasteboardWithName:pasteboardName];
-		//if ([thePasteboard changeCount] != pbChangeCount)
-		//	addNewDataToPB = YES;
-		//else if (![[thePasteboard types] isEqualToArray:availableTypes])
-		//	addNewDataToPB = YES;
 		if ([availableTypes indexOfObject:[NSString stringWithFormat:@"RSPBID:%@:%@", NSUserName(), getMACAddressString()]] != NSNotFound) {
 			if (debugPB)
 				NSLog(@"Rich clipboard info appears to be from our own account (%@:%@) -- ignored.", NSUserName(), getMACAddressString());
