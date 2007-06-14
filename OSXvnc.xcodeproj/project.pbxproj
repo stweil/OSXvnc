@@ -181,7 +181,7 @@
 		919999430B11348E0099EA7A /* getMACAddress.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 30; path = getMACAddress.c; sourceTree = "<group>"; };
 		AB15010D04F6A94500A80117 /* RFBBundleProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RFBBundleProtocol.h; sourceTree = "<group>"; };
 		AB25D83708686B520065843D /* Info-OSXvnc.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "Info-OSXvnc.plist"; sourceTree = "<group>"; };
-		AB25D83808686B520065843D /* Vine Server.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Vine Server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB25D83808686B520065843D /* Vine Server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Vine Server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB25D87D08686C7D0065843D /* Info-JaguarBundle.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Info-JaguarBundle.plist"; sourceTree = "<group>"; };
 		AB25D87E08686C7D0065843D /* JaguarBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JaguarBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB25D9B10868799D0065843D /* libstdc++.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libstdc++.a"; path = "/usr/lib/gcc/darwin/3.3/libstdc++.a"; sourceTree = "<absolute>"; };
@@ -1498,7 +1498,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_OPTIMIZATION_LEVEL = s;
 				INFOPLIST_FILE = "Info-OSXvnc.plist";
-				INSTALL_MODE_FLAG = "a+rwX";
+				INSTALL_MODE_FLAG = 755;
 				INSTALL_PATH = "/Vine Server/";
 				MACOSX_DEPLOYMENT_TARGET = 10.1;
 				PRODUCT_NAME = "Vine Server";

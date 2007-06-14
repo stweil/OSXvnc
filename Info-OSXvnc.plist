@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>2.1 - Copyright© 2002-2006 Redstone Software </string>
+	<string>2.2Beta2 - Copyright© 2002-2007 Redstone Software </string>
 	<key>CFBundleIconFile</key>
 	<string>VineServer.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -21,17 +21,17 @@
 	<key>CFBundleSignature</key>
 	<string>OSXv</string>
 	<key>CFBundleShortVersion</key>
-	<string>2.1</string>
+	<string>2.2Beta2</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.1</string>
+	<string>2.2Beta2</string>
 	<key>CFBundleVersion</key>
-	<string>2.1</string>
+	<string>2.2Beta2</string>
 	<key>NSAppleScriptEnabled</key>
 	<false/>
 	<key>NSHelpFile</key>
 	<string>Vine Server.pdf</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright© 2002-2006 Redstone Software</string>
+	<string>Copyright© 2002-2007 Redstone Software</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
