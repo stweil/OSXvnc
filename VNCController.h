@@ -63,11 +63,12 @@
     IBOutlet NSTextField *startupItemStatusMessageField;
 
     int port;
-
+	
     BOOL alwaysShared;
     BOOL neverShared;
     BOOL userStopped;
     BOOL relaunchServer;
+	BOOL doNotLoadProxy;
 
     NSTask *controller;
     NSFileHandle *serverOutput;

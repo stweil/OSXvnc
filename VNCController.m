@@ -41,6 +41,43 @@
 #define NSAppKitVersionNumber10_3 743
 #endif
 
+@interface NSFileManager (VNCExtensions)
+
+- (BOOL) directoryExistsAtPath: (NSString *) path;
+- (BOOL) createFullDirectoryAtPath:(NSString *)path attributes:(NSDictionary *)attributes;
+- (BOOL) canWriteToFile: (NSString *) path;
+
+@end
+
+@implementation NSFileManager (VNCExtensions)
+
+- (BOOL) directoryExistsAtPath: (NSString *) path {
+    BOOL isDirectory = NO;
+	
+    return ([self fileExistsAtPath:path isDirectory: &isDirectory] && isDirectory);
+}
+
+- (BOOL) createFullDirectoryAtPath:(NSString *)path attributes:(NSDictionary *)attributes {
+    if ([self directoryExistsAtPath: path])
+        return YES;
+	
+    if ([path length] && [self createFullDirectoryAtPath:[path stringByDeletingLastPathComponent] attributes:attributes])
+        return [self createDirectoryAtPath:path attributes:attributes];
+    
+    return NO;
+}
+
+- (BOOL) canWriteToFile: (NSString *) path {
+    if ([[NSFileManager defaultManager] fileExistsAtPath:path])
+        return [[NSFileManager defaultManager] isWritableFileAtPath:path];
+    else {
+		[[NSFileManager defaultManager] createFullDirectoryAtPath:[path stringByDeletingLastPathComponent] attributes:nil];
+        return [[NSFileManager defaultManager] isWritableFileAtPath:[path stringByDeletingLastPathComponent]];
+	}
+}
+
+@end
+
 @implementation VNCController
 
 static void terminateOnSignal(int signal) {
@@ -120,13 +157,6 @@ static void terminateOnSignal(int signal) {
     }
 }
 
-- (BOOL) canWriteToFile: (NSString *) path {
-    if ([[NSFileManager defaultManager] fileExistsAtPath:path])
-        return [[NSFileManager defaultManager] isWritableFileAtPath:path];
-    else
-        return [[NSFileManager defaultManager] isWritableFileAtPath:[path stringByDeletingLastPathComponent]];
-}
-
 // Display Host Names
 - (void) updateHostName {
 	NSMutableArray *commonHostNames = [[[NSHost currentHost] names] mutableCopy];
@@ -189,42 +219,55 @@ static void terminateOnSignal(int signal) {
 	return port;
 }
 
-- (void) awakeFromNib {
-    id infoDictionary = [[NSBundle mainBundle] infoDictionary];
+- (void) determinePasswordLocation {
     NSArray *passwordFiles = [NSArray arrayWithObjects:
         [[NSUserDefaults standardUserDefaults] stringForKey:@"PasswordFile"],
-        [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@".osxvncauth"],
 		@"~/.osxvncauth",
+        [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@".osxvncauth"],
         @"/tmp/.osxvncauth",
         nil];
     NSEnumerator *passwordEnumerators = [passwordFiles objectEnumerator];
-    NSArray *logFiles = [NSArray arrayWithObjects:
-        [[NSUserDefaults standardUserDefaults] stringForKey:@"LogFile"],
-        @"/var/log/OSXvnc-server.log",
-		@"~/Library/Logs/OSXvnc-server.log",
-        [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server.log"],
-        @"/tmp/OSXvnc-server.log",
-        nil];
-    NSEnumerator *logEnumerators = [logFiles objectEnumerator];
-
+	
+	[passwordFile release];
+	passwordFile = nil;
     // Find first writable location for the password file
     while (passwordFile = [passwordEnumerators nextObject]) {
         passwordFile = [passwordFile stringByStandardizingPath];
-        if ([passwordFile length] && [self canWriteToFile:passwordFile]) {
+        if ([passwordFile length] && [[NSFileManager defaultManager] canWriteToFile:passwordFile]) {
             [passwordFile retain];
             break;
         }
     }
+}
 
+- (void) determineLogLocation {
+	NSArray *logFiles = [NSArray arrayWithObjects:
+        [[NSUserDefaults standardUserDefaults] stringForKey:@"LogFile"],
+		@"~/Library/Logs/OSXvnc-server.log",
+        @"/var/log/OSXvnc-server.log",
+        [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server.log"],
+        @"/tmp/OSXvnc-server.log",
+        nil];
+    NSEnumerator *logEnumerators = [logFiles objectEnumerator];
+	
+	[logFile release];
+	logFile = nil;
     // Find first writable location for the log file
     while (logFile = [logEnumerators nextObject]) {
         logFile = [logFile stringByStandardizingPath];
-        if ([logFile length] && [self canWriteToFile:logFile]) {
+        if ([logFile length] && [[NSFileManager defaultManager] canWriteToFile:logFile]) {
             [logFile retain];
             break;
         }
-    }
+    }	
+}
+
+- (void) awakeFromNib {
+    id infoDictionary = [[NSBundle mainBundle] infoDictionary];
     
+	[self determinePasswordLocation];
+	[self determineLogLocation];
+	
 	if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
 		[connectPort setStringValue:@""];
 		[[connectPort cell] performSelector:@selector(setPlaceholderString:) withObject:@"5500"];
@@ -519,8 +562,8 @@ static void terminateOnSignal(int signal) {
 }
 
 - (void) startServer: sender {
-    id argv;
-
+    NSArray *argv;
+	
     if (controller) {
         // Set to relaunch and then try to shut-down
         relaunchServer = TRUE;
@@ -541,6 +584,7 @@ static void terminateOnSignal(int signal) {
         NSString *executionPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server"];
         NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting %@ Version %@\n", [NSDate date], [[NSProcessInfo processInfo] processName], [infoDictionary valueForKey:@"CFBundleVersion"]];
 
+		[self determineLogLocation];
         if (![[NSFileManager defaultManager] fileExistsAtPath:logFile]) {
             [[NSFileManager defaultManager] createFileAtPath:logFile contents:nil attributes:nil];
         }
@@ -712,6 +756,9 @@ static void terminateOnSignal(int signal) {
         [argv addObject:@"-deferupdate"];
         [argv addObject:[[NSUserDefaults standardUserDefaults] stringForKey:@"rfbDeferUpdateTime"]];
     }
+
+	if (doNotLoadProxy)
+		[argv addObject:@"-donotloadproxy"];
 
 	if ([[otherArguments stringValue] length])
 		[argv addObjectsFromArray:[[otherArguments stringValue] componentsSeparatedByString:@" "]];
@@ -957,17 +1004,25 @@ static void terminateOnSignal(int signal) {
             return;
         }
 		
-		// Copy JaguarBundle
-		[copyArgsArray removeAllObjects];
-		[copyArgsArray addObject:@"-R"]; // Recursive
-        [copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
-        [copyArgsArray addObject:[[NSBundle mainBundle] pathForResource:@"JaguarBundle" ofType:@"bundle"]];
-        [copyArgsArray addObject:@"/Library/StartupItems/OSXvnc/Resources"];
-		
-        if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
-            [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to copy JaguarBundle")];
-            return;
-        }
+		// Copy All Bundles
+		{
+			NSEnumerator *bundleEnum = [[NSBundle pathsForResourcesOfType:@"bundle" inDirectory:[[NSBundle mainBundle] resourcePath]] objectEnumerator];
+			NSString *bundlePath = nil;
+			
+			while (bundlePath = [bundleEnum nextObject]) {
+				[copyArgsArray removeAllObjects];
+				[copyArgsArray addObject:@"-R"]; // Recursive
+				[copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
+				[copyArgsArray addObject:bundlePath];
+				//[copyArgsArray addObject:[[NSBundle mainBundle] pathForResource:@"JaguarBundle" ofType:@"bundle"]];
+				[copyArgsArray addObject:@"/Library/StartupItems/OSXvnc/Resources"];
+
+		        if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
+					[startupItemStatusMessageField setStringValue:[NSString stringWithFormat:@"Error: Unable to copy bundle:%@", [bundlePath lastPathComponent]]];
+					return;
+				}
+			}
+		}
 		
         startupScript = [NSMutableString stringWithContentsOfFile:[sourceFolder stringByAppendingPathComponent:@"OSXvnc"]];
     }
@@ -1014,7 +1069,9 @@ static void terminateOnSignal(int signal) {
 			[newDesktopName replaceOccurrencesOfString:@" " withString:@"_" options:nil range:NSMakeRange(0,[oldDesktopName length])];
 			[displayNameField setStringValue:newDesktopName];
 		}
+		doNotLoadProxy = YES;
 		replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLine] componentsJoinedByString:@" "]];
+		doNotLoadProxy = NO;
         [startupScript replaceCharactersInRange:lineRange withString:replaceString];
 
 		[displayNameField setStringValue:oldDesktopName];
