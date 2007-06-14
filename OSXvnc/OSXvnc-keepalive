@@ -7,6 +7,9 @@
 # 
 # Modification Log:
 #
+# 2.2
+# Ignore external kills for the purpose of restart count
+#
 # 2.0  Adopted these contributions...
 #
 # 2006-06-07 Marvin Simkin
@@ -52,6 +55,12 @@ do
 	RESULT=$? # Record Result
 	echo "`date '+%Y-%m-%d %H:%M:%S'` Server exited with result: $RESULT"
 	echo "`date '+%Y-%m-%d %H:%M:%S'` Server exited with result: $RESULT" >> /var/log/osxvnc_exit.log
+	
+	# signal code 137 = 9 + 128 corresponds to SIGKILL (kill signal from term) 
+	# this signal is sent when a user logs out 
+	# don't treat recurrence of this code as an error; let the server restart! 
+	if [ "$RESULT" -ne "137" ] 
+	then 
         # check for same problem recurring frequently
         COUNT=`cut -f1,7 -d' ' < /var/log/osxvnc_exit.log |
           uniq -c |
@@ -66,11 +75,6 @@ do
           echo "`date '+%Y-%m-%d %H:%M:%S'` The same error '$RESULT' happened $COUNT times in a row, not restarting!" >> /var/log/osxvnc_exit.log
           STOPNOW=1
         fi
-
-	# On logout it seems get a 137 exit? why?
-	if [[ "$RESULT" -eq "137" ]] 
-	then
-		RESULT=9
 	fi
 	sleep 5
 done
