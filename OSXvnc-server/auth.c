@@ -34,7 +34,7 @@
 NSLock *authClientLock=nil;
 NSMutableDictionary *authClientFailures=nil;
 
-int rfbMaxLoginAttempts=3;
+int rfbMaxLoginAttempts=5;
 char *rfbAuthPasswdFile = NULL;
 
 void rfbAuthInit() {
@@ -121,26 +121,27 @@ void rfbAuthNewClient(rfbClientPtr cl) {
     char buf[4 + CHALLENGESIZE+256];// 256 for error messages
     int len = 0;
 	
-	if (rfbMaxLoginAttempts && (failedAttemptsForClient(cl) > rfbMaxLoginAttempts)) {
-		buf[0] = Swap32IfLE(rfbConnFailed); // Record How Many Auth Types
-		len+=4;
-		
-		char *errorString = "Too Many Security Failures";
-		int errorLength = strlen(errorString);
-		*(CARD32 *)&buf[len] = Swap32IfLE(errorLength);
-		len+=4;
-		
-		memcpy(&buf[len], errorString, errorLength);
-		len+=errorLength;
-		if (WriteExact(cl, buf, len) < 0) {
-			rfbLogPerror("rfbAuthNewClient: write");
-		}
-		rfbLog("rfbAuthNewClient: Authentication failed from %s (Too Many Failures)\n", cl->host);
-		rfbCloseClient(cl);
-		return;
-	}
-	
     if (cl->major== 3 && cl->minor >= 7) {
+		if (rfbMaxLoginAttempts && (failedAttemptsForClient(cl) > rfbMaxLoginAttempts)) {
+			buf[0] = 0; // Record Failure
+			len+=1;
+			
+			char *errorString = "Too Many Security Failures";
+			int errorLength = strlen(errorString);
+			*(CARD32 *)&buf[len] = Swap32IfLE(errorLength);
+			len+=4;
+			
+			memcpy(&buf[len], errorString, errorLength);
+			len+=errorLength;
+			if (WriteExact(cl, buf, len) < 0) {
+				rfbLogPerror("rfbAuthNewClient: write");
+			}
+			rfbLog("rfbAuthNewClient: Authentication failed from %s (Too Many Failures)\n", cl->host);
+			rfbCloseClient(cl);
+			return;
+		}		
+
+		// One byte for the # of Auth Types
 		len++;
 		
 		/** JAMF AUTH **/
@@ -156,9 +157,9 @@ void rfbAuthNewClient(rfbClientPtr cl) {
             buf[len++] = rfbNoAuth;
             cl->state = RFB_AUTH_VERSION; //RFB_INITIALISATION;
         }
-		buf[0] = (len-1); // Record How Many Auth Types
+		buf[0] = (len-1); // Record How Many Auth Types in the first byte
 		
-		if (len == 0) { // if we disable no-auth, for example
+		if (len == 1) { // if we disable no-auth, for example
 			char *errorString = "No Supported Security Types";
 			int errorLength = strlen(errorString);
 			*(CARD32 *)&buf[len] = Swap32IfLE(errorLength);
@@ -175,6 +176,25 @@ void rfbAuthNewClient(rfbClientPtr cl) {
         }
     }
     else {
+		if (rfbMaxLoginAttempts && (failedAttemptsForClient(cl) > rfbMaxLoginAttempts)) {
+			buf[0] = Swap32IfLE(rfbConnFailed); // Record Failure
+			len+=4;
+			
+			char *errorString = "Too Many Security Failures";
+			int errorLength = strlen(errorString);
+			*(CARD32 *)&buf[len] = Swap32IfLE(errorLength);
+			len+=4;
+			
+			memcpy(&buf[len], errorString, errorLength);
+			len+=errorLength;
+			if (WriteExact(cl, buf, len) < 0) {
+				rfbLogPerror("rfbAuthNewClient: write");
+			}
+			rfbLog("rfbAuthNewClient: Authentication failed from %s (Too Many Failures)\n", cl->host);
+			rfbCloseClient(cl);
+			return;
+		}		
+		
         // If We have a password file specified - Send Challenge Request
         if (!cl->reverseConnection && rfbAuthPasswdFile) {
             *(CARD32 *)buf = Swap32IfLE(rfbVncAuth);

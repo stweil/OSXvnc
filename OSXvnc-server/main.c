@@ -659,7 +659,7 @@ static void usage(void) {
     fprintf(stderr, "-rfbauth passwd-file   Use this password file for RFB protocol\n");
 	fprintf(stderr, "                       (use 'storepasswd' to create a password file)\n");
     fprintf(stderr, "-maxauthattempts num   Maximum Number of auth tries before disabling access from a host\n");
-	fprintf(stderr, "                       (default: 3), zero disables\n");
+	fprintf(stderr, "                       (default: 5), zero disables\n");
     fprintf(stderr, "-deferupdate time      Time in ms to defer updates (default %d)\n", rfbDeferUpdateTime);
     fprintf(stderr, "-desktop name          VNC desktop name (default \"MacOS X\")\n");
     fprintf(stderr, "-alwaysshared          Always treat new clients as shared\n");
