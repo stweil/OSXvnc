@@ -159,6 +159,9 @@ static void terminateOnSignal(int signal) {
 
 // Display Host Names
 - (void) updateHostName {
+	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+	
+	[NSHost flushHostCache];
 	NSMutableArray *commonHostNames = [[[NSHost currentHost] names] mutableCopy];
 	
 	[commonHostNames removeObject:@"localhost"];
@@ -172,7 +175,10 @@ static void terminateOnSignal(int signal) {
 	else {
 		[hostNamesLabel setStringValue:LocalizedString(@"")];
 	}
-	[hostNamesField setStringValue:[commonHostNames componentsJoinedByString:@"\n"]];        
+	[hostNamesField performSelectorOnMainThread:@selector(setStringValue:) 
+									 withObject:[commonHostNames componentsJoinedByString:@"\n"] 
+								  waitUntilDone:YES];	
+	[pool release];
 }
 
 // Display IP Info
@@ -292,8 +298,8 @@ static void terminateOnSignal(int signal) {
 
     [disableStartupButton setEnabled:[[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems/OSXvnc"]];
 		
-	[NSHost flushHostCache];
-	[self updateHostName];
+	// This can sometimes hang so we'll do it in another thread
+	[NSThread detachNewThreadSelector:@selector(updateHostName) toTarget:self withObject:nil];
 	[self updateIPAddresses];
 	
 	[self loadDynamicBundles];
@@ -309,8 +315,8 @@ static void terminateOnSignal(int signal) {
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification {
-	[NSHost flushHostCache];
-	[self updateHostName];
+	// This can sometimes hang so we'll do it in another thread
+	[NSThread detachNewThreadSelector:@selector(updateHostName) toTarget:self withObject:nil];
 	[self updateIPAddresses];
     [window makeKeyAndOrderFront:self];
 }
