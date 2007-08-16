@@ -1,0 +1,56 @@
+{
+    IBClasses = (
+        {
+            ACTIONS = {
+                addServer = id; 
+                advancedSettings = id; 
+                cancelAddServer = id; 
+                cancelAdvancedSettings = id; 
+                cancelEditServer = id; 
+                completeAddServer = id; 
+                completeAdvancedSettings = id; 
+                completeEditServer = id; 
+                disableEcho = id; 
+                editServer = id; 
+                enableLogging = id; 
+                loadGUI = id; 
+                removeServer = id; 
+                requireProxyAuthentication = id; 
+                setOffloadingPort = id; 
+                useEncryption = id; 
+            }; 
+            CLASS = EchoController; 
+            LANGUAGE = ObjC; 
+            OUTLETS = {
+                addButton = NSButton; 
+                addServerWindow = NSWindow; 
+                advancedSettingsButton = NSButton; 
+                advancedSettingsWindow = NSWindow; 
+                disableEchoCheckbox = NSButton; 
+                echoServerField = NSTextFieldCell; 
+                "echoServerField_edit" = NSTextFieldCell; 
+                echoServersView = NSView; 
+                echoTableView = NSTableView; 
+                editButton = NSButton; 
+                editServerWindow = NSWindow; 
+                enableLoggingCheckbox = NSButton; 
+                passwordField = NSTextFieldCell; 
+                "passwordField_edit" = NSTextFieldCell; 
+                proxyAddress = NSTextField; 
+                proxyAuthenticationCheckbox = NSButton; 
+                proxyPassword = NSTextField; 
+                proxyPasswordLabel = NSTextField; 
+                proxyPort = NSTextField; 
+                proxyUsername = NSTextField; 
+                proxyUsernameLabel = NSTextField; 
+                removeButton = NSButton; 
+                usernameField = NSTextFieldCell; 
+                "usernameField_edit" = NSTextFieldCell; 
+                versionTextField = NSTextField; 
+            }; 
+            SUPERCLASS = NSObject; 
+        }, 
+        {CLASS = FirstResponder; LANGUAGE = ObjC; SUPERCLASS = NSObject; }
+    ); 
+    IBVersion = 1; 
+}

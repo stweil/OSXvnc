@@ -1,0 +1,42 @@
+Microsoft Visual Studio Solution File, Format Version 7.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Echoware", "Echoware.vcproj", "{1CC002F1-843A-4B82-ADD1-A045B93A2DBA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibeaySt", "OpenSSL\LibeaySt.vcproj", "{5CDA6CEE-1D30-4C05-ACCA-327274FFC553}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RSA", "RSA\RSA.vcproj", "{3FEAADB2-4A97-473B-8839-4E97C0CD4F4B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProxyConnect", "ProxyConnect\ProxyConnect.vcproj", "{CCEA3A1B-1170-4302-85A8-E4B441552105}"
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		ConfigName.0 = Debug
+		ConfigName.1 = Release
+	EndGlobalSection
+	GlobalSection(ProjectDependencies) = postSolution
+		{1CC002F1-843A-4B82-ADD1-A045B93A2DBA}.0 = {5CDA6CEE-1D30-4C05-ACCA-327274FFC553}
+		{1CC002F1-843A-4B82-ADD1-A045B93A2DBA}.1 = {CCEA3A1B-1170-4302-85A8-E4B441552105}
+		{1CC002F1-843A-4B82-ADD1-A045B93A2DBA}.2 = {3FEAADB2-4A97-473B-8839-4E97C0CD4F4B}
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{1CC002F1-843A-4B82-ADD1-A045B93A2DBA}.Debug.ActiveCfg = Debug|Win32
+		{1CC002F1-843A-4B82-ADD1-A045B93A2DBA}.Debug.Build.0 = Debug|Win32
+		{1CC002F1-843A-4B82-ADD1-A045B93A2DBA}.Release.ActiveCfg = Release|Win32
+		{1CC002F1-843A-4B82-ADD1-A045B93A2DBA}.Release.Build.0 = Release|Win32
+		{5CDA6CEE-1D30-4C05-ACCA-327274FFC553}.Debug.ActiveCfg = Debug|Win32
+		{5CDA6CEE-1D30-4C05-ACCA-327274FFC553}.Debug.Build.0 = Debug|Win32
+		{5CDA6CEE-1D30-4C05-ACCA-327274FFC553}.Release.ActiveCfg = Release|Win32
+		{5CDA6CEE-1D30-4C05-ACCA-327274FFC553}.Release.Build.0 = Release|Win32
+		{3FEAADB2-4A97-473B-8839-4E97C0CD4F4B}.Debug.ActiveCfg = Debug|Win32
+		{3FEAADB2-4A97-473B-8839-4E97C0CD4F4B}.Debug.Build.0 = Debug|Win32
+		{3FEAADB2-4A97-473B-8839-4E97C0CD4F4B}.Release.ActiveCfg = Release|Win32
+		{3FEAADB2-4A97-473B-8839-4E97C0CD4F4B}.Release.Build.0 = Release|Win32
+		{CCEA3A1B-1170-4302-85A8-E4B441552105}.Debug.ActiveCfg = Debug|Win32
+		{CCEA3A1B-1170-4302-85A8-E4B441552105}.Debug.Build.0 = Debug|Win32
+		{CCEA3A1B-1170-4302-85A8-E4B441552105}.Release.ActiveCfg = Release|Win32
+		{CCEA3A1B-1170-4302-85A8-E4B441552105}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal
