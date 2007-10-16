@@ -261,7 +261,7 @@ static BOOL debugPB = NO;
 			}
 		} 
 		else if (pasteboardData) { // not RSFileWrapper
-					[thePasteboard setData:pasteboardData forType:availableType];
+			[thePasteboard setData:pasteboardData forType:availableType];
 			//clipBoardReceivedChangeCount = lastChangeCount;
 		}
 	}
@@ -523,12 +523,13 @@ void rfbCheckForPasteboardChange() {
 		if ([[pbInfoArray objectAtIndex:0] intValue] != pasteboardsChangeCount) {
 			// Check for special file types (URL for a local file, or NSFilenamesPboardType for an existing file)
 			NSArray *pboardTypes = [thePasteboard types];
+			[pbInfoArray replaceObjectAtIndex:0 withObject:[NSNumber numberWithInt:pasteboardsChangeCount]];
 			if (![pboardTypes count]) {
-				NSLog(@"Warning - Pasteboard with no types, ignored");
+				if (debugPB)
+					NSLog(@"Warning - Pasteboard with no types, ignored");
 				[pasteboardVariablesLock unlock];
 				continue;
 			}
-			[pbInfoArray replaceObjectAtIndex:0 withObject:[NSNumber numberWithInt:pasteboardsChangeCount]];
 			
 			pboardTypes = [pboardTypes arrayByAddingObject:[NSString stringWithFormat:@"RSPBID:%@:%@", NSUserName(), getMACAddressString()]];
 			if (![pboardTypes containsObject:NSFileContentsPboardType]) { // no need to check, if file contents is already there
@@ -844,10 +845,15 @@ void rfbReceiveRichClipboardAvailable(rfbClientPtr cl) {
 				NSLog(@"Rich clipboard info appears to be from our own account (%@:%@) -- ignored.", NSUserName(), getMACAddressString());
 		}
 		else /*if (addNewDataToPB)*/ {
+			NSClipboardProxy *newProxy = [[NSClipboardProxy alloc] initWithClientPtr:cl];
+			[newProxy setPasteboardName: pasteboardName];
+
 			pthread_mutex_lock(&cl->updateMutex);
-			[(NSClipboardProxy *)cl->clipboardProxy removeClient]; //We need to remove ourself as the client's owner at this point, so it doesn't try to clear itself out of our 			
-			cl->clipboardProxy = [[NSClipboardProxy alloc] initWithClientPtr:cl];
-			[(NSClipboardProxy *)cl->clipboardProxy setPasteboardName: pasteboardName];
+			//We need to remove ourself as the client's owner at this point, so it doesn't try to clear itself out of our
+			[(NSClipboardProxy *)cl->clipboardProxy removeClient];
+			// We do NOT free here, the proxy is freed when the pasteboard system is done using it.
+			// [(NSClipboardProxy *)cl->clipboardProxy release];
+			cl->clipboardProxy = newProxy;
 			pthread_mutex_unlock(&cl->updateMutex);
 			
 			//if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_2) //We're just disabling rich clipboards below 10.2
@@ -857,7 +863,7 @@ void rfbReceiveRichClipboardAvailable(rfbClientPtr cl) {
 				[(NSMutableArray *)availableTypes removeObjectAtIndex:flstIndex]; // don't declare flst
 			}
 			
-			[(NSClipboardProxy *)cl->clipboardProxy performSelectorOnMainThread:@selector(setupTypes:) withObject:availableTypes waitUntilDone:NO];
+			[newProxy performSelectorOnMainThread:@selector(setupTypes:) withObject:availableTypes waitUntilDone:NO];
 		}
 	}
 		
@@ -891,6 +897,10 @@ void rfbReceiveRichClipboardRequest(rfbClientPtr cl) {
 	int pbChangeCount;
 	int readLength;
 	int returnCheck;
+	char *newClipboardName=NULL;
+	char *newClipboardType=NULL;
+	NSData *newClipboardNSData=nil;
+	int newClipboardDataChangeCount=0;
 	
 	ReadExact(cl, ((char *)&pbChangeCount), 3);
 	ReadExact(cl, ((char *)&pbChangeCount), 4);
@@ -898,30 +908,23 @@ void rfbReceiveRichClipboardRequest(rfbClientPtr cl) {
 	ReadExact(cl, ((char *)&readLength), 4);
 	readLength = Swap32IfLE(readLength);
 	
-	// Wait for the send thread to send pending data out
-	while (cl->richClipboardNSData) {
-		usleep(.1*1000000);
-	}
-
-	//Here we protect access to cl->rfbRichClipboard vars
-	pthread_mutex_lock(&cl->updateMutex);
-	cl->richClipboardName = (char *) xalloc(readLength+1);
-	cl->richClipboardName[readLength] = 0;
-	ReadExact(cl, cl->richClipboardName, readLength);
+	newClipboardName = (char *) xalloc(readLength+1);
+	newClipboardName[readLength] = 0;
+	ReadExact(cl, newClipboardName, readLength);
 	
 	ReadExact(cl, ((char *)&readLength), sizeof(readLength));
 	readLength = Swap32IfLE(readLength);
 	
-	cl->richClipboardType = (char *) xalloc(readLength+1);
-	cl->richClipboardType[readLength] = 0;
-	returnCheck = ReadExact(cl, cl->richClipboardType, readLength);
+	newClipboardType = (char *) xalloc(readLength+1);
+	newClipboardType[readLength] = 0;
+	returnCheck = ReadExact(cl, newClipboardType, readLength);
 		
 	if (debugPB)
-		NSLog(@"Received CB Request [%s] For type: %s", cl->richClipboardName, cl->richClipboardType);
+		NSLog(@"Received CB Request [%s] For type: %s", newClipboardName, newClipboardType);
 
 	if (returnCheck > 0) {
-		NSPasteboard *thePasteboard = [NSPasteboard pasteboardWithName:[[[NSString alloc] initWithUTF8String:cl->richClipboardName] autorelease]];
-		NSString *theType = [[[NSString alloc] initWithUTF8String:cl->richClipboardType] autorelease];
+		NSPasteboard *thePasteboard = [NSPasteboard pasteboardWithName:[[[NSString alloc] initWithUTF8String:newClipboardName] autorelease]];
+		NSString *theType = [[[NSString alloc] initWithUTF8String:newClipboardType] autorelease];
 		
 		// check whether we need to send file contents in place of another type
 		if (([theType isEqualToString:NSFileContentsPboardType] && ![[thePasteboard types] containsObject:NSFileContentsPboardType])
@@ -974,46 +977,65 @@ void rfbReceiveRichClipboardRequest(rfbClientPtr cl) {
 				}
 				if (theWrapper) { // finish setting up the wrapper
 					theType = [@"RSFileWrapper:" stringByAppendingString:theType];
-					cl->richClipboardNSData = [[theWrapper serializedRepresentation] retain];
+					newClipboardNSData = [[theWrapper serializedRepresentation] retain];
+					newClipboardDataChangeCount = [thePasteboard changeCount];
 					const char *newTypeStr = [theType UTF8String];
-					xfree(cl->richClipboardType);
-					cl->richClipboardType = (char *) xalloc(strlen(newTypeStr)+1);
-					strcpy(cl->richClipboardType, newTypeStr);
-					cl->richClipboardDataChangeCount = [thePasteboard changeCount];
+					xfree(newClipboardType);
+					newClipboardType = (char *) xalloc(strlen(newTypeStr)+1);
+					strcpy(newClipboardType, newTypeStr);
 				}
 			};
 			NS_HANDLER {
-				cl->richClipboardDataChangeCount = -1; // Indicate an Error
-				[(id)cl->richClipboardNSData release];
-				cl->richClipboardNSData = [[[NSString stringWithFormat:@"Unable to copy files - %@", localException] dataUsingEncoding:NSUTF8StringEncoding] retain];
+				newClipboardDataChangeCount = -1; // Indicate an Error
+				newClipboardNSData = [[[NSString stringWithFormat:@"Unable to copy files - %@", localException] dataUsingEncoding:NSUTF8StringEncoding] retain];
 			};
 			NS_ENDHANDLER
 			
 		}
-		if (!cl->richClipboardNSData) {
-			cl->richClipboardNSData = [[thePasteboard dataForType:theType] retain];
-			cl->richClipboardDataChangeCount = [thePasteboard changeCount];
-			if (!cl->richClipboardNSData && [theType isEqualToString:CorePasteboardFlavor_fccc]) { // 10.3 "Copy" Code
-				cl->richClipboardNSData = [[@"copy" dataUsingEncoding:NSUTF8StringEncoding] retain];
+		
+		if (!newClipboardNSData) {
+			newClipboardNSData = [[thePasteboard dataForType:theType] retain];
+			newClipboardDataChangeCount = [thePasteboard changeCount];
+			if (!newClipboardNSData && [theType isEqualToString:CorePasteboardFlavor_fccc]) { // 10.3 "Copy" Code
+				newClipboardNSData = [[@"copy" dataUsingEncoding:NSUTF8StringEncoding] retain];
 			}					
-		}		
-		if (!cl->richClipboardNSData || 
-			(pbChangeCount >= 0 && pbChangeCount != cl->richClipboardDataChangeCount)) {
-			cl->richClipboardDataChangeCount = -1; // Indicate an Error
-			[(id)cl->richClipboardNSData release];
-			cl->richClipboardNSData = [[@"Clipboard Data Unavailable" dataUsingEncoding:NSUTF8StringEncoding] retain];
 		}
+		
+		if (!newClipboardNSData || pbChangeCount >= 0) {
+			newClipboardDataChangeCount = -1; // Indicate an Error
+			newClipboardNSData = [[@"Clipboard Data Unavailable" dataUsingEncoding:NSUTF8StringEncoding] retain];
+		}
+
+		// Wait for the send thread to send pending data out (if the client goes away, so does this thread)
+		while (cl->richClipboardNSData) {
+			usleep(.1*1000000);
+		}		
+	
+		//Here we protect access to cl->rfbRichClipboard vars
+		pthread_mutex_lock(&cl->updateMutex);
+		
+		if (cl->richClipboardName)
+			xfree(cl->richClipboardName);
+		cl->richClipboardName = newClipboardName;
+		
+		if (cl->richClipboardType)
+			xfree(cl->richClipboardType);
+		cl->richClipboardType = newClipboardType;
+		
+		// [(id)cl->richClipboardNSData release];
+		cl->richClipboardNSData = newClipboardNSData;
+		cl->richClipboardDataChangeCount = newClipboardDataChangeCount;
+		
 		// Should we note if the ChangeCount is > than our recorded value here?
 		pthread_mutex_unlock(&cl->updateMutex);
-		pthread_cond_signal(&cl->updateCond);
+		pthread_cond_signal(&cl->updateCond);		
 	}
 	else {
-		pthread_mutex_unlock(&cl->updateMutex);
 		if (returnCheck != 0)
 			rfbLogPerror("rfbReceiveRichClipboardDataRequest: read");
 		rfbCloseClient(cl);
 	}
-	
+
 	[myPool release];
 	
 	return;
