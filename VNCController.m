@@ -491,7 +491,7 @@ static void terminateOnSignal(int signal) {
         [protocolVersion selectItemWithTitle:[[NSUserDefaults standardUserDefaults] stringForKey:@"protocolVersion"]];
 
 	if ([[NSUserDefaults standardUserDefaults] objectForKey:@"otherArguments"])
-        [protocolVersion setStringValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"otherArguments"]];
+        [otherArguments setStringValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"otherArguments"]];
 	
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowKeyboardLoading"]) {
         [allowKeyboardLoading setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowKeyboardLoading"]];
