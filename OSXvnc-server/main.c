@@ -157,9 +157,27 @@ void bundlesPerformSelector(SEL performSel) {
     NSBundle *bundle = nil;
 
     while ((bundle = [bundleEnum nextObject]))
-        [(NSObject <RFBBundleProtocol> *)[bundle principalClass] performSelector:performSel];
+		[(NSObject <RFBBundleProtocol> *)[bundle principalClass] performSelector:performSel];
 
     [bundlePool release];
+}
+
+bool bundlesTrySelectorWithDictionary(SEL performSel, NSDictionary *arguments) {
+    NSAutoreleasePool *bundlePool = [[NSAutoreleasePool alloc] init];
+    NSEnumerator *bundleEnum = [bundleArray objectEnumerator];
+    NSBundle *bundle = nil;
+	bool returnValue = FALSE;
+	
+    while ((bundle = [bundleEnum nextObject])) {
+		if ([[bundle principalClass] respondsToSelector:performSel]) {
+			returnValue = TRUE;
+			[[bundle principalClass] performSelector:performSel withObject: arguments];
+		}
+	}
+	
+    [bundlePool release];
+	
+	return returnValue;
 }
 
 // Some calls fail under older OS X'es so we will do some detected loading
@@ -179,6 +197,7 @@ void loadDynamicBundles(BOOL startup) {
     thisServer.keyTable = keyTable;
     thisServer.keyTableMods = keyTableMods;
     thisServer.pressModsForKeys = &pressModsForKeys;
+	thisServer.alternateKeyboardHandler = &alternateKeyboardHandler;
 	
     NSLog(@"Main Bundle: %@", [osxvncBundle bundlePath]);
     if (!osxvncBundle) {
@@ -252,6 +271,12 @@ void refreshCallback(CGRectCount count, const CGRect *rectArray, void *ignore) {
         REGION_UNINIT(&hackScreen, &region);
     }
 }
+
+CGError screenUpdateMoveCallback(CGScreenUpdateMoveDelta delta, CGRectCount count, const CGRect * rectArray, void * userParameter) {
+	//NSLog(@"Moved Callback");
+	return 0;
+}
+
 
 void rfbCheckForScreenResolutionChange() {
     BOOL sizeChange = (rfbScreen.width != CGDisplayPixelsWide(displayID) ||
@@ -450,6 +475,7 @@ void *clientInput(void *data) {
         if (rfbShouldSendUpdates && !registered && REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion)) {
             rfbLog("Client Connected - Registering Screen Update Notification\n");
             CGRegisterScreenRefreshCallback(refreshCallback, NULL);
+			//CGScreenRegisterMoveCallback(screenUpdateMoveCallback, NULL);
             registered = TRUE;
         }
         
@@ -1075,11 +1101,11 @@ int main(int argc, char *argv[]) {
         //NSLog(@"Core Graphics - Event Suppression Turned Off");
         // This seems to actually sometimes inhibit REMOTE events as well, but all the same let's let everything pass through for now
         CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateSupressionInterval);
-        CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateRemoteMouseDrag);
-		
-		// DON'T Combine with local keyboard state -- this will allow each user to have their own modifiers
-		CGEnableEventStateCombining(FALSE);
+        CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateRemoteMouseDrag);		
     }
+	// DON'T Combine with local keyboard state -- this will allow each user to have their own modifiers
+	// Better to handle this at the event level, see kbdptr.c
+	//CGEnableEventStateCombining(FALSE);
 
     if (rfbDisableScreenSaver) {
         /* setup screen saver disabling timer */
