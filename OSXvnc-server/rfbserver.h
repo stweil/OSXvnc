@@ -37,6 +37,7 @@ typedef struct rfbserver {
     CGKeyCode *keyTable;
     unsigned char *keyTableMods;
     BOOL *pressModsForKeys;
+	void **alternateKeyboardHandler;
 
     /*
     // rfbserver.c 

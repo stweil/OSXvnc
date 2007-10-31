@@ -44,6 +44,8 @@ unsigned char keyTableMods[keyTableSize]; // 8 Bits for Modifier Keys
 // It will be turned on by JaguarExtensions unless specified
 BOOL pressModsForKeys = FALSE;
 
+void *alternateKeyboardHandler = nil;
+
 static int mouseWheelDistance;
 
 void loadKeyTable() {
@@ -69,49 +71,53 @@ void loadKeyTable() {
 }
 
 void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl) {
-    CGKeyCode keyCode = keyTable[(unsigned short)keySym];
-    CGCharCode keyChar = 0;
-    UInt32 modsForKey = keyTableMods[keySym] << 8;
+	if (alternateKeyboardHandler != NULL)
+		[(id)alternateKeyboardHandler handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl];
+	else {
+		CGKeyCode keyCode = keyTable[(unsigned short)keySym];
+		CGCharCode keyChar = 0;
+		UInt32 modsForKey = keyTableMods[keySym] << 8;
 
-    if (keySym < 0xFF) // If it's an ASCII key we'll send the keyChar
-        keyChar = (CGCharCode) keySym;
+		if (keySym < 0xFF) // If it's an ASCII key we'll send the keyChar
+			keyChar = (CGCharCode) keySym;
 
-    rfbUndim();
-
-    //rfbLog("Key Char:%c Key Code:%d Key Sym:%d\n", keyChar, keyCode, keySym);
-    if (keyCode == 0xFFFF)
-        rfbLog("Warning: Unable to determine Key Code for X Key Sym %d (0x%x)\n", (int)keySym, (int)keySym);
-    else {
-        if (down && pressModsForKeys) {
-            // Toggle the state of the appropriate keys
-            if (!(cl->modiferKeys[keyTable[XK_Meta_L]]) != !(modsForKey & optionKey))
-                CGPostKeyboardEvent(0, keyTable[XK_Meta_L], (modsForKey & optionKey));
+		rfbUndim();	
+	
+		//rfbLog("Key Char:%c Key Code:%d Key Sym:%d\n", keyChar, keyCode, keySym);
+		if (keyCode == 0xFFFF)
+			rfbLog("Warning: Unable to determine Key Code for X Key Sym %d (0x%x)\n", (int)keySym, (int)keySym);
+		else {
+			if (down && pressModsForKeys) {
+				// Toggle the state of the appropriate keys
+				if (!(cl->modiferKeys[keyTable[XK_Meta_L]]) != !(modsForKey & optionKey))
+					CGPostKeyboardEvent(0, keyTable[XK_Meta_L], (modsForKey & optionKey));
+				
+				if (!(cl->modiferKeys[keyTable[XK_Control_L]]) != !(modsForKey & controlKey))
+					CGPostKeyboardEvent(0, keyTable[XK_Control_L], (modsForKey & controlKey));
             
-            if (!(cl->modiferKeys[keyTable[XK_Control_L]]) != !(modsForKey & controlKey))
-                CGPostKeyboardEvent(0, keyTable[XK_Control_L], (modsForKey & controlKey));
-            
-            if (!(cl->modiferKeys[keyTable[XK_Shift_L]]) != !(modsForKey & shiftKey))
-                CGPostKeyboardEvent(0, keyTable[XK_Shift_L], (modsForKey & shiftKey));
-        }
+				if (!(cl->modiferKeys[keyTable[XK_Shift_L]]) != !(modsForKey & shiftKey))
+					CGPostKeyboardEvent(0, keyTable[XK_Shift_L], (modsForKey & shiftKey));
+			}
         
-        CGPostKeyboardEvent(keyChar, keyCode, down);
+			CGPostKeyboardEvent(keyChar, keyCode, down);
+			
+			if (down && pressModsForKeys) {
+				// Return keys to previous state
+				if (!(cl->modiferKeys[keyTable[XK_Meta_L]]) != !(modsForKey & optionKey))
+					CGPostKeyboardEvent(0, keyTable[XK_Meta_L], cl->modiferKeys[keyTable[XK_Meta_L]]);
 
-        if (down && pressModsForKeys) {
-            // Return keys to previous state
-            if (!(cl->modiferKeys[keyTable[XK_Meta_L]]) != !(modsForKey & optionKey))
-                CGPostKeyboardEvent(0, keyTable[XK_Meta_L], cl->modiferKeys[keyTable[XK_Meta_L]]);
-
-            if (!(cl->modiferKeys[keyTable[XK_Control_L]]) != !(modsForKey & controlKey))
-                CGPostKeyboardEvent(0, keyTable[XK_Control_L], cl->modiferKeys[keyTable[XK_Control_L]]);
-
-            if (!(cl->modiferKeys[keyTable[XK_Shift_L]]) != !(modsForKey & shiftKey))
-                CGPostKeyboardEvent(0, keyTable[XK_Shift_L], cl->modiferKeys[keyTable[XK_Shift_L]]);
-        }
+				if (!(cl->modiferKeys[keyTable[XK_Control_L]]) != !(modsForKey & controlKey))
+					CGPostKeyboardEvent(0, keyTable[XK_Control_L], cl->modiferKeys[keyTable[XK_Control_L]]);
+				
+				if (!(cl->modiferKeys[keyTable[XK_Shift_L]]) != !(modsForKey & shiftKey))
+					CGPostKeyboardEvent(0, keyTable[XK_Shift_L], cl->modiferKeys[keyTable[XK_Shift_L]]);
+			}
         
-        if (keyCode >= keyTable[XK_Alt_L] && keyCode <= keyTable[XK_Control_L]) {
-            cl->modiferKeys[keyCode] = down; // Mark the key state for that client, we'll release down keys later
-        }
-    }
+			if (keyCode >= keyTable[XK_Alt_L] && keyCode <= keyTable[XK_Control_L]) {
+				cl->modiferKeys[keyCode] = down; // Mark the key state for that client, we'll release down keys later
+			}
+		}
+	}
 }
 
 void keyboardReleaseKeysForClient(rfbClientPtr cl) {
