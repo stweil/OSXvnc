@@ -140,7 +140,7 @@ WriteExact(cl, buf, len)
     int totalTimeWaited = 0;
 
 
-    pthread_mutex_lock(&cl->outputMutex);
+	//    pthread_mutex_lock(&cl->outputMutex);
     while (len > 0) {
         n = write(sock, buf, len);
 
@@ -156,7 +156,7 @@ WriteExact(cl, buf, len)
 
         } else {
             if (errno != EWOULDBLOCK && errno != EAGAIN) {
-                pthread_mutex_unlock(&cl->outputMutex);
+                //pthread_mutex_unlock(&cl->outputMutex);
                 return n;
             }
 
@@ -171,14 +171,14 @@ WriteExact(cl, buf, len)
             n = select(sock+1, NULL, &fds, NULL, &tv);
             if (n < 0) {
                 rfbLogPerror("WriteExact: select");
-                pthread_mutex_unlock(&cl->outputMutex);
+                //pthread_mutex_unlock(&cl->outputMutex);
                 return n;
             }
             if (n == 0) {
                 totalTimeWaited += 5000;
                 if (totalTimeWaited >= rfbMaxClientWait) {
                     errno = ETIMEDOUT;
-                    pthread_mutex_unlock(&cl->outputMutex);
+                    //pthread_mutex_unlock(&cl->outputMutex);
                     return -1;
                 }
             } else {
@@ -186,6 +186,6 @@ WriteExact(cl, buf, len)
             }
         }
     }
-    pthread_mutex_unlock(&cl->outputMutex);
+    //pthread_mutex_unlock(&cl->outputMutex);
     return 1;
 }
