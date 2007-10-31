@@ -8,6 +8,11 @@
 
 /* Begin PBXBuildFile section */
 		9199995B0B1135FF0099EA7A /* getMACAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 919999430B11348E0099EA7A /* getMACAddress.c */; };
+		AB0CBFA70CCD1C8000C74547 /* TigerExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = AB0CBFA60CCD1C7900C74547 /* TigerExtensions.m */; };
+		AB0CC1720CCD44CD00C74547 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
+		AB0CC1730CCD44CD00C74547 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABF191B704E447A400A80117 /* Carbon.framework */; };
+		AB0CC1740CCD44CD00C74547 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB41881F04C5986E00A80117 /* ApplicationServices.framework */; };
+		AB0CC2020CCD4C4300C74547 /* TigerBundle.bundle in Resources */ = {isa = PBXBuildFile; fileRef = AB0CBF9C0CCD1C0500C74547 /* TigerBundle.bundle */; };
 		AB25D81E08686B520065843D /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		AB25D81F08686B520065843D /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = F57BB467027E036F014B5D3F /* Credits.rtf */; };
 		AB25D82008686B520065843D /* Release Notes.rtf in Resources */ = {isa = PBXBuildFile; fileRef = AB541C2907A0264F00B63668 /* Release Notes.rtf */; };
@@ -19,9 +24,6 @@
 		AB25D82E08686B520065843D /* NSAuthorization.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD8EC08058A0BD600C84739 /* NSAuthorization.m */; };
 		AB25D83008686B520065843D /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		AB25D83108686B520065843D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABEE28F804C8745B00A80117 /* Security.framework */; };
-		AB25D87308686C7D0065843D /* JaguarExtensions.h in Headers */ = {isa = PBXBuildFile; fileRef = AB3598E904BF8A6500A80117 /* JaguarExtensions.h */; settings = {ATTRIBUTES = (); }; };
-		AB25D87408686C7D0065843D /* kbdptr.h in Headers */ = {isa = PBXBuildFile; fileRef = AB82E81904FA629800A80117 /* kbdptr.h */; };
-		AB25D87508686C7D0065843D /* keysymdef.h in Headers */ = {isa = PBXBuildFile; fileRef = F538E01A02F9812901A80186 /* keysymdef.h */; };
 		AB25D87808686C7D0065843D /* JaguarExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = AB3598EA04BF8A6500A80117 /* JaguarExtensions.m */; };
 		AB25D87A08686C7D0065843D /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		AB25D87B08686C7D0065843D /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABF191B704E447A400A80117 /* Carbon.framework */; };
@@ -54,7 +56,6 @@
 		AB25DA3D086884420065843D /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB25DA3C086884420065843D /* libz.dylib */; };
 		AB25DA5108688E100065843D /* JaguarBundle.bundle in Resources */ = {isa = PBXBuildFile; fileRef = AB25D87E08686C7D0065843D /* JaguarBundle.bundle */; };
 		AB3E27F80AF947FB004AF567 /* Vine Server.pdf in Resources */ = {isa = PBXBuildFile; fileRef = AB3E27F70AF947FB004AF567 /* Vine Server.pdf */; };
-		AB3F8B8F089952230076668A /* rfbserver.h in Headers */ = {isa = PBXBuildFile; fileRef = AB82E81D04FA6D0A00A80117 /* rfbserver.h */; };
 		AB82605A08689AC00010AB63 /* storepasswd in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB82605708689AC00010AB63 /* storepasswd */; };
 		AB82605E08689AC00010AB63 /* OSXvnc-server in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB82605B08689AC00010AB63 /* OSXvnc-server */; };
 		ABA7B3D60948CB5D00CD7499 /* d3des.c in Sources */ = {isa = PBXBuildFile; fileRef = ABA7B3D10948CB5D00CD7499 /* d3des.c */; };
@@ -121,12 +122,33 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		AB0CC1F50CCD4C0C00C74547 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB0CBF9B0CCD1C0500C74547;
+			remoteInfo = TigerBundle;
+		};
 		AB25DA5C08688EE80065843D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = AB25D98F086876B80065843D;
 			remoteInfo = storepasswd;
+		};
+		AB39F2060CCE9B9400828CFA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB25D87108686C7D0065843D;
+			remoteInfo = JaguarBundle;
+		};
+		AB39F2080CCE9B9400828CFA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB0CBF9B0CCD1C0500C74547;
+			remoteInfo = TigerBundle;
 		};
 		AB52324608689C02003F66AC /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -179,9 +201,13 @@
 		29B97319FDCFA39411CA2CEA /* English */ = {isa = PBXFileReference; lastKnownFileType = wrapper.nib; name = English; path = English.lproj/MainMenu.nib; sourceTree = "<group>"; };
 		919999420B11348C0099EA7A /* getMACAddress.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = getMACAddress.h; sourceTree = "<group>"; };
 		919999430B11348E0099EA7A /* getMACAddress.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 30; path = getMACAddress.c; sourceTree = "<group>"; };
+		AB0CBF9C0CCD1C0500C74547 /* TigerBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TigerBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB0CBF9D0CCD1C0500C74547 /* TigerBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "TigerBundle-Info.plist"; sourceTree = "<group>"; };
+		AB0CBFA50CCD1C7900C74547 /* TigerExtensions.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TigerExtensions.h; sourceTree = "<group>"; };
+		AB0CBFA60CCD1C7900C74547 /* TigerExtensions.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = TigerExtensions.m; sourceTree = "<group>"; };
 		AB15010D04F6A94500A80117 /* RFBBundleProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RFBBundleProtocol.h; sourceTree = "<group>"; };
 		AB25D83708686B520065843D /* Info-OSXvnc.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "Info-OSXvnc.plist"; sourceTree = "<group>"; };
-		AB25D83808686B520065843D /* Vine Server.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Vine Server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB25D83808686B520065843D /* Vine Server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Vine Server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB25D87D08686C7D0065843D /* Info-JaguarBundle.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Info-JaguarBundle.plist"; sourceTree = "<group>"; };
 		AB25D87E08686C7D0065843D /* JaguarBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JaguarBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB25D9B10868799D0065843D /* libstdc++.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libstdc++.a"; path = "/usr/lib/gcc/darwin/3.3/libstdc++.a"; sourceTree = "<absolute>"; };
@@ -453,6 +479,16 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		AB0CBF9A0CCD1C0500C74547 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB0CC1720CCD44CD00C74547 /* Cocoa.framework in Frameworks */,
+				AB0CC1730CCD44CD00C74547 /* Carbon.framework in Frameworks */,
+				AB0CC1740CCD44CD00C74547 /* ApplicationServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AB25D82F08686B520065843D /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -515,6 +551,7 @@
 			children = (
 				AB25D83808686B520065843D /* Vine Server.app */,
 				AB25D87E08686C7D0065843D /* JaguarBundle.bundle */,
+				AB0CBF9C0CCD1C0500C74547 /* TigerBundle.bundle */,
 				AB82605708689AC00010AB63 /* storepasswd */,
 				AB82605B08689AC00010AB63 /* OSXvnc-server */,
 				ABA7B52D094A053000CD7499 /* librdr.a */,
@@ -533,6 +570,8 @@
 				ABD8EC08058A0BD600C84739 /* NSAuthorization.m */,
 				AB3598E904BF8A6500A80117 /* JaguarExtensions.h */,
 				AB3598EA04BF8A6500A80117 /* JaguarExtensions.m */,
+				AB0CBFA50CCD1C7900C74547 /* TigerExtensions.h */,
+				AB0CBFA60CCD1C7900C74547 /* TigerExtensions.m */,
 				F538E00B02F9812901A80186 /* OSXvnc-server */,
 				29B97315FDCFA39411CA2CEA /* Other Sources */,
 				29B97317FDCFA39411CA2CEA /* Resources */,
@@ -540,6 +579,7 @@
 				19C28FACFE9D520D11CA2CBB /* Products */,
 				AB25D83708686B520065843D /* Info-OSXvnc.plist */,
 				AB25D87D08686C7D0065843D /* Info-JaguarBundle.plist */,
+				AB0CBF9D0CCD1C0500C74547 /* TigerBundle-Info.plist */,
 			);
 			name = OSXvnc;
 			sourceTree = "<group>";
@@ -879,10 +919,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB25D87308686C7D0065843D /* JaguarExtensions.h in Headers */,
-				AB25D87408686C7D0065843D /* kbdptr.h in Headers */,
-				AB25D87508686C7D0065843D /* keysymdef.h in Headers */,
-				AB3F8B8F089952230076668A /* rfbserver.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -903,6 +939,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		AB0CBF9B0CCD1C0500C74547 /* TigerBundle */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AB0CBF9E0CCD1C0600C74547 /* Build configuration list for PBXNativeTarget "TigerBundle" */;
+			buildPhases = (
+				AB0CBF980CCD1C0500C74547 /* Resources */,
+				AB0CBF990CCD1C0500C74547 /* Sources */,
+				AB0CBF9A0CCD1C0500C74547 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TigerBundle;
+			productName = TigerBundle;
+			productReference = AB0CBF9C0CCD1C0500C74547 /* TigerBundle.bundle */;
+			productType = "com.apple.product-type.bundle";
+		};
 		AB25D81508686B520065843D /* Vine Server */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = ABECD3EA08E46414009C84A0 /* Build configuration list for PBXNativeTarget "Vine Server" */;
@@ -921,6 +974,7 @@
 				AB52324708689C02003F66AC /* PBXTargetDependency */,
 				AB25DA5D08688EE80065843D /* PBXTargetDependency */,
 				AB25D81708686B520065843D /* PBXTargetDependency */,
+				AB0CC1F60CCD4C0C00C74547 /* PBXTargetDependency */,
 			);
 			name = "Vine Server";
 			productInstallPath = /OSXvnc/;
@@ -958,6 +1012,8 @@
 			dependencies = (
 				ABA7B68E094A15AC00CD7499 /* PBXTargetDependency */,
 				ABA7B55B094A07AE00CD7499 /* PBXTargetDependency */,
+				AB39F2070CCE9B9400828CFA /* PBXTargetDependency */,
+				AB39F2090CCE9B9400828CFA /* PBXTargetDependency */,
 			);
 			name = "OSXvnc-server";
 			productName = "OSXvnc-server";
@@ -1033,6 +1089,7 @@
 			targets = (
 				AB25D81508686B520065843D /* Vine Server */,
 				AB25D87108686C7D0065843D /* JaguarBundle */,
+				AB0CBF9B0CCD1C0500C74547 /* TigerBundle */,
 				AB25D88E08686FC40065843D /* OSXvnc-server */,
 				AB25D98F086876B80065843D /* storepasswd */,
 				ABA7B52C094A053000CD7499 /* rdr */,
@@ -1042,6 +1099,13 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		AB0CBF980CCD1C0500C74547 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AB25D81D08686B520065843D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1052,6 +1116,7 @@
 				AB25D82108686B520065843D /* Copying.rtf in Resources */,
 				AB25D82208686B520065843D /* Localizable.strings in Resources */,
 				AB25DA5108688E100065843D /* JaguarBundle.bundle in Resources */,
+				AB0CC2020CCD4C4300C74547 /* TigerBundle.bundle in Resources */,
 				AB25D82608686B520065843D /* OSXvnc in Resources */,
 				ABFC222C0AF08CBA00BCE727 /* VineServer.icns in Resources */,
 				AB3E27F80AF947FB004AF567 /* Vine Server.pdf in Resources */,
@@ -1086,6 +1151,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		AB0CBF990CCD1C0500C74547 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AB0CBFA70CCD1C8000C74547 /* TigerExtensions.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		AB25D82908686B520065843D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1215,6 +1288,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		AB0CC1F60CCD4C0C00C74547 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB0CBF9B0CCD1C0500C74547 /* TigerBundle */;
+			targetProxy = AB0CC1F50CCD4C0C00C74547 /* PBXContainerItemProxy */;
+		};
 		AB25D81708686B520065843D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = AB25D87108686C7D0065843D /* JaguarBundle */;
@@ -1224,6 +1302,16 @@
 			isa = PBXTargetDependency;
 			target = AB25D98F086876B80065843D /* storepasswd */;
 			targetProxy = AB25DA5C08688EE80065843D /* PBXContainerItemProxy */;
+		};
+		AB39F2070CCE9B9400828CFA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB25D87108686C7D0065843D /* JaguarBundle */;
+			targetProxy = AB39F2060CCE9B9400828CFA /* PBXContainerItemProxy */;
+		};
+		AB39F2090CCE9B9400828CFA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB0CBF9B0CCD1C0500C74547 /* TigerBundle */;
+			targetProxy = AB39F2080CCE9B9400828CFA /* PBXContainerItemProxy */;
 		};
 		AB52324708689C02003F66AC /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1295,6 +1383,71 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		AB0CBF9F0CCD1C0600C74547 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				HEADER_SEARCH_PATHS = (
+					"OSXvnc-server",
+					"OSXvnc-server/include",
+					include/Xserver,
+					libjpeg,
+				);
+				INFOPLIST_FILE = "TigerBundle-Info.plist";
+				LIBRARY_SEARCH_PATHS = /usr/lib/gcc/darwin/3.3;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = TigerBundle;
+				WRAPPER_EXTENSION = bundle;
+				ZERO_LINK = NO;
+			};
+			name = Development;
+		};
+		AB0CBFA00CCD1C0600C74547 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_MODEL_TUNING = G5;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				HEADER_SEARCH_PATHS = (
+					"OSXvnc-server",
+					"OSXvnc-server/include",
+					include/Xserver,
+					libjpeg,
+				);
+				INFOPLIST_FILE = "TigerBundle-Info.plist";
+				INSTALL_PATH = "$(HOME)/Library/Bundles";
+				LIBRARY_SEARCH_PATHS = /usr/lib/gcc/darwin/3.3;
+				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				OTHER_LDFLAGS = (
+					"-framework",
+					Foundation,
+					"-framework",
+					AppKit,
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = TigerBundle;
+				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
+				WRAPPER_EXTENSION = bundle;
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
 		ABA7B538094A054A00CD7499 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1544,6 +1697,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		AB0CBF9E0CCD1C0600C74547 /* Build configuration list for PBXNativeTarget "TigerBundle" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AB0CBF9F0CCD1C0600C74547 /* Development */,
+				AB0CBFA00CCD1C0600C74547 /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Development;
+		};
 		ABA7B537094A054A00CD7499 /* Build configuration list for PBXNativeTarget "rdr" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
