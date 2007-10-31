@@ -99,8 +99,8 @@ rfbserver *theServer;
 + (void) rfbUsage {
     fprintf(stderr,
             "\nJAGUAR BUNDLE OPTIONS (10.2+):\n"
-            "-keyboardLoading flag  This BETA feature allows OSXvnc to look at the users selected keyboard and map keystrokes using it.\n"
-            "                       Disabling this returns OSXvnc to standard (U.S. Keyboard) which may work better with Dead Keys.\n"
+            "-keyboardLoading flag  This feature allows OSXvnc to look at the users selected keyboard and map keystrokes using it.\n"
+            "                       Disabling this returns OSXvnc to standard (U.S. Keyboard) which will work better with Dead Keys.\n"
             "                       (default: no), 10.2+ ONLY\n"
             "-pressModsForKeys flag If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it.\n"
             "                       This flag works well if you have different keyboards on the local and remote machines.\n"
@@ -141,14 +141,14 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
     const void *kchrHandle = NULL;
     CFStringRef keyboardName;
     KeyboardLayoutKind layoutKind;
-    static UInt32 modifierKeyStates[] = {0, shiftKey, optionKey, controlKey, optionKey | shiftKey};
+    static UInt32 modifierKeyStates[] = {0, shiftKey, optionKey, controlKey, optionKey | shiftKey, optionKey | controlKey, controlKey | shiftKey, optionKey | shiftKey | controlKey};
+	
     /* modifiers */
     //cmdKey                        = 1 << cmdKeyBit,
     //shiftKey                      = 1 << shiftKeyBit,
     //alphaLock                     = 1 << alphaLockBit,
     //optionKey                     = 1 << optionKeyBit,
     //controlKey                    = 1 << controlKeyBit,
-
     
     // KLGetKeyboardLayoutProperty is 10.2 only how do I access these resources in early versions?
     if (keyboardLayoutRef) {
