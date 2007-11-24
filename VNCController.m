@@ -30,15 +30,22 @@
 #import <unistd.h>
 #import <sys/socket.h>
 #import <netinet/in.h>
-#include <fcntl.h>
+#import <fcntl.h>
+#import <sys/types.h>
+#import <ifaddrs.h>
+#include <netdb.h>
+
 
 #define LocalizedString(X)      [[NSBundle mainBundle] localizedStringForKey:(X) value:nil table:nil]
 
 #import "RFBBundleProtocol.h"
 
-// So we can still build on Panther
+// So we can still build on Panther and below
 #ifndef NSAppKitVersionNumber10_3
 #define NSAppKitVersionNumber10_3 743
+#endif
+#ifndef NSAppKitVersionNumber10_4
+#define NSAppKitVersionNumber10_4 824
 #endif
 
 @interface NSFileManager (VNCExtensions)
@@ -85,9 +92,61 @@ static void terminateOnSignal(int signal) {
     [NSApp terminate:NSApp];
 }
 
-- init {
+NSMutableString *hostNameString() {
+	char hostName[256];
+	gethostname(hostName, 256);
+	
+	NSMutableString *hostNameString = [NSMutableString stringWithUTF8String:hostName];
+	if ([hostNameString hasSuffix:@".local"])
+		[hostNameString deleteCharactersInRange:NSMakeRange([hostNameString length]-6,6)];
+	
+	return hostNameString;
+}
+
+NSMutableArray *localIPAddresses() {
+	NSMutableArray *returnArray = [NSMutableArray array];
+	struct ifaddrs *ifa = NULL, *ifp = NULL;
+	
+	if (getifaddrs (&ifp) < 0) {
+		return nil;
+	}
+	
+	for (ifa = ifp; ifa; ifa = ifa->ifa_next) {
+		char ipString[256];
+		socklen_t salen;
+		
+		if (ifa->ifa_addr->sa_family == AF_INET)
+            salen = sizeof (struct sockaddr_in);
+		else if (ifa->ifa_addr->sa_family == AF_INET6)
+            salen = sizeof (struct sockaddr_in6);
+		else
+            continue;
+		
+		if (getnameinfo (ifa->ifa_addr, salen, ipString, sizeof (ipString), NULL, 0, NI_NUMERICHOST) == 0) {
+			[returnArray addObject:[NSString stringWithUTF8String:ipString]];
+		}
+	}
+	
+	freeifaddrs (ifp);	
+	return returnArray;
+}
+
+- init {	
     [super init];
 
+	// Transform the GUI into a "ForegroundApp" with Dock Icon and Menu
+	// This is so the server can run without a UI
+	// 10.3+ only
+	ProcessSerialNumber psn = { 0, kCurrentProcess }; 
+	OSStatus returnCode = TransformProcessType(& psn, kProcessTransformToForegroundApplication);
+	//returnCode = SetFrontProcess(& psn );
+	if( returnCode != 0) {
+		NSLog(@"Could not bring the application to front. Error %d", returnCode);
+	}
+	
+	// Use old preferences found in OSXvnc
+	[[NSUserDefaults standardUserDefaults] addSuiteNamed:@"OSXvnc"];
+	
     [[NSUserDefaults standardUserDefaults] registerDefaults: [NSDictionary dictionaryWithObjectsAndKeys:
 		@"YES", @"startServerOnLaunch",
 		@"NO", @"terminateOnFastUserSwitch",
@@ -96,8 +155,11 @@ static void terminateOnSignal(int signal) {
 		@"YES", @"allowScreenSaver",
         @"", @"PasswordFile",
         @"", @"LogFile",
-		[NSNumber numberWithInt:0], @"portNumber",
+		[NSNumber numberWithInt:0], @"keyboardLayout",
+		[NSNumber numberWithInt:3], @"keyboardEvents",
 		[NSNumber numberWithBool:TRUE], @"allowRendezvous",
+		@"/Library/StartupItems/OSXvnc", @"startupItemLocation",
+		@"/System/Library/LaunchAgents/com.redstonesoftware.VineServer.plist", @"launchdItemLocation",
         nil]];
     
     alwaysShared = FALSE;
@@ -112,8 +174,21 @@ static void terminateOnSignal(int signal) {
     signal(SIGSEGV, terminateOnSignal);
     signal(SIGTERM, terminateOnSignal);
     signal(SIGTSTP, terminateOnSignal);
-        
+
+	bundleArray = [[NSMutableArray alloc] init];
+	[self loadDynamicBundles];
+	
     return self;
+}
+
+- (void) bundlesPerformSelector: (SEL) performSel {
+    NSEnumerator *bundleEnum = [bundleArray objectEnumerator];
+    NSBundle *bundle = nil;
+	
+    while ((bundle = [bundleEnum nextObject])) {
+		if ([[bundle principalClass] respondsToSelector:performSel])
+			[[bundle principalClass] performSelector:performSel];
+	}
 }
 
 - (void) loadDynamicBundles {
@@ -144,8 +219,7 @@ static void terminateOnSignal(int signal) {
             NSLog(@"Loading Bundle %@", bundlePath);
 			
             if ([aBundle load]) {
-                if ([[aBundle principalClass] respondsToSelector:@selector(loadGUI)])
-                    [[aBundle principalClass] performSelector:@selector(loadGUI)];
+				[bundleArray addObject: aBundle];
             }
             else {
                 NSLog(@"\t-Bundle Load Failed");
@@ -157,34 +231,45 @@ static void terminateOnSignal(int signal) {
     }
 }
 
-// Display Host Names
-- (void) updateHostName {
+// Since this can block for a long time in certain DNS situations we will put this in a separate thread
+- (void) updateHostInfo {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	
+
 	[NSHost flushHostCache];
-	NSMutableArray *commonHostNames = [[[NSHost currentHost] names] mutableCopy];
+
+	NSHost *currentHost = [NSHost currentHost];
+	NSMutableArray *commonHostNames = [[currentHost names] mutableCopy];
+	//NSMutableArray *commonIPAddresses = [[currentHost addresses] mutableCopy];
+
+	[self performSelectorOnMainThread:@selector(updateHostNames:) withObject:commonHostNames waitUntilDone:NO];
+	//[self performSelectorOnMainThread:@selector(updateIPAddresses:) withObject:commonIPAddresses waitUntilDone:NO];
 	
-	[commonHostNames removeObject:@"localhost"];
-	
-	if ([commonHostNames count] > 1) {
-		[hostNamesLabel setStringValue:LocalizedString(@"Host Names:")];
-	}
-	else if ([commonHostNames count] == 1) {
-		[hostNamesLabel setStringValue:LocalizedString(@"Host Name:")];
-	}
-	else {
-		[hostNamesLabel setStringValue:LocalizedString(@"")];
-	}
-	[hostNamesField performSelectorOnMainThread:@selector(setStringValue:) 
-									 withObject:[commonHostNames componentsJoinedByString:@"\n"] 
-								  waitUntilDone:YES];	
+	waitingForHostInfo = FALSE;
 	[pool release];
 }
 
+// Display Host Names
+- (void) updateHostNames: (NSMutableArray *) commonHostNames {
+	[commonHostNames removeObject:@"localhost"];
+
+	if ([commonHostNames count] > 1) {
+		[hostNamesLabel setStringValue:LocalizedString(@"Host Names:")];
+		[hostNamesField setStringValue:[commonHostNames componentsJoinedByString:@"\n"]];	
+	}
+	else if ([commonHostNames count] == 1) {
+		[hostNamesLabel setStringValue:LocalizedString(@"Host Name:")];
+		[hostNamesField setStringValue:[commonHostNames componentsJoinedByString:@"\n"]];	
+	}
+	else {
+		[hostNamesLabel setStringValue:LocalizedString(@"Host Name:")];
+		[hostNamesField setStringValue:@""];
+	}
+
+}
+
 // Display IP Info
-- (void) updateIPAddresses {
+- (void) updateIPAddresses: (NSMutableArray *) commonIPAddresses {
 	NSCharacterSet *ipv6Chars = [NSCharacterSet characterSetWithCharactersInString:@"ABCDEFabcdef:"];
-	NSMutableArray *commonIPAddresses = [[[NSHost currentHost] addresses] mutableCopy];
 	NSEnumerator *ipEnum = nil;
 	NSString *anIP = nil;
 	
@@ -207,14 +292,16 @@ static void terminateOnSignal(int signal) {
 	
 	if ([commonIPAddresses count] > 1) {
 		[ipAddressesLabel setStringValue:LocalizedString(@"IP Addresses:")];
+		[ipAddressesField setStringValue:[commonIPAddresses componentsJoinedByString:@"\n"]];
 	}
 	else if ([commonIPAddresses count] == 1) {
 		[ipAddressesLabel setStringValue:LocalizedString(@"IP Address:")];
+		[ipAddressesField setStringValue:[commonIPAddresses componentsJoinedByString:@"\n"]];
 	}
 	else {
-		[ipAddressesLabel setStringValue:@""];
+		[ipAddressesLabel setStringValue:LocalizedString(@"IP Address:")];
+		[ipAddressesField setStringValue:@""];
 	}
-	[ipAddressesField setStringValue:[commonIPAddresses componentsJoinedByString:@"\n"]];        
 }
 
 - (NSWindow *) window {
@@ -249,10 +336,10 @@ static void terminateOnSignal(int signal) {
 - (void) determineLogLocation {
 	NSArray *logFiles = [NSArray arrayWithObjects:
         [[NSUserDefaults standardUserDefaults] stringForKey:@"LogFile"],
-		@"~/Library/Logs/OSXvnc-server.log",
-        @"/var/log/OSXvnc-server.log",
-        [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server.log"],
-        @"/tmp/OSXvnc-server.log",
+		@"~/Library/Logs/VineServer.log",
+        @"/var/log/VineServer.log",
+        [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"VineServer.log"],
+        @"/tmp/VineServer.log",
         nil];
     NSEnumerator *logEnumerators = [logFiles objectEnumerator];
 	
@@ -270,7 +357,7 @@ static void terminateOnSignal(int signal) {
 
 - (void) awakeFromNib {
     id infoDictionary = [[NSBundle mainBundle] infoDictionary];
-    
+	
 	[self determinePasswordLocation];
 	[self determineLogLocation];
 	
@@ -282,27 +369,32 @@ static void terminateOnSignal(int signal) {
 		[connectPort setIntValue:5500];
 	
 	[window setInitialFirstResponder: displayNameField];
-	
-    [displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
-
+		
     [self loadUserDefaults: self];
 
     [window setTitle:[NSString stringWithFormat:@"%@ (%@)",
         [infoDictionary objectForKey:@"CFBundleName"],
-        [infoDictionary objectForKey:@"CFBundleVersion"]]];
+        [infoDictionary objectForKey:@"CFBundleShortVersionString"]]];
     
     [window setFrameUsingName:@"Server Panel"];
     [window setFrameAutosaveName:@"Server Panel"];
 
     [optionsTabView selectTabViewItemAtIndex:0];
 
-    [disableStartupButton setEnabled:[[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems/OSXvnc"]];
+	if ([[NSFileManager defaultManager] fileExistsAtPath:[[NSUserDefaults standardUserDefaults] stringForKey:@"startupItemLocation"]] ||
+		[[NSFileManager defaultManager] fileExistsAtPath:[[NSUserDefaults standardUserDefaults] stringForKey:@"launchdItemLocation"]])
+		[disableStartupButton setEnabled:TRUE];
+	else
+		[disableStartupButton setEnabled:FALSE];
 		
-	// This can sometimes hang so we'll do it in another thread
-	[NSThread detachNewThreadSelector:@selector(updateHostName) toTarget:self withObject:nil];
-	[self updateIPAddresses];
+	[stopServerButton setKeyEquivalent:@""];
+    [startServerButton setKeyEquivalent:@"\r"];
+
+	// First we'll update with the quick-lookup information that doesn't seem to hang
+	[self updateHostNames:[NSArray arrayWithObject:hostNameString()]];
+	[self updateIPAddresses:localIPAddresses()];
 	
-	[self loadDynamicBundles];
+	[self bundlesPerformSelector:@selector(loadGUI)];
 }
 
 - (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
@@ -310,15 +402,19 @@ static void terminateOnSignal(int signal) {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {	
+
 	if ([startServerOnLaunchCheckbox state])
-        [self startServer: self];	
+        [self startServer: self];
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification {
-	// This can sometimes hang so we'll do it in another thread
-	[NSThread detachNewThreadSelector:@selector(updateHostName) toTarget:self withObject:nil];
-	[self updateIPAddresses];
+	[self updateIPAddresses:localIPAddresses()];
     [window makeKeyAndOrderFront:self];
+	// These can sometimes hang so we'll do it in another thread
+	if (!waitingForHostInfo) {
+		waitingForHostInfo = TRUE;
+		[NSThread detachNewThreadSelector:@selector(updateHostInfo) toTarget:self withObject:nil];
+	}	
 }
 
 // This is sent when the server's screen params change, the server can't handle this right now so we'll restart
@@ -453,11 +549,13 @@ static void terminateOnSignal(int signal) {
     if ([[NSUserDefaults standardUserDefaults] stringForKey:@"desktopName"])
         [displayNameField setStringValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"desktopName"]];
     else {
-		if (NSAppKitVersionNumber > NSAppKitVersionNumber10_3)
-			[displayNameField setStringValue:
-				[NSString stringWithFormat:@"%@ (%@)", NSUserName(), [[NSProcessInfo processInfo] hostName]]];
-		else
-			[displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
+		[displayNameField setStringValue:hostNameString()];
+		//		if (NSAppKitVersionNumber > NSAppKitVersionNumber10_3) {
+		//			[displayNameField setStringValue:
+		//				[NSString stringWithFormat:@"%@ (%@)", NSUserName(), [[NSProcessInfo processInfo] hostName]]];
+		//		}
+		//		else
+		//			[displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
 	}
     
     [sharingMatrix selectCellWithTag:sharingMode];
@@ -498,6 +596,9 @@ static void terminateOnSignal(int signal) {
         [allowPressModsForKeys setEnabled:[allowKeyboardLoading state]];
     }
 
+	[keyboardLayout selectItemAtIndex:[keyboardLayout indexOfItemWithTag:[[NSUserDefaults standardUserDefaults] integerForKey:@"keyboardLayout"]]];
+	[keyboardLayout selectItemAtIndex:[keyboardEvents indexOfItemWithTag:[[NSUserDefaults standardUserDefaults] integerForKey:@"keyboardEvents"]]];
+	
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowPressModsForKeys"]) 
         [allowPressModsForKeys setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowPressModsForKeys"]];        
     
@@ -549,6 +650,9 @@ static void terminateOnSignal(int signal) {
     [[NSUserDefaults standardUserDefaults] setBool:[allowDimmingCheckbox state] forKey:@"allowDimming"];
     [[NSUserDefaults standardUserDefaults] setBool:[allowScreenSaverCheckbox state] forKey:@"allowScreenSaver"];
 
+	[[NSUserDefaults standardUserDefaults] setInteger:[[keyboardLayout selectedItem] tag] forKey:@"keyboardLayout"];
+	[[NSUserDefaults standardUserDefaults] setInteger:[[keyboardEvents selectedItem] tag] forKey:@"keyboardEvents"];
+	
 	if ([[protocolVersion titleOfSelectedItem] floatValue] > 0.0)
 		[[NSUserDefaults standardUserDefaults] setFloat:[[protocolVersion titleOfSelectedItem] floatValue] forKey:@"protocolVersion"];
 	else
@@ -623,10 +727,11 @@ static void terminateOnSignal(int signal) {
 			[statusMessageField setStringValue:[NSString stringWithFormat:@"%@ - %@", LocalizedString(@"Server Running"), LocalizedString(@"No Authentication")]];
 		else
 			[statusMessageField setStringValue:LocalizedString(@"Server Running")];
-        [startServerButton setEnabled:FALSE];
+        //[startServerButton setEnabled:FALSE];
         [stopServerButton setEnabled:TRUE];
-        [startServerButton setKeyEquivalent:@""];
-        [stopServerButton setKeyEquivalent:@"\r"];
+		// We really don't want people to accidentally stop the server
+        //[startServerButton setKeyEquivalent:@""];
+        //[stopServerButton setKeyEquivalent:@"\r"];
         userStopped = FALSE;
     }
 }
@@ -652,10 +757,10 @@ static void terminateOnSignal(int signal) {
     }
 
     [startServerButton setTitle:LocalizedString(@"Start Server")];
-    [startServerButton setEnabled:TRUE];
+    //[startServerButton setEnabled:TRUE];
     [stopServerButton setEnabled:FALSE];
-    [stopServerButton setKeyEquivalent:@""];
-    [startServerButton setKeyEquivalent:@"\r"];
+    //[stopServerButton setKeyEquivalent:@""];
+    //[startServerButton setKeyEquivalent:@"\r"];
 
     if (userStopped)
         [statusMessageField setStringValue:LocalizedString(@"The server is stopped.")];
@@ -693,7 +798,7 @@ static void terminateOnSignal(int signal) {
     }
 }
 
-- (NSArray *) formCommandLine {
+- (NSMutableArray *) formCommandLine {
     NSMutableArray *argv = [NSMutableArray array];
 
 	/* Now Using "AUTO Detect", the CLI is slightly better in that it loads the Jag Bundle and can also detect IPv6 ports
@@ -735,10 +840,40 @@ static void terminateOnSignal(int signal) {
     if ([showMouseButton state])
         [argv addObject:@"-rfbLocalBuffer"];
 
-    [argv addObject:@"-keyboardLoading"];
-    [argv addObject:([allowKeyboardLoading state] ? @"Y" : @"N")];
-    [argv addObject:@"-pressModsForKeys"];
-    [argv addObject:([allowPressModsForKeys state] ? @"Y" : @"N")];
+	switch ([[keyboardLayout selectedItem] tag]) {
+		case 0:
+			[argv addObject:@"-UnicodeKeyboard"];
+			[argv addObject:@"1"];
+			[argv addObject:@"-keyboardLoading"];
+			[argv addObject:@"N"];
+			[argv addObject:@"-pressModsForKeys"];
+			[argv addObject:@"N"];
+			break;
+		case 1:
+			[argv addObject:@"-UnicodeKeyboard"];
+			[argv addObject:@"0"];
+			[argv addObject:@"-keyboardLoading"];
+			[argv addObject:@"Y"];
+			[argv addObject:@"-pressModsForKeys"];
+			[argv addObject:@"Y"];
+			break;
+		case 2:
+			[argv addObject:@"-UnicodeKeyboard"];
+			[argv addObject:@"0"];
+			[argv addObject:@"-keyboardLoading"];
+			[argv addObject:@"N"];
+			[argv addObject:@"-pressModsForKeys"];
+			[argv addObject:@"N"];
+			break;
+		default:
+			[argv addObject:@"-keyboardLoading"];
+			[argv addObject:([allowKeyboardLoading state] ? @"Y" : @"N")];
+			[argv addObject:@"-pressModsForKeys"];
+			[argv addObject:([allowPressModsForKeys state] ? @"Y" : @"N")];
+			break;
+	}
+	[argv addObject:@"-EventTap"];
+	[argv addObject:[NSString stringWithFormat:@"%d", [[keyboardEvents selectedItem] tag]]];
 
     if ([swapMouseButtonsCheckbox state])
         [argv addObject:@"-swapButtons"];
@@ -905,9 +1040,9 @@ static void terminateOnSignal(int signal) {
         [startupItemStatusMessageField setStringValue:@""];
 
         [startServerButton setTitle:LocalizedString(@"Restart Server")];
-        [startServerButton setEnabled:TRUE];
-        [stopServerButton setKeyEquivalent:@""];
-        [startServerButton setKeyEquivalent:@"\r"];
+        //[startServerButton setEnabled:TRUE];
+        //[stopServerButton setKeyEquivalent:@""];
+        //[startServerButton setKeyEquivalent:@"\r"];
     }
 }
 
@@ -963,12 +1098,14 @@ static void terminateOnSignal(int signal) {
     [[NSWorkspace sharedWorkspace] openFile:openPath];
 }
 
-- (void) installService {
+- (void) installStartupItem {
 	// In the future we may not always overwrite (look at Version # or something)
     BOOL overwrite = TRUE;
     NSMutableString *startupScript = nil;
     NSRange lineRange;
-	
+	NSString *startupPath = [[NSUserDefaults standardUserDefaults] stringForKey:@"startupItemLocation"];
+	NSString *startupResourcePath = [startupPath stringByAppendingPathComponent:@"Resources"];
+
     // If StartupItems directory doesn't exist then create it
     if (![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems"]) {
 		BOOL success = TRUE;
@@ -976,7 +1113,8 @@ static void terminateOnSignal(int signal) {
 		success &= [myAuthorization executeCommand:@"/bin/mkdir" 
 										  withArgs:[NSArray arrayWithObjects:@"-p", @"/Library/StartupItems", nil]];
         success &= [myAuthorization executeCommand:@"/usr/sbin/chown" 
-										  withArgs:[NSArray arrayWithObjects:@"-R", @"root", @"/Library/StartupItems", nil]];
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"root:wheel", @"/Library/StartupItems", nil]];
+
         if (!success) {
             [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to setup StartupItems folder")];
 			return;
@@ -984,7 +1122,7 @@ static void terminateOnSignal(int signal) {
     }
         
     // If we are overwriting or if the OSXvnc folder doesn't exist
-    if (overwrite || ![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems/OSXvnc"]) {
+    if (overwrite || ![[NSFileManager defaultManager] fileExistsAtPath:startupPath]) {
         NSMutableArray *copyArgsArray = [NSMutableArray array];
         NSString *sourceFolder = [[NSBundle mainBundle] pathForResource:@"OSXvnc" ofType:nil];
         
@@ -1003,7 +1141,7 @@ static void terminateOnSignal(int signal) {
 		[copyArgsArray addObject:@"-R"]; // Recursive
         [copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
         [copyArgsArray addObject:[[[[[NSProcessInfo processInfo] arguments] objectAtIndex:0] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"OSXvnc-server"]];
-        [copyArgsArray addObject:@"/Library/StartupItems/OSXvnc"];
+        [copyArgsArray addObject:startupPath];
 		
         if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
             [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to copy OSXvnc-server executable")];
@@ -1021,7 +1159,7 @@ static void terminateOnSignal(int signal) {
 				[copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
 				[copyArgsArray addObject:bundlePath];
 				//[copyArgsArray addObject:[[NSBundle mainBundle] pathForResource:@"JaguarBundle" ofType:@"bundle"]];
-				[copyArgsArray addObject:@"/Library/StartupItems/OSXvnc/Resources"];
+				[copyArgsArray addObject:startupResourcePath];
 
 		        if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
 					[startupItemStatusMessageField setStringValue:[NSString stringWithFormat:@"Error: Unable to copy bundle:%@", [bundlePath lastPathComponent]]];
@@ -1046,7 +1184,7 @@ static void terminateOnSignal(int signal) {
     // Replace the VNCPATH line
     lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCPATH="]];
     if (lineRange.location != NSNotFound) {
-        NSMutableString *replaceString = [NSString stringWithFormat:@"VNCPATH=\"/Library/StartupItems/OSXvnc\"\n"];        
+        NSMutableString *replaceString = [NSString stringWithFormat:@"VNCPATH=\"%@\"\n", startupPath];        
         [startupScript replaceCharactersInRange:lineRange withString:replaceString];
     }
 	
@@ -1089,17 +1227,11 @@ static void terminateOnSignal(int signal) {
 		success &= [myAuthorization executeCommand:@"/bin/mv" 
 										  withArgs:[NSArray arrayWithObjects:@"-f", @"/tmp/OSXvnc.script", @"/Library/StartupItems/OSXvnc/OSXvnc", nil]];
         success &= [myAuthorization executeCommand:@"/usr/sbin/chown" 
-										  withArgs:[NSArray arrayWithObjects:@"-R", @"root", @"/Library/StartupItems/OSXvnc", nil]];
-		success &= [myAuthorization executeCommand:@"/usr/bin/chgrp" 
-										  withArgs:[NSArray arrayWithObjects:@"0", @"/Library/StartupItems", nil]];
-        success &= [myAuthorization executeCommand:@"/usr/bin/chgrp" 
-										  withArgs:[NSArray arrayWithObjects:@"-R", @"0", @"/Library/StartupItems/OSXvnc", nil]];
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"root:wheel", startupPath, nil]];
         success &= [myAuthorization executeCommand:@"/bin/chmod" 
-										  withArgs:[NSArray arrayWithObjects:@"-R", @"744", @"/Library/StartupItems/OSXvnc", nil]];
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"744", startupPath, nil]];
 		success &= [myAuthorization executeCommand:@"/bin/chmod"
-										  withArgs:[NSArray arrayWithObjects:@"755", @"/Library/StartupItems/OSXvnc", nil]];
-		success &= [myAuthorization executeCommand:@"/bin/chmod"
-										  withArgs:[NSArray arrayWithObjects:@"755", @"/Library/StartupItems/OSXvnc/Resources", nil]];
+										  withArgs:[NSArray arrayWithObjects:@"755", startupPath, startupResourcePath, nil]];
 		
 		if (!success) {
 			[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Replace OSXvnc Script File")];
@@ -1126,8 +1258,53 @@ static void terminateOnSignal(int signal) {
 		[startupItemStatusMessageField setStringValue:[NSString stringWithFormat:@"%@ - %@", LocalizedString(@"Startup Item Configured (Started)"), LocalizedString(@"No Authentication")]];
 	else
 		[startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Configured (Started)")];
+}
 
-    [disableStartupButton setEnabled:YES];
+- (void) installLaunchd {
+	NSMutableDictionary *launchdDictionary = [NSMutableDictionary dictionary];
+	NSMutableArray *argv = [self formCommandLine];
+	BOOL success = TRUE;
+	NSString *launchdPath = [[NSUserDefaults standardUserDefaults] stringForKey:@"launchdItemLocation"];
+
+	if (argv) {
+		// Configure PLIST
+		[argv insertObject:[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server"] atIndex:0];
+		[launchdDictionary setObject:argv forKey:@"ProgramArguments"];
+
+		[launchdDictionary setObject:[NSNumber numberWithBool:TRUE] forKey:@"KeepAlive"];
+		[launchdDictionary setObject:[NSNumber numberWithBool:TRUE] forKey:@"RunAtLoad"];
+		[launchdDictionary setObject:@"VineServer" forKey:@"Label"];
+		[launchdDictionary setObject:[NSArray arrayWithObjects:@"Aqua",@"LoginWindow",nil] forKey:@"LimitLoadToSessionType"];
+		[launchdDictionary setObject:@"/var/log/VineServer.log" forKey:@"StandardOutputPath"];
+		[launchdDictionary setObject:@"/var/log/VineServer.log" forKey:@"StandardErrorPath"];
+			
+		// Write to file
+		NSString *tempPath = [@"/tmp" stringByAppendingPathComponent:[launchdPath lastPathComponent]];
+		[launchdDictionary writeToFile:tempPath atomically:NO];
+		success &= [myAuthorization executeCommand:@"/usr/sbin/chown" 
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"root:wheel", tempPath, nil]];
+        success &= [myAuthorization executeCommand:@"/bin/chmod" 
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"744", tempPath, nil]];
+		
+		// Install to /System/LaunchAgents/com.redstonesoftware.VineServer.plist
+		success &= [myAuthorization executeCommand:@"/bin/mv" 
+										  withArgs:[NSArray arrayWithObjects:@"-f", tempPath, launchdPath, nil]];
+		
+		// Launch Using launchctl -S Aqua /System/LaunchAgents/com.redstonesoftware.VineServer.plist
+		
+		if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_4)) {
+			success &= [myAuthorization executeCommand:@"/bin/launchctl" 
+											  withArgs:[NSArray arrayWithObjects:@"load", launchdPath, nil]];
+		}
+		else {
+			success &= [myAuthorization executeCommand:@"/bin/launchctl" 
+											  withArgs:[NSArray arrayWithObjects:@"load", @"-S", @"Aqua", launchdPath, nil]];
+		}
+	}
+	if (!success) {
+		[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Setup Vine Server using LaunchD")];
+		return;
+	}
 }
 
 - (IBAction) installAsService: sender {
@@ -1147,14 +1324,21 @@ static void terminateOnSignal(int signal) {
         return;
     }
 	
-	[self installService];
+	if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_3))
+		[self installStartupItem];
+	else
+		[self installLaunchd];	
 	
+    [disableStartupButton setEnabled:YES];
+
 	[myAuthorization release];
 	myAuthorization = nil;
 }
 
 - (IBAction) removeService: sender {
 	BOOL success = TRUE;
+	NSString *startupPath = [[NSUserDefaults standardUserDefaults] stringForKey:@"startupItemLocation"];
+	NSString *launchdPath = [[NSUserDefaults standardUserDefaults] stringForKey:@"launchdItemLocation"];
 
     if (!myAuthorization)
         myAuthorization = [[NSAuthorization alloc] init];
@@ -1164,10 +1348,24 @@ static void terminateOnSignal(int signal) {
         return;
     }
 
-	success &= [myAuthorization executeCommand:@"/Library/StartupItems/OSXvnc/OSXvnc" 
-									  withArgs:[NSArray arrayWithObjects:@"stop", nil]];
-	success &= [myAuthorization executeCommand:@"/bin/rm" 
-									  withArgs:[NSArray arrayWithObjects:@"-r", @"-f", @"/Library/StartupItems/OSXvnc", nil]];
+	if ([[NSFileManager defaultManager] fileExistsAtPath:startupPath]) {
+		success &= [myAuthorization executeCommand:@"/Library/StartupItems/OSXvnc/OSXvnc" 
+										  withArgs:[NSArray arrayWithObjects:@"stop", nil]];
+		success &= [myAuthorization executeCommand:@"/bin/rm" 
+										  withArgs:[NSArray arrayWithObjects:@"-r", @"-f", startupPath, nil]];
+	}
+	if ([[NSFileManager defaultManager] fileExistsAtPath:launchdPath]) {
+		if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_4)) {
+			success &= [myAuthorization executeCommand:@"/bin/launchctl" 
+											  withArgs:[NSArray arrayWithObjects:@"unload", launchdPath, nil]];
+		}
+		else 
+			success &= [myAuthorization executeCommand:@"/bin/launchctl" 
+											  withArgs:[NSArray arrayWithObjects:@"unload", @"-S", @"Aqua", launchdPath, nil]];
+		success &= [myAuthorization executeCommand:@"/bin/rm" 
+										  withArgs:[NSArray arrayWithObjects:@"-r", @"-f", launchdPath, nil]];
+	}
+	
     if (success) {
         [startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Disabled (Stopped)")];
         [disableStartupButton setEnabled:NO];
@@ -1185,6 +1383,8 @@ static void terminateOnSignal(int signal) {
     [logFile release];
 	[myAuthorization release];
 	myAuthorization = nil;
+	[bundleArray release];
+	bundleArray = nil;
 
     [super dealloc];
 }

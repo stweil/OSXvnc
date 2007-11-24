@@ -39,6 +39,8 @@
 
     IBOutlet NSButton *allowKeyboardLoading;
     IBOutlet NSButton *allowPressModsForKeys;
+	IBOutlet NSPopUpButton *keyboardLayout;
+	IBOutlet NSPopUpButton *keyboardEvents;
 
     NSButton *showMouseButton;
 
@@ -70,6 +72,8 @@
     BOOL relaunchServer;
 	BOOL doNotLoadProxy;
 
+	BOOL waitingForHostInfo;
+	
     NSTask *controller;
     NSFileHandle *serverOutput;
     
@@ -79,6 +83,7 @@
     NSAuthorization *myAuthorization;
     
     NSDate *lastLaunchTime;
+	NSMutableArray *bundleArray;
 }
 
 - init;
@@ -93,7 +98,7 @@
 - (void) loadUserDefaults: sender;
 - (void) saveUserDefaults: sender;
 
-- (NSArray *) formCommandLine;
+- (NSMutableArray *) formCommandLine;
 
 - (IBAction) startServer: sender;
 - (IBAction) stopServer: sender;
