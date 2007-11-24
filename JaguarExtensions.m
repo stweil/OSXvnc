@@ -41,9 +41,17 @@ static KeyboardLayoutRef loadedKeyboardRef;
 static BOOL useIP6 = TRUE;
 static BOOL listenerFinished = FALSE;
 
-void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef);
-
 rfbserver *theServer;
+
++ (void) loadGUI {
+	//	ProcessSerialNumber psn = { 0, kCurrentProcess }; 
+	//	OSStatus returnCode = TransformProcessType(& psn, kProcessTransformToForegroundApplication);
+	//	returnCode = SetFrontProcess(& psn );
+	//	if( returnCode != 0) {
+	//		NSLog(@"Could not bring the application to front. Error %d", returnCode);
+	//	}
+	//[[NSApplication sharedApplication] activateIgnoringOtherApps: YES];
+}
 
 + (void) rfbStartup: (rfbserver *) aServer {
     int argumentIndex;
@@ -82,7 +90,7 @@ rfbserver *theServer;
             NSLog(@"Press Modifiers For Keys - Disabled");
 
         if (KLGetCurrentKeyboardLayout(&loadedKeyboardRef) == noErr) {
-            loadKeyboard(loadedKeyboardRef);
+            [self loadKeyboard: loadedKeyboardRef];
         }
     }
     else {
@@ -134,7 +142,7 @@ rfbserver *theServer;
 
 // This will use the KeyboardLayoutRef to produce a static table of lookups
 // By iterating through all possible KeyCodes
-void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
++ (void) loadKeyboard: (KeyboardLayoutRef) keyboardLayoutRef {
     int i;
     int keysLoaded = 0;
     UCKeyboardLayout *uchrHandle = NULL;
@@ -163,8 +171,7 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
 
     // Initialize them all to 0xFFFF
     memset(theServer->keyTable, 0xFF, keyTableSize * sizeof(CGKeyCode));
-    // Zero out mods
-    bzero(theServer->keyTableMods, keyTableSize * sizeof(unsigned char));
+    memset(theServer->keyTableMods, 0xFF, keyTableSize * sizeof(unsigned char));
     
     if (uchrHandle) {
         // Ok - we could get the LIST of Modifier Key States out of the Keyboard Layout
@@ -179,7 +186,7 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
         UniCharCount actualStringLength;
         UniChar unicodeChar;
 
-        // Iterate Ove Each Modifier Key
+        // Iterate Over Each Modifier Keyset
         for (i=0; i < (sizeof(modifierKeyStates) / sizeof(UInt32)); i++) {
             modifierKeyState = (modifierKeyStates[i] >> 8) & 0xFF;
             NSLog(@"Loading Keys For Modifer State: %#04x", modifierKeyState);
@@ -259,8 +266,9 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
     // This is the old SpecialKeyCodes keyboard mapping
     // Map the above key table into a static array so we can just look them up directly
     NSLog(@"Loading %d XKeysym Special Keys\n", (sizeof(SpecialKeyCodes) / sizeof(int))/2);
-    for (i = 0; i < (sizeof(SpecialKeyCodes) / sizeof(int)); i += 2)
-        theServer->keyTable[(unsigned short)SpecialKeyCodes[i]] = (CGKeyCode) SpecialKeyCodes[i+1];   
+    for (i = 0; i < (sizeof(SpecialKeyCodes) / sizeof(int)); i += 2) {
+        theServer->keyTable[(unsigned short)SpecialKeyCodes[i]] = (CGKeyCode) SpecialKeyCodes[i+1];
+	}
 }
 
 + (void) rfbRunning {	
@@ -387,7 +395,7 @@ void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef) {
         if (KLGetCurrentKeyboardLayout(&currentKeyboardLayoutRef) == noErr) {
             if (currentKeyboardLayoutRef != loadedKeyboardRef) {
                 loadedKeyboardRef = currentKeyboardLayoutRef;
-                loadKeyboard(loadedKeyboardRef);
+				[self loadKeyboard: loadedKeyboardRef];
             }
         }
     }

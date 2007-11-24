@@ -15,9 +15,7 @@
 @interface JaguarExtensions : NSObject <RFBBundleProtocol> {
 }
 
-// Actually these are for 10.1 (Puma) and Higher but not sure if we need to bundle them
-void loadKeyboard(KeyboardLayoutRef keyboardLayoutRef);
-
++ (void) loadKeyboard: (KeyboardLayoutRef) keyboardLayoutRef;
 + (void) registerRendezvous;
 
 @end

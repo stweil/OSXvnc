@@ -71,23 +71,26 @@ void loadKeyTable() {
 }
 
 void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl) {
+	rfbUndim();	
+	
 	if (alternateKeyboardHandler != NULL)
 		[(id)alternateKeyboardHandler handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl];
 	else {
 		CGKeyCode keyCode = keyTable[(unsigned short)keySym];
 		CGCharCode keyChar = 0;
-		UInt32 modsForKey = keyTableMods[keySym] << 8;
+		UInt32 modsForKey = keyTableMods[keySym];
+		bool doMods = (modsForKey != 0xFF && down && pressModsForKeys);
 
 		if (keySym < 0xFF) // If it's an ASCII key we'll send the keyChar
 			keyChar = (CGCharCode) keySym;
 
-		rfbUndim();	
-	
 		//rfbLog("Key Char:%c Key Code:%d Key Sym:%d\n", keyChar, keyCode, keySym);
 		if (keyCode == 0xFFFF)
 			rfbLog("Warning: Unable to determine Key Code for X Key Sym %d (0x%x)\n", (int)keySym, (int)keySym);
 		else {
-			if (down && pressModsForKeys) {
+			if (doMods) {
+				modsForKey = modsForKey << 8;
+				
 				// Toggle the state of the appropriate keys
 				if (!(cl->modiferKeys[keyTable[XK_Meta_L]]) != !(modsForKey & optionKey))
 					CGPostKeyboardEvent(0, keyTable[XK_Meta_L], (modsForKey & optionKey));
@@ -101,7 +104,7 @@ void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl) {
         
 			CGPostKeyboardEvent(keyChar, keyCode, down);
 			
-			if (down && pressModsForKeys) {
+			if (doMods) {
 				// Return keys to previous state
 				if (!(cl->modiferKeys[keyTable[XK_Meta_L]]) != !(modsForKey & optionKey))
 					CGPostKeyboardEvent(0, keyTable[XK_Meta_L], cl->modiferKeys[keyTable[XK_Meta_L]]);
