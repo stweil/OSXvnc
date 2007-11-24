@@ -51,13 +51,20 @@ better to just not even define it - but give a warning or something  */
 CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask filter, CGEventSupressionState state);
 #endif
 
+// So we can compile on 10.2
+#ifndef NSAppKitVersionNumber10_3
+#define NSAppKitVersionNumber10_3 743
+#endif
+
 ScreenRec hackScreen;
 rfbScreenInfo rfbScreen;
 
 int rfbProtocolMajorVersion = 3;
 int rfbProtocolMinorVersion = 8;
 
-char desktopName[255] = "";
+char desktopName[256] = "";
+
+BOOL keepRunning = TRUE;
 
 BOOL littleEndian = FALSE;
 int  rfbPort = 0; //5900;
@@ -156,28 +163,12 @@ void bundlesPerformSelector(SEL performSel) {
     NSEnumerator *bundleEnum = [bundleArray objectEnumerator];
     NSBundle *bundle = nil;
 
-    while ((bundle = [bundleEnum nextObject]))
-		[(NSObject <RFBBundleProtocol> *)[bundle principalClass] performSelector:performSel];
-
-    [bundlePool release];
-}
-
-bool bundlesTrySelectorWithDictionary(SEL performSel, NSDictionary *arguments) {
-    NSAutoreleasePool *bundlePool = [[NSAutoreleasePool alloc] init];
-    NSEnumerator *bundleEnum = [bundleArray objectEnumerator];
-    NSBundle *bundle = nil;
-	bool returnValue = FALSE;
-	
     while ((bundle = [bundleEnum nextObject])) {
-		if ([[bundle principalClass] respondsToSelector:performSel]) {
-			returnValue = TRUE;
-			[[bundle principalClass] performSelector:performSel withObject: arguments];
-		}
+		if ([[bundle principalClass] respondsToSelector:performSel])
+			[[bundle principalClass] performSelector:performSel];
 	}
-	
+
     [bundlePool release];
-	
-	return returnValue;
 }
 
 // Some calls fail under older OS X'es so we will do some detected loading
@@ -194,8 +185,10 @@ void loadDynamicBundles(BOOL startup) {
 	thisServer.listenerAccepting = listenerAccepting;
 	thisServer.listenerGotNewClient = listenerGotNewClient;
 	
+	// These can be modified by the bundles
     thisServer.keyTable = keyTable;
     thisServer.keyTableMods = keyTableMods;
+	
     thisServer.pressModsForKeys = &pressModsForKeys;
 	thisServer.alternateKeyboardHandler = &alternateKeyboardHandler;
 	
@@ -226,8 +219,7 @@ void loadDynamicBundles(BOOL startup) {
 
             if ([aBundle load]) {
                 [bundleArray addObject:aBundle];
-                if (startup)
-                    [[aBundle principalClass] rfbStartup: &thisServer];
+				[[aBundle principalClass] rfbStartup: &thisServer];
             }
             else {
                 NSLog(@"\t-Bundle Load Failed");
@@ -238,7 +230,6 @@ void loadDynamicBundles(BOOL startup) {
         NSLog(@"No Bundles Loaded - Run %@ from inside OSXvnc.app", execPath);
     }
 
-	// We might choose to RESYNC back from the server data if the bundles wanted to change some of the server state
 
     [startPool release];
 }
@@ -272,10 +263,10 @@ void refreshCallback(CGRectCount count, const CGRect *rectArray, void *ignore) {
     }
 }
 
-CGError screenUpdateMoveCallback(CGScreenUpdateMoveDelta delta, CGRectCount count, const CGRect * rectArray, void * userParameter) {
-	//NSLog(@"Moved Callback");
-	return 0;
-}
+//CGError screenUpdateMoveCallback(CGScreenUpdateMoveDelta delta, CGRectCount count, const CGRect * rectArray, void * userParameter) {
+//	//NSLog(@"Moved Callback");
+//	return 0;
+//}
 
 
 void rfbCheckForScreenResolutionChange() {
@@ -302,7 +293,7 @@ void rfbCheckForScreenResolutionChange() {
 
 		do {
 			screenOK = rfbScreenInit();
-		} while (!screenOK && maxTries-- && usleep(2100000)==0);
+		} while (!screenOK && maxTries-- && usleep(2000000)==0);
 		if (!screenOK)
 			exit(1);
 		
@@ -475,6 +466,7 @@ void *clientInput(void *data) {
         if (rfbShouldSendUpdates && !registered && REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion)) {
             rfbLog("Client Connected - Registering Screen Update Notification\n");
             CGRegisterScreenRefreshCallback(refreshCallback, NULL);
+			bundlesPerformSelector(@selector(rfbConnect));
 			//CGScreenRegisterMoveCallback(screenUpdateMoveCallback, NULL);
             registered = TRUE;
         }
@@ -595,20 +587,31 @@ void connectReverseClient(char *hostName, int portNum) {
 	}
 }
 
-char *rfbGetFramebuffer(void)
-{
+char *rfbGetFramebuffer(void) {
+	int maxWait =  5000000;
+	int retryWait = 500000;
+	
 	char *returnValue = CGDisplayBaseAddress(displayID);
-	while (!returnValue) {
-		usleep(500000); // Buffer goes away while screen is "switching", it'll be back
+	while (!returnValue && maxWait > 0) {
+		usleep(retryWait); // Buffer goes away while screen is "switching", it'll be back
+		maxWait -= retryWait;
+		if ([[NSProcessInfo processInfo] respondsToSelector:@selector(CGMainDisplayID)]) {
+			displayID = [[NSProcessInfo processInfo] CGMainDisplayID];
+			//NSLog(@"Loading New DisplayID: %d", displayID);
+		}
 		returnValue = CGDisplayBaseAddress(displayID);
 	}
+	if (!returnValue) {
+		exit(1);
+	}
+		
 	return returnValue;
 }
 
 static bool rfbScreenInit(void) {
 	int bitsPerSample = 8;
 
-	if (floor(NSAppKitVersionNumber) <= 743) // should be NSAppKitVersionNumber10_3 but need to compile on older OSes
+	if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_3))
 		(void) GetMainDevice();
 	
 	// This is defined in the Jaguar Bundle so that we can do this on 10.2+ but still be compatible to 10.1
@@ -1021,7 +1024,7 @@ int main(int argc, char *argv[]) {
     checkForUsage(argc,argv);
     
 	// The bug with unregistering from user updates may have been fixed in 10.4 Tiger
-	if (floor(NSAppKitVersionNumber) > 743) // should be this but need to compile on older OSes floor(NSAppKitVersionNumber10_3))
+	if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_3))
 		unregisterWhenNoConnections = TRUE;
 	
     // This guarantees separating us from any terminal - 
@@ -1058,7 +1061,7 @@ int main(int argc, char *argv[]) {
 	
 	// If no Desktop Name Provided Try to Get it
 	if (strlen(desktopName) == 0) {
-		[[[NSProcessInfo processInfo] hostName] getCString:desktopName];
+		gethostname(desktopName, 256);
 	}
 	
 	if (!rfbScreenInit())
@@ -1140,6 +1143,7 @@ int main(int argc, char *argv[]) {
 				if (registered && unregisterWhenNoConnections) {
 					rfbLog("UnRegistering Screen Update Notification - waiting for clients\n");
 					CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
+					bundlesPerformSelector(@selector(rfbDisconnect));
 					registered = NO;
 				}
 				else
@@ -1168,15 +1172,15 @@ int main(int argc, char *argv[]) {
         CGRectCount rectCount;
         CGRect *rectArray;
         CGEventErr result;
-
+		
         result = CGWaitForScreenRefreshRects( &rectArray, &rectCount );
         refreshCallback(rectCount, rectArray, NULL);
         CGReleaseScreenRefreshRects( rectArray );
-    }
-
-		[tempPool release];
-
+    };
+		
+	[tempPool release];
+	
 	rfbShutdown();
-
+	
     return 0;
 }
