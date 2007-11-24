@@ -385,7 +385,7 @@ extern void connectReverseClient(char *hostName, int portNum);
 extern ScreenRec hackScreen;
 extern rfbScreenInfo rfbScreen;
 
-extern char desktopName[255];
+extern char desktopName[256];
 
 extern BOOL littleEndian;
 extern int  rfbMaxBitDepth;
