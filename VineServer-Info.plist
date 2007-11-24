@@ -7,25 +7,29 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>2.2 - Copyright© 2002-2007 Redstone Software </string>
+	<string>3.0Beta - Copyright© 2002-2007 Redstone Software </string>
 	<key>CFBundleIconFile</key>
 	<string>VineServer.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>OSXvnc</string>
+	<string>com.redstonesoftware.VineServer</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
 	<string>Vine Server</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>CFBundleSignature</key>
-	<string>OSXv</string>
 	<key>CFBundleShortVersion</key>
-	<string>2.2</string>
+	<string>3.0Beta</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.2</string>
+	<string>3.0Beta</string>
+	<key>CFBundleSignature</key>
+	<string>vncS</string>
 	<key>CFBundleVersion</key>
-	<string>2.2</string>
+	<string>__VERSION__</string>
+	<key>LSBackgroundOnly</key>
+	<true/>
+	<key>LSUIElement</key>
+	<true/>
 	<key>NSAppleScriptEnabled</key>
 	<false/>
 	<key>NSHelpFile</key>

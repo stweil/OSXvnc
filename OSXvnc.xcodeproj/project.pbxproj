@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9199995B0B1135FF0099EA7A /* getMACAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 919999430B11348E0099EA7A /* getMACAddress.c */; };
+		AB056F7B0CDF7C0D00C0AAB0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABEE28F804C8745B00A80117 /* Security.framework */; };
 		AB0CBFA70CCD1C8000C74547 /* TigerExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = AB0CBFA60CCD1C7900C74547 /* TigerExtensions.m */; };
 		AB0CC1720CCD44CD00C74547 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 		AB0CC1730CCD44CD00C74547 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ABF191B704E447A400A80117 /* Carbon.framework */; };
@@ -206,9 +207,9 @@
 		AB0CBFA50CCD1C7900C74547 /* TigerExtensions.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = TigerExtensions.h; sourceTree = "<group>"; };
 		AB0CBFA60CCD1C7900C74547 /* TigerExtensions.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = TigerExtensions.m; sourceTree = "<group>"; };
 		AB15010D04F6A94500A80117 /* RFBBundleProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RFBBundleProtocol.h; sourceTree = "<group>"; };
-		AB25D83708686B520065843D /* Info-OSXvnc.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "Info-OSXvnc.plist"; sourceTree = "<group>"; };
+		AB25D83708686B520065843D /* VineServer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "VineServer-Info.plist"; sourceTree = "<group>"; };
 		AB25D83808686B520065843D /* Vine Server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Vine Server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
-		AB25D87D08686C7D0065843D /* Info-JaguarBundle.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "Info-JaguarBundle.plist"; sourceTree = "<group>"; };
+		AB25D87D08686C7D0065843D /* JaguarBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "JaguarBundle-Info.plist"; sourceTree = "<group>"; };
 		AB25D87E08686C7D0065843D /* JaguarBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JaguarBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB25D9B10868799D0065843D /* libstdc++.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libstdc++.a"; path = "/usr/lib/gcc/darwin/3.3/libstdc++.a"; sourceTree = "<absolute>"; };
 		AB25DA3A0868842E0065843D /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
@@ -486,6 +487,7 @@
 				AB0CC1720CCD44CD00C74547 /* Cocoa.framework in Frameworks */,
 				AB0CC1730CCD44CD00C74547 /* Carbon.framework in Frameworks */,
 				AB0CC1740CCD44CD00C74547 /* ApplicationServices.framework in Frameworks */,
+				AB056F7B0CDF7C0D00C0AAB0 /* Security.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -577,8 +579,8 @@
 				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
-				AB25D83708686B520065843D /* Info-OSXvnc.plist */,
-				AB25D87D08686C7D0065843D /* Info-JaguarBundle.plist */,
+				AB25D83708686B520065843D /* VineServer-Info.plist */,
+				AB25D87D08686C7D0065843D /* JaguarBundle-Info.plist */,
 				AB0CBF9D0CCD1C0500C74547 /* TigerBundle-Info.plist */,
 			);
 			name = OSXvnc;
@@ -966,7 +968,9 @@
 				AB25D82F08686B520065843D /* Frameworks */,
 				AB25D83208686B520065843D /* CopyFiles */,
 				AB25D83508686B520065843D /* ShellScript */,
+				AB139E5C0CEA05C200EE873A /* ShellScript */,
 				AB25D83608686B520065843D /* ShellScript */,
+				AB139E4C0CEA04C800EE873A /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -1126,6 +1130,32 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		AB139E4C0CEA04C800EE873A /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 8;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+			shellPath = /bin/sh;
+			shellScript = "# Bump the version for the NEXT release -- This one uses the prior value\n/Developer/Tools/agvtool bump";
+		};
+		AB139E5C0CEA05C200EE873A /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "#Write our current AGV version number into the Info.plist\npushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION/Contents\"\ncat ./Info.plist | sed s/__VERSION__/$CURRENT_PROJECT_VERSION/ > ./Info.plist.tmp\nmv -f ./Info.plist.tmp ./Info.plist\npopd\n";
+		};
 		AB25D83508686B520065843D /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1133,7 +1163,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "pushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\";\n/bin/ln -s Contents/MacOS/OSXvnc-server .;\n/bin/ln -s Contents/MacOS/storepasswd .;\ncd Contents/Resources\n/bin/ln -s ../MacOS/OSXvnc-server .;\n/bin/ln -s ../MacOS/storepasswd .;\npopd";
+			shellScript = "# Set up links for the OSXvnc-server process and the storepasswd process\npushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\";\n/bin/ln -s Contents/MacOS/OSXvnc-server .;\n/bin/ln -s Contents/MacOS/storepasswd .;\ncd Contents/Resources;\n/bin/ln -s ../MacOS/OSXvnc-server .;\n/bin/ln -s ../MacOS/storepasswd .;\npopd";
 		};
 		AB25D83608686B520065843D /* ShellScript */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -1386,12 +1416,10 @@
 		AB0CBF9F0CCD1C0600C74547 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
 				HEADER_SEARCH_PATHS = (
 					"OSXvnc-server",
@@ -1400,7 +1428,6 @@
 					libjpeg,
 				);
 				INFOPLIST_FILE = "TigerBundle-Info.plist";
-				LIBRARY_SEARCH_PATHS = /usr/lib/gcc/darwin/3.3;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
 				OTHER_LDFLAGS = (
 					"-framework",
@@ -1410,6 +1437,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = TigerBundle;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				WRAPPER_EXTENSION = bundle;
 				ZERO_LINK = NO;
 			};
@@ -1418,12 +1446,8 @@
 		AB0CBFA00CCD1C0600C74547 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
-				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_MODEL_TUNING = G5;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "$(SYSTEM_LIBRARY_DIR)/Frameworks/AppKit.framework/Headers/AppKit.h";
+				GCC_VERSION_ppc = "";
 				HEADER_SEARCH_PATHS = (
 					"OSXvnc-server",
 					"OSXvnc-server/include",
@@ -1431,9 +1455,8 @@
 					libjpeg,
 				);
 				INFOPLIST_FILE = "TigerBundle-Info.plist";
-				INSTALL_PATH = "$(HOME)/Library/Bundles";
-				LIBRARY_SEARCH_PATHS = /usr/lib/gcc/darwin/3.3;
 				MACOSX_DEPLOYMENT_TARGET = 10.4;
+				MACOSX_DEPLOYMENT_TARGET_ppc = 10.4;
 				OTHER_LDFLAGS = (
 					"-framework",
 					Foundation,
@@ -1442,9 +1465,10 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = TigerBundle;
-				SDKROOT_ppc = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
+				SDKROOT_i386 = "";
+				SDKROOT_ppc = "";
 				WRAPPER_EXTENSION = bundle;
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
@@ -1573,7 +1597,7 @@
 					include/Xserver,
 					libjpeg,
 				);
-				INFOPLIST_FILE = "Info-JaguarBundle.plist";
+				INFOPLIST_FILE = "JaguarBundle-Info.plist";
 				INSTALL_MODE_FLAG = "a+rwX";
 				LIBRARY_SEARCH_PATHS = /usr/lib/gcc/darwin/3.3;
 				MACOSX_DEPLOYMENT_TARGET = 10.2;
@@ -1593,7 +1617,6 @@
 			buildSettings = {
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
-				DSTROOT = /tmp;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_OPTIMIZATION_LEVEL = 3;
 				HEADER_SEARCH_PATHS = (
@@ -1602,8 +1625,7 @@
 					include/Xserver,
 					libjpeg,
 				);
-				INFOPLIST_FILE = "Info-JaguarBundle.plist";
-				INSTALL_MODE_FLAG = "a+rwX";
+				INFOPLIST_FILE = "JaguarBundle-Info.plist";
 				LIBRARY_SEARCH_PATHS = /usr/lib/gcc/darwin/3.3;
 				MACOSX_DEPLOYMENT_TARGET = 10.2;
 				PRODUCT_NAME = JaguarBundle;
@@ -1621,14 +1643,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1008;
 				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				INFOPLIST_FILE = "Info-OSXvnc.plist";
+				INFOPLIST_FILE = "VineServer-Info.plist";
 				INSTALL_MODE_FLAG = "a+rwX";
 				INSTALL_PATH = "/Vine Server/";
-				MACOSX_DEPLOYMENT_TARGET = 10.1;
 				PRODUCT_NAME = "Vine Server";
 				WARNING_CFLAGS = (
 					"-Wmost",
@@ -1644,17 +1666,19 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1008;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp;
 				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_OPTIMIZATION_LEVEL = s;
-				INFOPLIST_FILE = "Info-OSXvnc.plist";
+				INFOPLIST_FILE = "VineServer-Info.plist";
 				INSTALL_MODE_FLAG = 755;
 				INSTALL_PATH = "/Vine Server/";
-				MACOSX_DEPLOYMENT_TARGET = 10.1;
+				MACOSX_DEPLOYMENT_TARGET = 10.3;
 				PRODUCT_NAME = "Vine Server";
+				VERSIONING_SYSTEM = "apple-generic";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -1669,10 +1693,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_VERSION_ppc = 3.3;
-				MACOSX_DEPLOYMENT_TARGET_ppc = 10.2;
+				MACOSX_DEPLOYMENT_TARGET = 10.3;
 				REMOVE_CVS_FROM_RESOURCES = YES;
-				SDKROOT_ppc = /Developer/SDKs/MacOSX10.2.8.sdk;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 			};
 			name = Development;
 		};
@@ -1685,11 +1708,9 @@
 				);
 				DEPLOYMENT_POSTPROCESSING = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
-				GCC_VERSION_ppc = 3.3;
-				MACOSX_DEPLOYMENT_TARGET_ppc = 10.1;
+				MACOSX_DEPLOYMENT_TARGET = 10.3;
 				REMOVE_CVS_FROM_RESOURCES = YES;
-				SDKROOT_i386 = /Developer/SDKs/MacOSX10.4u.sdk;
-				SDKROOT_ppc = /Developer/SDKs/MacOSX10.2.8.sdk;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				STRIP_INSTALLED_PRODUCT = YES;
 			};
 			name = Deployment;
