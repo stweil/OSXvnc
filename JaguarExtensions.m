@@ -172,7 +172,7 @@ rfbserver *theServer;
     // Initialize them all to 0xFFFF
     memset(theServer->keyTable, 0xFF, keyTableSize * sizeof(CGKeyCode));
     memset(theServer->keyTableMods, 0xFF, keyTableSize * sizeof(unsigned char));
-    
+  
     if (uchrHandle) {
         // Ok - we could get the LIST of Modifier Key States out of the Keyboard Layout
         // some of them are duplicates so we need to compare them, then we'll iterate through them in reverse order
@@ -189,7 +189,7 @@ rfbserver *theServer;
         // Iterate Over Each Modifier Keyset
         for (i=0; i < (sizeof(modifierKeyStates) / sizeof(UInt32)); i++) {
             modifierKeyState = (modifierKeyStates[i] >> 8) & 0xFF;
-            NSLog(@"Loading Keys For Modifer State: %#04x", modifierKeyState);
+            //NSLog(@"Loading Keys For Modifer State: %#04x", modifierKeyState);
             // Iterate Over Each Key Code
             for (keyCode = 0; keyCode < 127; keyCode++) {
                 OSStatus resultCode = UCKeyTranslate (uchrHandle,
@@ -215,7 +215,7 @@ rfbserver *theServer;
                     }
                 }
             }
-            NSLog(@"Loaded %d Keys", keysLoaded);
+            //NSLog(@"Loaded %d Keys", keysLoaded);
             keysLoaded = 0;
         }
     }
@@ -230,7 +230,7 @@ rfbserver *theServer;
         //UCKeyModifiersToTableNum = ;
         for (i=0; i < (sizeof(modifierKeyStates) / sizeof(UInt32)); i++) {
             modifierKeyState = (modifierKeyStates[i] >> 8) & 0xFF;
-            NSLog(@"Loading Keys For Modifer State:%#04x", modifierKeyState);
+            //NSLog(@"Loading Keys For Modifer State:%#04x", modifierKeyState);
 
             // Iterate Over Each Key Code
             for (keyCode = 0; keyCode < 127; keyCode++) {
@@ -251,7 +251,7 @@ rfbserver *theServer;
                     }
                 }
             }
-            NSLog(@"Loaded %d Keys", keysLoaded);
+            //NSLog(@"Loaded %d Keys", keysLoaded);
             keysLoaded = 0;
         }
     }
