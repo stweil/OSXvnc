@@ -55,6 +55,12 @@ CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask 
 #ifndef NSAppKitVersionNumber10_3
 #define NSAppKitVersionNumber10_3 743
 #endif
+#ifndef NSWorkspaceSessionDidBecomeActiveNotification
+#define NSWorkspaceSessionDidBecomeActiveNotification @"NSWorkspaceSessionDidBecomeActiveNotification"
+#endfif
+#ifndef NSWorkspaceSessionDidResignActiveNotification
+#define NSWorkspaceSessionDidResignActiveNotification @"NSWorkspaceSessionDidResignActiveNotification"
+#endfif
 
 ScreenRec hackScreen;
 rfbScreenInfo rfbScreen;
@@ -968,10 +974,10 @@ int scanForOpenPort() {
 	sin4.sin_len = sizeof(sin4);
 	sin4.sin_family = AF_INET;
 	
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnly"])
-		sin4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-    else 
-		sin4.sin_addr.s_addr = htonl(INADDR_ANY);
+//    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnly"])
+//		sin4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+//    else 
+	sin4.sin_addr.s_addr = htonl(INADDR_ANY);
     
 	while (tryPort < 5910) {
 		sin4.sin_port = htons(tryPort);
@@ -1042,7 +1048,6 @@ int main(int argc, char *argv[]) {
     signal(SIGTERM, rfbShutdownOnSignal);
     signal(SIGINT, rfbShutdownOnSignal);
     signal(SIGQUIT, rfbShutdownOnSignal);
-    signal(SIGQUIT, rfbShutdownOnSignal);
 
     pthread_t listener_thread;
 
@@ -1073,15 +1078,15 @@ int main(int argc, char *argv[]) {
 	initPasteboard();
 
     // Register for User Switch Notification
-    // This works on non-Panther systems since the Notification just wont get called
+    // This works on pre-Panther systems since the Notification just wont get called
     if (restartOnUserSwitch) {
         [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:vncServerObject
                                                                selector:@selector(userSwitched:)
-                                                                   name:@"NSWorkspaceSessionDidBecomeActiveNotification"
+                                                                   name: NSWorkspaceSessionDidBecomeActiveNotification
                                                                  object:nil];
         [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:vncServerObject
                                                                selector:@selector(userSwitched:)
-                                                                   name:@"NSWorkspaceSessionDidResignActiveNotification"
+                                                                   name: NSWorkspaceSessionDidResignActiveNotification
                                                                  object:nil];
     }
     
