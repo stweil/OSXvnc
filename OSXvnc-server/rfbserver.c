@@ -91,6 +91,28 @@ Bool rfbClientsConnected()
     return (rfbClientHead != NULL);
 }
 
+void rfbSendClientList() {
+    pthread_mutex_lock(&rfbClientListMutex);
+
+	NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
+	NSMutableArray *clientList = [[NSMutableArray alloc] init];
+	rfbClientPtr myClient = rfbClientHead;
+	
+	while (myClient != NULL) {
+		[clientList addObject:[NSDictionary dictionaryWithObjectsAndKeys:
+			[NSString stringWithCString: myClient->host], @"clientIP",
+			nil]];
+		myClient = myClient->next;
+	}
+	
+	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"VNCConnections" 
+																   object:[NSString stringWithFormat:@"OSXvnc%d",rfbPort] 
+																 userInfo:[NSDictionary dictionaryWithObject:clientList forKey:@"clientList"]];
+	
+	[pool release];
+
+    pthread_mutex_unlock(&rfbClientListMutex);
+}
 
 /*
  * rfbNewClientConnection is called from sockets.c when a new connection
@@ -282,7 +304,8 @@ rfbClientPtr rfbNewClient(int sock) {
 			cl->format = rfbServerFormat;
 			break;
 	}
-	rfbSetTranslateFunction(cl);
+	// This will 
+	rfbSetTranslateFunctionUsingFormat(cl, rfbServerFormat);
 
     /* SERVER SCALING EXTENSIONS -- Server Scaling is off by default */
     cl->scalingFactor = 1;
@@ -351,17 +374,13 @@ rfbClientPtr rfbNewClient(int sock) {
 void rfbClientConnectionGone(rfbClientPtr cl) {
     int i;
 
-    rfbLog("Client %s disconnected\n",cl->host);
-
     // RedstoneOSX - Track and release depressed modifier keys whenever the client disconnects
-    //rfbLog("Client %s release modifier keys\n",cl->host);
     keyboardReleaseKeysForClient(cl);
 
 	freePasteboardForClient(cl);
 	
     pthread_mutex_lock(&rfbClientListMutex);
 
-    //rfbLog("Client %s release compression streams\n",cl->host);
     /* Release the compression state structures if any. */
     if ( cl->compStreamInited == TRUE ) {
         deflateEnd( &(cl->compStream) );
@@ -383,11 +402,16 @@ void rfbClientConnectionGone(rfbClientPtr cl) {
         cl->next->prev = cl->prev;
 
     pthread_mutex_unlock(&rfbClientListMutex);
-    //rfbLog("Client %s removed from client list\n",cl->host);
 
     REGION_UNINIT(pScreen,&cl->modifiedRegion);
 
-    rfbPrintStats(cl);
+	if (cl->major && cl->minor) {
+		// If it didn't get so far as to send a protocol then let's just ignore
+		// For Clients with no activity just return with no log
+		rfbLog("Client %s disconnected\n",cl->host);
+		rfbSendClientList();
+		rfbPrintStats(cl);
+	}
 
     FreeZrleData(cl);
 
@@ -407,7 +431,7 @@ void rfbClientConnectionGone(rfbClientPtr cl) {
 
     xfree(cl);
     // Not sure why but this log message seems to prevent a crash
-    rfbLog("Client gone\n");
+    // rfbLog("Client gone\n");
 }
 
 
@@ -457,7 +481,8 @@ void rfbProcessClientProtocolVersion(rfbClientPtr cl) {
 
     pv[sz_rfbProtocolVersionMsg] = 0;
     if (sscanf(pv,rfbProtocolVersionFormat,&cl->major,&cl->minor) != 2) {
-        rfbLog("rfbProcessClientProtocolVersion: not a valid RFB client\n");
+		if (strncmp(pv,"GET",3)) // Don't log if it was a browser
+			rfbLog("rfbProcessClientProtocolVersion: not a valid RFB client\n");
         rfbCloseClient(cl);
         return;
     }
@@ -478,6 +503,8 @@ void rfbProcessClientProtocolVersion(rfbClientPtr cl) {
         rfbLog("Ignoring minor version mismatch\n");
     }
 
+	rfbSendClientList();
+	
     rfbAuthNewClient(cl);
 }
 
