@@ -13,23 +13,36 @@
 @interface VNCController : NSObject {
     IBOutlet NSMenuItem *startServerMenuItem;
     IBOutlet NSMenuItem *stopServerMenuItem;
+	
+	IBOutlet NSWindow *statusWindow;
+	IBOutlet NSWindow *preferenceWindow;
+	IBOutlet NSWindow *reverseConnectionWindow;
+	
+	IBOutlet NSBox *hostNamesBox;
+    IBOutlet NSTextField *hostNamesField;
+    IBOutlet NSBox *ipAddressesBox;
+    IBOutlet NSTextView *ipAddressesField;
+	IBOutlet NSMatrix *ipAddressesView;
+    IBOutlet NSTextField *displayNumText;
+    IBOutlet NSTextField *portNumText;
+	
+	IBOutlet NSTextView *statusMessageField;
+    IBOutlet NSButton *startServerButton;
+    IBOutlet NSButton *stopServerButton;
+	
 
-    IBOutlet NSWindow *window;
-    IBOutlet NSTabView *optionsTabView;
+	IBOutlet NSTabView *optionsTabView;
+    IBOutlet NSTextField *preferencesMessageTestField;
 
+    IBOutlet NSTextField *displayNameField;
     IBOutlet NSPopUpButton *displayNumberField;
     IBOutlet NSTextField *portField;
     IBOutlet NSTextField *passwordField;
-    IBOutlet NSTextField *displayNameField;
 
 	IBOutlet NSTextField *connectHost;
     IBOutlet NSTextField *connectPort;
+	IBOutlet NSTextField *reverseConnectionMessageField;
 	
-    IBOutlet NSTextField *hostNamesField;
-    IBOutlet NSTextField *hostNamesLabel;
-    IBOutlet NSTextField *ipAddressesLabel;
-    IBOutlet NSTextField *ipAddressesField;
-    
     IBOutlet NSButton *allowSleepCheckbox;
     IBOutlet NSButton *allowDimmingCheckbox;
     IBOutlet NSButton *allowScreenSaverCheckbox;
@@ -42,7 +55,7 @@
 	IBOutlet NSPopUpButton *keyboardLayout;
 	IBOutlet NSPopUpButton *keyboardEvents;
 
-    NSButton *showMouseButton;
+    IBOutlet NSButton *showMouseButton;
 
     IBOutlet NSMatrix *sharingMatrix;
     IBOutlet NSButton *dontDisconnectCheckbox;
@@ -59,12 +72,9 @@
     IBOutlet NSButton *setStartupButton;
     IBOutlet NSButton *disableStartupButton;
     
-    IBOutlet NSTextField *statusMessageField;
-    IBOutlet NSButton *startServerButton;
-    IBOutlet NSButton *stopServerButton;
     IBOutlet NSTextField *startupItemStatusMessageField;
 
-    int port;
+    //int port;
 	
     BOOL alwaysShared;
     BOOL neverShared;
@@ -84,6 +94,8 @@
     
     NSDate *lastLaunchTime;
 	NSMutableArray *bundleArray;
+	
+	int activeConnectionsCount;
 }
 
 - init;
@@ -111,6 +123,8 @@
 - (IBAction) changeDisplayName: sender;
 - (IBAction) optionChanged: sender;
 
+- (IBAction) reverseConnection: sender;
+- (IBAction) cancelConnectHost: sender;
 - (IBAction) connectHost: sender;
 
 - (void) checkForRestart;
@@ -119,6 +133,8 @@
 
 - (BOOL) validateMenuItem: (NSMenuItem *) menuItem ;
 
+// Menu Items
+- (IBAction) openFirewall:(id) sender;
 - (IBAction) openLog:(id) sender;
 - (IBAction) openGPL:(id) sender;
 - (IBAction) openReleaseNotes:(id) sender;
@@ -126,5 +142,7 @@
 
 - (IBAction) installAsService: sender;
 - (IBAction) removeService: sender;
+
+- (IBAction) terminateRequest: sender;
 
 @end
