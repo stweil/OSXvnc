@@ -13,6 +13,9 @@ VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnec
 #
 # Modification Log:
 #
+# 3.0
+# Removed dash from ps -auxwww for 10.5 compatibility
+#
 # 1.6
 # Added missing backslashes to the Awk command when stopping OSXvnc-keepalive
 #
@@ -56,20 +59,20 @@ if [ ${1:-noset} == "stop" ] || [ ${1:-noset} == "restart" ]; then
         sleep 1
     fi
     # make sure it's dead
-    OSXVNCPID=`/bin/ps -auxww | /usr/bin/awk '/[O]SXvnc-keepalive/ {print $2}'`
+    OSXVNCPID=`/bin/ps auxww | /usr/bin/awk '/[O]SXvnc-keepalive/ {print $2}'`
     if [ "${OSXVNCPID:=""}" != "" ]; then
         ConsoleMessage "OSXvnc $1: problem stopping OSXvnc-keepalive"
         exit -1
     fi
 
     ConsoleMessage "Stopping OSXvnc Server"
-    OSXVNCPID=`/bin/ps -auxww | /usr/bin/awk '/Library\/StartupItems\/OSXvnc\/[O]SXvnc-server/ {print $2}'`
+    OSXVNCPID=`/bin/ps auxww | /usr/bin/awk '/Library\/StartupItems\/OSXvnc\/[O]SXvnc-server/ {print $2}'`
     if [ "${OSXVNCPID:=""}" ]; then
         kill -KILL $OSXVNCPID
         sleep 1
     fi
     # make sure it's dead
-    OSXVNCPID=`/bin/ps -auxww | /usr/bin/awk '/Library\/StartupItems\/OSXvnc\/[O]SXvnc-server/ {print $2}'`
+    OSXVNCPID=`/bin/ps auxww | /usr/bin/awk '/Library\/StartupItems\/OSXvnc\/[O]SXvnc-server/ {print $2}'`
     if [ "${OSXVNCPID:=""}" != "" ]; then
         ConsoleMessage "OSXvnc $1: problem stopping OSXvnc-server $OSXVNCPID"
         exit -1
