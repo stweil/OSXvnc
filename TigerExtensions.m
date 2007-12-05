@@ -5,7 +5,7 @@
 //  Created by Jonathan Gillaspie on Fri Jul 11 2003.
 //  Copyright (c) 2003 RedstoneSoftware, Inc. All rights reserved.
 
-
+#import "JaguarExtensions.h"
 #import "TigerExtensions.h"
 
 #import <ApplicationServices/ApplicationServices.h>
@@ -53,6 +53,7 @@ static unsigned char unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22
 inline void setKeyModifiers(CGEventFlags modifierFlags);
 inline void sendKeyEvent(CGKeyCode keyCode, Bool down, CGEventFlags modifierFlags);
 void SyncSetKeyboardLayout (unsigned long keyboardScript, KeyboardLayoutRef newLayout);
+bool isConsoleSession();
 
 // The Keycodes to various modifiers on the current keyboard
 CGKeyCode keyCodeShift;
@@ -65,8 +66,8 @@ rfbserver *theServer;
 + (void) rfbStartup: (rfbserver *) aServer {
 	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
 		@"3", @"EventTap", // Default Event Tap (3=HID for Console User and Session For OffScreen Users)
-		@"1", @"EventSource", // Always private event source so we don't consolidate with existing keys (however HID taps always do anyhow)
-		@"0", @"DynamicKeyboard", // Try to change the keyboard "as we need it", doesn't work well on Tiger
+		@"2", @"EventSource", // Always private event source so we don't consolidate with existing keys (however HID for the EventTap always does anyhow)
+		@"0", @"DynamicKeyboard", // Try to set the keyboard "as we need it", doesn't work well on Tiger
 		@"YES", @"UnicodeKeyboard", // Load The Unicode Keyboard
 		@"-1", @"UnicodeKeyboardIdentifier", // ID of the Unicode Keyboard resource to use (-1 is Apple's)
 		nil]];
@@ -79,18 +80,18 @@ rfbserver *theServer;
 		
 	// Event Source represents which existing event states should be combined with the incoming events
 	switch ([[NSUserDefaults standardUserDefaults] integerForKey:@"EventSource"]) {
-		case 3: // I am pretty sure this is the same as HID
+		case 3: // I am pretty sure works similar to the HID
 			NSLog(@"No Event Source Specified-- Using 10.3 API");
 			vncSourceRef = NULL;
 			break;
 		case 2:
-			// Doesn't combines with anythine else
+			// Doesn't combine with any other sources
 			NSLog(@"Using Private Event Source");
 			vncSourceRef = CGEventSourceCreate(kCGEventSourceStatePrivate);
 			break;
 		case 1:
 			// Combines with only with other User Session
-			NSLog(@"Using Combined Event Source");
+			NSLog(@"Using Combined Event Source, WARNING: Doesn't work if we FUS off-screen (10.5.1)");
 			vncSourceRef = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
 			break;
 		case 0:
@@ -100,15 +101,11 @@ rfbserver *theServer;
 			vncSourceRef = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
 			break;
 	}
-	
+		
 	// Event Taps represent at what level of the input manager the events will be interpretted
 	switch ([[NSUserDefaults standardUserDefaults] integerForKey:@"EventTap"]) {
 		case 3: {
-			SecuritySessionId mySession;
-			SessionAttributeBits sessionInfo;
-			OSStatus error = SessionGetInfo(callerSecuritySession, &mySession, &sessionInfo);
-			
-			if (sessionInfo & sessionHasGraphicAccess) {
+			if (isConsoleSession()) {
 				NSLog(@"Using Dynamic Event Tap -- HID for console user");
 				vncTapLocation = kCGHIDEventTap;
 			}
@@ -119,11 +116,11 @@ rfbserver *theServer;
 			
 			[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
 																   selector:@selector(userSwitchedIn:)
-																	   name:@"NSWorkspaceSessionDidBecomeActiveNotification"
+																	   name: NSWorkspaceSessionDidBecomeActiveNotification
 																	 object:nil];
 			[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
 																   selector:@selector(userSwitchedOut:)
-																	   name:@"NSWorkspaceSessionDidResignActiveNotification"
+																	   name: NSWorkspaceSessionDidResignActiveNotification
 																	 object:nil];			
 			break;
 		}
@@ -146,6 +143,11 @@ rfbserver *theServer;
 			NSLog(@"Using HID Event Tap");
 			vncTapLocation = kCGHIDEventTap;
 			break;
+	}
+		
+	// On 10.5 we need to be able to "hold" if we aren't the console session
+	if (0 && !isConsoleSession()) {
+		;
 	}
 }
 
@@ -453,5 +455,29 @@ void SyncSetKeyboardLayout (unsigned long keyboardScript, KeyboardLayoutRef newL
 	}
 }
 
+bool isConsoleSession() {
+	BOOL returnValue = FALSE;
+	if (0) {
+		SecuritySessionId mySession;
+		SessionAttributeBits sessionInfo;
+		OSStatus error = SessionGetInfo(callerSecuritySession, &mySession, &sessionInfo);
+
+		returnValue = (sessionInfo & sessionHasGraphicAccess);
+	}
+	else if (0) {
+		CFDictionaryRef dict = CGSessionCopyCurrentDictionary();
+
+		if (dict != NULL) {
+			CFRelease(dict);
+			returnValue = TRUE;
+		}
+	}
+	else {
+		if (vncSourceRef != NULL)
+			returnValue = TRUE;
+	}
+	
+	return returnValue;
+}
 
 @end
