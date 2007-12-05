@@ -377,6 +377,8 @@ typedef struct rfbClientRec {
 extern int rfbProtocolMajorVersion;
 extern int rfbProtocolMinorVersion;
 
+extern int rfbPort;
+
 extern char *rfbGetFramebuffer();
 
 extern void rfbStartClientWithFD(int client_fd);
