@@ -55,12 +55,12 @@ CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask 
 #ifndef NSAppKitVersionNumber10_3
 #define NSAppKitVersionNumber10_3 743
 #endif
-#ifndef NSWorkspaceSessionDidBecomeActiveNotification
-#define NSWorkspaceSessionDidBecomeActiveNotification @"NSWorkspaceSessionDidBecomeActiveNotification"
-#endfif
-#ifndef NSWorkspaceSessionDidResignActiveNotification
-#define NSWorkspaceSessionDidResignActiveNotification @"NSWorkspaceSessionDidResignActiveNotification"
-#endfif
+//#ifndef NSWorkspaceSessionDidBecomeActiveNotification
+//#define NSWorkspaceSessionDidBecomeActiveNotification @"NSWorkspaceSessionDidBecomeActiveNotification"
+//#endif
+//#ifndef NSWorkspaceSessionDidResignActiveNotification
+//#define NSWorkspaceSessionDidResignActiveNotification @"NSWorkspaceSessionDidResignActiveNotification"
+//#endif
 
 ScreenRec hackScreen;
 rfbScreenInfo rfbScreen;
@@ -91,6 +91,7 @@ BOOL registered = FALSE;
 BOOL restartOnUserSwitch = FALSE;
 BOOL useIP4 = TRUE;
 BOOL unregisterWhenNoConnections = FALSE;
+BOOL nonBlocking = FALSE;
 
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
 // Bool rfbLocalBuffer = FALSE;
@@ -98,6 +99,7 @@ BOOL unregisterWhenNoConnections = FALSE;
 static pthread_mutex_t logMutex;
 pthread_mutex_t listenerAccepting;
 pthread_cond_t listenerGotNewClient;
+pthread_t listener_thread;
 
 /* OSXvnc 0.8 for screensaver .... */
 // setup screen saver disabling timer
@@ -137,28 +139,28 @@ void rfbLog(char *format, ...) {
 
     pthread_mutex_lock(&logMutex);
     va_start(args, format);
-
-    /*
-     char buf[256];
-     time_t clock;
-
-
-     time(&clock);
-     strftime(buf, 255, "%d/%m/%Y %T ", localtime(&clock));
-     fprintf(stderr, buf);
-
-     vfprintf(stderr, format, args);
-     //fprintf(stderr, "\n");
-     fflush(stderr);
-
-     va_end(args);
-     */
     NSLogv(nsFormat, args);
     va_end(args);
 
     [nsFormat release];
     pthread_mutex_unlock(&logMutex);
 }
+
+void rfbDebugLog(char *format, ...) {
+#ifdef __DEBUGGING__
+    va_list args;
+    NSString *nsFormat = [[NSString alloc] initWithCString:format];
+	
+    pthread_mutex_lock(&logMutex);
+    va_start(args, format);
+    NSLogv(nsFormat, args);
+    va_end(args);
+	
+    [nsFormat release];
+    pthread_mutex_unlock(&logMutex);
+#endif
+}
+
 
 void rfbLogPerror(char *str) {
     rfbLog("%s: %s\n", str, strerror(errno));
@@ -247,7 +249,6 @@ void refreshCallback(CGRectCount count, const CGRect *rectArray, void *ignore) {
     rfbClientPtr cl = NULL;
     int i;
 
-	//NSLog(@"REFRESH CALLBACK");
     for (i = 0; i < count; i++) {
         box.x1 = rectArray[i].origin.x;
         box.y1 = rectArray[i].origin.y;
@@ -471,7 +472,11 @@ void *clientInput(void *data) {
         // Some people will connect but not request screen updates - just send events, this will delay registering the CG callback until then
         if (rfbShouldSendUpdates && !registered && REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion)) {
             rfbLog("Client Connected - Registering Screen Update Notification\n");
-            CGRegisterScreenRefreshCallback(refreshCallback, NULL);
+            CGError result = CGRegisterScreenRefreshCallback(refreshCallback, NULL);
+			if (result != kCGErrorSuccess) {
+				NSLog(@"Error (%d) registering for Screen Update Notification", result);
+				continue;
+			}
 			bundlesPerformSelector(@selector(rfbConnect));
 			//CGScreenRegisterMoveCallback(screenUpdateMoveCallback, NULL);
             registered = TRUE;
@@ -540,11 +545,9 @@ static void *listenerRun(void *ignore) {
 		if ((listen_fd4 = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
 			rfbLogPerror("Unable to open socket");
 		}
-		/*
-		 else if (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0) {
-			 rfbLogPerror("fcntl O_NONBLOCK failed\n");
-		 }
-		 */
+		else if (nonBlocking && (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0)) {
+			rfbLogPerror("fcntl O_NONBLOCK failed\n");
+		}
 	    else if (setsockopt(listen_fd4, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
 			rfbLogPerror("setsockopt SO_REUSEADDR failed\n");
 		}
@@ -558,12 +561,23 @@ static void *listenerRun(void *ignore) {
 			rfbLog("Started Listener Thread on port %d\n", rfbPort);
 
 			// Thread stays here forever unless something goes wrong
-			while ((client_fd = accept(listen_fd4, (struct sockaddr *) &peer4, &len4)) !=-1) {
-				rfbStartClientWithFD(client_fd);
+			while (keepRunning) {
+				client_fd = accept(listen_fd4, (struct sockaddr *) &peer4, &len4);
+				if (client_fd != -1)
+					rfbStartClientWithFD(client_fd);
+				else {
+					if (errno == EWOULDBLOCK) {
+						usleep(100000);
+					}
+					else {
+						rfbLog("Accept failed %d\n", errno);
+						exit(1);
+					}
+				}
 			}
-			
-			rfbLog("Accept failed %d\n", errno);
-			exit(1);
+
+			rfbLog("Listener thread exiting");
+			return NULL;
 		}
 
 		if (strlen(reverseHost)) {
@@ -691,7 +705,8 @@ static void usage(void) {
 
     fprintf(stderr, "-rfbport port          TCP port for RFB protocol (0=autodetect first open port 5900-5909)\n");
     fprintf(stderr, "-rfbwait time          Maximum time in ms to wait for RFB client\n");
-    fprintf(stderr, "-rfbauth passwd-file   Use this password file for RFB protocol\n");
+    fprintf(stderr, "-rfbnoauth             Run the server with NO password protection\n");
+    fprintf(stderr, "-rfbauth passwordFile  Use this password file for VNC authentication\n");
 	fprintf(stderr, "                       (use 'storepasswd' to create a password file)\n");
     fprintf(stderr, "-maxauthattempts num   Maximum Number of auth tries before disabling access from a host\n");
 	fprintf(stderr, "                       (default: 5), zero disables\n");
@@ -806,6 +821,9 @@ static void processArguments(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-rfbwait") == 0) {  // -rfbwait ms
             if (i + 1 >= argc) usage();
             rfbMaxClientWait = atoi(argv[++i]);
+		} else if (strcmp(argv[i], "-rfbnoauth") == 0) {
+			allowNoAuth = TRUE;
+			rfbLog("Warning: No Auth specified, running with no password protection");
         } else if (strcmp(argv[i], "-rfbauth") == 0) {  // -rfbauth passwd-file
             if (i + 1 >= argc) usage();
             rfbAuthPasswdFile = argv[++i];
@@ -899,8 +917,10 @@ static void processArguments(int argc, char *argv[]) {
 		}
 	}
 
-	if (!rfbAuthPasswdFile)
-		rfbLog("Note: No password file specified, running with no authentication");
+	if (!rfbAuthPasswdFile && !allowNoAuth && !reverseHost) {
+		rfbLog("ERROR: No authentication specified, use -rfbauth passwordfile OR -rfbnoauth");
+		exit (255);
+	}
 }
 
 void rfbShutdown(void) {
@@ -911,6 +931,7 @@ void rfbShutdown(void) {
     //CGDisplayShowCursor(displayID);
     rfbDimmingShutdown();
 
+    rfbDebugLog("Removing Observers");
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver: vncServerObject];
 	[[NSNotificationCenter defaultCenter] removeObserver:vncServerObject];
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:vncServerObject];
@@ -920,6 +941,13 @@ void rfbShutdown(void) {
         RemoveEventLoopTimer(screensaverTimer);
         DisposeEventLoopTimerUPP(screensaverTimerUPP);
     }
+	
+	if (nonBlocking) {
+		keepRunning = NO;
+		pthread_join(listener_thread,NULL);
+	}
+	
+    rfbDebugLog("RFB Shudown Complete");
 }
 
 static void executeEventLoop (int signal) {
@@ -930,7 +958,10 @@ static void rfbShutdownOnSignal(int signal) {
     rfbLog("OSXvnc-server received signal: %d\n", signal);
     rfbShutdown();
 
-    exit (signal);
+	if (signal == SIGTERM)
+		exit (0);
+	else
+		exit (signal);
 }
 
 void daemonize( void ) {
@@ -946,6 +977,7 @@ void daemonize( void ) {
     // Ignore signals here
     signal(SIGHUP, SIG_IGN);
     signal(SIGPIPE, SIG_IGN);
+	// Shutdown on these
     signal(SIGTERM, rfbShutdownOnSignal);
     signal(SIGINT, rfbShutdownOnSignal);
     signal(SIGQUIT, rfbShutdownOnSignal);
@@ -1049,8 +1081,6 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, rfbShutdownOnSignal);
     signal(SIGQUIT, rfbShutdownOnSignal);
 
-    pthread_t listener_thread;
-
     pthread_mutex_init(&logMutex, NULL);
     pthread_mutex_init(&listenerAccepting, NULL);
     pthread_cond_init(&listenerGotNewClient, NULL);
@@ -1111,7 +1141,6 @@ int main(int argc, char *argv[]) {
         CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateSupressionInterval);
         CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateRemoteMouseDrag);		
     }
-	// DON'T Combine with local keyboard state -- this will allow each user to have their own modifiers
 	// Better to handle this at the event level, see kbdptr.c
 	//CGEnableEventStateCombining(FALSE);
 
@@ -1126,6 +1155,7 @@ int main(int argc, char *argv[]) {
                               &screensaverTimer);
     }
 
+	nonBlocking = [[NSUserDefaults standardUserDefaults] boolForKey:@"NonBlocking"];
     pthread_create(&listener_thread, NULL, listenerRun, NULL);
 	
 	if (strlen(reverseHost) > 0)
@@ -1135,7 +1165,6 @@ int main(int argc, char *argv[]) {
     // The problem being that OS X sends it first a SIGTERM and then a SIGKILL (un-trappable)
     // Presumable because it's running a Carbon Event loop
     if (1) {
-        BOOL keepRunning = TRUE;
         OSStatus resultCode = 0;
 		
         while (keepRunning) {
