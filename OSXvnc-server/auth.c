@@ -31,6 +31,7 @@
 #include <stdlib.h>
 #include "rfb.h"
 
+Bool allowNoAuth = FALSE;
 NSLock *authClientLock=nil;
 NSMutableDictionary *authClientFailures=nil;
 
@@ -149,11 +150,15 @@ void rfbAuthNewClient(rfbClientPtr cl) {
 			buf[len++] = rfbJAMF;
 			cl->state = RFB_AUTH_VERSION;
 		}
+		else if (0) {
+			buf[len++] = rfbUltra;
+			cl->state = RFB_AUTH_VERSION;
+		}
 		else if (!cl->reverseConnection && rfbAuthPasswdFile) {
             buf[len++] = rfbVncAuth;
             cl->state = RFB_AUTH_VERSION;
         }
-        else if (1) { // currently we don't disable no-auth
+        else if (allowNoAuth) {
             buf[len++] = rfbNoAuth;
             cl->state = RFB_AUTH_VERSION; //RFB_INITIALISATION;
         }
@@ -206,12 +211,17 @@ void rfbAuthNewClient(rfbClientPtr cl) {
             cl->state = RFB_AUTHENTICATION;
         }
         // Otherwise just send NO auth
-        else {
+        else if (allowNoAuth) {
             *(CARD32 *)buf = Swap32IfLE(rfbNoAuth);
             len = 4;
 
             cl->state = RFB_INITIALISATION;
         }
+		else {
+            rfbLogPerror("No Authentication Types Enabled");
+            rfbCloseClient(cl);
+			return;
+		}
 
         if (WriteExact(cl, buf, len) < 0) {
             rfbLogPerror("rfbAuthNewClient: write");

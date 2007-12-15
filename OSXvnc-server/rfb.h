@@ -403,6 +403,7 @@ extern Bool rfbDisableRichClipboards;
 extern Bool rfbLocalBuffer;
 
 extern void rfbLog(char *format, ...);
+extern void rfbDebugLog(char *format, ...);
 extern void rfbLogPerror(char *str);
 
 extern void rfbShutdown();
@@ -531,6 +532,7 @@ extern void httpCheckFds();
 
 /* auth.c */
 
+extern Bool allowNoAuth;
 extern char *rfbAuthPasswdFile;
 extern Bool rfbAuthenticating;
 extern int rfbMaxLoginAttempts;
