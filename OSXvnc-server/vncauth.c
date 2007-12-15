@@ -41,6 +41,23 @@
 unsigned char fixedkey[8] = {23,82,107,6,35,78,88,7};
 
 
+char *vncEncryptPasswd(const char *passwd) {
+	unsigned char encryptedPasswd[8];
+	char *returnPass;
+
+	// Handles copying 0's into extra space
+	strncpy((char *)encryptedPasswd, passwd, 8);
+	
+    /* Do encryption in-place - this way we overwrite our copy of the plaintext password */
+    deskey(fixedkey, EN0);
+    des(encryptedPasswd, encryptedPasswd);
+	
+	returnPass = malloc(8);
+	strncpy(returnPass, (const char *) encryptedPasswd, 8);
+	
+    return (char *)returnPass;
+}
+
 /*
  * Encrypt a password and store it in a file.  Returns 0 if successful,
  * 1 if the file could not be written.
