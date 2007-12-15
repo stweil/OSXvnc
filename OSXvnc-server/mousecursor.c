@@ -21,36 +21,44 @@
 #include "CGS.h"
 
 static int lastCursorSeed = 0;
+static int maxFailsRemaining = 8;
 static CGPoint lastCursorPosition;
 
 // Is the CGSConnection thread safe? or should each client have one...
 static CGSConnectionRef sharedConnection = 0;
 
-CGPoint currentCursorLoc() {
-    CGPoint cursorLoc;
-
-    if (!sharedConnection) {
-        if (CGSNewConnection(NULL, &sharedConnection) != kCGErrorSuccess)
-            rfbLog("Error obtaining CGSConnection\n");
+inline CGSConnectionRef getConnection() {
+    if (!sharedConnection && maxFailsRemaining > 0) {
+		CGError result = CGSNewConnection(NULL, &sharedConnection);
+        if (result != kCGErrorSuccess)
+            rfbLog("Error obtaining CGSConnection (%u)%s\n", result, (--maxFailsRemaining ? "" : " -- giving up"));
+		else
+			maxFailsRemaining = 8;
     }
-    if (CGSGetCurrentCursorLocation(sharedConnection, &cursorLoc) != kCGErrorSuccess)
-        rfbLog("Error obtaining cursor location\n");
-    
+	
+	return sharedConnection;
+}
+
+CGPoint currentCursorLoc() {
+    CGPoint cursorLoc={0.0, 0.0};
+	CGSConnectionRef connection = getConnection();
+
+    if (connection) {
+		if (CGSGetCurrentCursorLocation(connection, &cursorLoc) != kCGErrorSuccess)
+			rfbLog("Error obtaining cursor location\n");
+    }
+	
     return cursorLoc;
 }
 
 void GetCursorInfo() {
-    CGSConnectionRef connection;
+	CGSConnectionRef connection = getConnection();
     CGError err = noErr;
     int cursorDataSize, depth, components, bitsPerComponent, cursorRowSize;
     unsigned char*		cursorData;
     CGPoint				location, hotspot;
     CGRect				cursorRect;
     int i, j;
-
-    err = CGSNewConnection(NULL, &connection);
-    //printf("get active connection returns: %d, %d, %d\n", CGSGetActiveConnection(&temp, &connection), temp, connection);
-    printf("new connection (err %d) = %d\n", err, connection);
 
     err = CGSGetCurrentCursorLocation(connection, &location);
     printf("location (err %d) = %d, %d\n", err, (int)location.x, (int)location.y);
@@ -188,7 +196,7 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
     BOOL cursorIsDifferentFormat = FALSE;
 
     CGError err;
-    CGSConnectionRef connection;
+    CGSConnectionRef connection = getConnection();
     int components; // Cursor Components
 
     CGPoint hotspot;
@@ -196,15 +204,13 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
 
     //rfbLog("Sending Cursor To Client");
     //GetCursorInfo();
-
-    if (!sharedConnection) {
-        if (CGSNewConnection(NULL, &sharedConnection) != kCGErrorSuccess) {
-			rfbLog("Error obtaining CGSConnection - cursor not sent\n");
-            return FALSE;
-        }
-    }
-    connection = sharedConnection;
     
+	if (!connection) {
+		if (!maxFailsRemaining)
+			cl->useRichCursorEncoding = FALSE;		
+		return FALSE;
+	}
+	
     if (CGSGetGlobalCursorDataSize(connection, &cursorDataSize) != kCGErrorSuccess) {
         rfbLog("Error obtaining cursor data - cursor not sent\n");
         return FALSE;

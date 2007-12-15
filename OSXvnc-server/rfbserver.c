@@ -1063,8 +1063,8 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
     // Sometimes send the mouse cursor update (this can fail with big cursors so we'll try it first
     if (sendRichCursorEncoding) {
         if (!rfbSendRichCursorUpdate(cl)) {
-            rfbLog("Error Sending Cursor\n");
-            //return FALSE;  Since this is the first update we can "skip the cursor update" instead of failing the whole thing
+            // rfbLog("Error Sending Cursor\n"); // We'll log at the lower level if it fails and only fail a few times
+            // return FALSE;  Since this is the first update we can "skip the cursor update" instead of failing the whole thing
 			--nUpdateRegionRects;
 			fu->nRects = Swap16IfLE(nUpdateRegionRects);
         }
