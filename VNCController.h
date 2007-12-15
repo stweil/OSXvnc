@@ -17,11 +17,28 @@
 	IBOutlet NSWindow *statusWindow;
 	IBOutlet NSWindow *preferenceWindow;
 	IBOutlet NSWindow *reverseConnectionWindow;
+
+	// System Server UI
+	IBOutlet NSMenuItem *systemServerMenu;
+	IBOutlet NSWindow *systemServerWindow;
 	
+	IBOutlet NSTextField *systemServerDisplayNameField;
+    IBOutlet NSPopUpButton *systemServerDisplayNumberField;
+    IBOutlet NSTextField *systemServerPortField;
+	
+	IBOutlet NSMatrix *systemServerAuthenticationType;
+    IBOutlet NSTextField *systemServerPasswordField;
+	IBOutlet NSButton *systemServerLimitToLocalConnections;
+
+    IBOutlet NSButton *disableStartupButton;
+	IBOutlet NSButton *setStartupButton;
+    
+    IBOutlet NSTextField *startupItemStatusMessageField;
+	
+	// Control Panel
 	IBOutlet NSBox *hostNamesBox;
     IBOutlet NSTextField *hostNamesField;
     IBOutlet NSBox *ipAddressesBox;
-    IBOutlet NSTextView *ipAddressesField;
 	IBOutlet NSMatrix *ipAddressesView;
     IBOutlet NSTextField *displayNumText;
     IBOutlet NSTextField *portNumText;
@@ -30,51 +47,55 @@
     IBOutlet NSButton *startServerButton;
     IBOutlet NSButton *stopServerButton;
 	
-
+	// Preferences Interface
 	IBOutlet NSTabView *optionsTabView;
     IBOutlet NSTextField *preferencesMessageTestField;
 
+	// Connection
     IBOutlet NSTextField *displayNameField;
     IBOutlet NSPopUpButton *displayNumberField;
     IBOutlet NSTextField *portField;
+	
+	IBOutlet NSMatrix *authenticationType;
     IBOutlet NSTextField *passwordField;
 
-	IBOutlet NSTextField *connectHost;
-    IBOutlet NSTextField *connectPort;
-	IBOutlet NSTextField *reverseConnectionMessageField;
-	
+	IBOutlet NSButton *limitToLocalConnections;
+
+	// Device
     IBOutlet NSButton *allowSleepCheckbox;
     IBOutlet NSButton *allowDimmingCheckbox;
     IBOutlet NSButton *allowScreenSaverCheckbox;
 
-    IBOutlet NSPopUpButton *protocolVersion;
-    IBOutlet NSTextField *otherArguments;
-
-    IBOutlet NSButton *allowKeyboardLoading;
-    IBOutlet NSButton *allowPressModsForKeys;
 	IBOutlet NSPopUpButton *keyboardLayout;
 	IBOutlet NSPopUpButton *keyboardEvents;
 
-    IBOutlet NSButton *showMouseButton;
+    IBOutlet NSButton *swapMouseButtonsCheckbox;
 
+	// Advanced
+	IBOutlet NSPopUpButton *protocolVersion;
+    IBOutlet NSTextField *otherArguments;
+		
+	// Sharing
     IBOutlet NSMatrix *sharingMatrix;
     IBOutlet NSButton *dontDisconnectCheckbox;
-    IBOutlet NSButton *swapMouseButtonsCheckbox;
     IBOutlet NSButton *disableRemoteEventsCheckbox;
     IBOutlet NSButton *disableRichClipboardCheckbox;
-    IBOutlet NSButton *limitToLocalConnections;
     IBOutlet NSButton *allowRendezvousCheckbox;
 
+	// Startup
     IBOutlet NSButton *startServerOnLaunchCheckbox;
     IBOutlet NSButton *terminateOnFastUserSwitch;
     IBOutlet NSButton *serverKeepAliveCheckbox;
 
-    IBOutlet NSButton *setStartupButton;
-    IBOutlet NSButton *disableStartupButton;
-    
-    IBOutlet NSTextField *startupItemStatusMessageField;
 
+	// Reverse Connections UI
+	IBOutlet NSTextField *connectHost;
+    IBOutlet NSTextField *connectPort;
+	IBOutlet NSTextField *reverseConnectionMessageField;
+	
+	
     //int port;
+	BOOL systemServerIsConfigured;
 	
     BOOL alwaysShared;
     BOOL neverShared;
@@ -95,7 +116,9 @@
     NSDate *lastLaunchTime;
 	NSMutableArray *bundleArray;
 	
-	int activeConnectionsCount;
+	NSArray *clientList;
+	
+	NSString *hostName;
 }
 
 - init;
@@ -107,10 +130,13 @@
 
 - (void) loadDynamicBundles;
 
+- (void) loadUIForSystemServer;
+- (void) loadUIForPort: (int) port;
+
 - (void) loadUserDefaults: sender;
 - (void) saveUserDefaults: sender;
 
-- (NSMutableArray *) formCommandLine;
+- (NSMutableArray *) formCommandLineForSystemServer: (BOOL) isSystemServer;
 
 - (IBAction) startServer: sender;
 - (IBAction) stopServer: sender;
@@ -119,9 +145,13 @@
 - (IBAction) changeDisplayNumber: sender;
 - (IBAction) changePort: sender;
 - (IBAction) changeSharing: sender;
+- (IBAction) changeAuthenticationType: sender;
 - (IBAction) changePassword: sender;
 - (IBAction) changeDisplayName: sender;
 - (IBAction) optionChanged: sender;
+
+- (IBAction) changeSystemServerPort: sender;
+- (IBAction) changeSystemServerAuthentication: sender;
 
 - (IBAction) reverseConnection: sender;
 - (IBAction) cancelConnectHost: sender;

@@ -12,11 +12,14 @@
                 {
             ACTIONS =             {
                 cancelConnectHost = id;
+                changeAuthenticationType = id;
                 changeDisplayName = id;
                 changeDisplayNumber = id;
                 changePassword = id;
                 changePort = id;
                 changeSharing = id;
+                changeSystemServerAuthentication = id;
+                changeSystemServerPort = id;
                 connectHost = id;
                 installAsService = id;
                 loadUserDefaults = id;
@@ -37,11 +40,10 @@
             LANGUAGE = ObjC;
             OUTLETS =             {
                 allowDimmingCheckbox = NSButton;
-                allowKeyboardLoading = NSButton;
-                allowPressModsForKeys = NSButton;
                 allowRendezvousCheckbox = NSButton;
                 allowScreenSaverCheckbox = NSButton;
                 allowSleepCheckbox = NSButton;
+                authenticationType = NSMatrix;
                 connectHost = NSTextField;
                 connectPort = NSTextField;
                 disableRemoteEventsCheckbox = NSButton;
@@ -54,7 +56,6 @@
                 hostNamesBox = NSBox;
                 hostNamesField = NSTextField;
                 ipAddressesBox = NSBox;
-                ipAddressesField = NSTextView;
                 ipAddressesView = NSMatrix;
                 keyboardEvents = NSPopUpButton;
                 keyboardLayout = NSPopUpButton;
@@ -72,7 +73,6 @@
                 serverKeepAliveCheckbox = NSButton;
                 setStartupButton = NSButton;
                 sharingMatrix = NSMatrix;
-                showMouseButton = NSButton;
                 startServerButton = NSButton;
                 startServerMenuItem = NSMenuItem;
                 startServerOnLaunchCheckbox = NSButton;
@@ -82,6 +82,14 @@
                 stopServerButton = NSButton;
                 stopServerMenuItem = NSMenuItem;
                 swapMouseButtonsCheckbox = NSButton;
+                systemServerAuthenticationType = NSMatrix;
+                systemServerDisplayNameField = NSTextField;
+                systemServerDisplayNumberField = NSPopUpButton;
+                systemServerLimitToLocalConnections = NSButton;
+                systemServerMenu = NSMenuItem;
+                systemServerPasswordField = NSTextField;
+                systemServerPortField = NSTextField;
+                systemServerWindow = NSWindow;
                 terminateOnFastUserSwitch = NSButton;
             };
             SUPERCLASS = NSObject;

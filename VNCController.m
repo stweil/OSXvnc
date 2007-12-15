@@ -35,6 +35,7 @@
 #import <ifaddrs.h>
 #include <netdb.h>
 
+#define PasswordProxy @"********"
 
 #define LocalizedString(X)      [[NSBundle mainBundle] localizedStringForKey:(X) value:nil table:nil]
 
@@ -147,33 +148,50 @@ NSMutableArray *localIPAddresses() {
 	return returnArray;
 }
 
-- init {	
+- init {
     [super init];
-
+	
 	// Transform the GUI into a "ForegroundApp" with Dock Icon and Menu
 	// This is so the server can run without a UI
 	// 10.3+ only
-	ProcessSerialNumber psn = { 0, kCurrentProcess }; 
-	OSStatus returnCode = TransformProcessType(& psn, kProcessTransformToForegroundApplication);
-	if( returnCode != 0) {
-		NSLog(@"Could not transform process type. Error %d", returnCode);
-	}
-	SetFrontProcess(& psn );
-	
-	// Use old preferences found in OSXvnc
-	[[NSUserDefaults standardUserDefaults] addSuiteNamed:@"OSXvnc"];
+	//	ProcessSerialNumber psn = { 0, kCurrentProcess };
+	//	OSStatus returnCode = TransformProcessType(& psn, kProcessTransformToForegroundApplication);
+	//	if( returnCode != 0) {
+	//		NSLog(@"Could not transform process type. Error %d", returnCode);
+	//	}
+	//
+	//	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"autolaunch"])
+	//		SetFrontProcess(& psn );
+	hostName = [hostNameString() retain];
 	
     [[NSUserDefaults standardUserDefaults] registerDefaults: [NSDictionary dictionaryWithObjectsAndKeys:
+        @"", @"PasswordFile",
+        @"", @"LogFile",
+		[NSString stringWithFormat:@"%@ (%@)", hostName, NSUserName()], @"desktopName",
+		hostName, @"desktopNameSystemServer", 
+
+		@"NO", @"allowSleep",
+		@"YES", @"allowDimming",
+		@"YES", @"allowScreenSaver",
+		@"YES", @"swapButtons",
+		[NSNumber numberWithInt:0], @"keyboardLayout",
+		[NSNumber numberWithInt:3], @"keyboardEvents",
+		
+		@"NO", @"disableRemoteEvents",
+		@"NO", @"disableRichClipboard",
+		@"YES", @"allowRendezvous",
+		@"NO", @"dontDisconnectClients",
+
 		@"YES", @"startServerOnLaunch",
 		@"NO", @"terminateOnFastUserSwitch",
 		@"YES", @"serverKeepAlive",
-		@"YES", @"allowDimming",
-		@"YES", @"allowScreenSaver",
-        @"", @"PasswordFile",
-        @"", @"LogFile",
-		[NSNumber numberWithInt:0], @"keyboardLayout",
-		[NSNumber numberWithInt:3], @"keyboardEvents",
-		[NSNumber numberWithBool:TRUE], @"allowRendezvous",
+		
+		@"Default", @"protocolVersion",
+		@"",@"otherArguments",
+		
+		@"NO", @"localhostOnly",
+		@"NO", @"localhostOnlySystemServer",
+		
 		@"/Library/StartupItems/OSXvnc", @"startupItemLocation",
 		@"/Library/LaunchAgents/com.redstonesoftware.VineServer.plist", @"launchdItemLocation",
 		@"http://www.whatismyip.com/automation/n09230945.asp", @"externalIPURL",
@@ -199,12 +217,12 @@ NSMutableArray *localIPAddresses() {
 }
 
 - (IBAction) terminateRequest: sender {
-	if (activeConnectionsCount)
+	if ([clientList count])
 		NSBeginAlertSheet(LocalizedString(@"Quit Vine Server"),
 						  LocalizedString(@"Cancel"), 
 						  LocalizedString(@"Quit"), 
 						  nil, statusWindow, self, @selector(terminateSheetDidEnd:returnCode:contextInfo:), NULL, NULL, 
-						  LocalizedString(@"Disconnect %d clients and quit Vine Server?"), activeConnectionsCount);
+						  LocalizedString(@"Disconnect %d clients and quit Vine Server?"), [clientList count]);
 	else 
 		[NSApp terminate: self];
 }
@@ -230,7 +248,6 @@ NSMutableArray *localIPAddresses() {
     NSBundle *osxvncBundle = [NSBundle mainBundle];
     NSString *execPath =[[NSProcessInfo processInfo] processName];
 		
-    NSLog(@"Main Bundle: %@", [osxvncBundle bundlePath]);
     if (!osxvncBundle) {
         // If We Launched Relative - make it absolute
         if (![execPath isAbsolutePath])
@@ -314,12 +331,12 @@ NSMutableArray *localIPAddresses() {
 				NSString *testString = ([testData length] ? [NSString stringWithUTF8String: [testData bytes]] : @"" );
 				
 				if ([testString hasPrefix:@"RFB"]) {
-					[ipString replaceCharactersInRange:NSMakeRange([ipString length],0) withString:@"\tNetwork is configured to allow connections from this IP"];
+					[ipString replaceCharactersInRange:NSMakeRange([ipString length],0) withString:@"\tNetwork is configured to allow connections to this IP"];
 					[ipString addAttribute:NSForegroundColorAttributeName value:successColor range:NSMakeRange(0,[ipString length])];
 					anyConnections = TRUE;
 				}
 				else {
-					[ipString replaceCharactersInRange:NSMakeRange([ipString length],0) withString:@"\tNetwork is NOT configured to allow connections from this IP"];
+					[ipString replaceCharactersInRange:NSMakeRange([ipString length],0) withString:@"\tNetwork is NOT configured to allow connections to this IP"];
 					[ipString addAttribute:NSForegroundColorAttributeName value:failureColor range:NSMakeRange(0,[ipString length])];
 				}
 			}
@@ -426,9 +443,9 @@ NSMutableArray *localIPAddresses() {
 - (void) determinePasswordLocation {
     NSArray *passwordFiles = [NSArray arrayWithObjects:
         [[NSUserDefaults standardUserDefaults] stringForKey:@"PasswordFile"],
-		@"~/.osxvncauth",
-        [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@".osxvncauth"],
-        @"/tmp/.osxvncauth",
+		@"~/.vinevncauth",
+        [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@".vinevncauth"],
+        @"/tmp/.vinevncauth",
         nil];
     NSEnumerator *passwordEnumerators = [passwordFiles objectEnumerator];
 	
@@ -449,8 +466,8 @@ NSMutableArray *localIPAddresses() {
         [[NSUserDefaults standardUserDefaults] stringForKey:@"LogFile"],
 		@"~/Library/Logs/VineServer.log",
         @"/var/log/VineServer.log",
-        [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"VineServer.log"],
         @"/tmp/VineServer.log",
+        [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"VineServer.log"],
         nil];
     NSEnumerator *logEnumerators = [logFiles objectEnumerator];
 	
@@ -479,7 +496,19 @@ NSMutableArray *localIPAddresses() {
 	else 
 		[connectPort setIntValue:5500];
 	
-    [self loadUserDefaults: self];
+	// Copy over old preferences found in OSXvnc
+	NSDictionary *oldPrefs = [[NSUserDefaults standardUserDefaults] persistentDomainForName:@"OSXvnc"];
+	
+	if (![oldPrefs objectForKey:@"Converted"]) {
+		[[NSUserDefaults standardUserDefaults] registerDefaults:oldPrefs];
+		[self loadUserDefaults: self];
+		[self saveUserDefaults: self];
+		oldPrefs = [oldPrefs mutableCopy];
+		[(NSMutableDictionary *)oldPrefs setObject:[NSNumber numberWithBool:TRUE] forKey:@"Converted"]; // Record that we've converted
+		[[NSUserDefaults standardUserDefaults] setPersistentDomain:oldPrefs forName:@"OSXvnc"]; // write it back
+	}
+	else
+		[self loadUserDefaults: self];
 
     [statusWindow setTitle:[NSString stringWithFormat:@"%@: %@",
         [infoDictionary objectForKey:@"CFBundleName"],
@@ -491,19 +520,17 @@ NSMutableArray *localIPAddresses() {
 	
     [optionsTabView selectTabViewItemAtIndex:0];
 
-	if ([[NSFileManager defaultManager] fileExistsAtPath:[[NSUserDefaults standardUserDefaults] stringForKey:@"startupItemLocation"]] ||
-		[[NSFileManager defaultManager] fileExistsAtPath:[[NSUserDefaults standardUserDefaults] stringForKey:@"launchdItemLocation"]])
-		[disableStartupButton setEnabled:TRUE];
-	else
-		[disableStartupButton setEnabled:FALSE];
+	systemServerIsConfigured = ([[NSFileManager defaultManager] fileExistsAtPath:[[NSUserDefaults standardUserDefaults] stringForKey:@"startupItemLocation"]] ||
+							   [[NSFileManager defaultManager] fileExistsAtPath:[[NSUserDefaults standardUserDefaults] stringForKey:@"launchdItemLocation"]]);
+	[self loadUIForSystemServer];
 		
 	[stopServerButton setKeyEquivalent:@""];
     [startServerButton setKeyEquivalent:@"\r"];
 
 	[preferencesMessageTestField setStringValue:@""];
 	
-	// First we'll update with the quick-lookup information that doesn't seem to hang
-	[self updateHostNames:[NSArray arrayWithObject:hostNameString()]];
+	// First we'll update with the quick-lookup information that doesn't hang
+	[self updateHostNames:[NSArray arrayWithObject:hostName]];
 	[self updateIPAddresses: localIPAddresses()];
 	if (!waitingForHostInfo) {
 		waitingForHostInfo = TRUE;
@@ -513,11 +540,8 @@ NSMutableArray *localIPAddresses() {
 	[self bundlesPerformSelector:@selector(loadGUI)];
 }
 
-- (void)applicationWillFinishLaunching:(NSNotification *)aNotification {
-	[statusWindow makeMainWindow];
-}
-
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {	
+	[statusWindow makeMainWindow];
 
 	if ([startServerOnLaunchCheckbox state])
         [self startServer: self];
@@ -530,7 +554,7 @@ NSMutableArray *localIPAddresses() {
 	if (!waitingForHostInfo) {
 		waitingForHostInfo = TRUE;
 		[NSThread detachNewThreadSelector:@selector(updateHostInfo) toTarget:self withObject:nil];
-	}	
+	}
 }
 
 // This is sent when the server's screen params change, the server can't handle this right now so we'll restart
@@ -539,14 +563,16 @@ NSMutableArray *localIPAddresses() {
     [self addStatusMessage:LocalizedString(@"Screen Resolution changed - Server Reinitialized")];
 }
 
-- (void)activeConnections: (NSNotification *) aNotification {
-	NSArray *clientList = [[aNotification userInfo] objectForKey:@"clientList"];
+- (void) updateUIForConnectionList: (NSArray *) connectionList {
 	NSMutableString *statusMessage = [NSMutableString string];
 	
-	activeConnectionsCount = [clientList count];
+	[clientList autorelease];
+	clientList = [connectionList copy];
+
+	int activeConnectionsCount = [clientList count];
 	
 	if (![[passwordField stringValue] length])
-		[statusMessage appendFormat:@"%@ - %@", LocalizedString(@"Server Running"), LocalizedString(@"No Authentication")];
+		[statusMessage appendFormat:@"%@(%@)", LocalizedString(@"Server Running"), LocalizedString(@"No Authentication")];
 	else
 		[statusMessage appendString: LocalizedString(@"Server Running")];
 	
@@ -572,6 +598,10 @@ NSMutableArray *localIPAddresses() {
 		else
 			[[NSApp performSelector:@selector(dockTile)] performSelector:@selector(setBadgeLabel:) withObject:[NSString stringWithFormat:@"%d", activeConnectionsCount]];
 	}
+}
+
+- (void)activeConnections: (NSNotification *) aNotification {
+	[self updateUIForConnectionList: [[aNotification userInfo] objectForKey:@"clientList"]];
 }
 
 - (int) scanForOpenPort: (int) tryPort {
@@ -650,6 +680,49 @@ NSMutableArray *localIPAddresses() {
 	return [portNumText intValue];
 }
 
+- (void) loadUIForSystemServer {
+	if (systemServerIsConfigured) {
+		[startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Configured (Started)")];
+	}		
+	else {
+		[startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Disabled (Stopped)")];
+	}
+	
+	[disableStartupButton setEnabled:systemServerIsConfigured];
+	[systemServerMenu setState: (systemServerIsConfigured ? NSOnState : NSOffState)];
+}
+
+- (void) loadAuthenticationUI {
+	int authType = [[NSUserDefaults standardUserDefaults] integerForKey:@"AuthenticationType"];
+	
+	if ([[[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"] length] || authType==1) {
+        [passwordField setStringValue:PasswordProxy];
+		[authenticationType selectCellWithTag:1];
+    }
+	else if (authType) {
+		[authenticationType selectCellWithTag: authType];		
+	}
+	else {
+		; // Run Initial Authentication Selection
+	}	
+
+	[limitToLocalConnections setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnly"]];
+}
+
+- (void) loadSystemServerAuthenticationUI {
+	int authType = [[NSUserDefaults standardUserDefaults] integerForKey:@"AuthenticationTypeSystemServer"];
+	
+	if ([[[NSUserDefaults standardUserDefaults] dataForKey:@"vncauthSystemServer"] length] || authType==1) {
+        [systemServerPasswordField setStringValue:PasswordProxy];
+		[systemServerAuthenticationType selectCellWithTag:1];
+    }
+	else if (authType) {
+		[systemServerAuthenticationType selectCellWithTag: authType];		
+	}
+
+	[systemServerLimitToLocalConnections setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnlySystemServer"]];
+}
+
 - (void) loadUIForPort: (int) port {
 	if (port) {
         if (port < 5900 || port > 5909)
@@ -677,105 +750,87 @@ NSMutableArray *localIPAddresses() {
 	}
 }
 
-- (void) loadUserDefaults: sender {
-    NSData *vncauth = [[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"];
-    int sharingMode = [[NSUserDefaults standardUserDefaults] integerForKey:@"sharingMode"];
-	
-	[self loadUIForPort: [[NSUserDefaults standardUserDefaults] integerForKey:@"portNumber"]];
-
-    if (passwordFile && [vncauth length]) {
-        [vncauth writeToFile:passwordFile atomically:YES];
-        [passwordField setStringValue:@"********"];
+- (void) loadUIForSystemServerPort: (int) port {
+	if (port) {
+        if (port < 5900 || port > 5909)
+            [systemServerDisplayNumberField selectItemWithTitle:@"--"];
+        else
+            [systemServerDisplayNumberField selectItemWithTitle:[NSString stringWithFormat:@"%d", port-5900]];
+        [systemServerPortField setIntValue:port];
     }
-
-    if ([[NSUserDefaults standardUserDefaults] stringForKey:@"desktopName"]) {
-        [displayNameField setStringValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"desktopName"]];
-	}	
-    else {
-		[displayNameField setStringValue:hostNameString()];
-		//		if (NSAppKitVersionNumber > NSAppKitVersionNumber10_3) {
-		//			[displayNameField setStringValue:
-		//				[NSString stringWithFormat:@"%@ (%@)", NSUserName(), [[NSProcessInfo processInfo] hostName]]];
-		//		}
-		//		else
-		//			[displayNameField setStringValue:[[NSProcessInfo processInfo] hostName]];
+	else {
+		[systemServerDisplayNumberField selectItemWithTitle:@"Auto"];
+		port = [self scanForOpenPort:5900];
+		
+		if (port) {
+			if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
+				[systemServerPortField setStringValue:@""];
+				[[systemServerPortField cell] performSelector:@selector(setPlaceholderString:) withObject:[NSString stringWithFormat:@"%d",port]];
+			}
+			else 
+				[systemServerPortField setIntValue:port];
+		}			
 	}
-    
+}
+
+- (void) loadUserDefaults: sender {
+	[self loadAuthenticationUI];
+	[self loadSystemServerAuthenticationUI];	
+
+	[self loadUIForPort: [[NSUserDefaults standardUserDefaults] integerForKey:@"portNumber"]];
+	[self loadUIForSystemServerPort: [[NSUserDefaults standardUserDefaults] integerForKey:@"portNumberSystemServer"]];	
 	
-    [sharingMatrix selectCellWithTag:sharingMode];
+	[displayNameField setStringValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"desktopName"]];
+	[systemServerDisplayNameField setStringValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"desktopNameSystemServer"]];
+	
+	[allowSleepCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowSleep"]];
+	[allowDimmingCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowDimming"]];
+    [allowScreenSaverCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowScreenSaver"]];
+	[swapMouseButtonsCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"swapButtons"]];
+	[keyboardLayout selectItemAtIndex:[keyboardLayout indexOfItemWithTag:[[NSUserDefaults standardUserDefaults] integerForKey:@"keyboardLayout"]]];
+	[keyboardLayout selectItemAtIndex:[keyboardEvents indexOfItemWithTag:[[NSUserDefaults standardUserDefaults] integerForKey:@"keyboardEvents"]]];	
+	
+	[disableRemoteEventsCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"disableRemoteEvents"]];
+	[disableRichClipboardCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"disableRichClipboard"]];
+	[allowRendezvousCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowRendezvous"]];
+
+	[sharingMatrix selectCellWithTag: [[NSUserDefaults standardUserDefaults] integerForKey:@"sharingMode"]];
+	[dontDisconnectCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"dontDisconnectClients"]];
     [self changeSharing:self];
 
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"swapButtons"])
-        [swapMouseButtonsCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"swapButtons"]];
-
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"startServerOnLaunch"])
-        [startServerOnLaunchCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"startServerOnLaunch"]];
-
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"terminateOnFastUserSwitch"])
-        [terminateOnFastUserSwitch setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"terminateOnFastUserSwitch"]];
-
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"serverKeepAlive"])
-        [serverKeepAliveCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"serverKeepAlive"]];
-    
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"dontDisconnectClients"])
-        [dontDisconnectCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"dontDisconnectClients"]];
-
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowSleep"])
-        [allowSleepCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowSleep"]];
+	[protocolVersion selectItemWithTitle:[[NSUserDefaults standardUserDefaults] stringForKey:@"protocolVersion"]];
+	[otherArguments setStringValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"otherArguments"]];
 	
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowDimming"])
-        [allowDimmingCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowDimming"]];
-
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowScreenSaver"])
-        [allowScreenSaverCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowScreenSaver"]];
-	
-	if ([[NSUserDefaults standardUserDefaults] objectForKey:@"protocolVersion"])
-        [protocolVersion selectItemWithTitle:[[NSUserDefaults standardUserDefaults] stringForKey:@"protocolVersion"]];
-
-	if ([[NSUserDefaults standardUserDefaults] objectForKey:@"otherArguments"])
-        [otherArguments setStringValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"otherArguments"]];
-	
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowKeyboardLoading"]) {
-        [allowKeyboardLoading setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowKeyboardLoading"]];
-        [allowPressModsForKeys setEnabled:[allowKeyboardLoading state]];
-    }
-
-	[keyboardLayout selectItemAtIndex:[keyboardLayout indexOfItemWithTag:[[NSUserDefaults standardUserDefaults] integerForKey:@"keyboardLayout"]]];
-	[keyboardLayout selectItemAtIndex:[keyboardEvents indexOfItemWithTag:[[NSUserDefaults standardUserDefaults] integerForKey:@"keyboardEvents"]]];
-	
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowPressModsForKeys"]) 
-        [allowPressModsForKeys setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowPressModsForKeys"]];        
-    
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"disableRemoteEvents"])
-        [disableRemoteEventsCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"disableRemoteEvents"]];
-
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"disableRichClipboard"])
-        [disableRichClipboardCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"disableRichClipboard"]];
+	[startServerOnLaunchCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"startServerOnLaunch"]];
+	[terminateOnFastUserSwitch setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"terminateOnFastUserSwitch"]];
+	[serverKeepAliveCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"serverKeepAlive"]];
 		
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"showMouse"])
-        [showMouseButton setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"showMouse"]];
-
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"localhostOnly"])
-        [limitToLocalConnections setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnly"]];
-	
-    if ([[NSUserDefaults standardUserDefaults] objectForKey:@"allowRendezvous"])
-        [allowRendezvousCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowRendezvous"]];
 }
 
 - (void) saveUserDefaults: sender {
+    if ([[displayNameField stringValue] length])
+        [[NSUserDefaults standardUserDefaults] setObject:[displayNameField stringValue] forKey:@"desktopName"];
+	
 	if ([[displayNumberField selectedItem] tag] == 0)
 		[[NSUserDefaults standardUserDefaults] setInteger:0 forKey:@"portNumber"];
 	else
 		[[NSUserDefaults standardUserDefaults] setInteger:[portField intValue] forKey:@"portNumber"];
-
-    if (passwordFile && [[NSFileManager defaultManager] fileExistsAtPath:passwordFile])
-        [[NSUserDefaults standardUserDefaults] setObject:[NSData dataWithContentsOfFile:passwordFile] forKey:@"vncauth"];
-    else
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"vncauth"];
-
-    if ([[displayNameField stringValue] length])
-        [[NSUserDefaults standardUserDefaults] setObject:[displayNameField stringValue] forKey:@"desktopName"];
-
+	
+	[[NSUserDefaults standardUserDefaults] setInteger:[[authenticationType selectedCell] tag] forKey:@"AuthenticationType"];	
+	
+	// System Server
+	{
+		if ([[systemServerDisplayNameField stringValue] length])
+			[[NSUserDefaults standardUserDefaults] setObject:[systemServerDisplayNameField stringValue] forKey:@"desktopNameSystemServer"];
+		
+		if ([[systemServerDisplayNumberField selectedItem] tag] == 0)
+			[[NSUserDefaults standardUserDefaults] setInteger:0 forKey:@"portNumberSystemServer"];
+		else
+			[[NSUserDefaults standardUserDefaults] setInteger:[systemServerPortField intValue] forKey:@"portNumberSystemServer"];	
+		
+		[[NSUserDefaults standardUserDefaults] setInteger:[[systemServerAuthenticationType selectedCell] tag] forKey:@"AuthenticationTypeSystemServer"];
+	}
+	
     [[NSUserDefaults standardUserDefaults] setBool:[swapMouseButtonsCheckbox state] forKey:@"swapButtons"];
 
     [[NSUserDefaults standardUserDefaults] setInteger:[[sharingMatrix selectedCell] tag] forKey:@"sharingMode"];
@@ -802,16 +857,8 @@ NSMutableArray *localIPAddresses() {
 	else
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"protocolVersion"];
 
-	if ([[otherArguments stringValue] length])
-		[[NSUserDefaults standardUserDefaults] setObject:[otherArguments stringValue] forKey:@"otherArguments"];
-	else
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"otherArguments"];
+	[[NSUserDefaults standardUserDefaults] setObject:[otherArguments stringValue] forKey:@"otherArguments"];
 	
-    [[NSUserDefaults standardUserDefaults] setBool:[allowKeyboardLoading state] forKey:@"allowKeyboardLoading"];
-    [[NSUserDefaults standardUserDefaults] setBool:[allowPressModsForKeys state] forKey:@"allowPressModsForKeys"];
-    
-    [[NSUserDefaults standardUserDefaults] setBool:[showMouseButton state] forKey:@"showMouse"];
-
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
@@ -837,10 +884,15 @@ NSMutableArray *localIPAddresses() {
 		[self loadUIForPort:0];  // To update the UI on the likely port that we will get
 	}
 
-    if (argv = [self formCommandLine]) {
+	if ([[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"] && ![[[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"] writeToFile: passwordFile atomically:NO]) {
+		[self addStatusMessage:@"Unable to start - problem writing vnc password file"];
+		return;
+	}
+	
+    if (argv = [self formCommandLineForSystemServer: NO]) {
         NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
 
-        NSString *executionPath = [[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server"];
+        NSString *executionPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"OSXvnc-server"];
         NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting %@ Version %@\n", [NSDate date], [[NSProcessInfo processInfo] processName], [infoDictionary valueForKey:@"CFBundleVersion"]];
 
 		[self determineLogLocation];
@@ -914,19 +966,21 @@ NSMutableArray *localIPAddresses() {
 }
 
 - (void) serverStopped: (NSNotification *) aNotification {
-	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self 
-															   name:@"VNCConnections"
-															 object:[NSString stringWithFormat:@"OSXvnc%d",[self runningPortNum]]];;
-															 
-    [[NSNotificationCenter defaultCenter] removeObserver: self
-                                                    name: NSTaskDidTerminateNotification
-                                                  object: controller];
-
-    // If we don't get the notification soon enough, we may have already restarted
+	// If we don't get the notification soon enough, we may have already restarted
     if ([controller isRunning]) {
         return;
     }
 
+	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self 
+															   name:@"VNCConnections"
+															 object:[NSString stringWithFormat:@"OSXvnc%d",[self runningPortNum]]];
+	
+	[[NSNotificationCenter defaultCenter] removeObserver: self
+													name: NSTaskDidTerminateNotification
+												  object: controller];
+	
+	[self updateUIForConnectionList:[NSArray array]];
+	
 	[preferencesMessageTestField setStringValue:@""];
     [startServerButton setTitle:LocalizedString(@"Start Server")];
     //[startServerButton setEnabled:TRUE];
@@ -939,7 +993,7 @@ NSMutableArray *localIPAddresses() {
     else if ([controller terminationStatus]==250) {
 		NSMutableString *messageString = [NSMutableString stringWithFormat: LocalizedString(@"Vine Server can't listen on the specified port (%d)."), [self runningPortNum]];
 		[messageString appendString:@"\n"];
-		if ([disableStartupButton isEnabled])
+		if (systemServerIsConfigured)
 			[messageString appendString:LocalizedString(@"Probably because the OSXvnc server is already running as a Startup Item.")];
 		else
 			[messageString appendString:LocalizedString(@"Probably because another VNC is already using this port.")];
@@ -971,27 +1025,79 @@ NSMutableArray *localIPAddresses() {
     }
 }
 
-- (NSMutableArray *) formCommandLine {
+- (NSMutableArray *) formCommandLineForSystemServer: (BOOL) isSystemServer {
     NSMutableArray *argv = [NSMutableArray array];
 
-	/* Now Using "AUTO Detect", the CLI is slightly better in that it loads the Jag Bundle and can also detect IPv6 ports
-	 if (!port) {
-		 [statusMessageField setStringValue:LocalizedString(@"Need a valid Port or Display Number")];
-		 return nil;
-	 }
-	 */
-	
-    [argv addObject:@"-rfbport"];
-	if ([[displayNumberField selectedItem] tag] == 0) 
-		[argv addObject:@"0"];
-	else
-		[argv addObject:[NSString stringWithFormat:@"%d", [portField intValue]]];
-	
-    if ([[displayNameField stringValue] length]) {
-        [argv addObject:@"-desktop"];
-        [argv addObject:[displayNameField stringValue]];
-    }
+	if (isSystemServer) {
+		[argv addObject:@"-rfbport"];
+		if ([[systemServerDisplayNumberField selectedItem] tag] == 0) 
+			[argv addObject:@"0"];
+		else
+			[argv addObject:[NSString stringWithFormat:@"%d", [systemServerPortField intValue]]];
+		
+		if ([[systemServerDisplayNameField stringValue] length]) {
+			[argv addObject:@"-desktop"];
+			[argv addObject:[systemServerDisplayNameField stringValue]];
+		}
+		
+		switch ([[systemServerAuthenticationType selectedCell] tag]) {
+			case 2:
+				[argv addObject:@"-rfbnoauth"];
+				break;
+			case 1:
+			default:
+				if (passwordFile && [[NSFileManager defaultManager] fileExistsAtPath:passwordFile]) {
+					[argv addObject:@"-rfbauth"];
+					[argv addObject:passwordFile];
+				}
+				else { 
+					[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Valid VNC password required to start server")];
+					return nil;
+				}
+				break;
+		}
+		
+		if ([systemServerLimitToLocalConnections state])
+			[argv addObject:@"-localhost"];
+		
+		[argv addObject:@"-donotloadproxy"];
 
+		[argv addObject:@"-SystemServer"];
+		[argv addObject:@"1"];
+	}
+	else {
+		[argv addObject:@"-rfbport"];
+		if ([[displayNumberField selectedItem] tag] == 0) 
+			[argv addObject:@"0"];
+		else
+			[argv addObject:[NSString stringWithFormat:@"%d", [portField intValue]]];
+		
+		if ([[displayNameField stringValue] length]) {
+			[argv addObject:@"-desktop"];
+			[argv addObject:[displayNameField stringValue]];
+		}
+
+		switch ([[authenticationType selectedCell] tag]) {
+			case 2:
+				[argv addObject:@"-rfbnoauth"];
+				break;
+			case 1:
+			default:
+				if (passwordFile && [[NSFileManager defaultManager] fileExistsAtPath:passwordFile]) {
+					[argv addObject:@"-rfbauth"];
+					[argv addObject:passwordFile];
+				}
+				else { 
+					[self addStatusMessage:[NSString stringWithFormat:@"\n%@", LocalizedString(@"Valid VNC password required to start server")]];
+					return nil;
+				}
+				break;
+		}
+		
+		if ([limitToLocalConnections state])
+			[argv addObject:@"-localhost"];
+	}
+	
     if (alwaysShared)
         [argv addObject:@"-alwaysshared"];
     if (neverShared)
@@ -1014,11 +1120,8 @@ NSMutableArray *localIPAddresses() {
     [argv addObject:@"-restartonuserswitch"];
     [argv addObject:([terminateOnFastUserSwitch state] ? @"Y" : @"N")];
 
-    if ([showMouseButton state])
-        [argv addObject:@"-rfbLocalBuffer"];
-
 	switch ([[keyboardLayout selectedItem] tag]) {
-		case 0:
+		case 2:
 			[argv addObject:@"-UnicodeKeyboard"];
 			[argv addObject:@"1"];
 			[argv addObject:@"-keyboardLoading"];
@@ -1034,19 +1137,14 @@ NSMutableArray *localIPAddresses() {
 			[argv addObject:@"-pressModsForKeys"];
 			[argv addObject:@"Y"];
 			break;
-		case 2:
+		case 0:
+		default:
 			[argv addObject:@"-UnicodeKeyboard"];
 			[argv addObject:@"0"];
 			[argv addObject:@"-keyboardLoading"];
 			[argv addObject:@"N"];
 			[argv addObject:@"-pressModsForKeys"];
 			[argv addObject:@"N"];
-			break;
-		default:
-			[argv addObject:@"-keyboardLoading"];
-			[argv addObject:([allowKeyboardLoading state] ? @"Y" : @"N")];
-			[argv addObject:@"-pressModsForKeys"];
-			[argv addObject:([allowPressModsForKeys state] ? @"Y" : @"N")];
 			break;
 	}
 	[argv addObject:@"-EventTap"];
@@ -1059,24 +1157,13 @@ NSMutableArray *localIPAddresses() {
     if ([disableRichClipboardCheckbox state])
         [argv addObject:@"-disableRichClipboards"];
 		
-    if ([limitToLocalConnections state])
-        [argv addObject:@"-localhost"];
-	
 	[argv addObject:@"-rendezvous"];
     [argv addObject:([allowRendezvousCheckbox state] ? @"Y" : @"N")];
 	
-    if (passwordFile && [[NSFileManager defaultManager] fileExistsAtPath:passwordFile]) {
-        [argv addObject:@"-rfbauth"];
-        [argv addObject:passwordFile];
-    }
-
     if ([[NSUserDefaults standardUserDefaults] objectForKey:@"rfbDeferUpdateTime"]) {
         [argv addObject:@"-deferupdate"];
         [argv addObject:[[NSUserDefaults standardUserDefaults] stringForKey:@"rfbDeferUpdateTime"]];
     }
-
-	if (doNotLoadProxy)
-		[argv addObject:@"-donotloadproxy"];
 
 	if ([[otherArguments stringValue] length])
 		[argv addObjectsFromArray:[[otherArguments stringValue] componentsSeparatedByString:@" "]];
@@ -1127,20 +1214,32 @@ NSMutableArray *localIPAddresses() {
     }
 }
 
+- (IBAction) changeAuthenticationType: sender {	
+	if ([[authenticationType selectedCell] tag] != [[NSUserDefaults standardUserDefaults] integerForKey:@"AuthenticationType"]) {
+		// VNC Password
+		if ([[authenticationType selectedCell] tag] == 1) {
+			[passwordField setStringValue:@""];
+			[preferenceWindow makeFirstResponder: passwordField];
+		}
+		// No Auth
+		else if ([[authenticationType selectedCell] tag] == 2) {
+			[[NSFileManager defaultManager] removeFileAtPath:passwordFile handler:nil];
+			[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"vncauth"];
+			[passwordField setStringValue:@""];
+		}
+		
+		if (sender != self) {
+			[self saveUserDefaults: self];
+			[self checkForRestart];
+		}
+	}
+}
+
 - (void) changePassword: sender {
-    if ((![[passwordField stringValue] isEqualToString:@"********"] && [[passwordField stringValue] length]) ||
-        (![[passwordField stringValue] length] && [[NSUserDefaults standardUserDefaults] objectForKey:@"vncauth"])) {
-        [[NSFileManager defaultManager] removeFileAtPath:passwordFile handler:nil];
-
-        if ([[passwordField stringValue] length]) {
-            if (vncEncryptAndStorePasswd((char *)[[passwordField stringValue] cString], (char *)[passwordFile cString]) != 0) {
-                [statusMessageField setStringValue:[NSString stringWithFormat:LocalizedString(@"Problem - Unable to store password to %@"), passwordFile]];
-                [passwordField setStringValue:nil];
-            }
-            else
-                [passwordField setStringValue:@"********"];
-        }
-
+    if ([[passwordField stringValue] length] && ![[passwordField stringValue] isEqualToString:PasswordProxy]) {
+		[authenticationType selectCellWithTag:1];
+		[[NSUserDefaults standardUserDefaults] setObject:[NSData dataWithBytes:(const void *)vncEncryptPasswd([[passwordField stringValue] cString]) length:8] forKey:@"vncauth"];
+		
         if (sender != self) {
             [self saveUserDefaults: self];
             [self checkForRestart];
@@ -1163,6 +1262,40 @@ NSMutableArray *localIPAddresses() {
         [self saveUserDefaults: sender];
         [self checkForRestart];
     }
+}
+
+- (void) changeSystemServerPort: sender {
+	if (sender == systemServerPortField) 
+		[self loadUIForSystemServerPort: [systemServerPortField intValue]];
+	else
+		[self loadUIForSystemServerPort: [[systemServerDisplayNumberField selectedItem] tag]];
+	
+	[self saveUserDefaults: self];
+}
+
+- (IBAction) changeSystemServerAuthentication: sender {
+	if (sender == systemServerPasswordField &&
+		[[systemServerPasswordField stringValue] length] && 
+		![[systemServerPasswordField stringValue] isEqualToString:PasswordProxy]) {
+		char *encPassword = vncEncryptPasswd([[passwordField stringValue] cString]);
+		
+		[authenticationType selectCellWithTag:1];
+		[[NSUserDefaults standardUserDefaults] setObject:[NSData dataWithBytes:(const void *)encPassword length:sizeof(encPassword)] forKey:@"vncauthSystemServer"];		
+    }
+	
+	if (sender == systemServerPasswordField && 
+		[[systemServerAuthenticationType selectedCell] tag] != [[NSUserDefaults standardUserDefaults] integerForKey:@"AuthenticationTypeSystemServer"]) {
+		// VNC Password
+		if ([[authenticationType selectedCell] tag] == 1) {
+			[systemServerPasswordField setStringValue:@""];
+			[systemServerWindow makeFirstResponder: systemServerPasswordField];
+		}
+		// No Auth
+		else if ([[authenticationType selectedCell] tag] == 2) {
+			[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"vncauthSystemServer"];
+			[systemServerPasswordField setStringValue:@""];
+		}
+	}
 }
 
 // Bring up the Reverse Connection Window In A Sheet...
@@ -1221,7 +1354,6 @@ NSMutableArray *localIPAddresses() {
 		[self addStatusMessage: LocalizedString(@"Option Change Requires a Restart")];
 
 		[preferencesMessageTestField setStringValue:LocalizedString(@"Option Change Requires a Restart")];
-        [startupItemStatusMessageField setStringValue:@""];
     }
 }
 
@@ -1327,7 +1459,7 @@ NSMutableArray *localIPAddresses() {
 		[copyArgsArray removeAllObjects];
 		[copyArgsArray addObject:@"-R"]; // Recursive
         [copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
-        [copyArgsArray addObject:[[[[[NSProcessInfo processInfo] arguments] objectAtIndex:0] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"OSXvnc-server"]];
+        [copyArgsArray addObject:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"OSXvnc-server"]];
         [copyArgsArray addObject:startupPath];
 		
         if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
@@ -1381,31 +1513,30 @@ NSMutableArray *localIPAddresses() {
 		NSData *vncauth = [[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"];
         NSMutableString *replaceString = nil;
 		NSString *oldPasswordFile = passwordFile;
-		NSString *oldDesktopName = [displayNameField stringValue];
+		NSString *oldDesktopName = [systemServerDisplayNameField stringValue];
 			
 		if ([vncauth length]) {
-			NSArray *mvArguments = [NSArray arrayWithObjects:@"-f", @"/tmp/.osxvncauth", @"/Library/StartupItems/OSXvnc/.osxvncauth", nil];
+			NSArray *mvArguments = [NSArray arrayWithObjects:@"-f", @"/tmp/.vinevncauth", @"/Library/StartupItems/OSXvnc/.vinevncauth", nil];
 
-			[vncauth writeToFile:@"/tmp/.osxvncauth" atomically:YES];
+			[vncauth writeToFile:@"/tmp/.vinevncauth" atomically:YES];
 			if (![myAuthorization executeCommand:@"/bin/mv" withArgs:mvArguments]) {
 				[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Setup Password File")];
 				return FALSE;
 			}
-			passwordFile = @"/Library/StartupItems/OSXvnc/.osxvncauth";
+			passwordFile = @"/Library/StartupItems/OSXvnc/.vinevncauth";
 		}
 		
 		// Coerce the CommandLine string with slight modifications
 		if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_1)) {
 			NSMutableString *newDesktopName = [[oldDesktopName mutableCopy] autorelease];
 			[newDesktopName replaceOccurrencesOfString:@" " withString:@"_" options:nil range:NSMakeRange(0,[oldDesktopName length])];
-			[displayNameField setStringValue:newDesktopName];
+			[systemServerDisplayNameField setStringValue:newDesktopName];
 		}
-		doNotLoadProxy = YES;
-		replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLine] componentsJoinedByString:@" "]];
-		doNotLoadProxy = NO;
+		replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLineForSystemServer: YES] componentsJoinedByString:@" "]];
+
         [startupScript replaceCharactersInRange:lineRange withString:replaceString];
 
-		[displayNameField setStringValue:oldDesktopName];
+		[systemServerDisplayNameField setStringValue:oldDesktopName];
 		passwordFile = oldPasswordFile;
 	}
     if ([startupScript writeToFile:@"/tmp/OSXvnc.script" atomically:YES]) {
@@ -1444,25 +1575,83 @@ NSMutableArray *localIPAddresses() {
 - (BOOL) installLaunchd {
 	BOOL success = TRUE;
 	NSMutableDictionary *launchdDictionary = [NSMutableDictionary dictionary];
-	NSMutableArray *argv = [self formCommandLine];
 	NSString *launchdPath = [[NSUserDefaults standardUserDefaults] stringForKey:@"launchdItemLocation"];
+	NSString *logLocation = @"/Library/Logs/VineServer.log";
+	NSString *oldPasswordFile = passwordFile;
+	NSData *vncauth = [[NSUserDefaults standardUserDefaults] dataForKey:@"vncauthSystemServer"];
 
-	if (argv) {
-		[launchdDictionary setObject:@"VineServer" forKey:@"Label"];
+	NSString *launchdResources = @"/Library/Application Support/VineServer";
+	
+	// If VineServer resources directory doesn't exist then create it
+	if (![[NSFileManager defaultManager] fileExistsAtPath:launchdResources]) {
+		success &= [myAuthorization executeCommand:@"/bin/mkdir" 
+										  withArgs:[NSArray arrayWithObjects:@"-p", launchdResources, nil]];
+		success &= [myAuthorization executeCommand:@"/usr/sbin/chown" 
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"root:wheel", launchdResources, nil]];
+		if (!success) {
+			[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to setup VineServer folder")];
+			success = FALSE;
+		}
+	}	
+
+	if ([vncauth length]) {
+		passwordFile = [launchdResources stringByAppendingPathComponent: @".vinevncauth"];
+		[vncauth writeToFile:@"/tmp/.vinevncauth" atomically:YES];
+		if (![myAuthorization executeCommand:@"/bin/mv" 
+									withArgs:[NSArray arrayWithObjects:@"-f", @"/tmp/.vinevncauth", passwordFile, nil]]) {
+			[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Setup Password File")];
+			success = FALSE;
+		}
+	}
+	NSMutableArray *argv = [self formCommandLineForSystemServer: YES];	
+	passwordFile = oldPasswordFile;
+	
+	if (success && argv) {
+		NSMutableArray *copyArgsArray = [NSMutableArray array];
+		
+		// Copy Server Executable
+		[copyArgsArray removeAllObjects];
+		[copyArgsArray addObject:@"-R"]; // Recursive
+		[copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
+		[copyArgsArray addObject:[[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"OSXvnc-server"]];
+		[copyArgsArray addObject:launchdResources];
+		
+		if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
+			[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to copy OSXvnc-server executable")];
+			return FALSE;
+		}
+		
+		// Copy All Bundles
+		NSEnumerator *bundleEnum = [[NSBundle pathsForResourcesOfType:@"bundle" inDirectory:[[NSBundle mainBundle] resourcePath]] objectEnumerator];
+		NSString *bundlePath = nil;
+		
+		while (bundlePath = [bundleEnum nextObject]) {
+			[copyArgsArray removeAllObjects];
+			[copyArgsArray addObject:@"-R"]; // Recursive
+			[copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
+			[copyArgsArray addObject:bundlePath];
+			[copyArgsArray addObject:[launchdResources stringByAppendingPathComponent:@"Resources"]];
+			
+			if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
+				[startupItemStatusMessageField setStringValue:[NSString stringWithFormat:@"Error: Unable to copy bundle:%@", [bundlePath lastPathComponent]]];
+				return FALSE;
+			}
+		}
+		success &= [myAuthorization executeCommand:@"/bin/chmod" 
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"755", launchdResources, nil]];		
+		
 		// Configure PLIST
-		[argv insertObject:[[[NSBundle mainBundle] bundlePath] stringByAppendingPathComponent:@"OSXvnc-server"] atIndex:0];
+		[launchdDictionary setObject:@"VineServer" forKey:@"Label"];
+		[argv insertObject:[launchdResources stringByAppendingPathComponent:@"OSXvnc-server"] atIndex:0];
 		[launchdDictionary setObject:argv forKey:@"ProgramArguments"];
 
 		[launchdDictionary setObject:[NSNumber numberWithBool:TRUE] forKey:@"KeepAlive"];
 		[launchdDictionary setObject:[NSNumber numberWithBool:TRUE] forKey:@"RunAtLoad"];
+		//[launchdDictionary setObject:[NSNumber numberWithInt:1] forKey:@"ExitTimeOut"]; // Send a KILL signal after 1 second
+		[launchdDictionary setObject:logLocation forKey:@"StandardOutPath"];
+		[launchdDictionary setObject:logLocation forKey:@"StandardErrorPath"];
 		if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_4)) { // Leopard
-			[launchdDictionary setObject:@"~/Library/Logs/VineServer.log" forKey:@"StandardOutPath"];
-			[launchdDictionary setObject:@"~/Library/Logs/VineServer.log" forKey:@"StandardErrorPath"];
 			[launchdDictionary setObject:[NSArray arrayWithObjects:@"Aqua",@"LoginWindow",nil] forKey:@"LimitLoadToSessionType"];
-		}
-		else { // Tiger
-			[launchdDictionary setObject:@"/var/log/VineServer.log" forKey:@"StandardOutPath"];
-			[launchdDictionary setObject:@"/var/log/VineServer.log" forKey:@"StandardErrorPath"];
 		}
 		
 		// Write to file
@@ -1472,10 +1661,18 @@ NSMutableArray *localIPAddresses() {
 										  withArgs:[NSArray arrayWithObjects:@"-R", @"root:wheel", tempPath, nil]];
         success &= [myAuthorization executeCommand:@"/bin/chmod" 
 										  withArgs:[NSArray arrayWithObjects:@"-R", @"744", tempPath, nil]];
-		
 		// Install to launchdPath
 		success &= [myAuthorization executeCommand:@"/bin/mv" 
 										  withArgs:[NSArray arrayWithObjects:@"-f", tempPath, launchdPath, nil]];
+		
+        //Setup Log File (for multiple user access)
+		success &= [myAuthorization executeCommand:@"/usr/bin/touch" 
+										  withArgs:[NSArray arrayWithObjects: logLocation, nil]];
+		success &= [myAuthorization executeCommand:@"/usr/sbin/chown" 
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"root:wheel", logLocation, nil]];
+        success &= [myAuthorization executeCommand:@"/bin/chmod" 
+										  withArgs:[NSArray arrayWithObjects:@"-R", @"666", logLocation, nil]];
+		
 		
 		// Launch Using launchctl
 		if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_4)) {
@@ -1486,17 +1683,16 @@ NSMutableArray *localIPAddresses() {
 			success &= [myAuthorization executeCommand:@"/bin/launchctl" 
 											  withArgs:[NSArray arrayWithObjects:@"load", @"-S", @"Aqua", launchdPath, nil]];
 		}
-	}
-	if (!success) {
-		[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Setup Vine Server using launchd")];
+
+		if (!success) {
+			[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Setup Vine Server using launchd")];
+		}
 	}
 	
 	return success;
 }
 
-- (void) installAsService {
-	BOOL didInstall = FALSE;
-	
+- (void) installAsService {	
     if (!myAuthorization)
         myAuthorization = [[NSAuthorization alloc] init];
     
@@ -1506,19 +1702,15 @@ NSMutableArray *localIPAddresses() {
     }
 	
 	if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_3))
-		didInstall = [self installStartupItem];
-	else
-		didInstall = [self installLaunchd];
+		systemServerIsConfigured = [self installStartupItem];
+	else {
+		// Remove Old SystemServer
+		[self removeService: self];		
+		systemServerIsConfigured = [self installLaunchd];
+	}
 	
-	if (didInstall) {
-		if (![[passwordField stringValue] length])
-			[startupItemStatusMessageField setStringValue:[NSString stringWithFormat:@"%@ - %@", LocalizedString(@"Startup Item Configured (Started)"), LocalizedString(@"No Authentication")]];
-		else
-			[startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Configured (Started)")];
-		
-		[disableStartupButton setEnabled:YES];
-	}		
-	
+	[self loadUIForSystemServer];
+
 	[myAuthorization release];
 	myAuthorization = nil;
 }
@@ -1527,14 +1719,14 @@ NSMutableArray *localIPAddresses() {
 	// No password, so double check
 	if (![[passwordField stringValue] length]) {
 		NSBeginAlertSheet(LocalizedString(@"System Server"), LocalizedString(@"Cancel"), LocalizedString(@"Start Server"), nil, 
-						  preferenceWindow, self, @selector(serviceSheetDidEnd:returnCode:contextInfo:), NULL, NULL, 
+						  systemServerWindow, self, @selector(serviceSheetDidEnd:returnCode:contextInfo:), NULL, NULL, 
 						  LocalizedString(@"No password has been specified for the System Server.  The System Server will automatic launch every time your machine is restarted.  Are you sure that you want to install a System Server with no password"));
 	}
 	else {
 		[self installAsService];
 	}
 }
-	
+
 - (void) serviceSheetDidEnd:(NSWindow *)sheet returnCode:(int)returnCode contextInfo:(void  *)contextInfo {
 	if (returnCode==NSAlertDefaultReturn)
 		return;
@@ -1576,15 +1768,17 @@ NSMutableArray *localIPAddresses() {
 	}
 	
     if (success) {
-        [startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Disabled (Stopped)")];
-        [disableStartupButton setEnabled:NO];
+		systemServerIsConfigured = FALSE;
+		[self loadUIForSystemServer];
     }
     else {
         [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unabled to remove startup item")];
     }
 
-	[myAuthorization release];
-	myAuthorization = nil;
+	if (sender != self) {
+		[myAuthorization release];
+		myAuthorization = nil;
+	}
 }
 
 - (void) dealloc {

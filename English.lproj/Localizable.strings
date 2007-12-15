@@ -1,4 +1,5 @@
 {
+"No Authentication"="no password protection";
 "Startup Item Configured (Started)"="System Server Configured (Started)";
 "Startup Item Disabled (Stopped)"="System Server Disabled (Stopped)";
 "Vine Server can't listen on the specified port (%d)."="The port you chose (%d) is not available.";
