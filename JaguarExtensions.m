@@ -54,52 +54,33 @@ rfbserver *theServer;
 }
 
 + (void) rfbStartup: (rfbserver *) aServer {
-    int argumentIndex;
-
+	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
+		@"NO", @"keyboardLoading", // allows OSXvnc to look at the users selected keyboard and map keystrokes using it
+		@"YES", @"pressModsForKeys", // If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it
+		nil]];
+    
     theServer = aServer;
 	
-    argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-keyboardLoading"];
-    if (argumentIndex != NSNotFound) {
-        NSString *value = nil;
-        
-        if ([[[NSProcessInfo processInfo] arguments] count] > argumentIndex + 1)
-            value = [[[NSProcessInfo processInfo] arguments] objectAtIndex:argumentIndex+1];
-        
-        if ([value hasPrefix:@"n"] || [value hasPrefix:@"N"] || [value hasPrefix:@"0"])
-            keyboardLoading = NO;
-        else
-            keyboardLoading = YES;
-    }
+	keyboardLoading = [[NSUserDefaults standardUserDefaults] boolForKey:@"keyboardLoading"];	
     if (keyboardLoading) {
+		OSErr result;
+		
         NSLog(@"Keyboard Loading - Enabled");
 
-        *(theServer->pressModsForKeys) = TRUE;
-        argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-pressModsForKeys"];
-        if (argumentIndex != NSNotFound) {
-            NSString *value = nil;
-
-            if ([[[NSProcessInfo processInfo] arguments] count] > argumentIndex + 1)
-                value = [[[NSProcessInfo processInfo] arguments] objectAtIndex:argumentIndex+1];
-
-            if ([value hasPrefix:@"n"] || [value hasPrefix:@"N"] || [value hasPrefix:@"0"])
-                *(theServer->pressModsForKeys) = FALSE;
-        }
+        *(theServer->pressModsForKeys) = [[NSUserDefaults standardUserDefaults] boolForKey:@"pressModsForKeys"];
         if (*(theServer->pressModsForKeys))
             NSLog(@"Press Modifiers For Keys - Enabled");
         else
             NSLog(@"Press Modifiers For Keys - Disabled");
 
-        if (KLGetCurrentKeyboardLayout(&loadedKeyboardRef) == noErr) {
+		result = KLGetCurrentKeyboardLayout(&loadedKeyboardRef);
+        if (result == noErr)
             [self loadKeyboard: loadedKeyboardRef];
-        }
-    }
-    else {
-        NSLog(@"Keyboard Loading - Disabled");
-        NSLog(@"Press Modifiers For Character - Disabled");
+		else
+			NSLog(@"Error (%u) unabled to load current keyboard layout", result);
     }
 	
-	argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-ipv4"];
-    if (argumentIndex != NSNotFound) {
+    if ([[[NSProcessInfo processInfo] arguments] indexOfObject:@"-ipv4"] != NSNotFound) {
 		useIP6 = FALSE;
 	}
 }
@@ -113,8 +94,8 @@ rfbserver *theServer;
             "-pressModsForKeys flag If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it.\n"
             "                       This flag works well if you have different keyboards on the local and remote machines.\n"
             "                       Only works if -keyboardLoading is on\n"
-            "                       (default: no), 10.2+ ONLY\n"
-	        "-rendezvous flag       Allow OSXvnc to advertise VNC server using Rendezvous discovery services.\n"
+            "                       (default: yes), 10.2+ ONLY\n"
+	        "-bonjour flag       Allow OSXvnc to advertise VNC server using Bonjour discovery services.\n"
 			"                       'VNC' will enable the service named VNC (For Eggplant & Chicken 2.02b)\n"
 			"                       'Both' or '2' will enable the services named RFB and VNC\n"
 			"                       (default: RFB:YES VNC:NO), 10.2+ ONLY\n"
@@ -341,7 +322,11 @@ rfbserver *theServer;
 	BOOL loadRendezvousRFB = YES;
 	int argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-rendezvous"];
 	RendezvousDelegate *rendezvousDelegate = [[RendezvousDelegate alloc] init];
-
+	
+    if (argumentIndex != NSNotFound) {
+		argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-bonjour"];
+	}
+	
     if (argumentIndex != NSNotFound) {
         NSString *value = nil;
         
@@ -371,8 +356,8 @@ rfbserver *theServer;
 		[rfbService setDelegate:rendezvousDelegate];		
 		[rfbService publish];
 	}
-	else
-		NSLog(@"Rendezvous(_rfb._tcp) - Disabled");
+//	else
+//		NSLog(@"Bonjour (_rfb._tcp) - Disabled");
 
 	if (loadRendezvousVNC) {
 		vncService = [[NSNetService alloc] initWithDomain:@""
@@ -383,8 +368,8 @@ rfbserver *theServer;
 		
 		[vncService publish];
 	}
-	else
-		NSLog(@"Rendezvous(_vnc._tcp) - Disabled");
+//	else
+//		NSLog(@"Bonjour (_vnc._tcp) - Disabled");
 }
 
 + (void) rfbPoll {
@@ -418,7 +403,7 @@ rfbserver *theServer;
 // Sent when the service is about to publish
 
 - (void)netServiceWillPublish:(NSNetService *)netService {
-	NSLog(@"Registering Rendezvous Service(%@) - %@", [netService type], [netService name]);
+	NSLog(@"Registering Bonjour Service(%@) - %@", [netService type], [netService name]);
 }
 
 // Sent if publication fails
@@ -429,7 +414,7 @@ rfbserver *theServer;
 
 // Sent when the service stops
 - (void)netServiceDidStop:(NSNetService *)netService {	
-	NSLog(@"Disabling Rendezvous Service - %@", [netService name]);
+	NSLog(@"Disabling Bonjour Service - %@", [netService name]);
     // You may want to do something here, such as updating a user interfac
 }
 
