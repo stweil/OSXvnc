@@ -24,9 +24,10 @@
 
 #import "../RFBBundleProtocol.h"
 
+static BOOL readyToStartup = TRUE;
 static BOOL dynamicKeyboard = FALSE;
-static CGEventSourceRef vncSourceRef;
-static CGEventTapLocation vncTapLocation;
+static CGEventSourceRef vncSourceRef=NULL;
+static CGEventTapLocation vncTapLocation=0;
 static KeyboardLayoutRef unicodeLayout = NULL; //kKeyboardISO
 
 static unsigned long oldKeyboardScript;
@@ -63,27 +64,261 @@ CGKeyCode keyCodeCommand;
 
 rfbserver *theServer;
 
+// This routine waits for the window server to register its per-session 
+// services in our session.  This code was necessary in various pre-release 
+// versions of Mac OS X 10.5, but it is not necessary on the final version. 
+static void WaitForWindowServerSession(void) {
+    CFDictionaryRef dict;
+    int delay = 100000, maxDelay = 5000000;
+	
+	dict = CGSessionCopyCurrentDictionary();
+	while (dict == NULL && maxDelay > 0) {
+		usleep(delay);
+		maxDelay -= delay;
+        dict = CGSessionCopyCurrentDictionary();
+	}
+	if (maxDelay <= 0)
+		NSLog(@"No CG session Available, max delay reached");
+	if (dict != NULL)
+		CFRelease(dict);
+}
+
+bool isConsoleSession() {
+	BOOL returnValue = FALSE;
+	CFDictionaryRef sessionInfoDict = CGSessionCopyCurrentDictionary();
+		
+	if (sessionInfoDict == NULL) 
+		NSLog(@"Unable to get session dictionary.");
+	else {
+		CFBooleanRef userIsActive = CFDictionaryGetValue(sessionInfoDict, kCGSessionOnConsoleKey);
+		returnValue = CFBooleanGetValue(userIsActive);
+		CFRelease(sessionInfoDict);
+	}
+	
+//	if (0) { 
+//		// This one succeeds in "off-screen acounts" also
+//		SecuritySessionId mySession;
+//		SessionAttributeBits sessionInfo;
+//		OSStatus error = SessionGetInfo(callerSecuritySession, &mySession, &sessionInfo);
+//		
+//		returnValue = (sessionInfo & sessionHasGraphicAccess);
+//	}
+//	else if (0) {
+//		// There must be a better way but for now this seems to indicate if we are a console session or not
+//		// at least for logged in users -- it always returns NO for the login window
+//		CGEventSourceRef testRef = CGEventSourceCreate(kCGEventSourceStatePrivate);
+//		int pollDelay = 0; // No poll at this time, just look once
+//		
+//		while (!testRef && pollDelay) {
+//			usleep(100000);
+//			pollDelay -= 100000;
+//			testRef = CGEventSourceCreate(kCGEventSourceStatePrivate);
+//		}
+//	
+//		if (testRef != NULL) {
+//			returnValue = TRUE;
+//			CFRelease(testRef);
+//		}
+//	}
+	
+	return returnValue;
+}
+
 + (void) rfbStartup: (rfbserver *) aServer {
 	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-		@"3", @"EventTap", // Default Event Tap (3=HID for Console User and Session For OffScreen Users)
-		@"2", @"EventSource", // Always private event source so we don't consolidate with existing keys (however HID for the EventTap always does anyhow)
-		@"0", @"DynamicKeyboard", // Try to set the keyboard "as we need it", doesn't work well on Tiger
-		@"YES", @"UnicodeKeyboard", // Load The Unicode Keyboard
+		@"NO", @"UnicodeKeyboard", // Load The Unicode Keyboard
+		@"NO", @"DynamicKeyboard", // Try to set the keyboard "as we need it", doesn't work well on Tiger
 		@"-1", @"UnicodeKeyboardIdentifier", // ID of the Unicode Keyboard resource to use (-1 is Apple's)
+
+		@"2", @"EventSource", // Always private event source so we don't consolidate with existing keys (however HID for the EventTap always does anyhow)
+		@"3", @"EventTap", // Default Event Tap (3=HID for Console User and Session For OffScreen Users)
+		@"NO", @"SystemServer", 
 		nil]];
 
     theServer = aServer;
 	*(id *)(theServer->alternateKeyboardHandler) = self;
+
+	// 10.5 System Server special behavior
+	if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_4) &&
+		[[NSUserDefaults standardUserDefaults] boolForKey:@"SystemServer"]) {
+		// On 10.5 we need quit if the user switches out (so we can relinquish the port)
+		if (isConsoleSession()) {
+			[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+																   selector:@selector(systemServerShouldQuit:)
+																	   name: NSWorkspaceSessionDidResignActiveNotification
+																	 object:nil];			
+		}
+		// On 10.5 we need to be able to "hold" if we aren't the console session
+		else {
+			[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+																   selector:@selector(systemServerShouldContinue:)
+																	   name: NSWorkspaceSessionDidBecomeActiveNotification
+																	 object:nil];
+			readyToStartup = NO;
+			// Run Loop
+			NSLog(@"System Server for non-console session, pausing until we receive console access");
+			while (!readyToStartup) {
+				OSStatus resultCode = RunCurrentEventLoop(kEventDurationSecond); //EventTimeout
+				if (resultCode != eventLoopTimedOutErr) {
+					NSLog(@"Received Result: %d during event loop, Shutting Down", resultCode);
+					//rfbShutdown();
+					exit(0);
+				}
+			}
+		}
+	}
+
+	[self loadUnicodeKeyboard];
+}
+
++ (void) systemServerShouldQuit: (NSNotification *) aNotification {
+    NSLog(@"User Switched Out, Stopping System Server - %@", [aNotification name]);
+	//rfbShutdown();
+	exit(0);
+	return;
+}
++ (void) systemServerShouldContinue: (NSNotification *) aNotification {
+    NSLog(@"User Switched In, Starting System Server - %@", [aNotification name]);
+	readyToStartup = YES;
+	return;
+}
+
++ (void) loadKeyboard: (KeyboardLayoutRef) keyboardLayoutRef {
+    int i;
+    int keysLoaded = 0;
+    UCKeyboardLayout *uchrHandle = NULL;
+    const void *kchrHandle = NULL;
+    CFStringRef keyboardName;
+    KeyboardLayoutKind layoutKind;
+    static UInt32 modifierKeyStates[] = {0, shiftKey, optionKey, controlKey };
+	//{0, shiftKey, optionKey, controlKey, optionKey | shiftKey, optionKey | controlKey, controlKey | shiftKey, optionKey | shiftKey | controlKey};
 	
+    /* modifiers */
+    //cmdKey                        = 1 << cmdKeyBit,
+    //shiftKey                      = 1 << shiftKeyBit,
+    //alphaLock                     = 1 << alphaLockBit,
+    //optionKey                     = 1 << optionKeyBit,
+    //controlKey                    = 1 << controlKeyBit,
+    
+    // KLGetKeyboardLayoutProperty is 10.2 only how do I access these resources in early versions?
+    if (keyboardLayoutRef) {
+        KLGetKeyboardLayoutProperty(keyboardLayoutRef, kKLName, (const void **) &keyboardName);
+        KLGetKeyboardLayoutProperty(keyboardLayoutRef, kKLKind, (const void **) &layoutKind);
+        NSLog(@"Keyboard Detected: %@ (Type:%d) - Loading Keys\n", keyboardName, layoutKind);
+        if (layoutKind == kKLKCHRuchrKind || layoutKind == kKLuchrKind)
+            KLGetKeyboardLayoutProperty(keyboardLayoutRef, kKLuchrData, (const void **) &uchrHandle);
+        else
+            KLGetKeyboardLayoutProperty(keyboardLayoutRef, kKLKCHRData, (const void **) &kchrHandle);
+    }
+	
+    // Initialize them all to 0xFFFF
+    memset(theServer->keyTable, 0xFF, keyTableSize * sizeof(CGKeyCode));
+    memset(theServer->keyTableMods, 0xFF, keyTableSize * sizeof(unsigned char));
+	
+    if (uchrHandle) {
+        // Ok - we could get the LIST of Modifier Key States out of the Keyboard Layout
+        // some of them are duplicates so we need to compare them, then we'll iterate through them in reverse order
+        // UCKeyModifiersToTableNum = ; EventRecord
+        // This layout gets a little harry
+		
+        UInt16 keyCode;
+        UInt32 modifierKeyState = 0;
+        UInt32 keyboardType = LMGetKbdType();
+        UInt32 deadKeyState = 0;
+        UniCharCount actualStringLength;
+        UniChar unicodeChar;
+		
+        // Iterate Over Each Modifier Keyset
+        for (i=0; i < (sizeof(modifierKeyStates) / sizeof(UInt32)); i++) {
+            modifierKeyState = (modifierKeyStates[i] >> 8) & 0xFF;
+            //NSLog(@"Loading Keys For Modifer State: %#04x", modifierKeyState);
+            // Iterate Over Each Key Code
+            for (keyCode = 0; keyCode < 127; keyCode++) {
+                OSStatus resultCode = UCKeyTranslate (uchrHandle,
+                                                      keyCode,
+                                                      kUCKeyActionDown,
+                                                      modifierKeyState,
+                                                      keyboardType,
+                                                      kUCKeyTranslateNoDeadKeysBit,
+                                                      &deadKeyState,
+                                                      1, // Only 1 key allowed due to VNC behavior
+                                                      &actualStringLength,
+                                                      &unicodeChar);
+				
+                if (resultCode == kUCOutputBufferTooSmall) {
+                    NSLog(@"Unable To Convert KeyCode, Multiple Characters For: %d (%#04x)",  keyCode, modifierKeyState);
+                }
+                else if (resultCode == noErr) {
+                    // We'll use the FIRST keyCode that we find for that UNICODE character
+                    if (theServer->keyTable[unicodeChar] == 0xFFFF) {
+                        theServer->keyTable[unicodeChar] = keyCode;
+                        theServer->keyTableMods[unicodeChar] = modifierKeyState;
+                        keysLoaded++;
+                    }
+                }
+            }
+            //NSLog(@"Loaded %d Keys", keysLoaded);
+            keysLoaded = 0;
+        }
+    }
+    else if (kchrHandle) {
+        UInt32 modifierKeyState = 0;
+        UInt16 keyCode;
+        UInt32 state=0;
+        UInt32 kchrCharacters;
+		
+        // Ok - we need to get the LIST of Modifier Key States out of the Keyboard Layout
+        // some of them are duplicates so we need to compare them, then we'll iterate through them in reverse order
+        //UCKeyModifiersToTableNum = ;
+        for (i=0; i < (sizeof(modifierKeyStates) / sizeof(UInt32)); i++) {
+            modifierKeyState = (modifierKeyStates[i] >> 8) & 0xFF;
+            //NSLog(@"Loading Keys For Modifer State:%#04x", modifierKeyState);
+			
+            // Iterate Over Each Key Code
+            for (keyCode = 0; keyCode < 127; keyCode++) {
+                // We pass the modifierKeys as the top 8 bits of keycode
+                kchrCharacters = KeyTranslate(kchrHandle, (modifierKeyState<<8 | keyCode), &state);
+				
+                if (kchrCharacters & 0xFFFF0000) {
+                    NSLog(@"Unable To Convert KeyCode, Multiple Characters (%#04x) (%#04x) For: %d (%#04x)",
+                          kchrCharacters>>16 & 0xFFFF, kchrCharacters & 0xFFFF, keyCode, modifierKeyState);
+                }
+                else {
+                    // We'll use the FIRST keyCode that we find for that UNICODE character
+                    if (theServer->keyTable[kchrCharacters & 0xFFFF] == 0xFFFF) {
+                        //NSLog(@"KeyCode:%d UniCode:%d", keyCode, kchrCharacters & 0xFFFF);
+                        theServer->keyTable[kchrCharacters & 0xFFFF] = keyCode;
+                        theServer->keyTableMods[kchrCharacters & 0xFFFF] = modifierKeyState;
+                        keysLoaded++;
+                    }
+                }
+            }
+            //NSLog(@"Loaded %d Keys", keysLoaded);
+            keysLoaded = 0;
+        }
+    }
+    else {
+        // This is the old US only keyboard mapping
+        // Map the above key table into a static array so we can just look them up directly
+        NSLog(@"Unable To Determine Key Map - Reverting to US Mapping\n");
+        for (i = 0; i < (sizeof(USKeyCodes) / sizeof(int)); i += 2)
+            theServer->keyTable[(unsigned short)USKeyCodes[i]] = (CGKeyCode) USKeyCodes[i+1];
+    }
+	
+    // This is the old SpecialKeyCodes keyboard mapping
+    // Map the above key table into a static array so we can just look them up directly
+    NSLog(@"Loading %d XKeysym Special Keys\n", (sizeof(SpecialKeyCodes) / sizeof(int))/2);
+    for (i = 0; i < (sizeof(SpecialKeyCodes) / sizeof(int)); i += 2) {
+        theServer->keyTable[(unsigned short)SpecialKeyCodes[i]] = (CGKeyCode) SpecialKeyCodes[i+1];
+	}
+}
+
++ (void) rfbRunning {	
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DynamicKeyboard"])
 		dynamicKeyboard = TRUE;
-		
+	
 	// Event Source represents which existing event states should be combined with the incoming events
 	switch ([[NSUserDefaults standardUserDefaults] integerForKey:@"EventSource"]) {
-		case 3: // I am pretty sure works similar to the HID
-			NSLog(@"No Event Source Specified-- Using 10.3 API");
-			vncSourceRef = NULL;
-			break;
 		case 2:
 			// Doesn't combine with any other sources
 			NSLog(@"Using Private Event Source");
@@ -95,13 +330,18 @@ rfbserver *theServer;
 			vncSourceRef = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
 			break;
 		case 0:
-		default:
 			// Combines with Physical Keyboard
 			NSLog(@"Using HID Event Source");
 			vncSourceRef = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
 			break;
+		case 3: // I am pretty sure works similar to the HID
+		default:
+			vncSourceRef = NULL;
+			break;
 	}
-		
+	if (!vncSourceRef)
+		NSLog(@"No Event Source -- Using 10.3 API");	
+	
 	// Event Taps represent at what level of the input manager the events will be interpretted
 	switch ([[NSUserDefaults standardUserDefaults] integerForKey:@"EventTap"]) {
 		case 3: {
@@ -144,16 +384,11 @@ rfbserver *theServer;
 			vncTapLocation = kCGHIDEventTap;
 			break;
 	}
-		
-	// On 10.5 we need to be able to "hold" if we aren't the console session
-	if (0 && !isConsoleSession()) {
-		;
-	}
 }
 
-+ (void) rfbRunning {
++ (void) loadUnicodeKeyboard {
 	// Have to do this a little later than startup to ensure that the Jaguar Bundle has loaded
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"UnicodeKeyboard"]) {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"UnicodeKeyboard"] && unicodeLayout == NULL) {
 		if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_4)) {
 			int timeout = 2000000;
 			int pollInterval = 10000;
@@ -172,9 +407,10 @@ rfbserver *theServer;
 		}
 		// Unicode Keyboard Should load keys from definition
 		(*(theServer->pressModsForKeys) = YES);
-		[NSClassFromString(@"JaguarExtensions") loadKeyboard: unicodeLayout];
+		[self loadKeyboard: unicodeLayout];
 	}	
 }
+
 
 + (void) userSwitchedIn: (NSNotification *) aNotification {
     NSLog(@"User Switched In, Using HID Tap - %@", [aNotification name]);
@@ -243,7 +479,7 @@ rfbserver *theServer;
 + handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl {
 	CGKeyCode keyCode = theServer->keyTable[(unsigned short)keySym];
 	CGEventFlags modifiersToSend = 0;
-		
+
 	if (1) {
 		// Find the right keycodes base on the loaded keyboard
 		keyCodeShift = theServer->keyTable[XK_Shift_L];
@@ -253,35 +489,37 @@ rfbserver *theServer;
 	}		
 
 	// If we can't locate the keycode then we will use the special OPTION+4 HEX coding that is available on the Unicode HexInput Keyboard
-	if (keyCode == 0xFFFF && down && unicodeLayout != NULL) {		
-		CGKeyCode keyCodeMeta = 58; // KeyCode for the Option key with the Unicode Hex input keyboard
-		unsigned short mask=0xF000;
-		int rightShift;
-		CGEventFlags oldModifiers = currentModifiers;
-
-		// Switch to Unicode Keyboard
-		if (dynamicKeyboard) {
-			KLGetCurrentKeyboardLayout(&currentKeyboardLayout);
-			SyncSetKeyboardLayout(smUnicodeScript,unicodeLayout);
-			oldKeyboardScript = GetScriptManagerVariable(smLastScript);
-			NSLog(@"Setting OldKeyboard: %d", GetScriptManagerVariable(smLastScript));
-		}
-		
-		modifiersToSend = kCGEventFlagMaskAlternate | kCGEventFlagMaskNonCoalesced;
-		setKeyModifiers(modifiersToSend);
-		for (rightShift = 12; rightShift >= 0; rightShift-=4) {
-			short unidigit = (keySym & mask) >> rightShift;
+	if (keyCode == 0xFFFF) {
+		if (down && unicodeLayout != NULL) {
+			CGKeyCode keyCodeMeta = 58; // KeyCode for the Option key with the Unicode Hex input keyboard
+			unsigned short mask=0xF000;
+			int rightShift;
+			CGEventFlags oldModifiers = currentModifiers;
 			
-			sendKeyEvent(unicodeNumbersToKeyCodes[unidigit], 1, modifiersToSend);
-			sendKeyEvent(unicodeNumbersToKeyCodes[unidigit], 0, modifiersToSend);
-						
-			mask >>= 4;
+			// Switch to Unicode Keyboard
+			if (dynamicKeyboard) {
+				KLGetCurrentKeyboardLayout(&currentKeyboardLayout);
+				SyncSetKeyboardLayout(smUnicodeScript,unicodeLayout);
+				oldKeyboardScript = GetScriptManagerVariable(smLastScript);
+				NSLog(@"Setting OldKeyboard: %d", GetScriptManagerVariable(smLastScript));
+			}
+			
+			modifiersToSend = kCGEventFlagMaskAlternate | kCGEventFlagMaskNonCoalesced;
+			setKeyModifiers(modifiersToSend);
+			for (rightShift = 12; rightShift >= 0; rightShift-=4) {
+				short unidigit = (keySym & mask) >> rightShift;
+				
+				sendKeyEvent(unicodeNumbersToKeyCodes[unidigit], 1, modifiersToSend);
+				sendKeyEvent(unicodeNumbersToKeyCodes[unidigit], 0, modifiersToSend);
+				
+				mask >>= 4;
+			}
+			setKeyModifiers(oldModifiers);
+			
+			// Switch to Old Keyboard
+			if (dynamicKeyboard)
+				SyncSetKeyboardLayout(oldKeyboardScript, currentKeyboardLayout);
 		}
-		setKeyModifiers(oldModifiers);
-
-		// Switch to Old Keyboard
-		if (dynamicKeyboard)
-			SyncSetKeyboardLayout(oldKeyboardScript, currentKeyboardLayout);
 	}
 	else {
 		BOOL isModifierKey = (XK_Shift_L <= keySym && keySym <= XK_Hyper_R);
@@ -326,8 +564,6 @@ rfbserver *theServer;
 		}
 		else {
 			if (*(theServer->pressModsForKeys)) {
-				
-				
 				if (theServer->keyTableMods[keySym] != 0xFF) {
 					// Setup the state of the appropriate keys based on the value in the KeyTableMods
 					CGEventFlags oldModifiers = currentModifiers;
@@ -370,9 +606,9 @@ rfbserver *theServer;
 }
 
 inline void setKeyModifiers(CGEventFlags modifierFlags) {
-	// If it's a session tap then we can specify our own modifiers as part of the event (nothing to do here)
+	// If it's a session tap (and we have an event source) then we can specify our own modifiers as part of the event (nothing to do here)
 	// Otherwise we will have to explicitly twiddle them at the HID level based on their current state
-	if (vncTapLocation == kCGHIDEventTap) {
+	if (vncTapLocation == kCGHIDEventTap || !vncSourceRef) {
 		CGEventRef event = nil;
 		
 		// Toggle the state of the appropriate keys
@@ -453,31 +689,6 @@ void SyncSetKeyboardLayout (unsigned long keyboardScript, KeyboardLayoutRef newL
 		usleep(pollInterval);
 		timeout -= pollInterval;
 	}
-}
-
-bool isConsoleSession() {
-	BOOL returnValue = FALSE;
-	if (0) {
-		SecuritySessionId mySession;
-		SessionAttributeBits sessionInfo;
-		OSStatus error = SessionGetInfo(callerSecuritySession, &mySession, &sessionInfo);
-
-		returnValue = (sessionInfo & sessionHasGraphicAccess);
-	}
-	else if (0) {
-		CFDictionaryRef dict = CGSessionCopyCurrentDictionary();
-
-		if (dict != NULL) {
-			CFRelease(dict);
-			returnValue = TRUE;
-		}
-	}
-	else {
-		if (vncSourceRef != NULL)
-			returnValue = TRUE;
-	}
-	
-	return returnValue;
 }
 
 @end
