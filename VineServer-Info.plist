@@ -26,12 +26,6 @@
 	<string>vncS</string>
 	<key>CFBundleVersion</key>
 	<string>__VERSION__</string>
-	<key>LSBackgroundOnly</key>
-	<true/>
-	<key>LSUIElement</key>
-	<true/>
-	<key>NSAppleScriptEnabled</key>
-	<false/>
 	<key>NSHelpFile</key>
 	<string>Vine Server.pdf</string>
 	<key>NSHumanReadableCopyright</key>
@@ -40,5 +34,9 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>ReverseHost</key>
+	<string></string>
+	<key>ReversePort</key>
+	<string></string>
 </dict>
 </plist>
