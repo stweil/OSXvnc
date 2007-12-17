@@ -32,9 +32,11 @@
                 removeService = id;
                 reverseConnection = id;
                 saveUserDefaults = id;
+                setInitialAuthentication = id;
                 startServer = id;
                 stopServer = id;
                 terminateRequest = id;
+                validateInitialAuthentication = id;
             };
             CLASS = VNCController;
             LANGUAGE = ObjC;
@@ -55,6 +57,10 @@
                 dontDisconnectCheckbox = NSButton;
                 hostNamesBox = NSBox;
                 hostNamesField = NSTextField;
+                initialAuthenticationType = NSMatrix;
+                initialDoneButton = NSButton;
+                initialPasswordText = NSTextField;
+                initialWindow = NSWindow;
                 ipAddressesBox = NSBox;
                 ipAddressesView = NSMatrix;
                 keyboardEvents = NSPopUpButton;

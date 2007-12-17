@@ -1,7 +1,7 @@
 {
 "No Authentication"="no password protection";
-"Startup Item Configured (Started)"="System Server Configured (Started)";
-"Startup Item Disabled (Stopped)"="System Server Disabled (Stopped)";
+"Startup Item Configured (Started)"="The system server is running";
+"Startup Item Disabled (Stopped)"="The system server is not running";
 "Vine Server can't listen on the specified port (%d)."="The port you chose (%d) is not available.";
 "Probably because the OSXvnc server is already running as a Startup Item." = "(You may already be running a system server on this port)";
 "Probably because another VNC is already using this port." = "(There is already a VNC server running on this port)";

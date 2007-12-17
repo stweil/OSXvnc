@@ -93,6 +93,11 @@
     IBOutlet NSTextField *connectPort;
 	IBOutlet NSTextField *reverseConnectionMessageField;
 	
+	// Inital Settings UI
+	IBOutlet NSWindow *initialWindow;
+	IBOutlet NSTextField *initialPasswordText;
+	IBOutlet NSMatrix *initialAuthenticationType;
+	IBOutlet NSButton *initialDoneButton;
 	
     //int port;
 	BOOL systemServerIsConfigured;
@@ -119,6 +124,9 @@
 	NSArray *clientList;
 	
 	NSString *hostName;
+	
+	NSString *automaticReverseHost;
+	NSString *automaticReversePort;
 }
 
 - init;
@@ -135,6 +143,9 @@
 
 - (void) loadUserDefaults: sender;
 - (void) saveUserDefaults: sender;
+
+- (IBAction) validateInitialAuthentication: sender;
+- (IBAction) setInitialAuthentication: sender;
 
 - (NSMutableArray *) formCommandLineForSystemServer: (BOOL) isSystemServer;
 
