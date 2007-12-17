@@ -475,7 +475,6 @@ void *clientInput(void *data) {
             CGError result = CGRegisterScreenRefreshCallback(refreshCallback, NULL);
 			if (result != kCGErrorSuccess) {
 				NSLog(@"Error (%d) registering for Screen Update Notification", result);
-				continue;
 			}
 			bundlesPerformSelector(@selector(rfbConnect));
 			//CGScreenRegisterMoveCallback(screenUpdateMoveCallback, NULL);
