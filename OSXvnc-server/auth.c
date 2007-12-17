@@ -158,7 +158,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
             buf[len++] = rfbVncAuth;
             cl->state = RFB_AUTH_VERSION;
         }
-        else if (allowNoAuth) {
+        else if (cl->reverseConnection || allowNoAuth) {
             buf[len++] = rfbNoAuth;
             cl->state = RFB_AUTH_VERSION; //RFB_INITIALISATION;
         }
@@ -211,7 +211,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
             cl->state = RFB_AUTHENTICATION;
         }
         // Otherwise just send NO auth
-        else if (allowNoAuth) {
+        else if (cl->reverseConnection || allowNoAuth) {
             *(CARD32 *)buf = Swap32IfLE(rfbNoAuth);
             len = 4;
 
