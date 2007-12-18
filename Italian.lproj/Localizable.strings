@@ -1,8 +1,8 @@
 {
-"Host Name:" = "Nome dell'Host:";
-"Host Names:" = "Nomi degli Host:";
-"IP Address:" = "Indirizzo IP:";
-"IP Addresses:" = "Indirizzi IP:";
+"Host Name" = "Nome dell'Host";
+"Host Names" = "Nomi degli Host";
+"IP Address" = "Indirizzo IP";
+"IP Addresses" = "Indirizzi IP";
 "Screen Resolution changed - Server Reinitialized" = "Risoluzione schermo cambiata - Server Reinizializzato";
 "Server Running" = "Il server è in esecuzione";
 "The server is not running." = "Il server non è in esecuzione.";

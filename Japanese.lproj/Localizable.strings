@@ -1,6 +1,8 @@
 {
-"Host Names:" = "ホスト名：";
-"IP Addresses:" = "IP アドレス：";
+"Host Name" = "ホスト名";
+"Host Names" = "ホスト名";
+"IP Address" = "IP アドレス";
+"IP Addresses" = "IP アドレス";
 "Screen Resolution changed - Server Reinitialized" = "画面の解像度が変更 - サーバを再初期化しました。";
 "Server Running" = "サーバは動作中。";
 "The server is not running." = "サーバは動作していません。";
