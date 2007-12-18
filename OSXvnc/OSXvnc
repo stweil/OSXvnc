@@ -9,12 +9,14 @@
 
 VNCPATH="/Library/StartupItems/OSXvnc"
 VNCARGS="-rfbport 5900 -rfbauth $VNCPATH/.osxvncauth -swapButtons -dontdisconnect"
+VNCLOG="/Library/Logs/VineServer.log"
 
 #
 # Modification Log:
 #
 # 3.0
 # Removed dash from ps -auxwww for 10.5 compatibility
+# Added VNCLOG path, set to /Library/Logs/VineServer.log
 #
 # 1.6
 # Added missing backslashes to the Awk command when stopping OSXvnc-keepalive
@@ -86,11 +88,11 @@ fi
 if [ -x "$VNCPATH" ]; then
     ConsoleMessage "Starting OSXvnc Server"
 
-    if [ -e /var/log/osxvnc.log ]; then
-        /bin/mv -f /var/log/osxvnc.log /var/log/osxvnc.log.1
+    if [ -e "$VNCLOG" ]; then
+        /bin/mv -f "$VNCLOG" "$VNCLOG.1"
     fi
 
-    $0-keepalive "$VNCPATH/OSXvnc-server" $VNCARGS > /var/log/osxvnc.log 2>&1 &
+    $0-keepalive "$VNCPATH/OSXvnc-server" $VNCARGS > $VNCLOG 2>&1 &
 else
     ConsoleMessage "Unable to find OSXvnc"
     exit -1
