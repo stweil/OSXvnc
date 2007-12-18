@@ -13,7 +13,9 @@
 @interface VNCController : NSObject {
     IBOutlet NSMenuItem *startServerMenuItem;
     IBOutlet NSMenuItem *stopServerMenuItem;
-	
+
+	IBOutlet NSMenuItem *serverMenuItem;
+
 	IBOutlet NSWindow *statusWindow;
 	IBOutlet NSWindow *preferenceWindow;
 	IBOutlet NSWindow *reverseConnectionWindow;

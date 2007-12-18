@@ -168,6 +168,8 @@ NSMutableArray *localIPAddresses() {
         @"", @"PasswordFile",
         @"", @"LogFile",
 		[NSString stringWithFormat:@"%@ (%@)", hostName, NSUserName()], @"desktopName",
+		
+		@"5900", @"portNumberSystemServer", 
 		hostName, @"desktopNameSystemServer", 
 
 		@"NO", @"allowSleep",
@@ -287,6 +289,10 @@ NSMutableArray *localIPAddresses() {
     }
 }
 
+- (BOOL) authenticationIsValid {
+	return ([automaticReverseHost length] || [[[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"] length] || [[NSUserDefaults standardUserDefaults] integerForKey:@"AuthenticationType"] > 1);
+}
+
 - (void) updateHostInfo {
 	// These commands can sometimes take a little while, so we have a dedicated thread for them
 	if (!waitingForHostInfo) {
@@ -377,15 +383,15 @@ NSMutableArray *localIPAddresses() {
 	[commonHostNames removeObject:@"localhost"];
 
 	if ([commonHostNames count] > 1) {
-		[hostNamesBox setTitle:LocalizedString(@"Host Names:")];
+		[hostNamesBox setTitle:LocalizedString(@"Host Names")];
 		[hostNamesField setStringValue:[commonHostNames componentsJoinedByString:@"\n"]];	
 	}
 	else if ([commonHostNames count] == 1) {
-		[hostNamesBox setTitle:LocalizedString(@"Host Name:")];
+		[hostNamesBox setTitle:LocalizedString(@"Host Name")];
 		[hostNamesField setStringValue:[commonHostNames componentsJoinedByString:@"\n"]];	
 	}
 	else {
-		[hostNamesBox setTitle:LocalizedString(@"Host Name:")];
+		[hostNamesBox setTitle:LocalizedString(@"Host Name")];
 		[hostNamesField setStringValue:@""];
 	}
 }
@@ -431,11 +437,11 @@ NSMutableArray *localIPAddresses() {
 	[ipAddressesView sizeToCells];
 	
 	if ([commonIPAddresses count] > 1) {
-		[ipAddressesBox setTitle:LocalizedString(@"IP Addresses:")];
+		[ipAddressesBox setTitle:LocalizedString(@"IP Addresses")];
 		//[ipAddressesField setStringValue:[commonIPAddresses componentsJoinedByString:@"\n"]];
 	}
 	else {
-		[ipAddressesBox setTitle:LocalizedString(@"IP Address:")];
+		[ipAddressesBox setTitle:LocalizedString(@"IP Address")];
 		//[ipAddressesField setStringValue:@""];
 	}
 }
@@ -524,11 +530,7 @@ NSMutableArray *localIPAddresses() {
     [statusWindow setTitle:[NSString stringWithFormat:@"%@: %@",
         [infoDictionary objectForKey:@"CFBundleName"],
         [displayNameField stringValue]]];
-    
-    [statusWindow setFrameUsingName:@"Server Panel"];
-    [statusWindow setFrameAutosaveName:@"Server Panel"];
-	[statusWindow setExcludedFromWindowsMenu:YES];
-	
+    	
     [optionsTabView selectTabViewItemAtIndex:0];
 
 	systemServerIsConfigured = ([[NSFileManager defaultManager] fileExistsAtPath:[[NSUserDefaults standardUserDefaults] stringForKey:@"startupItemLocation"]] ||
@@ -551,12 +553,13 @@ NSMutableArray *localIPAddresses() {
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {	
 	[statusWindow makeMainWindow];
-	if (![statusWindow attachedSheet] && [startServerOnLaunchCheckbox state])
+	if ([startServerOnLaunchCheckbox state])// && [self authenticationIsValid])
         [self startServer: self];
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification {
-    //[statusWindow makeKeyAndOrderFront:self];
+	if (![statusWindow isVisible])
+		[statusWindow makeKeyAndOrderFront:self];
 	[self updateHostInfo];
 }
 
@@ -693,6 +696,7 @@ NSMutableArray *localIPAddresses() {
 	
 	[disableStartupButton setEnabled:systemServerIsConfigured];
 	[systemServerMenu setState: (systemServerIsConfigured ? NSOnState : NSOffState)];
+	[setStartupButton setTitle: (systemServerIsConfigured ? LocalizedString(@"Restart System Server") : LocalizedString(@"Start System Server"))];
 }
 
 - (void) loadAuthenticationUI {
@@ -705,8 +709,6 @@ NSMutableArray *localIPAddresses() {
 	else if (authType == 2) {
 		[authenticationType selectCellWithTag: 2];		
 	}
-	else if (![automaticReverseHost length])
-		[NSApp beginSheet: initialWindow modalForWindow:statusWindow modalDelegate:nil didEndSelector: NULL contextInfo: NULL];
 
 	[limitToLocalConnections setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnly"]];
 }
@@ -798,7 +800,8 @@ NSMutableArray *localIPAddresses() {
 	[dontDisconnectCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"dontDisconnectClients"]];
     [self changeSharing:self];
 
-	[protocolVersion selectItemWithTitle:[[NSUserDefaults standardUserDefaults] stringForKey:@"protocolVersion"]];
+	if ([[NSUserDefaults standardUserDefaults] floatForKey:@"protocolVersion"] > 0.0)
+		[protocolVersion selectItemWithTitle:[[NSUserDefaults standardUserDefaults] stringForKey:@"protocolVersion"]];
 	[otherArguments setStringValue:[[NSUserDefaults standardUserDefaults] stringForKey:@"otherArguments"]];
 	
 	[startServerOnLaunchCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"startServerOnLaunch"]];
@@ -871,19 +874,21 @@ NSMutableArray *localIPAddresses() {
         [self stopServer: self];
         return;
     }
-
 	if (![preferenceWindow makeFirstResponder:preferenceWindow]) {
         [preferenceWindow endEditingFor:nil];
 	}
-	
     if (![statusWindow makeFirstResponder:statusWindow]) {
         [statusWindow endEditingFor:nil];
 	}
-
 	if ([[displayNumberField selectedItem] tag] == 0) {
 		[self loadUIForPort:0];  // To update the UI on the likely port that we will get
 	}
 
+	
+	if (![self authenticationIsValid]) {
+		[NSApp beginSheet: initialWindow modalForWindow:statusWindow modalDelegate:nil didEndSelector: NULL contextInfo: NULL];
+		return;
+	}
 	if ([[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"] && ![[[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"] writeToFile: passwordFile atomically:NO]) {
 		[self addStatusMessage:@"Unable to start - problem writing vnc password file"];
 		return;
@@ -893,7 +898,7 @@ NSMutableArray *localIPAddresses() {
         NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
 
         NSString *executionPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"OSXvnc-server"];
-        NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting %@ Version %@\n", [NSDate date], [[NSProcessInfo processInfo] processName], [infoDictionary valueForKey:@"CFBundleVersion"]];
+        NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting %@ %@(%@)\n", [NSDate date], [[NSProcessInfo processInfo] processName], [infoDictionary valueForKey:@"CFBundleShortVersion"], [infoDictionary valueForKey:@"CFBundleVersion"]];
 
 		[self determineLogLocation];
         if (![[NSFileManager defaultManager] fileExistsAtPath:logFile]) {
@@ -937,7 +942,9 @@ NSMutableArray *localIPAddresses() {
 			[statusMessageField setStringValue:LocalizedString(@"Server Running")];
         //[startServerButton setEnabled:FALSE];
 		[startServerButton setTitle:LocalizedString(@"Restart Server")];
+		[startServerMenuItem setTitle:LocalizedString(@"Restart Server")];
         [stopServerButton setEnabled:TRUE];
+		[serverMenuItem setState: NSOnState];
 		// We really don't want people to accidentally stop the server
         //[startServerButton setKeyEquivalent:@""];
         //[stopServerButton setKeyEquivalent:@"\r"];
@@ -987,9 +994,11 @@ NSMutableArray *localIPAddresses() {
 	
 	[preferencesMessageTestField setStringValue:@""];
     [startServerButton setTitle:LocalizedString(@"Start Server")];
+	[startServerMenuItem setTitle:LocalizedString(@"Start Server")];
     //[startServerButton setEnabled:TRUE];
     [stopServerButton setEnabled:FALSE];
-    //[stopServerButton setKeyEquivalent:@""];
+	[serverMenuItem setState: NSOffState];
+	//[stopServerButton setKeyEquivalent:@""];
     //[startServerButton setKeyEquivalent:@"\r"];
 
     if (userStopped)
@@ -1196,7 +1205,6 @@ NSMutableArray *localIPAddresses() {
 - (IBAction) validateInitialAuthentication: sender {
 	NSString *passwordString = [initialPasswordText stringValue];
 
-	[initialDoneButton setEnabled: FALSE];		
 	if (sender == initialPasswordText && [passwordString length]) {
 		[initialAuthenticationType selectCellWithTag:1];
 		[initialDoneButton setEnabled: TRUE];		
@@ -1205,14 +1213,18 @@ NSMutableArray *localIPAddresses() {
 		int newAuth = [[initialAuthenticationType selectedCell] tag];
 		if (newAuth == 1) {
 			[initialPasswordText setStringValue:@""];
+			[initialDoneButton setEnabled: FALSE];		
 			[[initialPasswordText window] makeFirstResponder: initialPasswordText];
 		}
 		// No Auth
-		else if (newAuth == 2) {
+		else { //if (newAuth == 2) {
 			[initialPasswordText setStringValue:@""];
-			[initialDoneButton setEnabled: TRUE];
 			[[initialPasswordText window] makeFirstResponder: nil];
+			[initialDoneButton setEnabled: TRUE];
 		}
+	}
+	else {
+		[initialDoneButton setEnabled: FALSE];		
 	}
 }
 
