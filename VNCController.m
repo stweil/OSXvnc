@@ -1488,7 +1488,7 @@ NSMutableArray *localIPAddresses() {
 }
 
 - (IBAction) openReleaseNotes:(id) sender {
-    NSString *openPath = [[NSBundle mainBundle] pathForResource:@"Release Notes" ofType:@"rtf"];
+    NSString *openPath = [[NSBundle mainBundle] pathForResource:@"Vine Server Release Notes" ofType:@"rtf"];
 	
     [[NSWorkspace sharedWorkspace] openFile:openPath];
 }

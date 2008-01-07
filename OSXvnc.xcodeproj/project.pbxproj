@@ -16,7 +16,7 @@
 		AB0CC2020CCD4C4300C74547 /* TigerBundle.bundle in Resources */ = {isa = PBXBuildFile; fileRef = AB0CBF9C0CCD1C0500C74547 /* TigerBundle.bundle */; };
 		AB25D81E08686B520065843D /* MainMenu.nib in Resources */ = {isa = PBXBuildFile; fileRef = 29B97318FDCFA39411CA2CEA /* MainMenu.nib */; };
 		AB25D81F08686B520065843D /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = F57BB467027E036F014B5D3F /* Credits.rtf */; };
-		AB25D82008686B520065843D /* Release Notes.rtf in Resources */ = {isa = PBXBuildFile; fileRef = AB541C2907A0264F00B63668 /* Release Notes.rtf */; };
+		AB25D82008686B520065843D /* Vine Server Release Notes.rtf in Resources */ = {isa = PBXBuildFile; fileRef = AB541C2907A0264F00B63668 /* Vine Server Release Notes.rtf */; };
 		AB25D82108686B520065843D /* Copying.rtf in Resources */ = {isa = PBXBuildFile; fileRef = AB541C3B07A0273500B63668 /* Copying.rtf */; };
 		AB25D82208686B520065843D /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = ABD7FE7E07AFF8B4004D0B81 /* Localizable.strings */; };
 		AB25D82608686B520065843D /* OSXvnc in Resources */ = {isa = PBXBuildFile; fileRef = ABCCC8B203D9C60A00A80117 /* OSXvnc */; };
@@ -208,7 +208,7 @@
 		AB0CBFA60CCD1C7900C74547 /* TigerExtensions.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = TigerExtensions.m; sourceTree = "<group>"; };
 		AB15010D04F6A94500A80117 /* RFBBundleProtocol.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RFBBundleProtocol.h; sourceTree = "<group>"; };
 		AB25D83708686B520065843D /* VineServer-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "VineServer-Info.plist"; sourceTree = "<group>"; };
-		AB25D83808686B520065843D /* Vine Server.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = "Vine Server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AB25D83808686B520065843D /* Vine Server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Vine Server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB25D87D08686C7D0065843D /* JaguarBundle-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = "JaguarBundle-Info.plist"; sourceTree = "<group>"; };
 		AB25D87E08686C7D0065843D /* JaguarBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = JaguarBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB25D9B10868799D0065843D /* libstdc++.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = "libstdc++.a"; path = "/usr/lib/gcc/darwin/3.3/libstdc++.a"; sourceTree = "<absolute>"; };
@@ -445,7 +445,7 @@
 		F5456A2802FAD08901A80117 /* VNCController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = VNCController.m; sourceTree = "<group>"; };
 		F5456A2902FAD08901A80117 /* VNCController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = VNCController.h; sourceTree = "<group>"; };
 		F54B48D8038C32FA01A80117 /* OSXvnc.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = OSXvnc.tiff; sourceTree = "<group>"; };
-		F55FDAB502FB44CE01A80117 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = "English.lproj/Release Notes.rtf"; sourceTree = "<group>"; };
+		F55FDAB502FB44CE01A80117 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = "English.lproj/Vine Server Release Notes.rtf"; sourceTree = "<group>"; };
 		F570ED1002F9DA7601A80186 /* OSXvnc.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = OSXvnc.icns; sourceTree = SOURCE_ROOT; };
 		F5753F450343ACD501A80186 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Copying.rtf; sourceTree = "<group>"; };
 		F57BB468027E036F014B5D3F /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
@@ -596,10 +596,10 @@
 			isa = PBXGroup;
 			children = (
 				AB3E27F70AF947FB004AF567 /* Vine Server.pdf */,
+				AB541C2907A0264F00B63668 /* Vine Server Release Notes.rtf */,
 				096B69DC0097995A7F000001 /* OSXvnc.html */,
 				ABCCC8B203D9C60A00A80117 /* OSXvnc */,
 				ABD7FE7E07AFF8B4004D0B81 /* Localizable.strings */,
-				AB541C2907A0264F00B63668 /* Release Notes.rtf */,
 				AB541C3B07A0273500B63668 /* Copying.rtf */,
 				F57BB467027E036F014B5D3F /* Credits.rtf */,
 				29B97318FDCFA39411CA2CEA /* MainMenu.nib */,
@@ -1114,7 +1114,7 @@
 			files = (
 				AB25D81E08686B520065843D /* MainMenu.nib in Resources */,
 				AB25D81F08686B520065843D /* Credits.rtf in Resources */,
-				AB25D82008686B520065843D /* Release Notes.rtf in Resources */,
+				AB25D82008686B520065843D /* Vine Server Release Notes.rtf in Resources */,
 				AB25D82108686B520065843D /* Copying.rtf in Resources */,
 				AB25D82208686B520065843D /* Localizable.strings in Resources */,
 				AB25DA5108688E100065843D /* JaguarBundle.bundle in Resources */,
@@ -1367,12 +1367,12 @@
 			name = MainMenu.nib;
 			sourceTree = "<group>";
 		};
-		AB541C2907A0264F00B63668 /* Release Notes.rtf */ = {
+		AB541C2907A0264F00B63668 /* Vine Server Release Notes.rtf */ = {
 			isa = PBXVariantGroup;
 			children = (
 				F55FDAB502FB44CE01A80117 /* English */,
 			);
-			name = "Release Notes.rtf";
+			name = "Vine Server Release Notes.rtf";
 			sourceTree = "<group>";
 		};
 		AB541C3B07A0273500B63668 /* Copying.rtf */ = {
@@ -1637,7 +1637,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1016;
+				CURRENT_PROJECT_VERSION = 1018;
 				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -1660,7 +1660,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1016;
+				CURRENT_PROJECT_VERSION = 1018;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp;
