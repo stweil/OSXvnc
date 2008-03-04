@@ -225,13 +225,18 @@ void loadDynamicBundles(BOOL startup) {
 
             NSLog(@"Loading Bundle %@", bundlePath);
 
-            if ([aBundle load]) {
-                [bundleArray addObject:aBundle];
-				[[aBundle principalClass] rfbStartup: &thisServer];
-            }
-            else {
-                NSLog(@"\t-Bundle Load Failed");
-            }
+			NS_DURING {
+				if ([aBundle load]) {
+					[bundleArray addObject:aBundle];
+					[[aBundle principalClass] rfbStartup: &thisServer];
+				}
+				else {
+					NSLog(@"\t-Bundle Load Failed");
+				}
+			}
+			NS_HANDLER
+				NSLog(@"\t-Bundle Load Failed (%@)", [localException name]);
+			NS_ENDHANDLER
         }
     }
     else {
@@ -1086,6 +1091,8 @@ int main(int argc, char *argv[]) {
 
     loadKeyTable();
 
+	[[NSUserDefaults standardUserDefaults] addSuiteNamed:@"com.redstonesoftware.VineServer"];
+	
     processArguments(argc, argv);
 
 	if (rfbPort == 0)
