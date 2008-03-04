@@ -57,8 +57,11 @@ rfbserver *theServer;
 	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
 		@"NO", @"keyboardLoading", // allows OSXvnc to look at the users selected keyboard and map keystrokes using it
 		@"YES", @"pressModsForKeys", // If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it
+		[NSArray arrayWithObjects:[NSNumber numberWithInt:kUCKeyActionDisplay], [NSNumber numberWithInt:kUCKeyActionAutoKey], nil], @"KeyStates", // Key States to review to find KeyCodes
+		//[NSNumber numberWithInt:kUCKeyActionDisplay], [NSNumber numberWithInt:kUCKeyActionDown], nil],
+		[NSArray arrayWithObjects:[NSNumber numberWithInt:kUCKeyActionAutoKey], [NSNumber numberWithInt:kUCKeyActionDisplay], [NSNumber numberWithInt:kUCKeyActionDown], nil], @"KeyStates", // Key States to review to find KeyCodes
 		nil]];
-    
+
     theServer = aServer;
 	
 	keyboardLoading = [[NSUserDefaults standardUserDefaults] boolForKey:@"keyboardLoading"];	
@@ -124,13 +127,14 @@ rfbserver *theServer;
 // This will use the KeyboardLayoutRef to produce a static table of lookups
 // By iterating through all possible KeyCodes
 + (void) loadKeyboard: (KeyboardLayoutRef) keyboardLayoutRef {
-    int i;
-    int keysLoaded = 0;
+    int i, j;
     UCKeyboardLayout *uchrHandle = NULL;
     const void *kchrHandle = NULL;
     CFStringRef keyboardName;
     KeyboardLayoutKind layoutKind;
     static UInt32 modifierKeyStates[] = {0, shiftKey, optionKey, controlKey, optionKey | shiftKey, optionKey | controlKey, controlKey | shiftKey, optionKey | shiftKey | controlKey};
+	UInt32 modifierKeyState = 0;	
+	NSArray *keyStates = [[NSUserDefaults standardUserDefaults] arrayForKey:@"KeyStates"];
 	
     /* modifiers */
     //cmdKey                        = 1 << cmdKeyBit,
@@ -161,11 +165,10 @@ rfbserver *theServer;
         // This layout gets a little harry
 
         UInt16 keyCode;
-        UInt32 modifierKeyState = 0;
         UInt32 keyboardType = LMGetKbdType();
         UInt32 deadKeyState = 0;
         UniCharCount actualStringLength;
-        UniChar unicodeChar;
+        UniChar unicodeChar[255];
 
         // Iterate Over Each Modifier Keyset
         for (i=0; i < (sizeof(modifierKeyStates) / sizeof(UInt32)); i++) {
@@ -173,35 +176,40 @@ rfbserver *theServer;
             //NSLog(@"Loading Keys For Modifer State: %#04x", modifierKeyState);
             // Iterate Over Each Key Code
             for (keyCode = 0; keyCode < 127; keyCode++) {
-                OSStatus resultCode = UCKeyTranslate (uchrHandle,
-                                                      keyCode,
-                                                      kUCKeyActionDown,
-                                                      modifierKeyState,
-                                                      keyboardType,
-                                                      kUCKeyTranslateNoDeadKeysBit,
-                                                      &deadKeyState,
-                                                      1, // Only 1 key allowed due to VNC behavior
-                                                      &actualStringLength,
-                                                      &unicodeChar);
-
-                if (resultCode == kUCOutputBufferTooSmall) {
-                    NSLog(@"Unable To Convert KeyCode, Multiple Characters For: %d (%#04x)",  keyCode, modifierKeyState);
-                }
-                else if (resultCode == noErr) {
-                    // We'll use the FIRST keyCode that we find for that UNICODE character
-                    if (theServer->keyTable[unicodeChar] == 0xFFFF) {
-                        theServer->keyTable[unicodeChar] = keyCode;
-                        theServer->keyTableMods[unicodeChar] = modifierKeyState;
-                        keysLoaded++;
-                    }
-                }
-            }
-            //NSLog(@"Loaded %d Keys", keysLoaded);
-            keysLoaded = 0;
+				for (j=0; j < [keyStates count]; j++) {
+					int keyActionState = [[keyStates objectAtIndex:j] intValue];
+					OSStatus resultCode = UCKeyTranslate (uchrHandle,
+														  keyCode,
+														  keyActionState,
+														  modifierKeyState,
+														  keyboardType,
+														  kUCKeyTranslateNoDeadKeysBit,
+														  &deadKeyState,
+														  255, // Only 1 key allowed due to VNC behavior
+														  &actualStringLength,
+														  unicodeChar);
+					
+					if (resultCode == noErr) {
+						if (actualStringLength > 1) {
+							NSLog(@"Multiple Characters For %d (%#04x): %S",  keyCode, modifierKeyState, unicodeChar);
+							//unicodeChar[0] = unicodeChar[actualStringLength-1];
+						}
+						else {
+							// We'll use the FIRST keyCode that we find for that UNICODE character
+							if (theServer->keyTable[unicodeChar[0]] == 0xFFFF) {
+								theServer->keyTable[unicodeChar[0]] = keyCode;
+								theServer->keyTableMods[unicodeChar[0]] = modifierKeyState;
+							}
+						}
+					}
+					else {
+						NSLog(@"Error Translating %d (%#04x): %d",  keyCode, modifierKeyState, resultCode);
+					}
+				}
+			}
         }
     }
     else if (kchrHandle) {
-        UInt32 modifierKeyState = 0;
         UInt16 keyCode;
         UInt32 state=0;
         UInt32 kchrCharacters;
@@ -228,12 +236,9 @@ rfbserver *theServer;
                         //NSLog(@"KeyCode:%d UniCode:%d", keyCode, kchrCharacters & 0xFFFF);
                         theServer->keyTable[kchrCharacters & 0xFFFF] = keyCode;
                         theServer->keyTableMods[kchrCharacters & 0xFFFF] = modifierKeyState;
-                        keysLoaded++;
                     }
                 }
             }
-            //NSLog(@"Loaded %d Keys", keysLoaded);
-            keysLoaded = 0;
         }
     }
     else {
@@ -323,7 +328,7 @@ rfbserver *theServer;
 	int argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-rendezvous"];
 	RendezvousDelegate *rendezvousDelegate = [[RendezvousDelegate alloc] init];
 	
-    if (argumentIndex != NSNotFound) {
+    if (argumentIndex == NSNotFound) {
 		argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-bonjour"];
 	}
 	
