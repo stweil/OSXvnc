@@ -104,8 +104,11 @@
 
 @implementation VNCController
 
+static int shutdownSignal = 0;
+
 static void terminateOnSignal(int signal) {
-    NSLog(@"Trapped Signal %d -- Terminating", signal);
+	shutdownSignal = signal;
+    NSLog(@"Trapped Signal %d -- Terminating", shutdownSignal);
     [NSApp terminate:NSApp];
 }
 
@@ -223,7 +226,7 @@ NSMutableArray *localIPAddresses() {
 }
 
 - (IBAction) terminateRequest: sender {
-	if ([clientList count])
+	if ([clientList count] && !shutdownSignal)
 		NSBeginAlertSheet(LocalizedString(@"Quit Vine Server"),
 						  LocalizedString(@"Cancel"), 
 						  LocalizedString(@"Quit"), 
@@ -275,13 +278,16 @@ NSMutableArray *localIPAddresses() {
             NSBundle *aBundle = [NSBundle bundleWithPath:bundlePath];
 			
             NSLog(@"Loading Bundle %@", bundlePath);
-			
-            if ([aBundle load]) {
-				[bundleArray addObject: aBundle];
-            }
-            else {
-                NSLog(@"\t-Bundle Load Failed");
-            }
+
+			NS_DURING {
+				if ([aBundle load]) 
+					[bundleArray addObject: aBundle];
+				else
+					NSLog(@"\t-Bundle Load Failed");
+			};
+			NS_HANDLER
+				NSLog(@"\t-Bundle Load Failed (%@)", [localException name]);
+			NS_ENDHANDLER
         }
     }
     else {
@@ -1007,7 +1013,7 @@ NSMutableArray *localIPAddresses() {
 		NSMutableString *messageString = [NSMutableString stringWithFormat: LocalizedString(@"Vine Server can't listen on the specified port (%d)."), [self runningPortNum]];
 		[messageString appendString:@"\n"];
 		if (systemServerIsConfigured)
-			[messageString appendString:LocalizedString(@"Probably because the OSXvnc server is already running as a Startup Item.")];
+			[messageString appendString:LocalizedString(@"Probably because the VNC server is already running as a Startup Item.")];
 		else
 			[messageString appendString:LocalizedString(@"Probably because another VNC is already using this port.")];
 		[statusMessageField setStringValue:messageString];
@@ -1073,8 +1079,6 @@ NSMutableArray *localIPAddresses() {
 		if ([systemServerLimitToLocalConnections state])
 			[argv addObject:@"-localhost"];
 		
-		[argv addObject:@"-donotloadproxy"];
-
 		[argv addObject:@"-SystemServer"];
 		[argv addObject:@"1"];
 	}
@@ -1090,6 +1094,8 @@ NSMutableArray *localIPAddresses() {
 			[argv addObject:[displayNameField stringValue]];
 		}
 
+		[argv addObject:@"-donotloadproxy"];
+		
 		switch ([[authenticationType selectedCell] tag]) {
 			case 2:
 				[argv addObject:@"-rfbnoauth"];
