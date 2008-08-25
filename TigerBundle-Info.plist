@@ -18,5 +18,7 @@
 	<string>1.0</string>
 	<key>NSPrincipalClass</key>
 	<string>TigerExtensions</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.4</string>
 </dict>
 </plist>
