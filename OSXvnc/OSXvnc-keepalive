@@ -59,7 +59,7 @@ do
 	# signal code 137 = 9 + 128 corresponds to SIGKILL (kill signal from term) 
 	# this signal is sent when a user logs out 
 	# don't treat recurrence of this code as an error; let the server restart! 
-	if [ "$RESULT" -ne "137" ] 
+	if [ "$RESULT" -ne "137" -o "$RESULT" -ne "134" ] 
 	then 
         # check for same problem recurring frequently
         COUNT=`cut -f1,7 -d' ' < /var/log/osxvnc_exit.log |
