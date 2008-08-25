@@ -119,6 +119,9 @@
 		ABA7B6A0094A163D00CD7499 /* jmemnobs.c in Sources */ = {isa = PBXBuildFile; fileRef = F538E08B02F9812A01A80186 /* jmemnobs.c */; };
 		ABA7B6D0094A170E00CD7499 /* vncauth.c in Sources */ = {isa = PBXBuildFile; fileRef = ABA7B3D30948CB5D00CD7499 /* vncauth.c */; };
 		ABA7B6D6094A171A00CD7499 /* d3des.c in Sources */ = {isa = PBXBuildFile; fileRef = ABA7B3D10948CB5D00CD7499 /* d3des.c */; };
+		ABD29D3F0D80B569005BFA6B /* VNCBundle.h in Headers */ = {isa = PBXBuildFile; fileRef = ABD29D3D0D80B569005BFA6B /* VNCBundle.h */; };
+		ABD29D400D80B569005BFA6B /* VNCBundle.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD29D3E0D80B569005BFA6B /* VNCBundle.m */; };
+		ABD29D410D80B569005BFA6B /* VNCBundle.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD29D3E0D80B569005BFA6B /* VNCBundle.m */; };
 		ABFC222C0AF08CBA00BCE727 /* VineServer.icns in Resources */ = {isa = PBXBuildFile; fileRef = ABFC222B0AF08CBA00BCE727 /* VineServer.icns */; };
 /* End PBXBuildFile section */
 
@@ -235,6 +238,8 @@
 		ABB834BD0CFE7464006EF1B6 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABC7279D08439A0400F755B3 /* Japanese */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABCCC8B203D9C60A00A80117 /* OSXvnc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = OSXvnc; sourceTree = "<group>"; };
+		ABD29D3D0D80B569005BFA6B /* VNCBundle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VNCBundle.h; sourceTree = "<group>"; };
+		ABD29D3E0D80B569005BFA6B /* VNCBundle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VNCBundle.m; sourceTree = "<group>"; };
 		ABD7FE7F07AFF8B4004D0B81 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABD8EC07058A0BD600C84739 /* NSAuthorization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSAuthorization.h; sourceTree = "<group>"; };
 		ABD8EC08058A0BD600C84739 /* NSAuthorization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAuthorization.m; sourceTree = "<group>"; };
@@ -568,6 +573,8 @@
 				AB15010D04F6A94500A80117 /* RFBBundleProtocol.h */,
 				ABD8EC07058A0BD600C84739 /* NSAuthorization.h */,
 				ABD8EC08058A0BD600C84739 /* NSAuthorization.m */,
+				ABD29D3D0D80B569005BFA6B /* VNCBundle.h */,
+				ABD29D3E0D80B569005BFA6B /* VNCBundle.m */,
 				AB3598E904BF8A6500A80117 /* JaguarExtensions.h */,
 				AB3598EA04BF8A6500A80117 /* JaguarExtensions.m */,
 				AB0CBFA50CCD1C7900C74547 /* TigerExtensions.h */,
@@ -919,6 +926,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				ABD29D3F0D80B569005BFA6B /* VNCBundle.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1078,6 +1086,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			buildConfigurationList = ABECD3EE08E46414009C84A0 /* Build configuration list for PBXProject "OSXvnc" */;
+			compatibilityVersion = "Xcode 2.4";
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1088,6 +1097,7 @@
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* OSXvnc */;
 			projectDirPath = "";
+			projectRoot = "";
 			targets = (
 				AB25D81508686B520065843D /* Vine Server */,
 				AB25D87108686C7D0065843D /* JaguarBundle */,
@@ -1184,6 +1194,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB0CBFA70CCD1C8000C74547 /* TigerExtensions.m in Sources */,
+				ABD29D410D80B569005BFA6B /* VNCBundle.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1204,6 +1215,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AB25D87808686C7D0065843D /* JaguarExtensions.m in Sources */,
+				ABD29D400D80B569005BFA6B /* VNCBundle.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1637,7 +1649,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1018;
+				CURRENT_PROJECT_VERSION = 1022;
 				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -1659,8 +1671,8 @@
 		ABECD3EC08E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1018;
+				COPY_PHASE_STRIP = YES;
+				CURRENT_PROJECT_VERSION = 1022;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp;

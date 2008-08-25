@@ -1204,8 +1204,7 @@ Bool rfbSendRectEncodingRaw(rfbClientPtr cl, int x, int y, int w, int h) {
     cl->ublen += sz_rfbFramebufferUpdateRectHeader;
 
     cl->rfbRectanglesSent[rfbEncodingRaw]++;
-    cl->rfbBytesSent[rfbEncodingRaw]
-        += sz_rfbFramebufferUpdateRectHeader + bytesPerLine * h;
+    cl->rfbBytesSent[rfbEncodingRaw] += sz_rfbFramebufferUpdateRectHeader + bytesPerLine * h;
 
     nlines = (UPDATE_BUF_SIZE - cl->ublen) / bytesPerLine;
 

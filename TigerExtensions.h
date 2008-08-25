@@ -12,13 +12,12 @@
 
 #import "RFBBundleProtocol.h"
 
-@interface TigerExtensions : NSObject <RFBBundleProtocol> {
+@interface TigerExtensions : VNCBundle <RFBBundleProtocol> {
 }
 
 + (void) systemServerShouldQuit: (NSNotification *) aNotification;
 + (void) systemServerShouldContinue: (NSNotification *) aNotification;
 
-+ (void) loadKeyboard: (KeyboardLayoutRef) keyboardLayoutRef;
 + (void) loadUnicodeKeyboard;
 	
 @end

@@ -11,11 +11,11 @@
 #import <Carbon/Carbon.h>
 
 #import "RFBBundleProtocol.h"
+#import "VNCBundle.h"
 
-@interface JaguarExtensions : NSObject <RFBBundleProtocol> {
+@interface JaguarExtensions : VNCBundle <RFBBundleProtocol> {
 }
 
-+ (void) loadKeyboard: (KeyboardLayoutRef) keyboardLayoutRef;
 + (void) registerRendezvous;
 
 @end

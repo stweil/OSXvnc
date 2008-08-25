@@ -62,6 +62,8 @@ CGKeyCode keyCodeOption;
 CGKeyCode keyCodeControl;
 CGKeyCode keyCodeCommand;
 
+int modifierDelay = 0;
+
 rfbserver *theServer;
 
 // This routine waits for the window server to register its per-session 
@@ -124,6 +126,12 @@ bool isConsoleSession() {
 	return returnValue;
 }
 
++ (void) load {
+	if (NSAppKitVersionNumber < NSAppKitVersionNumber10_4) {
+		[NSException raise:@"Tiger (10.4) Required" format:@"Unable to load Tiger Bundle"];
+	}
+}
+
 + (void) rfbStartup: (rfbserver *) aServer {
 	[[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
 		@"NO", @"UnicodeKeyboard", // Load The Unicode Keyboard
@@ -132,6 +140,7 @@ bool isConsoleSession() {
 
 		@"2", @"EventSource", // Always private event source so we don't consolidate with existing keys (however HID for the EventTap always does anyhow)
 		@"3", @"EventTap", // Default Event Tap (3=HID for Console User and Session For OffScreen Users)
+		@"5000", @"ModifierDelay", // Delay when shifting modifier keys
 		@"NO", @"SystemServer", 
 		nil]];
 
@@ -168,6 +177,8 @@ bool isConsoleSession() {
 		}
 	}
 
+	modifierDelay = [[NSUserDefaults standardUserDefaults] integerForKey:@"ModifierDelay"];
+
 	[self loadUnicodeKeyboard];
 }
 
@@ -181,136 +192,6 @@ bool isConsoleSession() {
     NSLog(@"User Switched In, Starting System Server - %@", [aNotification name]);
 	readyToStartup = YES;
 	return;
-}
-
-+ (void) loadKeyboard: (KeyboardLayoutRef) keyboardLayoutRef {
-    int i;
-    int keysLoaded = 0;
-    UCKeyboardLayout *uchrHandle = NULL;
-    const void *kchrHandle = NULL;
-    CFStringRef keyboardName;
-    KeyboardLayoutKind layoutKind;
-    static UInt32 modifierKeyStates[] = {0, shiftKey, optionKey, controlKey };
-	//{0, shiftKey, optionKey, controlKey, optionKey | shiftKey, optionKey | controlKey, controlKey | shiftKey, optionKey | shiftKey | controlKey};
-	
-    /* modifiers */
-    //cmdKey                        = 1 << cmdKeyBit,
-    //shiftKey                      = 1 << shiftKeyBit,
-    //alphaLock                     = 1 << alphaLockBit,
-    //optionKey                     = 1 << optionKeyBit,
-    //controlKey                    = 1 << controlKeyBit,
-    
-    // KLGetKeyboardLayoutProperty is 10.2 only how do I access these resources in early versions?
-    if (keyboardLayoutRef) {
-        KLGetKeyboardLayoutProperty(keyboardLayoutRef, kKLName, (const void **) &keyboardName);
-        KLGetKeyboardLayoutProperty(keyboardLayoutRef, kKLKind, (const void **) &layoutKind);
-        NSLog(@"Keyboard Detected: %@ (Type:%d) - Loading Keys\n", keyboardName, layoutKind);
-        if (layoutKind == kKLKCHRuchrKind || layoutKind == kKLuchrKind)
-            KLGetKeyboardLayoutProperty(keyboardLayoutRef, kKLuchrData, (const void **) &uchrHandle);
-        else
-            KLGetKeyboardLayoutProperty(keyboardLayoutRef, kKLKCHRData, (const void **) &kchrHandle);
-    }
-	
-    // Initialize them all to 0xFFFF
-    memset(theServer->keyTable, 0xFF, keyTableSize * sizeof(CGKeyCode));
-    memset(theServer->keyTableMods, 0xFF, keyTableSize * sizeof(unsigned char));
-	
-    if (uchrHandle) {
-        // Ok - we could get the LIST of Modifier Key States out of the Keyboard Layout
-        // some of them are duplicates so we need to compare them, then we'll iterate through them in reverse order
-        // UCKeyModifiersToTableNum = ; EventRecord
-        // This layout gets a little harry
-		
-        UInt16 keyCode;
-        UInt32 modifierKeyState = 0;
-        UInt32 keyboardType = LMGetKbdType();
-        UInt32 deadKeyState = 0;
-        UniCharCount actualStringLength;
-        UniChar unicodeChar;
-		
-        // Iterate Over Each Modifier Keyset
-        for (i=0; i < (sizeof(modifierKeyStates) / sizeof(UInt32)); i++) {
-            modifierKeyState = (modifierKeyStates[i] >> 8) & 0xFF;
-            //NSLog(@"Loading Keys For Modifer State: %#04x", modifierKeyState);
-            // Iterate Over Each Key Code
-            for (keyCode = 0; keyCode < 127; keyCode++) {
-                OSStatus resultCode = UCKeyTranslate (uchrHandle,
-                                                      keyCode,
-                                                      kUCKeyActionDown,
-                                                      modifierKeyState,
-                                                      keyboardType,
-                                                      kUCKeyTranslateNoDeadKeysBit,
-                                                      &deadKeyState,
-                                                      1, // Only 1 key allowed due to VNC behavior
-                                                      &actualStringLength,
-                                                      &unicodeChar);
-				
-                if (resultCode == kUCOutputBufferTooSmall) {
-                    NSLog(@"Unable To Convert KeyCode, Multiple Characters For: %d (%#04x)",  keyCode, modifierKeyState);
-                }
-                else if (resultCode == noErr) {
-                    // We'll use the FIRST keyCode that we find for that UNICODE character
-                    if (theServer->keyTable[unicodeChar] == 0xFFFF) {
-                        theServer->keyTable[unicodeChar] = keyCode;
-                        theServer->keyTableMods[unicodeChar] = modifierKeyState;
-                        keysLoaded++;
-                    }
-                }
-            }
-            //NSLog(@"Loaded %d Keys", keysLoaded);
-            keysLoaded = 0;
-        }
-    }
-    else if (kchrHandle) {
-        UInt32 modifierKeyState = 0;
-        UInt16 keyCode;
-        UInt32 state=0;
-        UInt32 kchrCharacters;
-		
-        // Ok - we need to get the LIST of Modifier Key States out of the Keyboard Layout
-        // some of them are duplicates so we need to compare them, then we'll iterate through them in reverse order
-        //UCKeyModifiersToTableNum = ;
-        for (i=0; i < (sizeof(modifierKeyStates) / sizeof(UInt32)); i++) {
-            modifierKeyState = (modifierKeyStates[i] >> 8) & 0xFF;
-            //NSLog(@"Loading Keys For Modifer State:%#04x", modifierKeyState);
-			
-            // Iterate Over Each Key Code
-            for (keyCode = 0; keyCode < 127; keyCode++) {
-                // We pass the modifierKeys as the top 8 bits of keycode
-                kchrCharacters = KeyTranslate(kchrHandle, (modifierKeyState<<8 | keyCode), &state);
-				
-                if (kchrCharacters & 0xFFFF0000) {
-                    NSLog(@"Unable To Convert KeyCode, Multiple Characters (%#04x) (%#04x) For: %d (%#04x)",
-                          kchrCharacters>>16 & 0xFFFF, kchrCharacters & 0xFFFF, keyCode, modifierKeyState);
-                }
-                else {
-                    // We'll use the FIRST keyCode that we find for that UNICODE character
-                    if (theServer->keyTable[kchrCharacters & 0xFFFF] == 0xFFFF) {
-                        //NSLog(@"KeyCode:%d UniCode:%d", keyCode, kchrCharacters & 0xFFFF);
-                        theServer->keyTable[kchrCharacters & 0xFFFF] = keyCode;
-                        theServer->keyTableMods[kchrCharacters & 0xFFFF] = modifierKeyState;
-                        keysLoaded++;
-                    }
-                }
-            }
-            //NSLog(@"Loaded %d Keys", keysLoaded);
-            keysLoaded = 0;
-        }
-    }
-    else {
-        // This is the old US only keyboard mapping
-        // Map the above key table into a static array so we can just look them up directly
-        NSLog(@"Unable To Determine Key Map - Reverting to US Mapping\n");
-        for (i = 0; i < (sizeof(USKeyCodes) / sizeof(int)); i += 2)
-            theServer->keyTable[(unsigned short)USKeyCodes[i]] = (CGKeyCode) USKeyCodes[i+1];
-    }
-	
-    // This is the old SpecialKeyCodes keyboard mapping
-    // Map the above key table into a static array so we can just look them up directly
-    NSLog(@"Loading %d XKeysym Special Keys\n", (sizeof(SpecialKeyCodes) / sizeof(int))/2);
-    for (i = 0; i < (sizeof(SpecialKeyCodes) / sizeof(int)); i += 2) {
-        theServer->keyTable[(unsigned short)SpecialKeyCodes[i]] = (CGKeyCode) SpecialKeyCodes[i+1];
-	}
 }
 
 + (void) rfbRunning {	
@@ -387,7 +268,6 @@ bool isConsoleSession() {
 }
 
 + (void) loadUnicodeKeyboard {
-	// Have to do this a little later than startup to ensure that the Jaguar Bundle has loaded
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"UnicodeKeyboard"] && unicodeLayout == NULL) {
 		if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_4)) {
 			int timeout = 2000000;
@@ -407,7 +287,7 @@ bool isConsoleSession() {
 		}
 		// Unicode Keyboard Should load keys from definition
 		(*(theServer->pressModsForKeys) = YES);
-		[self loadKeyboard: unicodeLayout];
+		[self loadKeyboard:unicodeLayout forServer:theServer];
 	}	
 }
 
@@ -564,7 +444,7 @@ bool isConsoleSession() {
 		}
 		else {
 			if (*(theServer->pressModsForKeys)) {
-				if (theServer->keyTableMods[keySym] != 0xFF) {
+				if (theServer->keyTableMods[keySym] != 0xFF) {					
 					// Setup the state of the appropriate keys based on the value in the KeyTableMods
 					CGEventFlags oldModifiers = currentModifiers;
 					CGEventFlags modifiersToSend = kCGEventFlagMaskNonCoalesced;
@@ -624,6 +504,9 @@ inline void setKeyModifiers(CGEventFlags modifierFlags) {
 		if (!(currentModifiers & kCGEventFlagMaskControl) != !(modifierFlags & kCGEventFlagMaskControl)) {
 			sendKeyEvent(keyCodeControl, !(currentModifiers & kCGEventFlagMaskControl), 0);
 		}
+		
+		if (modifierDelay)
+			usleep(modifierDelay);		
 	}
 	currentModifiers = modifierFlags;
 }
