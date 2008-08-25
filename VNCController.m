@@ -105,6 +105,8 @@
 @implementation VNCController
 
 static int shutdownSignal = 0;
+static NSColor *successColor;
+static NSColor *failureColor;
 
 static void terminateOnSignal(int signal) {
 	shutdownSignal = signal;
@@ -167,6 +169,9 @@ NSMutableArray *localIPAddresses() {
 	//		SetFrontProcess(& psn );
 	hostName = [hostNameString() retain];
 	
+	successColor = [[NSColor colorWithDeviceRed:0.0 green:0.4 blue:0.0 alpha:1.0] retain];
+	failureColor = [[NSColor colorWithDeviceRed:0.6 green:0.0 blue:0.0 alpha:1.0] retain];
+
     [[NSUserDefaults standardUserDefaults] registerDefaults: [NSDictionary dictionaryWithObjectsAndKeys:
         @"", @"PasswordFile",
         @"", @"LogFile",
@@ -310,10 +315,7 @@ NSMutableArray *localIPAddresses() {
 // Since this can block for a long time in certain DNS situations we will put this in a separate thread
 - (void) dedicatedUpdateHostInfoThread {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	NS_DURING {
-		NSColor *successColor = [NSColor colorWithDeviceRed:0.0 green:0.4 blue:0.0 alpha:1.0];
-		NSColor *failureColor = [NSColor colorWithDeviceRed:0.6 green:0.0 blue:0.0 alpha:1.0];
-		
+	NS_DURING {		
 		[NSHost flushHostCache];
 		
 		NSHost *currentHost = [NSHost currentHost];
@@ -558,9 +560,10 @@ NSMutableArray *localIPAddresses() {
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {	
-	[statusWindow makeMainWindow];
 	if ([startServerOnLaunchCheckbox state])// && [self authenticationIsValid])
         [self startServer: self];
+	if (![NSApp isHidden])
+		[statusWindow makeMainWindow];
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)aNotification {
@@ -694,9 +697,11 @@ NSMutableArray *localIPAddresses() {
 
 - (void) loadUIForSystemServer {
 	if (systemServerIsConfigured) {
+		[startupItemStatusMessageField setTextColor:successColor];
 		[startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Configured (Started)")];
 	}		
 	else {
+		[startupItemStatusMessageField setTextColor:failureColor];
 		[startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Disabled (Stopped)")];
 	}
 	
@@ -838,6 +843,7 @@ NSMutableArray *localIPAddresses() {
 			[[NSUserDefaults standardUserDefaults] setInteger:[systemServerPortField intValue] forKey:@"portNumberSystemServer"];	
 		
 		[[NSUserDefaults standardUserDefaults] setInteger:[[systemServerAuthenticationType selectedCell] tag] forKey:@"AuthenticationTypeSystemServer"];
+		[[NSUserDefaults standardUserDefaults] setBool:[systemServerLimitToLocalConnections state] forKey:@"localhostOnlySystemServer"];
 	}
 	
     [[NSUserDefaults standardUserDefaults] setBool:[swapMouseButtonsCheckbox state] forKey:@"swapButtons"];
