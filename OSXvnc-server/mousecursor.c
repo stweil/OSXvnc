@@ -313,12 +313,15 @@ Problems with occasional artifacts - turning off the cursor didn't seem to help
 */
 
 Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
-    BOOL cursorIsDifferentFormat = !(PF_EQ(cursorFormat,rfbServerFormat));
+    BOOL cursorIsDifferentFormat = TRUE;
     BOOL returnValue = TRUE;
-	int cursorSize = (cursorRect.size.width * cursorRect.size.height * (cl->format.bitsPerPixel / 8));
+	int cursorSize = 0;
 
 	pthread_mutex_lock(&cursorMutex);
 
+	cursorIsDifferentFormat = !(PF_EQ(cursorFormat,rfbServerFormat));
+	cursorSize = (cursorRect.size.width * cursorRect.size.height * (cl->format.bitsPerPixel / 8));
+	
 	if (!cursorData || cursorRect.size.height > 128 || cursorRect.size.width > 128) {
 		// Wow That's one big cursor! We don't handle cursors this big 
 		// (they are probably cursors with lots of states and that doesn't work so good for VNC.
