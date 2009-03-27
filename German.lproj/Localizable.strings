@@ -1,32 +1,32 @@
 {
-"Host Name" = "Host Namen";
-"Host Names" = "Host Name";
-"IP Address" = "IP-Adresss";
+"Host Name" = "Host Name";
+"Host Names" = "Host Namen";
+"IP Address" = "IP-Adresse";
 "IP Addresses" = "IP-Adressen";
-"Screen Resolution changed - Server Reinitialized" = "Bildschirmauflösung geändert - Server-Reinitialisierung";
+"Screen Resolution changed - Server Reinitialized" = "Bildschirmaufl√∂sung ge√§ndert - Server-Reinitialisierung";
 "Server Running" = "Der Server wurde aktiviert";
-"The server is not running." = "Der Server läuft nicht.";
-"Start Server" = "Start Server";
+"The server is not running." = "Der Server l√§uft nicht.";
+"Start Server" = "Server starten";
 "Restart Server" = "Server-Neustart";
 "The server is stopped." = "Der Server wurde angehalten.";
-"Probably because the OSXvnc server is already running as a Startup Item." = "Eventuell läuft der Vine-Server bereits als Startobjekt.";
-"Probably because another VNC is already using this port." = "Eventuell benutzt ein anderer VNC-Server diesen Port.";
+"Probably because the OSXvnc server is already running as a Startup Item." = "Eventuell l√§uft der Vine-Server bereits als Startobjekt.";
+"Probably because another VNC is already using this port." = "Eventuell benutzt ein anderer VNC-Server bereits diesen Port.";
 "The server has stopped running. See Log (%d)\n" = "Der Server wurde beendet. Siehe Log (%d)\n";
 "The server has stopped running." = "Der Server wurde beendet.";
-"Need a valid Port or Display Number" = "Benötigt eine gültige Port- oder Displaynummer";
+"Need a valid Port or Display Number" = "Ben√∂tigt eine g√ºltige Port- oder Displaynummer";
 "Problem - Unable to store password to %@" = "Problem - Das Passwort kann nicht in %@ gespeichert werden";
-"Option Change Requires a Restart" = "Einstellungsänderungen benötigen einen Neustart";
+"Option Change Requires a Restart" = "Einstellungs√§nderungen ben√∂tigen einen Neustart";
 "Error: No Authorization" = "Fehler: Fehlende Authorisierung";
-"Error: Unable to setup StartupItems folder" = "Fehler: Kann den StartupItems-Ordner nicht ändern";
+"Error: Unable to setup StartupItems folder" = "Fehler: Kann den StartupItems-Ordner nicht √§ndern";
 "Error: Unable to copy OSXvnc folder" = "Fehler: Kann den OSXvnc-Ordner nicht kopieren";
 "Error: Unable To Read in OSXvnc script File" = "Fehler: Kann die OSXvnc-Skriptdatei nicht einlesen";
-"Error: Unable To Setup Password File" = "Fehler: Kann die Passwortdatei nicht ändern";
+"Error: Unable To Setup Password File" = "Fehler: Kann die Passwortdatei nicht √§ndern";
 "Error: Unable To Replace OSXvnc Script File" = "Fehler: Kann die OSXvnc-Skriptdatei nicht ersetzen";
-"Error: Unable To Write out Temporary Script File" = "Fehler: Kann die temporäre Skriptdatei nicht schreiben";
+"Error: Unable To Write out Temporary Script File" = "Fehler: Kann die tempor√§re Skriptdatei nicht schreiben";
 "Startup Item Configured (Started)" = "Startup-Item konfiguriert (gestartet)";
 "Startup Item Disabled (Stopped)" = "Startup-Item deaktiviert (gestoppt)";
 "Error: Unabled to remove startup item" = "Fehler: Kann das Startup-Item nicht entfernen";
-"Please specify a Connect Host to establish a connection" = "Bitte einen Zielhost angeben, um eine Verbindung aufbauen zu können";
+"Please specify a Connect Host to establish a connection" = "Bitte einen Zielhost angeben, um eine Verbindung aufbauen zu k√∂nnen";
 "Connection invitation sent to Connect Host" = "Verbindungsanforderung an den Zielhost gesendet";
 }
 
