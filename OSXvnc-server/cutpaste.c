@@ -319,16 +319,7 @@ NSMutableDictionary *pasteboards = nil;
 
 unsigned long long maxTransferSize = 0x10000000;
 
-void setGlobalPasteboardString(NSString *pbString) {
-	[pasteboardVariablesLock lock];
-	[pasteboardString release];
-	pasteboardString = [pbString copy];
-	[pasteboardVariablesLock unlock];
-}
-
-
 // Each Pasteboard has an array with item 0 = the ChangeCount and item 1 = the AvailableTypes Array
-
 int generalPBLastChangeCount=-1;
 NSStringEncoding pasteboardStringEncoding = NSWindowsCP1252StringEncoding; // RFBProto 003.008
 
@@ -339,8 +330,14 @@ void initPasteboard() {
 	
 	if (![NSPasteboard generalPasteboard]) {
 		rfbLog("Pasteboard Inaccessible - Pasteboard sharing disabled");
-		generalPBLastChangeCount = 0; // This will signal that we don't have pasteboard access
-		setGlobalPasteboardString([[NSString alloc] initWithString:@"\e<PASTEBOARD INACCESSIBLE>\e"]);
+
+		[pasteboardVariablesLock lock];
+		// Record first in case another event comes in after notifying clients
+		generalPBLastChangeCount = 0;
+		[pasteboardString release];
+		pasteboardString = [[NSString alloc] initWithString:@"\e<PASTEBOARD INACCESSIBLE>\e"];
+		[pasteboardVariablesLock unlock];
+		
 		rfbDisableRichClipboards = TRUE;
 	}
 	else {
@@ -499,11 +496,14 @@ void rfbCheckForPasteboardChange() {
 
 		// Let's grab a copy of it here in the Main/Event Thread so that the output threads don't have to deal with the PB directly
 		if ([[NSPasteboard generalPasteboard] availableTypeFromArray:[NSArray arrayWithObject:NSStringPboardType]]) {
+			[pasteboardVariablesLock lock];
 			// Record first in case another event comes in after notifying clients
 			generalPBLastChangeCount = [[NSPasteboard generalPasteboard] changeCount];
-			setGlobalPasteboardString([[NSPasteboard generalPasteboard] stringForType:NSStringPboardType]);
-		};
-		
+			[pasteboardString release];
+			pasteboardString = [[[NSPasteboard generalPasteboard] stringForType:NSStringPboardType] copy];
+			[pasteboardVariablesLock unlock];
+		}
+
 		// Notify each client
 		while ((cl = rfbClientIteratorNext(iterator)) != NULL) {
 			if (!cl->richClipboardSupport)
@@ -745,9 +745,9 @@ void rfbClientUpdatePasteboard(rfbClientPtr cl) {
 			NSString *pasteboardName = nil;
 
 			rfbSendRichClipboardAck(cl);
-			cl->generalPBLastChange = generalPBLastChangeCount;
 			
 			[pasteboardVariablesLock lock]; // Protect references to pasteboards
+			cl->generalPBLastChange = generalPBLastChangeCount;
 			while (pasteboardName = [pasteboardsEnum nextObject]) {
 				NSMutableArray *pbInfoArray = [pasteboards objectForKey:pasteboardName];
 					
