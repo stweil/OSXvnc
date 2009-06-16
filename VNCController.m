@@ -186,6 +186,7 @@ NSMutableArray *localIPAddresses() {
 		@"YES", @"swapButtons",
 		[NSNumber numberWithInt:0], @"keyboardLayout",
 		[NSNumber numberWithInt:3], @"keyboardEvents",
+        [NSNumber numberWithInt:2], @"eventSource",															 													  
 		
 		@"NO", @"disableRemoteEvents",
 		@"NO", @"disableRichClipboard",
@@ -802,11 +803,13 @@ NSMutableArray *localIPAddresses() {
 	[swapMouseButtonsCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"swapButtons"]];
 	[keyboardLayout selectItemAtIndex:[keyboardLayout indexOfItemWithTag:[[NSUserDefaults standardUserDefaults] integerForKey:@"keyboardLayout"]]];
 	[keyboardEvents selectItemAtIndex:[keyboardEvents indexOfItemWithTag:[[NSUserDefaults standardUserDefaults] integerForKey:@"keyboardEvents"]]];	
-	
+	[eventSourcePopup selectItemAtIndex:[eventSourcePopup indexOfItemWithTag:[[NSUserDefaults standardUserDefaults] integerForKey:@"eventSource"]]];	
+	 
 	[disableRemoteEventsCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"disableRemoteEvents"]];
 	[disableRichClipboardCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"disableRichClipboard"]];
 	[allowRendezvousCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowRendezvous"]];
-
+	[openGLCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"useOpenGL"]];
+	
 	[sharingMatrix selectCellWithTag: [[NSUserDefaults standardUserDefaults] integerForKey:@"sharingMode"]];
 	[dontDisconnectCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"dontDisconnectClients"]];
     [self changeSharing:self];
@@ -818,7 +821,6 @@ NSMutableArray *localIPAddresses() {
 	[startServerOnLaunchCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"startServerOnLaunch"]];
 	[terminateOnFastUserSwitch setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"terminateOnFastUserSwitch"]];
 	[serverKeepAliveCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"serverKeepAlive"]];
-		
 }
 
 - (void) saveUserDefaults: sender {
@@ -855,6 +857,7 @@ NSMutableArray *localIPAddresses() {
 	
     [[NSUserDefaults standardUserDefaults] setBool:[limitToLocalConnections state] forKey:@"localhostOnly"];
     [[NSUserDefaults standardUserDefaults] setBool:[allowRendezvousCheckbox state] forKey:@"allowRendezvous"];
+    [[NSUserDefaults standardUserDefaults] setBool:[openGLCheckbox state] forKey:@"useOpenGL"];
 	
     [[NSUserDefaults standardUserDefaults] setBool:[startServerOnLaunchCheckbox state] forKey:@"startServerOnLaunch"];
     [[NSUserDefaults standardUserDefaults] setBool:[terminateOnFastUserSwitch state] forKey:@"terminateOnFastUserSwitch"];
@@ -866,6 +869,7 @@ NSMutableArray *localIPAddresses() {
 
 	[[NSUserDefaults standardUserDefaults] setInteger:[[keyboardLayout selectedItem] tag] forKey:@"keyboardLayout"];
 	[[NSUserDefaults standardUserDefaults] setInteger:[[keyboardEvents selectedItem] tag] forKey:@"keyboardEvents"];
+	[[NSUserDefaults standardUserDefaults] setInteger:[[eventSourcePopup selectedItem] tag] forKey:@"eventSource"];	
 	
 	if ([[protocolVersion titleOfSelectedItem] floatValue] > 0.0)
 		[[NSUserDefaults standardUserDefaults] setFloat:[[protocolVersion titleOfSelectedItem] floatValue] forKey:@"protocolVersion"];
@@ -1184,14 +1188,19 @@ NSMutableArray *localIPAddresses() {
 	}
 	[argv addObject:@"-EventTap"];
 	[argv addObject:[NSString stringWithFormat:@"%d", [[keyboardEvents selectedItem] tag]]];
-
+	[argv addObject:@"-EventSource"];
+	[argv addObject:[NSString stringWithFormat:@"%d", [[eventSourcePopup selectedItem] tag]]];
+	
+	
     if ([swapMouseButtonsCheckbox state])
         [argv addObject:@"-swapButtons"];
     if ([disableRemoteEventsCheckbox state])
         [argv addObject:@"-disableRemoteEvents"];
     if ([disableRichClipboardCheckbox state])
         [argv addObject:@"-disableRichClipboards"];
-		
+	if ([openGLCheckbox state])
+		[argv addObject:@"-useOpenGL"];
+	
 	[argv addObject:@"-rendezvous"];
     [argv addObject:([allowRendezvousCheckbox state] ? @"Y" : @"N")];
 	

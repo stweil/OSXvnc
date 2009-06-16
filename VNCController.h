@@ -69,14 +69,17 @@
     IBOutlet NSButton *allowScreenSaverCheckbox;
 
 	IBOutlet NSPopUpButton *keyboardLayout;
-	IBOutlet NSPopUpButton *keyboardEvents;
 
     IBOutlet NSButton *swapMouseButtonsCheckbox;
 
 	// Advanced
 	IBOutlet NSPopUpButton *protocolVersion;
     IBOutlet NSTextField *otherArguments;
-		
+
+	IBOutlet NSButton *openGLCheckbox;
+	IBOutlet NSPopUpButton *keyboardEvents;
+	IBOutlet NSPopUpButton *eventSourcePopup;
+
 	// Sharing
     IBOutlet NSMatrix *sharingMatrix;
     IBOutlet NSButton *dontDisconnectCheckbox;
