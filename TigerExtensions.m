@@ -212,7 +212,7 @@ bool isConsoleSession() {
 			break;
 		case 0:
 			// Combines with Physical Keyboard
-			NSLog(@"Using HID Event Source");
+			NSLog(@"Using HID Event Source, WARNING: Doesn't allow keys if we FUS off-screen (10.5.7)");
 			vncSourceRef = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
 			break;
 		case 3: // I am pretty sure works similar to the HID
@@ -227,11 +227,11 @@ bool isConsoleSession() {
 	switch ([[NSUserDefaults standardUserDefaults] integerForKey:@"EventTap"]) {
 		case 3: {
 			if (isConsoleSession()) {
-				NSLog(@"Using Dynamic Event Tap -- HID for console user");
+				NSLog(@"Using Smart Event Tap -- HID for console user");
 				vncTapLocation = kCGHIDEventTap;
 			}
 			else {
-				NSLog(@"Using Dynamic Event Tap -- Session for off-screen user");
+				NSLog(@"Using Smart Event Tap -- Session for off-screen user");
 				vncTapLocation = kCGSessionEventTap;
 			}
 			
