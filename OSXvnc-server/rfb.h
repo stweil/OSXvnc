@@ -35,6 +35,8 @@
 #include <zlib.h>
 #include "tight.h"
 
+#import "screencapture.h"
+
 //#include "Keyboards.h"
 //#import <Carbon/Carbon.h>
 //#include <ApplicationServices/ApplicationServices.h>
@@ -148,6 +150,7 @@ typedef struct rfbClientRec {
 
     /* SERVER SCALING EXTENSIONS */
     int	  scalingFactor;
+	char* screenBuffer;
     char* scalingFrameBuffer;
     int   scalingPaddedWidthInBytes;
 
@@ -308,6 +311,7 @@ typedef struct rfbClientRec {
     BOOL modiferKeys[256];         // BOOL Array to record which keys THIS user has down, if they disconnect we will release those keys
     
     /* REDSTONE - These (updateBuf, ublen) need to be in the CL, not global, for multiple clients */
+	screen_data_t * p_data;
 
     /*
      * UPDATE_BUF_SIZE must be big enough to send at least one whole line of the
@@ -407,6 +411,8 @@ extern void rfbDebugLog(char *format, ...);
 extern void rfbLogPerror(char *str);
 
 extern void rfbShutdown();
+
+extern BOOL useOpenGL;
 
 /* sockets.c */
 
@@ -633,4 +639,9 @@ extern Bool rfbShouldSendNewPosition(rfbClientPtr cl);
 extern Bool rfbSendRichCursorUpdate(rfbClientPtr cl);
 extern Bool rfbSendCursorPos(rfbClientPtr cl);
 
+/* screencapture.c */
+
+screen_data_t *screen_InitCapture ();
+extern char *screen_Capture (screen_data_t *p_data);
+extern void screen_CloseCapture (screen_data_t *p_data);
 

@@ -59,6 +59,9 @@
 		AB3E27F80AF947FB004AF567 /* Vine Server.pdf in Resources */ = {isa = PBXBuildFile; fileRef = AB3E27F70AF947FB004AF567 /* Vine Server.pdf */; };
 		AB82605A08689AC00010AB63 /* storepasswd in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB82605708689AC00010AB63 /* storepasswd */; };
 		AB82605E08689AC00010AB63 /* OSXvnc-server in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB82605B08689AC00010AB63 /* OSXvnc-server */; };
+		AB95E3660FD497F600D063EC /* screencapture.c in Sources */ = {isa = PBXBuildFile; fileRef = AB95E3650FD497F600D063EC /* screencapture.c */; };
+		AB95E3B30FD4A68800D063EC /* screencapture.h in Headers */ = {isa = PBXBuildFile; fileRef = AB95E3B20FD4A68800D063EC /* screencapture.h */; };
+		AB95E3EE0FD4AA3800D063EC /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB95E3ED0FD4AA3700D063EC /* OpenGL.framework */; };
 		ABA7B3D60948CB5D00CD7499 /* d3des.c in Sources */ = {isa = PBXBuildFile; fileRef = ABA7B3D10948CB5D00CD7499 /* d3des.c */; };
 		ABA7B3D70948CB5D00CD7499 /* vncauth.c in Sources */ = {isa = PBXBuildFile; fileRef = ABA7B3D30948CB5D00CD7499 /* vncauth.c */; };
 		ABA7B5150949EB7E00CD7499 /* d3des.c in Sources */ = {isa = PBXBuildFile; fileRef = ABA7B3D10948CB5D00CD7499 /* d3des.c */; };
@@ -227,6 +230,9 @@
 		AB82605B08689AC00010AB63 /* OSXvnc-server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "OSXvnc-server"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB82E81904FA629800A80117 /* kbdptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kbdptr.h; sourceTree = "<group>"; };
 		AB82E81D04FA6D0A00A80117 /* rfbserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rfbserver.h; sourceTree = "<group>"; };
+		AB95E3650FD497F600D063EC /* screencapture.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = screencapture.c; sourceTree = "<group>"; };
+		AB95E3B20FD4A68800D063EC /* screencapture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = screencapture.h; sourceTree = "<group>"; };
+		AB95E3ED0FD4AA3700D063EC /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
 		ABA7B3D10948CB5D00CD7499 /* d3des.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = d3des.c; sourceTree = "<group>"; };
 		ABA7B3D20948CB5D00CD7499 /* d3des.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = d3des.h; sourceTree = "<group>"; };
 		ABA7B3D30948CB5D00CD7499 /* vncauth.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = vncauth.c; sourceTree = "<group>"; };
@@ -234,16 +240,16 @@
 		ABA7B3D50948CB5D00CD7499 /* zrleEncode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = zrleEncode.h; sourceTree = "<group>"; };
 		ABA7B52D094A053000CD7499 /* librdr.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = librdr.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		ABA7B636094A0A5000CD7499 /* libjpg.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libjpg.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		ABB834A40CFE73BF006EF1B6 /* German */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/Localizable.strings; sourceTree = "<group>"; };
+		ABB834A40CFE73BF006EF1B6 /* German */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABB834BD0CFE7464006EF1B6 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABC7279D08439A0400F755B3 /* Japanese */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABCCC8B203D9C60A00A80117 /* OSXvnc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = OSXvnc; sourceTree = "<group>"; };
 		ABD29D3D0D80B569005BFA6B /* VNCBundle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VNCBundle.h; sourceTree = "<group>"; };
 		ABD29D3E0D80B569005BFA6B /* VNCBundle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VNCBundle.m; sourceTree = "<group>"; };
-		ABD7FE7F07AFF8B4004D0B81 /* French */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/Localizable.strings; sourceTree = "<group>"; };
+		ABD7FE7F07AFF8B4004D0B81 /* French */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABD8EC07058A0BD600C84739 /* NSAuthorization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSAuthorization.h; sourceTree = "<group>"; };
 		ABD8EC08058A0BD600C84739 /* NSAuthorization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAuthorization.m; sourceTree = "<group>"; };
-		ABE1EFD20AC9F2E400143E2B /* Italian */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/Localizable.strings; sourceTree = "<group>"; };
+		ABE1EFD20AC9F2E400143E2B /* Italian */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABE1EFD50AC9F4B900143E2B /* German */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = German; path = German.lproj/Copying.rtf; sourceTree = "<group>"; };
 		ABEE28F804C8745B00A80117 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		ABF191B704E447A400A80117 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -524,6 +530,7 @@
 				AB25DA3D086884420065843D /* libz.dylib in Frameworks */,
 				ABA7B68F094A15C700CD7499 /* libjpg.a in Frameworks */,
 				ABA7B560094A080200CD7499 /* librdr.a in Frameworks */,
+				AB95E3EE0FD4AA3800D063EC /* OpenGL.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -624,6 +631,7 @@
 				AB25DA3C086884420065843D /* libz.dylib */,
 				AB25DA3A0868842E0065843D /* IOKit.framework */,
 				ABF191B704E447A400A80117 /* Carbon.framework */,
+				AB95E3ED0FD4AA3700D063EC /* OpenGL.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
 				ABEE28F804C8745B00A80117 /* Security.framework */,
 				AB41881F04C5986E00A80117 /* ApplicationServices.framework */,
@@ -663,6 +671,8 @@
 				AB82E81D04FA6D0A00A80117 /* rfbserver.h */,
 				F538E11502F9812C01A80186 /* rfbserver.c */,
 				F538E11602F9812C01A80186 /* rre.c */,
+				AB95E3650FD497F600D063EC /* screencapture.c */,
+				AB95E3B20FD4A68800D063EC /* screencapture.h */,
 				F538E11702F9812C01A80186 /* sockets.c */,
 				F538E11802F9812C01A80186 /* stats.c */,
 				F538E11902F9812C01A80186 /* storepasswd.c */,
@@ -919,6 +929,7 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB95E3B30FD4A68800D063EC /* screencapture.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1246,6 +1257,7 @@
 				ABA7B3D60948CB5D00CD7499 /* d3des.c in Sources */,
 				ABA7B3D70948CB5D00CD7499 /* vncauth.c in Sources */,
 				9199995B0B1135FF0099EA7A /* getMACAddress.c in Sources */,
+				AB95E3660FD497F600D063EC /* screencapture.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1649,7 +1661,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1022;
+				CURRENT_PROJECT_VERSION = 1053;
 				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -1672,7 +1684,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 1022;
+				CURRENT_PROJECT_VERSION = 1053;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp;

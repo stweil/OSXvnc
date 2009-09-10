@@ -309,9 +309,12 @@ rfbClientPtr rfbNewClient(int sock) {
 
     /* SERVER SCALING EXTENSIONS -- Server Scaling is off by default */
     cl->scalingFactor = 1;
-    cl->scalingFrameBuffer = rfbGetFramebuffer();
+	cl->screenBuffer = rfbGetFramebuffer();
+    cl->scalingFrameBuffer = cl->screenBuffer;
 	cl->scalingPaddedWidthInBytes = rfbScreen.paddedWidthInBytes;
-
+	if (useOpenGL)
+		cl->p_data = screen_InitCapture();
+	
     cl->tightCompressLevel = TIGHT_DEFAULT_COMPRESSION;
     cl->tightQualityLevel = -1;
     for (i = 0; i < 4; i++)
@@ -421,10 +424,13 @@ void rfbClientConnectionGone(rfbClientPtr cl) {
         free(cl->translateLookupTable);
 
     /* SERVER SCALING EXTENSIONS */
-    if( cl->scalingFrameBuffer && cl->scalingFrameBuffer != rfbGetFramebuffer() ){
+    if( cl->scalingFactor != 1 ){
         free(cl->scalingFrameBuffer);
     }
 
+	if (useOpenGL)
+		screen_CloseCapture(cl->p_data);
+	
     pthread_cond_destroy(&cl->updateCond);
     pthread_mutex_destroy(&cl->updateMutex);
     pthread_mutex_destroy(&cl->outputMutex);
@@ -923,18 +929,18 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
 				const unsigned long csh = (rfbScreen.height+msg.ssf.scale-1) / msg.ssf.scale;
 				const unsigned long csw = (rfbScreen.width +msg.ssf.scale-1) / msg.ssf.scale;
 
+				if (cl->scalingFactor != 1)
+					free(cl->scalingFrameBuffer);
+								
                 cl->scalingFactor = msg.ssf.scale;
 
 				rfbLog("Server Side Scaling: %d for client %s\n", msg.ssf.scale, cl->host);
 							
-				if (cl->scalingFrameBuffer && cl->scalingFrameBuffer != rfbGetFramebuffer())
-					free(cl->scalingFrameBuffer);
-				
 				if (cl->scalingFactor == 1) {
-					cl->scalingFrameBuffer = rfbGetFramebuffer();
+					cl->scalingFrameBuffer = cl->screenBuffer;
 					cl->scalingPaddedWidthInBytes = rfbScreen.paddedWidthInBytes;
 				}
-				else {					
+				else {
 					cl->scalingFrameBuffer = malloc( csw*csh*rfbScreen.bitsPerPixel/8 );
 					cl->scalingPaddedWidthInBytes = csw * rfbScreen.bitsPerPixel/8;
 				}
@@ -1086,17 +1092,23 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
         }            
     }
 	
+	if (useOpenGL)
+		cl->screenBuffer = screen_Capture(cl->p_data);
+	else
+		cl->screenBuffer = rfbGetFramebuffer();
+		
     for (i = 0; i < REGION_NUM_RECTS(&updateRegion); i++) {
         int x = REGION_RECTS(&updateRegion)[i].x1;
         int y = REGION_RECTS(&updateRegion)[i].y1;
         int w = REGION_RECTS(&updateRegion)[i].x2 - x;
         int h = REGION_RECTS(&updateRegion)[i].y2 - y;
 
+		
 		// Refresh with latest pointer (should be "read-locked" throughout here with CG but I don't see that option)
 		if (cl->scalingFactor != 1)
 			CopyScalingRect( cl, &x, &y, &w, &h, TRUE);
 		else 
-			cl->scalingFrameBuffer = rfbGetFramebuffer();
+			cl->scalingFrameBuffer = cl->screenBuffer;
 		
         cl->rfbRawBytesEquivalent += (sz_rfbFramebufferUpdateRectHeader
                                       + w * (cl->format.bitsPerPixel / 8) * h);
@@ -1383,7 +1395,7 @@ void CopyScalingRect( rfbClientPtr cl, int* x, int* y, int* w, int* h, Bool bDoS
         rw = cw * cl->scalingFactor;
 
         /* Copy and scale data from screen buffer to scaling buffer */
-        srcptr = (unsigned char*)rfbGetFramebuffer() + (ry * rfbScreen.paddedWidthInBytes ) + (rx * bytesPerPixel);
+        srcptr = (unsigned char*)cl->screenBuffer + (ry * rfbScreen.paddedWidthInBytes ) + (rx * bytesPerPixel);
         dstptr = (unsigned char*)cl->scalingFrameBuffer+ (cy * cl->scalingPaddedWidthInBytes) + (cx * bytesPerPixel);
 
         if( cl->format.trueColour ) { /* Blend neighbouring pixels together */
