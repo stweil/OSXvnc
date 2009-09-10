@@ -27,6 +27,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <fcntl.h>
 #include <pthread.h>
 #include <unistd.h>
@@ -92,6 +93,8 @@ BOOL restartOnUserSwitch = FALSE;
 BOOL useIP4 = TRUE;
 BOOL unregisterWhenNoConnections = FALSE;
 BOOL nonBlocking = FALSE;
+BOOL logEnable = TRUE;
+BOOL useOpenGL = FALSE;
 
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
 // Bool rfbLocalBuffer = FALSE;
@@ -134,16 +137,20 @@ static bool rfbScreenInit(void);
  */
 
 void rfbLog(char *format, ...) {
-    va_list args;
-    NSString *nsFormat = [[NSString alloc] initWithCString:format];
-
-    pthread_mutex_lock(&logMutex);
-    va_start(args, format);
-    NSLogv(nsFormat, args);
-    va_end(args);
-
-    [nsFormat release];
-    pthread_mutex_unlock(&logMutex);
+	if (logEnable && format != NULL) {
+		va_list args;
+		NSString *nsFormat = [[NSString alloc] initWithCString:format];	
+		pthread_mutex_lock(&logMutex);
+		NS_DURING {
+			va_start(args, format);
+			NSLogv(nsFormat, args);
+			va_end(args);
+		};
+		NS_HANDLER
+		NS_ENDHANDLER
+		pthread_mutex_unlock(&logMutex);
+		[nsFormat release];
+	}
 }
 
 void rfbDebugLog(char *format, ...) {
@@ -280,13 +287,13 @@ void refreshCallback(CGRectCount count, const CGRect *rectArray, void *ignore) {
 //	return 0;
 //}
 
-
 void rfbCheckForScreenResolutionChange() {
     BOOL sizeChange = (rfbScreen.width != CGDisplayPixelsWide(displayID) ||
                        rfbScreen.height != CGDisplayPixelsHigh(displayID));
-
+	BOOL colorChange = (CGDisplayBitsPerPixel(displayID) > 0 && rfbScreen.bitsPerPixel != CGDisplayBitsPerPixel(displayID));
+	
     // See if screen changed
-    if (sizeChange || rfbScreen.bitsPerPixel != CGDisplayBitsPerPixel(displayID)) {
+    if (sizeChange || colorChange) {
         rfbClientIteratorPtr iterator;
         rfbClientPtr cl = NULL;
 		BOOL screenOK = TRUE;
@@ -328,18 +335,17 @@ void rfbCheckForScreenResolutionChange() {
 
                     rfbSendScreenUpdateEncoding(cl);
 
-					// Reset Frame Buffer
-					if (cl->scalingFrameBuffer && cl->scalingFrameBuffer != rfbGetFramebuffer())
-						free(cl->scalingFrameBuffer);
-					
+					cl->screenBuffer = rfbGetFramebuffer();
 					if (cl->scalingFactor == 1) {
-						cl->scalingFrameBuffer = rfbGetFramebuffer();
+						cl->scalingFrameBuffer = cl->screenBuffer;
 						cl->scalingPaddedWidthInBytes = rfbScreen.paddedWidthInBytes;
 					}
 					else {
 						const unsigned long csh = (rfbScreen.height+cl->scalingFactor-1)/ cl->scalingFactor;
 						const unsigned long csw = (rfbScreen.width +cl->scalingFactor-1)/ cl->scalingFactor;
 						
+						// Reset Frame Buffer
+						free(cl->scalingFrameBuffer);
 						cl->scalingFrameBuffer = malloc( csw*csh*rfbScreen.bitsPerPixel/8 );
 						cl->scalingPaddedWidthInBytes = csw * rfbScreen.bitsPerPixel/8;
 					}
@@ -612,20 +618,21 @@ void connectReverseClient(char *hostName, int portNum) {
 }
 
 char *rfbGetFramebuffer(void) {
-	int maxWait =  5000000;
-	int retryWait = 500000;
+	int maxWait =   5000000;
+	int retryWait =  500000;
 	
 	char *returnValue = CGDisplayBaseAddress(displayID);
 	while (!returnValue && maxWait > 0) {
+		NSLog(@"Unable to obtain base address");
 		usleep(retryWait); // Buffer goes away while screen is "switching", it'll be back
 		maxWait -= retryWait;
 		if ([[NSProcessInfo processInfo] respondsToSelector:@selector(CGMainDisplayID)]) {
 			displayID = [[NSProcessInfo processInfo] CGMainDisplayID];
-			//NSLog(@"Loading New DisplayID: %d", displayID);
 		}
 		returnValue = CGDisplayBaseAddress(displayID);
 	}
 	if (!returnValue) {
+		NSLog(@"Unable to obtain base address -- Giving up");
 		exit(1);
 	}
 		
@@ -634,6 +641,7 @@ char *rfbGetFramebuffer(void) {
 
 static bool rfbScreenInit(void) {
 	int bitsPerSample = 8;
+	int samplesPerPixel = 3;
 
 	if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_3))
 		(void) GetMainDevice();
@@ -649,17 +657,25 @@ static bool rfbScreenInit(void) {
 	// otherwise CGDisplayBitsPerPixel doesn't
     // always works correctly after a resolution change
 	bitsPerSample = CGDisplayBitsPerSample(displayID);
+	samplesPerPixel = CGDisplaySamplesPerPixel(displayID);
 	
-    if (CGDisplaySamplesPerPixel(displayID) != 3) {
-        rfbLog("screen format not supported.\n");
+	if (!bitsPerSample && !samplesPerPixel) {
+		// Let's presume 8x3 and hope for the best.....
+		bitsPerSample = 8;
+		samplesPerPixel = 3;
+	} else if (samplesPerPixel != 3) {
+		rfbLog("screen format not supported.\n");
 		return FALSE;
-    }
+	}
 
 	rfbScreen.width = CGDisplayPixelsWide(displayID);
 	rfbScreen.height = CGDisplayPixelsHigh(displayID);
 	rfbScreen.bitsPerPixel = CGDisplayBitsPerPixel(displayID);
-	rfbScreen.depth = CGDisplaySamplesPerPixel(displayID) * bitsPerSample;
-	rfbScreen.paddedWidthInBytes = CGDisplayBytesPerRow(displayID);
+	rfbScreen.depth = samplesPerPixel * bitsPerSample;
+	if (useOpenGL)
+		rfbScreen.paddedWidthInBytes = rfbScreen.width*rfbScreen.bitsPerPixel/8;
+	else
+		rfbScreen.paddedWidthInBytes = CGDisplayBytesPerRow(displayID);
 
     rfbServerFormat.bitsPerPixel = rfbScreen.bitsPerPixel;
     rfbServerFormat.depth = rfbScreen.depth;
@@ -770,6 +786,8 @@ static void usage(void) {
     fprintf(stderr, "                       (default: no, allow remote connections)\n");
     fprintf(stderr, "-restartonuserswitch flag  For Use on Panther 10.3 systems, this will cause the server to restart when a fast user switch occurs");
     fprintf(stderr, "                       (default: no)\n");
+	fprintf(stderr, "-disableLog			Don't log anything in console\n");
+	fprintf(stderr, "-useOpenGL 			Uses OpenGL to capture screen buffer\n");
     bundlesPerformSelector(@selector(rfbUsage));
     fprintf(stderr, "\n");
 
@@ -918,6 +936,11 @@ static void processArguments(int argc, char *argv[]) {
 				char *argument = argv[++i];
 				restartOnUserSwitch = (argument[0] == 'y' || argument[0] == 'Y' || argument[0] == 't' || argument[0] == 'T' || atoi(argument));
 			}
+		} else if (strcmp(argv[i], "-disablelog") == 0) {
+			logEnable = FALSE;
+		} else if (strcmp(argv[i], "-useopengl") == 0) {
+			rfbLog("Using OpenGL display");
+			useOpenGL = TRUE;
 		}
 	}
 
