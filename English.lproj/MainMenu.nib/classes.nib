@@ -115,6 +115,8 @@
 				<string>NSPopUpButton</string>
 				<key>dontDisconnectCheckbox</key>
 				<string>NSButton</string>
+				<key>eventSourcePopup</key>
+				<string>NSPopUpButton</string>
 				<key>hostNamesBox</key>
 				<string>NSBox</string>
 				<key>hostNamesField</key>
@@ -136,6 +138,8 @@
 				<key>keyboardLayout</key>
 				<string>NSPopUpButton</string>
 				<key>limitToLocalConnections</key>
+				<string>NSButton</string>
+				<key>openGLCheckbox</key>
 				<string>NSButton</string>
 				<key>optionsTabView</key>
 				<string>NSTabView</string>
