@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>3.1 - Copyright© 2002-2009 TestPlant Software </string>
+	<string>3.11Beta - Copyright© 2002-2009 TestPlant Software </string>
 	<key>CFBundleIconFile</key>
 	<string>VineServer.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -19,13 +19,13 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersion</key>
-	<string>3.1</string>
+	<string>3.11Beta</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.1</string>
+	<string>3.11Beta</string>
 	<key>CFBundleSignature</key>
 	<string>vncS</string>
 	<key>CFBundleVersion</key>
-	<string>1022</string>
+	<string>1031</string>
 	<key>NSHelpFile</key>
 	<string>Vine Server.pdf</string>
 	<key>NSHumanReadableCopyright</key>
