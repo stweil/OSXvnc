@@ -88,7 +88,7 @@
             modifierKeyState = (modifierKeyStates[i] >> 8) & 0xFF;
             //NSLog(@"Loading Keys For Modifer State: %#04x", modifierKeyState);
             // Iterate Over Each Key Code
-            for (keyCode = 0; keyCode < 127; keyCode++) {
+            for (keyCode = 0; keyCode < 255; keyCode++) {
 				for (j=0; j < [keyStates count]; j++) {
 					int keyActionState = [[keyStates objectAtIndex:j] intValue];
 					OSStatus resultCode = UCKeyTranslate (uchrHandle,
@@ -135,7 +135,7 @@
             //NSLog(@"Loading Keys For Modifer State:%#04x", modifierKeyState);
 			
             // Iterate Over Each Key Code
-            for (keyCode = 0; keyCode < 127; keyCode++) {
+            for (keyCode = 0; keyCode < 255; keyCode++) {
                 // We pass the modifierKeys as the top 8 bits of keycode
                 kchrCharacters = KeyTranslate(kchrHandle, (modifierKeyState<<8 | keyCode), &state);
 				
