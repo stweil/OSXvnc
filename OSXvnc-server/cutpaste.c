@@ -30,6 +30,9 @@
 #include "rfb.h"
 #include "getMACAddress.h"
 
+// This prevents us from asking if this represents a local file
+#define VineRemoteProxy @"VineRemoteProxy"
+
 #define CorePasteboardFlavor_furl @"CorePasteboardFlavorType 0x6675726C"
 #define CorePasteboardFlavor_icns @"CorePasteboardFlavorType 0x69636E73"
 #define CorePasteboardFlavor_ut16 @"CorePasteboardFlavorType 0x75743136"
@@ -151,7 +154,7 @@ static BOOL debugPB = NO;
 	NSPasteboard *thePasteboard = [NSPasteboard pasteboardWithName:pasteboardName];
 	if (debugPB)
 		NSLog(@"Registering Types With Pasteboard");
-	int newChangeCount = [thePasteboard declareTypes:availableTypes owner:self];
+	int newChangeCount = [thePasteboard declareTypes:[availableTypes arrayByAddingObject:VineRemoteProxy] owner:self];
 	// Don't send it back to the same client via rich clipboards
 	pthread_mutex_lock(&clientPointer->updateMutex);
 	[(NSMutableDictionary *)clientPointer->richClipboardChangeCounts setObject:[NSNumber numberWithInt:newChangeCount] forKey:pasteboardName]; 
@@ -414,14 +417,21 @@ static BOOL pasteboardRepresentsExistingFile(NSPasteboard *thePasteboard) {
 				return YES; // at least one of the files exists
 			}
 		}
-	} else if ([pboardTypes containsObject:CorePasteboardFlavor_flst]) {
+	} 
+	else if ([pboardTypes containsObject:CorePasteboardFlavor_flst]) {
 		return YES; // don't try to parse it all here -- just assume it represents actual files
 	}
-
-	NSURL *theUrl = [NSURL URLFromPasteboard:thePasteboard];
-	if ([theUrl isFileURL]) {
-		NSString *path = [theUrl path];
-		return [[NSFileManager defaultManager] fileExistsAtPath:path];
+	else if ([pboardTypes containsObject:VineRemoteProxy]) {
+		// In this case we do NOT want to go to the next test, it can lead to a deadlock...
+		// where the main thread tries to pull the data from client thread
+		// while the client thread waits for the main thread to determine if we have new data
+		return NO;
+	}
+	else if ([pboardTypes containsObject:NSURLPboardType]) {
+		NSURL *theUrl = [NSURL URLFromPasteboard:thePasteboard];
+		if ([theUrl isFileURL]) {
+			return [[NSFileManager defaultManager] fileExistsAtPath:[theUrl path]];
+		}
 	}
 	return NO;
 }
@@ -512,6 +522,7 @@ void rfbCheckForPasteboardChange() {
 		rfbReleaseClientIterator(iterator);
 	}
 	
+	// Check EACH pasteboard  by name to see if it has new data
 	while (pasteboardName = [pasteboardsEnum nextObject]) {
 		NSMutableArray *pbInfoArray = [pasteboards objectForKey:pasteboardName];
 		NSPasteboard *thePasteboard = [NSPasteboard pasteboardWithName:pasteboardName];
