@@ -388,7 +388,8 @@ NSMutableArray *localIPAddresses() {
 }
 
 // Display Host Names
-- (void) updateHostNames: (NSMutableArray *) commonHostNames {
+- (void) updateHostNames: (NSArray *) newHostNames {
+	NSMutableArray *commonHostNames = [[newHostNames mutableCopy] autorelease];
 	[commonHostNames removeObject:@"localhost"];
 
 	if ([commonHostNames count] > 1) {
@@ -406,7 +407,7 @@ NSMutableArray *localIPAddresses() {
 }
 
 // Display IP Info
-- (void) updateIPAddresses: (NSMutableArray *) commonIPAddresses {
+- (void) updateIPAddresses: (NSArray *) commonIPAddresses {
 	[ipAddressesView renewRows:0 columns:2];
 	
 	id ipAddressEnum = [commonIPAddresses objectEnumerator];
