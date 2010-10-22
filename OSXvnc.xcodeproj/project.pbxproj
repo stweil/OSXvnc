@@ -126,6 +126,18 @@
 		ABD29D400D80B569005BFA6B /* VNCBundle.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD29D3E0D80B569005BFA6B /* VNCBundle.m */; };
 		ABD29D410D80B569005BFA6B /* VNCBundle.m in Sources */ = {isa = PBXBuildFile; fileRef = ABD29D3E0D80B569005BFA6B /* VNCBundle.m */; };
 		ABFC222C0AF08CBA00BCE727 /* VineServer.icns in Resources */ = {isa = PBXBuildFile; fileRef = ABFC222B0AF08CBA00BCE727 /* VineServer.icns */; };
+		CA00814E121CA18D008B29B7 /* FdInStream.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B031038DA99401A80117 /* FdInStream.h */; };
+		CA008151121CA1C5008B29B7 /* Exception.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B02F038DA99401A80117 /* Exception.h */; };
+		CA008152121CA1D8008B29B7 /* FdOutStream.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B033038DA99401A80117 /* FdOutStream.h */; };
+		CA008153121CA1E1008B29B7 /* FixedMemOutStream.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B034038DA99401A80117 /* FixedMemOutStream.h */; };
+		CA008154121CA1E8008B29B7 /* InStream.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B036038DA99401A80117 /* InStream.h */; };
+		CA008155121CA1F3008B29B7 /* MemInStream.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B038038DA99401A80117 /* MemInStream.h */; };
+		CA008156121CA1F7008B29B7 /* MemOutStream.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B039038DA99401A80117 /* MemOutStream.h */; };
+		CA008157121CA1FC008B29B7 /* NullOutStream.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B03B038DA99401A80117 /* NullOutStream.h */; };
+		CA008158121CA200008B29B7 /* OutStream.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B03C038DA99401A80117 /* OutStream.h */; };
+		CA008159121CA204008B29B7 /* types.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B03E038DA99401A80117 /* types.h */; };
+		CA00815A121CA207008B29B7 /* ZlibInStream.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B040038DA99401A80117 /* ZlibInStream.h */; };
+		CA00815B121CA20A008B29B7 /* ZlibOutStream.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B042038DA99401A80117 /* ZlibOutStream.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -178,13 +190,6 @@
 			remoteGlobalIDString = ABA7B635094A0A5000CD7499;
 			remoteInfo = jpg;
 		};
-		ABD8EAFF0588D4AB00C84739 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = AB25D87108686C7D0065843D;
-			remoteInfo = JaguarBundle;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -230,6 +235,7 @@
 		AB82605B08689AC00010AB63 /* OSXvnc-server */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "OSXvnc-server"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB82E81904FA629800A80117 /* kbdptr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kbdptr.h; sourceTree = "<group>"; };
 		AB82E81D04FA6D0A00A80117 /* rfbserver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rfbserver.h; sourceTree = "<group>"; };
+		AB83C53A12724F8B0096F6A7 /* Version.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Version.txt; sourceTree = "<group>"; };
 		AB95E3650FD497F600D063EC /* screencapture.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = screencapture.c; sourceTree = "<group>"; };
 		AB95E3B20FD4A68800D063EC /* screencapture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = screencapture.h; sourceTree = "<group>"; };
 		AB95E3ED0FD4AA3700D063EC /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = /System/Library/Frameworks/OpenGL.framework; sourceTree = "<absolute>"; };
@@ -621,6 +627,7 @@
 				F5F3A78903B395AA01A80117 /* OSXvnc.jpg */,
 				F570ED1002F9DA7601A80186 /* OSXvnc.icns */,
 				F54B48D8038C32FA01A80117 /* OSXvnc.tiff */,
+				AB83C53A12724F8B0096F6A7 /* Version.txt */,
 			);
 			name = Resources;
 			sourceTree = "<group>";
@@ -945,6 +952,18 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA008152121CA1D8008B29B7 /* FdOutStream.h in Headers */,
+				CA008154121CA1E8008B29B7 /* InStream.h in Headers */,
+				CA008158121CA200008B29B7 /* OutStream.h in Headers */,
+				CA008159121CA204008B29B7 /* types.h in Headers */,
+				CA008156121CA1F7008B29B7 /* MemOutStream.h in Headers */,
+				CA00815A121CA207008B29B7 /* ZlibInStream.h in Headers */,
+				CA00815B121CA20A008B29B7 /* ZlibOutStream.h in Headers */,
+				CA008157121CA1FC008B29B7 /* NullOutStream.h in Headers */,
+				CA008153121CA1E1008B29B7 /* FixedMemOutStream.h in Headers */,
+				CA008155121CA1F3008B29B7 /* MemInStream.h in Headers */,
+				CA008151121CA1C5008B29B7 /* Exception.h in Headers */,
+				CA00814E121CA18D008B29B7 /* FdInStream.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -984,17 +1003,16 @@
 				AB25D82908686B520065843D /* Sources */,
 				AB25D82F08686B520065843D /* Frameworks */,
 				AB25D83208686B520065843D /* CopyFiles */,
-				AB25D83508686B520065843D /* ShellScript */,
-				AB139E5C0CEA05C200EE873A /* ShellScript */,
-				AB25D83608686B520065843D /* ShellScript */,
-				AB139E4C0CEA04C800EE873A /* ShellScript */,
+				AB25D83508686B520065843D /* Link CLI files */,
+				AB139E5C0CEA05C200EE873A /* Record our Version */,
+				AB25D83608686B520065843D /* Build DMG */,
+				AB139E4C0CEA04C800EE873A /* Bump the Version */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				AB52324708689C02003F66AC /* PBXTargetDependency */,
 				AB25DA5D08688EE80065843D /* PBXTargetDependency */,
-				AB25D81708686B520065843D /* PBXTargetDependency */,
 				AB0CC1F60CCD4C0C00C74547 /* PBXTargetDependency */,
 			);
 			name = "Vine Server";
@@ -1096,8 +1114,12 @@
 /* Begin PBXProject section */
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = NO;
+			};
 			buildConfigurationList = ABECD3EE08E46414009C84A0 /* Build configuration list for PBXProject "OSXvnc" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1149,48 +1171,52 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		AB139E4C0CEA04C800EE873A /* ShellScript */ = {
+		AB139E4C0CEA04C800EE873A /* Bump the Version */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 8;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Bump the Version";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 			shellPath = /bin/sh;
-			shellScript = "# Bump the version for the NEXT release -- This one uses the prior value\n/Developer/Tools/agvtool bump";
+			shellScript = "# Bump the version for the NEXT release -- This one uses the prior value\ntypeset CURRENT_PROJECT_VERSION=`cat Version.txt`\necho $(($CURRENT_PROJECT_VERSION+1)) > Version.txt\n";
 		};
-		AB139E5C0CEA05C200EE873A /* ShellScript */ = {
+		AB139E5C0CEA05C200EE873A /* Record our Version */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Record our Version";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#Write our current AGV version number into the Info.plist\npushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION/Contents\"\ncat ./Info.plist | sed s/__VERSION__/$CURRENT_PROJECT_VERSION/ > ./Info.plist.tmp\nmv -f ./Info.plist.tmp ./Info.plist\npopd\n";
+			shellScript = "#Write our current AGV version number into the Info.plist\ntypeset CURRENT_PRODUCT_VERSION=3.2\ntypeset CURRENT_BUILD_VERSION=`cat Version.txt`\necho Version: $CURRENT_PRODUCT_VERSION Build Number: $CURRENT_BUILD_VERSION\npushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION/Contents\"\ncat ./Info.plist | sed s/__PRODUCT_VERSION__/$CURRENT_PRODUCT_VERSION/ > ./Info.plist.tmp\nmv -f ./Info.plist.tmp ./Info.plist\ncat ./Info.plist | sed s/__BUILD_VERSION__/$CURRENT_BUILD_VERSION/ > ./Info.plist.tmp\nmv -f ./Info.plist.tmp ./Info.plist\npopd\n";
 		};
-		AB25D83508686B520065843D /* ShellScript */ = {
+		AB25D83508686B520065843D /* Link CLI files */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
+			name = "Link CLI files";
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Set up links for the OSXvnc-server process and the storepasswd process\npushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\";\n/bin/ln -s Contents/Resources/OSXvnc-server .;\n/bin/ln -s Contents/Resources/storepasswd .;\ncd Contents/MacOS;\n/bin/ln -s ../Resources/OSXvnc-server .;\n/bin/ln -s ../Resources/storepasswd .;\npopd";
+			shellScript = "# Set up links for the OSXvnc-server process and the storepasswd process\npushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\";\n/bin/ln -fs Contents/Resources/OSXvnc-server .;\n/bin/ln -fs Contents/Resources/storepasswd .;\ncd Contents/MacOS;\n/bin/ln -fs ../Resources/OSXvnc-server .;\n/bin/ln -fs ../Resources/storepasswd .;\npopd";
 		};
-		AB25D83608686B520065843D /* ShellScript */ = {
+		AB25D83608686B520065843D /* Build DMG */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 8;
 			files = (
 			);
 			inputPaths = (
 			);
+			name = "Build DMG";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 1;
@@ -1344,11 +1370,6 @@
 			isa = PBXTargetDependency;
 			target = AB0CBF9B0CCD1C0500C74547 /* TigerBundle */;
 			targetProxy = AB0CC1F50CCD4C0C00C74547 /* PBXContainerItemProxy */;
-		};
-		AB25D81708686B520065843D /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = AB25D87108686C7D0065843D /* JaguarBundle */;
-			targetProxy = ABD8EAFF0588D4AB00C84739 /* PBXContainerItemProxy */;
 		};
 		AB25DA5D08688EE80065843D /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1661,7 +1682,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 1054;
+				CURRENT_PROJECT_VERSION = 1060;
 				GCC_DYNAMIC_NO_PIC = YES;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -1684,7 +1705,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = YES;
-				CURRENT_PROJECT_VERSION = 1054;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp;
@@ -1696,7 +1716,6 @@
 				INSTALL_PATH = "/Vine Server/";
 				MACOSX_DEPLOYMENT_TARGET = 10.3;
 				PRODUCT_NAME = "Vine Server";
-				VERSIONING_SYSTEM = "apple-generic";
 				WARNING_CFLAGS = (
 					"-Wmost",
 					"-Wno-four-char-constants",
@@ -1715,6 +1734,7 @@
 					ppc,
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = 4.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.3;
 				REMOVE_CVS_FROM_RESOURCES = YES;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
@@ -1730,6 +1750,7 @@
 				);
 				DEPLOYMENT_POSTPROCESSING = YES;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				GCC_VERSION = 4.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.3;
 				REMOVE_CVS_FROM_RESOURCES = YES;
 				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
