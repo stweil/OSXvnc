@@ -1197,7 +1197,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#Write our current AGV version number into the Info.plist\ntypeset CURRENT_PRODUCT_VERSION=3.2\ntypeset CURRENT_BUILD_VERSION=`cat Version.txt`\necho Version: $CURRENT_PRODUCT_VERSION Build Number: $CURRENT_BUILD_VERSION\npushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION/Contents\"\ncat ./Info.plist | sed s/__PRODUCT_VERSION__/$CURRENT_PRODUCT_VERSION/ > ./Info.plist.tmp\nmv -f ./Info.plist.tmp ./Info.plist\ncat ./Info.plist | sed s/__BUILD_VERSION__/$CURRENT_BUILD_VERSION/ > ./Info.plist.tmp\nmv -f ./Info.plist.tmp ./Info.plist\npopd\n";
+			shellScript = "#Write our current AGV version number into the Info.plist\ntypeset CURRENT_PRODUCT_VERSION=3.12\ntypeset CURRENT_BUILD_VERSION=`cat Version.txt`\necho Version: $CURRENT_PRODUCT_VERSION Build Number: $CURRENT_BUILD_VERSION\npushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION/Contents\"\ncat ./Info.plist | sed s/__PRODUCT_VERSION__/$CURRENT_PRODUCT_VERSION/ > ./Info.plist.tmp\nmv -f ./Info.plist.tmp ./Info.plist\ncat ./Info.plist | sed s/__BUILD_VERSION__/$CURRENT_BUILD_VERSION/ > ./Info.plist.tmp\nmv -f ./Info.plist.tmp ./Info.plist\npopd\n";
 		};
 		AB25D83508686B520065843D /* Link CLI files */ = {
 			isa = PBXShellScriptBuildPhase;
