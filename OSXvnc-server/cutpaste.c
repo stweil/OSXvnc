@@ -843,13 +843,13 @@ void rfbReceiveRichClipboardAvailable(rfbClientPtr cl) {
 	
 	if (debugPB)
 		NSLog(@"Received CB Available [%@] Types: %@", pasteboardName, availableTypes);
-
+	
 	if (returnCheck <= 0) {
 		if (returnCheck != 0)
 			rfbLogPerror("rfbReceiveRichClipboardAvailable: read");
 		rfbCloseClient(cl);
 	}
-		
+	
 	if (!rfbDisableRichClipboards) {
 		if ([availableTypes indexOfObject:[NSString stringWithFormat:@"RSPBID:%@:%@", NSUserName(), getMACAddressString()]] != NSNotFound) {
 			if (debugPB)
@@ -858,9 +858,9 @@ void rfbReceiveRichClipboardAvailable(rfbClientPtr cl) {
 		else /*if (addNewDataToPB)*/ {
 			NSClipboardProxy *newProxy = [[NSClipboardProxy alloc] initWithClientPtr:cl];
 			[newProxy setPasteboardName: pasteboardName];
-
+			
 			pthread_mutex_lock(&cl->updateMutex);
-			//We need to remove ourself as the client's owner at this point, so it doesn't try to clear itself out of our
+			//We need to remove ourself as the old proxy's owner at this point, so it doesn't try to request data
 			[(NSClipboardProxy *)cl->clipboardProxy removeClient];
 			// We do NOT free here, the proxy is freed when the pasteboard system is done using it.
 			// [(NSClipboardProxy *)cl->clipboardProxy release];
