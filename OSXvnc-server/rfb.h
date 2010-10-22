@@ -41,7 +41,7 @@
 //#import <Carbon/Carbon.h>
 //#include <ApplicationServices/ApplicationServices.h>
 //#include "CoreGraphics/CGGeometry.h"
-#ifndef __COREGRAPHICS__
+#ifndef COREGRAPHICS_H_
 struct CGPoint {
     float x;
     float y;
