@@ -30,6 +30,8 @@
 #include "Xmd.h"
 #include "regionstr.h"
 
+#include <pthread.h>
+#include <machine/types.h>
 #include <rfbproto.h>
 #include <vncauth.h>
 #include <zlib.h>
@@ -384,6 +386,7 @@ extern int rfbProtocolMinorVersion;
 extern int rfbPort;
 
 extern char *rfbGetFramebuffer();
+extern void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h);
 
 extern void rfbStartClientWithFD(int client_fd);
 extern void connectReverseClient(char *hostName, int portNum);
