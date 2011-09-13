@@ -1102,6 +1102,8 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
         int y = REGION_RECTS(&updateRegion)[i].y1;
         int w = REGION_RECTS(&updateRegion)[i].x2 - x;
         int h = REGION_RECTS(&updateRegion)[i].y2 - y;
+		
+		rfbGetFramebufferUpdateInRect(x,y,w,h);
 
 		
 		// Refresh with latest pointer (should be "read-locked" throughout here with CG but I don't see that option)

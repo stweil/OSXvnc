@@ -112,7 +112,7 @@ static EventLoopTimerRef screensaverTimer;
 Bool rfbDisableScreenSaver = FALSE;
 
 // Display ID
-CGDirectDisplayID displayID = NULL;
+CGDirectDisplayID displayID = 0;
 
 extern void rfbScreensaverTimer(EventLoopTimerRef timer, void *userData);
 
@@ -287,10 +287,26 @@ void refreshCallback(CGRectCount count, const CGRect *rectArray, void *ignore) {
 //	return 0;
 //}
 
+static int bitsPerPixelForDisplay(CGDirectDisplayID dispID) {
+	CGDisplayModeRef mode = CGDisplayCopyDisplayMode(dispID);
+	CFStringRef pixelEncoding = CGDisplayModeCopyPixelEncoding(mode);
+	//NSLog(@"PixelEncoding: %@", pixelEncoding);
+	int bitsPerPixel = 0;
+	if(CFStringCompare(pixelEncoding, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+		bitsPerPixel = 32;
+	else if(CFStringCompare(pixelEncoding, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+		bitsPerPixel = 16;
+	else if(CFStringCompare(pixelEncoding, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+		bitsPerPixel = 8;
+	[(id)pixelEncoding release];
+	CGDisplayModeRelease(mode);
+	return bitsPerPixel;
+}
+
 void rfbCheckForScreenResolutionChange() {
     BOOL sizeChange = (rfbScreen.width != CGDisplayPixelsWide(displayID) ||
                        rfbScreen.height != CGDisplayPixelsHigh(displayID));
-	BOOL colorChange = (CGDisplayBitsPerPixel(displayID) > 0 && rfbScreen.bitsPerPixel != CGDisplayBitsPerPixel(displayID));
+	BOOL colorChange = (bitsPerPixelForDisplay(displayID) > 0 && rfbScreen.bitsPerPixel != bitsPerPixelForDisplay(displayID));
 	
     // See if screen changed
     if (sizeChange || colorChange) {
@@ -319,7 +335,7 @@ void rfbCheckForScreenResolutionChange() {
 		rfbLog("Screen Geometry Changed - (%d,%d) Depth: %d\n",
                CGDisplayPixelsWide(displayID),
                CGDisplayPixelsHigh(displayID),
-               CGDisplayBitsPerPixel(displayID));
+               bitsPerPixelForDisplay(displayID));
 		
 		
 		iterator = rfbGetClientIterator();
@@ -617,65 +633,86 @@ void connectReverseClient(char *hostName, int portNum) {
 	}
 }
 
+static NSMutableData *frameBufferData = nil;
+static int frameBufferBytesPerRow = 0;
+static int frameBufferBitsPerPixel = 0;
+
 char *rfbGetFramebuffer(void) {
-	int maxWait =   5000000;
-	int retryWait =  500000;
-	
-	char *returnValue = CGDisplayBaseAddress(displayID);
-	while (!returnValue && maxWait > 0) {
-		NSLog(@"Unable to obtain base address");
-		usleep(retryWait); // Buffer goes away while screen is "switching", it'll be back
-		maxWait -= retryWait;
-		if ([[NSProcessInfo processInfo] respondsToSelector:@selector(CGMainDisplayID)]) {
-			displayID = [[NSProcessInfo processInfo] CGMainDisplayID];
-		}
-		returnValue = CGDisplayBaseAddress(displayID);
-	}
-	if (!returnValue) {
-		NSLog(@"Unable to obtain base address -- Giving up");
-		exit(1);
-	}
+	/*
+	static int fbCount = 0;
+	fbCount++;
+	if (fbCount % 100 == 0)
+		NSLog(@"rfbGetFramebuffer count = %d", fbCount);
+	 */
+	if (!frameBufferData) {
+		CGDirectDisplayID mainDisplayID = CGMainDisplayID();	
+		CGImageRef imageRef = CGDisplayCreateImage(mainDisplayID);	
+		CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
+		CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
+		frameBufferBytesPerRow = CGImageGetBytesPerRow(imageRef);
+		frameBufferBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
 		
-	return returnValue;
+		frameBufferData = (NSMutableData *)dataRef;
+		
+		if (imageRef != NULL)
+			CGImageRelease(imageRef);
+	}
+	return [frameBufferData mutableBytes];
+}
+
+
+void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
+	/*
+	static int fbCount = 0;
+	fbCount++;
+	if (fbCount % 1000 == 0)
+		NSLog(@"rfbGetFramebufferUpdateInRect count = %d", fbCount);
+	 */
+	CGDirectDisplayID mainDisplayID = CGMainDisplayID();
+	CGRect rect = CGRectMake (x,y,w,h);
+	CGImageRef imageRef = CGDisplayCreateImageForRect(mainDisplayID, rect);	
+	CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
+	CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
+	int imgBytesPerRow = CGImageGetBytesPerRow(imageRef);
+	int imgBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
+	//if (imgBitsPerPixel != frameBufferBitsPerPixel)
+	//	NSLog(@"BitsPerPixel MISMATCH: frameBuffer %d, rect image %d", frameBufferBitsPerPixel, imgBitsPerPixel);
+	
+	char *dest = (char *)[frameBufferData mutableBytes] + frameBufferBytesPerRow * y + x * (frameBufferBitsPerPixel/8);
+	const char *source = [(NSData *)dataRef bytes];
+		
+	while (h--) {
+		memcpy(dest, source, w*(imgBitsPerPixel/8));
+		dest += frameBufferBytesPerRow;
+		source += imgBytesPerRow;
+	}
+	
+	if (imageRef != NULL)
+		CGImageRelease(imageRef);
+	[(id)dataRef release];
 }
 
 static bool rfbScreenInit(void) {
-	int bitsPerSample = 8;
+	/* Note: As of 10.7 there doesn't appear to be an easy way to get the bitsPerSample or samplesPerPixel of the screen buffer. It looks like that information may be in the bitsPerComponent and componentCount elements of the IOPixelInformation structure. But we'd have to get into poorly-documented IOKit functions to get it. It seems very unlikely that it will be anything other than 8 bits and 3 samples, and in any case we're not really prepared to handle anything else, so the best we could do is die gracefully. Now we are likely to die ungracefully (or maybe just produce garbage) if the screen buffer is in a different format.
+	 */
+	int bitsPerSample = 8; // Let's presume 8 bits x 3 samples and hope for the best.....
 	int samplesPerPixel = 3;
-
-	if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_3))
-		(void) GetMainDevice();
 	
-	// This is defined in the Jaguar Bundle so that we can do this on 10.2+ but still be compatible to 10.1
-	if ([[NSProcessInfo processInfo] respondsToSelector:@selector(CGMainDisplayID)])
-		displayID = [[NSProcessInfo processInfo] CGMainDisplayID];
-	else
-		displayID = ((CGDirectDisplayID)0);
+	[frameBufferData release]; // release previous screen buffer, if any
+	frameBufferData = nil;
 	
-    // necessary to init the display manager,
-    
-	// otherwise CGDisplayBitsPerPixel doesn't
-    // always works correctly after a resolution change
-	bitsPerSample = CGDisplayBitsPerSample(displayID);
-	samplesPerPixel = CGDisplaySamplesPerPixel(displayID);
+	displayID = CGMainDisplayID();
 	
-	if (!bitsPerSample && !samplesPerPixel) {
-		// Let's presume 8x3 and hope for the best.....
-		bitsPerSample = 8;
-		samplesPerPixel = 3;
-	} else if (samplesPerPixel != 3) {
+	if (samplesPerPixel != 3) {
 		rfbLog("screen format not supported.\n");
 		return FALSE;
 	}
 
 	rfbScreen.width = CGDisplayPixelsWide(displayID);
 	rfbScreen.height = CGDisplayPixelsHigh(displayID);
-	rfbScreen.bitsPerPixel = CGDisplayBitsPerPixel(displayID);
+	rfbScreen.bitsPerPixel = bitsPerPixelForDisplay(displayID);
 	rfbScreen.depth = samplesPerPixel * bitsPerSample;
-	if (useOpenGL)
-		rfbScreen.paddedWidthInBytes = rfbScreen.width*rfbScreen.bitsPerPixel/8;
-	else
-		rfbScreen.paddedWidthInBytes = CGDisplayBytesPerRow(displayID);
+	rfbScreen.paddedWidthInBytes = rfbScreen.width*rfbScreen.bitsPerPixel/8;
 
     rfbServerFormat.bitsPerPixel = rfbScreen.bitsPerPixel;
     rfbServerFormat.depth = rfbScreen.depth;
@@ -694,7 +731,7 @@ static bool rfbScreenInit(void) {
 	rfbServerFormat.redShift = bitsPerSample * 2;
 	rfbServerFormat.greenShift = bitsPerSample * 1;
 	rfbServerFormat.blueShift = bitsPerSample * 0;
-
+	
     /* We want to use the X11 REGION_* macros without having an actual
         X11 ScreenPtr, so we do this.  Pretty ugly, but at least it lets us
         avoid hacking up regionstr.h, or changing every call to REGION_* */
