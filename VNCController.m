@@ -206,7 +206,7 @@ NSMutableArray *localIPAddresses() {
 		@"/Library/StartupItems/OSXvnc", @"startupItemLocation",
 		@"/Library/LaunchAgents/com.redstonesoftware.VineServer.plist", @"launchdItemLocation",
 		
-		@"http://www.whatismyip.com/automation/n09230945.asp", @"externalIPURL",
+		@"http://automation.whatismyip.com/n09230945.asp", @"externalIPURL",
         nil]];
 	
     alwaysShared = FALSE;
