@@ -94,7 +94,6 @@ BOOL useIP4 = TRUE;
 BOOL unregisterWhenNoConnections = FALSE;
 BOOL nonBlocking = FALSE;
 BOOL logEnable = TRUE;
-BOOL useOpenGL = FALSE;
 
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
 // Bool rfbLocalBuffer = FALSE;
@@ -288,11 +287,13 @@ void refreshCallback(CGRectCount count, const CGRect *rectArray, void *ignore) {
 //}
 
 static int bitsPerPixelForDisplay(CGDirectDisplayID dispID) {
+	int bitsPerPixel = 0;
 	CGDisplayModeRef mode = CGDisplayCopyDisplayMode(dispID);
 	CFStringRef pixelEncoding = CGDisplayModeCopyPixelEncoding(mode);
-	//NSLog(@"PixelEncoding: %@", pixelEncoding);
-	int bitsPerPixel = 0;
-	if(CFStringCompare(pixelEncoding, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+
+	if (!pixelEncoding) // When off-screen the BPP is not accessible -- 32 is default and works.
+		bitsPerPixel = 32;
+	else if(CFStringCompare(pixelEncoding, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
 		bitsPerPixel = 32;
 	else if(CFStringCompare(pixelEncoding, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
 		bitsPerPixel = 16;
@@ -824,7 +825,6 @@ static void usage(void) {
     fprintf(stderr, "-restartonuserswitch flag  For Use on Panther 10.3 systems, this will cause the server to restart when a fast user switch occurs");
     fprintf(stderr, "                       (default: no)\n");
 	fprintf(stderr, "-disableLog			Don't log anything in console\n");
-	fprintf(stderr, "-useOpenGL 			Uses OpenGL to capture screen buffer\n");
     bundlesPerformSelector(@selector(rfbUsage));
     fprintf(stderr, "\n");
 
@@ -976,8 +976,7 @@ static void processArguments(int argc, char *argv[]) {
 		} else if (strcmp(argv[i], "-disablelog") == 0) {
 			logEnable = FALSE;
 		} else if (strcmp(argv[i], "-useopengl") == 0) {
-			rfbLog("Using OpenGL display");
-			useOpenGL = TRUE;
+			rfbLog("OpenGL no longer supported");
 		}
 	}
 
