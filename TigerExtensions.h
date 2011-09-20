@@ -12,6 +12,9 @@
 
 #import "RFBBundleProtocol.h"
 
+#import "rfb.h"
+
+
 @interface TigerExtensions : VNCBundle <RFBBundleProtocol> {
 }
 
@@ -19,5 +22,8 @@
 + (void) systemServerShouldContinue: (NSNotification *) aNotification;
 
 + (void) loadUnicodeKeyboard;
-	
+
++ (void) handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl;
+- (void) handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl;
+
 @end

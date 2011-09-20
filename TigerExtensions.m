@@ -356,7 +356,7 @@ bool isConsoleSession() {
 }
 
 // Keyboard handling code
-+ handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl {
++ (void) handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl {
 	CGKeyCode keyCode = theServer->keyTable[(unsigned short)keySym];
 	CGEventFlags modifiersToSend = 0;
 
@@ -483,6 +483,10 @@ bool isConsoleSession() {
 			}
 		}
 	}
+}
+
+- (void) handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl {
+	[[self class] handleKeyboard:down forSym: keySym forClient: cl];
 }
 
 inline void setKeyModifiers(CGEventFlags modifierFlags) {
