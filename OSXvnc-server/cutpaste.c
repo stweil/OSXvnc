@@ -375,7 +375,15 @@ void initPasteboardForClient(rfbClientPtr cl) {
     /* REDSTONE - Have new client keep his PB currently */
 	cl->generalPBLastChange = -1;
 	cl->richClipboardChangeCounts = [[NSMutableDictionary alloc] init];
-	// We don't setup rich clipboard variables until they actually indicate that they support Rich Clipboards
+	cl->clipboardProxy = nil;
+	cl->richClipboardName = nil;
+	cl->richClipboardType = nil;
+	cl->richClipboardNSData = nil;
+	
+	cl->richClipboardReceivedName = nil;
+	cl->richClipboardReceivedType = nil;
+	cl->richClipboardReceivedNSData = nil;
+	cl->receivedFileTempFolder = nil;
 	
 	[pool release];
 }
