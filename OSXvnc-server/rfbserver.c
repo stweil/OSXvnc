@@ -312,8 +312,6 @@ rfbClientPtr rfbNewClient(int sock) {
 	cl->screenBuffer = rfbGetFramebuffer();
     cl->scalingFrameBuffer = cl->screenBuffer;
 	cl->scalingPaddedWidthInBytes = rfbScreen.paddedWidthInBytes;
-	if (useOpenGL)
-		cl->p_data = screen_InitCapture();
 	
     cl->tightCompressLevel = TIGHT_DEFAULT_COMPRESSION;
     cl->tightQualityLevel = -1;
@@ -428,9 +426,6 @@ void rfbClientConnectionGone(rfbClientPtr cl) {
         free(cl->scalingFrameBuffer);
     }
 
-	if (useOpenGL)
-		screen_CloseCapture(cl->p_data);
-	
     pthread_cond_destroy(&cl->updateCond);
     pthread_mutex_destroy(&cl->updateMutex);
     pthread_mutex_destroy(&cl->outputMutex);
@@ -1092,10 +1087,7 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
         }            
     }
 	
-	if (useOpenGL)
-		cl->screenBuffer = screen_Capture(cl->p_data);
-	else
-		cl->screenBuffer = rfbGetFramebuffer();
+	cl->screenBuffer = rfbGetFramebuffer();
 		
     for (i = 0; i < REGION_NUM_RECTS(&updateRegion); i++) {
         int x = REGION_RECTS(&updateRegion)[i].x1;

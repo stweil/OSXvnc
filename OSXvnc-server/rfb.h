@@ -415,8 +415,6 @@ extern void rfbLogPerror(char *str);
 
 extern void rfbShutdown();
 
-extern BOOL useOpenGL;
-
 /* sockets.c */
 
 extern int rfbMaxClientWait;

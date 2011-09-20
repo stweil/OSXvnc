@@ -809,7 +809,6 @@ NSMutableArray *localIPAddresses() {
 	[disableRemoteEventsCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"disableRemoteEvents"]];
 	[disableRichClipboardCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"disableRichClipboard"]];
 	[allowRendezvousCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"allowRendezvous"]];
-	[openGLCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"useOpenGL"]];
 	
 	[sharingMatrix selectCellWithTag: [[NSUserDefaults standardUserDefaults] integerForKey:@"sharingMode"]];
 	[dontDisconnectCheckbox setState:[[NSUserDefaults standardUserDefaults] boolForKey:@"dontDisconnectClients"]];
@@ -858,7 +857,6 @@ NSMutableArray *localIPAddresses() {
 	
     [[NSUserDefaults standardUserDefaults] setBool:[limitToLocalConnections state] forKey:@"localhostOnly"];
     [[NSUserDefaults standardUserDefaults] setBool:[allowRendezvousCheckbox state] forKey:@"allowRendezvous"];
-    [[NSUserDefaults standardUserDefaults] setBool:[openGLCheckbox state] forKey:@"useOpenGL"];
 	
     [[NSUserDefaults standardUserDefaults] setBool:[startServerOnLaunchCheckbox state] forKey:@"startServerOnLaunch"];
     [[NSUserDefaults standardUserDefaults] setBool:[terminateOnFastUserSwitch state] forKey:@"terminateOnFastUserSwitch"];
@@ -1199,8 +1197,6 @@ NSMutableArray *localIPAddresses() {
         [argv addObject:@"-disableRemoteEvents"];
     if ([disableRichClipboardCheckbox state])
         [argv addObject:@"-disableRichClipboards"];
-	if ([openGLCheckbox state])
-		[argv addObject:@"-useOpenGL"];
 	
 	[argv addObject:@"-rendezvous"];
     [argv addObject:([allowRendezvousCheckbox state] ? @"Y" : @"N")];
