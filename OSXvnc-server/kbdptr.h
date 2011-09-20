@@ -165,6 +165,14 @@ static int SpecialKeyCodes[] = {
     XK_F10,              109,      /* F10 */
     XK_F11,              103,      /* F11 */
     XK_F12,              111,      /* F12 */
+    XK_F13,              105,      /* F12 */
+    XK_F14,              107,      /* F12 */
+    XK_F15,              113,      /* F12 */
+    XK_F16,              106,      /* F12 */
+    XK_F17,              64,      /* F12 */
+    XK_F18,              79,      /* F12 */
+    XK_F19,              80,      /* F12 */
+    XK_F20,              90,      /* F12 */
 
     /* Modifier keys */
     XK_Alt_L,             55,      /* Alt Left (-> Command) */
