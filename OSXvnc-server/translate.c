@@ -224,6 +224,7 @@ Bool rfbSetTranslateFunctionUsingFormat(rfbClientPtr cl, rfbPixelFormat inFormat
 
         //rfbLog("no translation needed\n");
         cl->translateFn = rfbTranslateNone;
+		cl->translateLookupTable = NULL;
         return TRUE;
     }
 
