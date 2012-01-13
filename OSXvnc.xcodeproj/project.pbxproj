@@ -57,7 +57,6 @@
 		AB3E27F80AF947FB004AF567 /* Vine Server.pdf in Resources */ = {isa = PBXBuildFile; fileRef = AB3E27F70AF947FB004AF567 /* Vine Server.pdf */; };
 		AB82605A08689AC00010AB63 /* storepasswd in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB82605708689AC00010AB63 /* storepasswd */; };
 		AB82605E08689AC00010AB63 /* OSXvnc-server in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB82605B08689AC00010AB63 /* OSXvnc-server */; };
-		AB95E3660FD497F600D063EC /* screencapture.c in Sources */ = {isa = PBXBuildFile; fileRef = AB95E3650FD497F600D063EC /* screencapture.c */; };
 		AB95E3EE0FD4AA3800D063EC /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB95E3ED0FD4AA3700D063EC /* OpenGL.framework */; };
 		ABA7B3D60948CB5D00CD7499 /* d3des.c in Sources */ = {isa = PBXBuildFile; fileRef = ABA7B3D10948CB5D00CD7499 /* d3des.c */; };
 		ABA7B3D70948CB5D00CD7499 /* vncauth.c in Sources */ = {isa = PBXBuildFile; fileRef = ABA7B3D30948CB5D00CD7499 /* vncauth.c */; };
@@ -1236,7 +1235,6 @@
 				ABA7B3D60948CB5D00CD7499 /* d3des.c in Sources */,
 				ABA7B3D70948CB5D00CD7499 /* vncauth.c in Sources */,
 				9199995B0B1135FF0099EA7A /* getMACAddress.c in Sources */,
-				AB95E3660FD497F600D063EC /* screencapture.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1544,8 +1542,8 @@
 					"OSXvnc-server/include",
 					libjpeg,
 				);
-				LIBRARY_SEARCH_PATHS = /usr/lib/gcc/darwin/3.3;
 				MACH_O_TYPE = mh_execute;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				OTHER_CFLAGS = "-ObjC";
 				PREBINDING = NO;
 				PRODUCT_NAME = "OSXvnc-server";
