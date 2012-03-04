@@ -375,6 +375,8 @@ typedef struct rfbClientRec {
 // kCGBitmapByteOrder16Big AC_C_BIGENDIAN
 // #define rfbEndianTest (0)
 
+#include <arpa/inet.h>
+
 #define Swap16IfLE(s) htons(s)
 #define Swap32IfLE(l) htonl(l)
 
