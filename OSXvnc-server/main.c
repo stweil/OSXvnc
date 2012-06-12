@@ -639,16 +639,11 @@ static int frameBufferBytesPerRow = 0;
 static int frameBufferBitsPerPixel = 0;
 
 char *rfbGetFramebuffer(void) {
-	/*
-	static int fbCount = 0;
-	fbCount++;
-	if (fbCount % 100 == 0)
-		NSLog(@"rfbGetFramebuffer count = %d", fbCount);
-	 */
 	if (!frameBufferData) {
 		CGDirectDisplayID mainDisplayID = CGMainDisplayID();	
 		CGImageRef imageRef = CGDisplayCreateImage(mainDisplayID);	
 		CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
+		
 		CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
 		frameBufferBytesPerRow = CGImageGetBytesPerRow(imageRef);
 		frameBufferBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
@@ -663,12 +658,6 @@ char *rfbGetFramebuffer(void) {
 
 
 void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
-	/*
-	static int fbCount = 0;
-	fbCount++;
-	if (fbCount % 1000 == 0)
-		NSLog(@"rfbGetFramebufferUpdateInRect count = %d", fbCount);
-	 */
 	CGDirectDisplayID mainDisplayID = CGMainDisplayID();
 	CGRect rect = CGRectMake (x,y,w,h);
 	CGImageRef imageRef = CGDisplayCreateImageForRect(mainDisplayID, rect);	
@@ -676,8 +665,9 @@ void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
 	CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
 	int imgBytesPerRow = CGImageGetBytesPerRow(imageRef);
 	int imgBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
-	//if (imgBitsPerPixel != frameBufferBitsPerPixel)
-	//	NSLog(@"BitsPerPixel MISMATCH: frameBuffer %d, rect image %d", frameBufferBitsPerPixel, imgBitsPerPixel);
+	
+	if (imgBitsPerPixel != frameBufferBitsPerPixel)
+		NSLog(@"BitsPerPixel MISMATCH: frameBuffer %d, rect image %d", frameBufferBitsPerPixel, imgBitsPerPixel);
 	
 	char *dest = (char *)[frameBufferData mutableBytes] + frameBufferBytesPerRow * y + x * (frameBufferBitsPerPixel/8);
 	const char *source = [(NSData *)dataRef bytes];

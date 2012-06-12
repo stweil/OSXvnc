@@ -39,12 +39,10 @@
 
 // This will use the KeyboardLayoutRef to produce a static table of lookups
 // By iterating through all possible KeyCodes
-+ (void) loadKeyboard: (KeyboardLayoutRef) keyboardLayoutRef forServer: (rfbserver *) theServer{
++ (void) loadKeyboard: (TISInputSourceRef) inputSource forServer: (rfbserver *) theServer{
     int i, j;
     UCKeyboardLayout *uchrHandle = NULL;
-    const void *kchrHandle = NULL;
     CFStringRef keyboardName;
-    KeyboardLayoutKind layoutKind;
     static UInt32 modifierKeyStates[] = {0, shiftKey, optionKey, controlKey, optionKey | shiftKey, optionKey | controlKey, controlKey | shiftKey, optionKey | shiftKey | controlKey};
 	UInt32 modifierKeyState = 0;	
 	NSArray *keyStates = [[NSUserDefaults standardUserDefaults] arrayForKey:@"KeyStates"];
@@ -57,14 +55,10 @@
     //controlKey                    = 1 << controlKeyBit,
     
     // KLGetKeyboardLayoutProperty is 10.2 only how do I access these resources in early versions?
-    if (keyboardLayoutRef) {
-        KLGetKeyboardLayoutProperty(keyboardLayoutRef, kKLName, (const void **) &keyboardName);
-        KLGetKeyboardLayoutProperty(keyboardLayoutRef, kKLKind, (const void **) &layoutKind);
-        NSLog(@"Keyboard Detected: %@ (Type:%d) - Loading Keys\n", keyboardName, layoutKind);
-        if (layoutKind == kKLKCHRuchrKind || layoutKind == kKLuchrKind)
-            KLGetKeyboardLayoutProperty(keyboardLayoutRef, kKLuchrData, (const void **) &uchrHandle);
-        else
-            KLGetKeyboardLayoutProperty(keyboardLayoutRef, kKLKCHRData, (const void **) &kchrHandle);
+    if (inputSource) {
+        keyboardName = (CFStringRef) TISGetInputSourceProperty(inputSource, kTISPropertyLocalizedName);
+        NSLog(@"Keyboard Detected: %@ - Loading Keys\n", keyboardName);
+		uchrHandle = (CFDataRef) TISGetInputSourceProperty(inputSource, kTISPropertyUnicodeKeyLayoutData);
     }
 	
     // Initialize them all to 0xFFFF
@@ -120,38 +114,6 @@
 					}
 				}
 			}
-        }
-    }
-    else if (kchrHandle) {
-        UInt16 keyCode;
-        UInt32 state=0;
-        UInt32 kchrCharacters;
-		
-        // Ok - we need to get the LIST of Modifier Key States out of the Keyboard Layout
-        // some of them are duplicates so we need to compare them, then we'll iterate through them in reverse order
-        //UCKeyModifiersToTableNum = ;
-        for (i=0; i < (sizeof(modifierKeyStates) / sizeof(UInt32)); i++) {
-            modifierKeyState = (modifierKeyStates[i] >> 8) & 0xFF;
-            //NSLog(@"Loading Keys For Modifer State:%#04x", modifierKeyState);
-			
-            // Iterate Over Each Key Code
-            for (keyCode = 0; keyCode < 255; keyCode++) {
-                // We pass the modifierKeys as the top 8 bits of keycode
-                kchrCharacters = KeyTranslate(kchrHandle, (modifierKeyState<<8 | keyCode), &state);
-				
-                if (kchrCharacters & 0xFFFF0000) {
-                    NSLog(@"Unable To Convert KeyCode, Multiple Characters (%#04x) (%#04x) For: %d (%#04x)",
-                          kchrCharacters>>16 & 0xFFFF, kchrCharacters & 0xFFFF, keyCode, modifierKeyState);
-                }
-                else {
-                    // We'll use the FIRST keyCode that we find for that UNICODE character
-                    if (theServer->keyTable[kchrCharacters & 0xFFFF] == 0xFFFF) {
-                        //NSLog(@"KeyCode:%d UniCode:%d", keyCode, kchrCharacters & 0xFFFF);
-                        theServer->keyTable[kchrCharacters & 0xFFFF] = keyCode;
-                        theServer->keyTableMods[kchrCharacters & 0xFFFF] = modifierKeyState;
-                    }
-                }
-            }
         }
     }
     else {

@@ -23,7 +23,11 @@
 
 + (void) loadUnicodeKeyboard;
 
-+ (void) handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl;
 - (void) handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl;
+
+- (void) setKeyModifiers: (CGEventFlags) modifierFlags;
+- (BOOL) checkModiferState;
+- (void) sendKeyEvent: (CGKeyCode) keyCode down: (BOOL) down modifiers: (CGEventFlags) modifiersToSend;
+
 
 @end

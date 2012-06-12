@@ -16,6 +16,6 @@
 
 }
 
-+ (void) loadKeyboard: (KeyboardLayoutRef) keyboardLayoutRef forServer: (rfbserver *) theServer;
++ (void) loadKeyboard: (TISInputSourceRef) keyboardLayoutRef forServer: (rfbserver *) theServer;
 
 @end
