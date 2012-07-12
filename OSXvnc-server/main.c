@@ -138,7 +138,7 @@ static bool rfbScreenInit(void);
 void rfbLog(char *format, ...) {
 	if (logEnable && format != NULL) {
 		va_list args;
-		NSString *nsFormat = [[NSString alloc] initWithCString:format];	
+		NSString *nsFormat = [[NSString alloc] initWithUTF8String:format];	
 		pthread_mutex_lock(&logMutex);
 		NS_DURING {
 			va_start(args, format);
@@ -155,7 +155,7 @@ void rfbLog(char *format, ...) {
 void rfbDebugLog(char *format, ...) {
 #ifdef __DEBUGGING__
     va_list args;
-    NSString *nsFormat = [[NSString alloc] initWithCString:format];
+    NSString *nsFormat = [[NSString alloc] initWithUTF8String:format];
 	
     pthread_mutex_lock(&logMutex);
     va_start(args, format);
@@ -648,8 +648,9 @@ char *rfbGetFramebuffer(void) {
 		frameBufferBytesPerRow = CGImageGetBytesPerRow(imageRef);
 		frameBufferBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
 		
-		frameBufferData = (NSMutableData *)dataRef;
-		
+		frameBufferData = [(NSData *)dataRef mutableCopy];
+		CFRelease(dataRef);
+        
 		if (imageRef != NULL)
 			CGImageRelease(imageRef);
 	}
@@ -1193,8 +1194,8 @@ int main(int argc, char *argv[]) {
     if (!rfbInhibitEvents) {
         //NSLog(@"Core Graphics - Event Suppression Turned Off");
         // This seems to actually sometimes inhibit REMOTE events as well, but all the same let's let everything pass through for now
-        CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateSupressionInterval);
-        CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateRemoteMouseDrag);		
+        //        CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateSupressionInterval);
+        //        CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateRemoteMouseDrag);		
     }
 	// Better to handle this at the event level, see kbdptr.c
 	//CGEnableEventStateCombining(FALSE);
