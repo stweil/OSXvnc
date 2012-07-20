@@ -100,7 +100,7 @@ void rfbSendClientList() {
 	
 	while (myClient != NULL) {
 		[clientList addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-			[NSString stringWithCString: myClient->host], @"clientIP",
+							   [NSString stringWithCString: myClient->host encodging: NSASCIIStringEncoding], @"clientIP",
 			nil]];
 		myClient = myClient->next;
 	}

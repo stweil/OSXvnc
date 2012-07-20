@@ -28,13 +28,14 @@
 #import <Cocoa/Cocoa.h>
 #import <Carbon/Carbon.h>
 
-#include <stdio.h>
-#include <ApplicationServices/ApplicationServices.h>
+#import <stdio.h>
+#import <ApplicationServices/ApplicationServices.h>
 
-#include <X11/keysym.h>
-#include "rfb.h"
+#import <X11/keysym.h>
+#import "rfb.h"
 
-#include "kbdptr.h"
+#import "kbdptr.h"
+#import "RFBBundleProtocol.h"
 
 CGKeyCode keyTable[keyTableSize];
 unsigned char keyTableMods[keyTableSize]; // 8 Bits for Modifier Keys
@@ -73,7 +74,7 @@ void loadKeyTable() {
 void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl) {
 	rfbUndim();	
 	
-	if (alternateKeyboardHandler != NULL)
+	if (alternateKeyboardHandler != nil)
 		[(id)alternateKeyboardHandler handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl];
 	else {
 		CGKeyCode keyCode = keyTable[(unsigned short)keySym];
@@ -93,27 +94,27 @@ void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl) {
 				
 				// Toggle the state of the appropriate keys
 				if (!(cl->modiferKeys[keyTable[XK_Meta_L]]) != !(modsForKey & optionKey))
-					CGPostKeyboardEvent(0, keyTable[XK_Meta_L], (modsForKey & optionKey));
+					CGEventCreateKeyboardEvent(NULL, keyTable[XK_Meta_L], (modsForKey & optionKey));
 				
 				if (!(cl->modiferKeys[keyTable[XK_Control_L]]) != !(modsForKey & controlKey))
-					CGPostKeyboardEvent(0, keyTable[XK_Control_L], (modsForKey & controlKey));
+					CGEventCreateKeyboardEvent(NULL, keyTable[XK_Control_L], (modsForKey & controlKey));
             
 				if (!(cl->modiferKeys[keyTable[XK_Shift_L]]) != !(modsForKey & shiftKey))
-					CGPostKeyboardEvent(0, keyTable[XK_Shift_L], (modsForKey & shiftKey));
+					CGEventCreateKeyboardEvent(NULL, keyTable[XK_Shift_L], (modsForKey & shiftKey));
 			}
         
-			CGPostKeyboardEvent(keyChar, keyCode, down);
+			CGEventCreateKeyboardEvent(NULL, keyCode, down);
 			
 			if (doMods) {
 				// Return keys to previous state
 				if (!(cl->modiferKeys[keyTable[XK_Meta_L]]) != !(modsForKey & optionKey))
-					CGPostKeyboardEvent(0, keyTable[XK_Meta_L], cl->modiferKeys[keyTable[XK_Meta_L]]);
+					CGEventCreateKeyboardEvent(NULL, keyTable[XK_Meta_L], cl->modiferKeys[keyTable[XK_Meta_L]]);
 
 				if (!(cl->modiferKeys[keyTable[XK_Control_L]]) != !(modsForKey & controlKey))
-					CGPostKeyboardEvent(0, keyTable[XK_Control_L], cl->modiferKeys[keyTable[XK_Control_L]]);
+					CGEventCreateKeyboardEvent(NULL, keyTable[XK_Control_L], cl->modiferKeys[keyTable[XK_Control_L]]);
 				
 				if (!(cl->modiferKeys[keyTable[XK_Shift_L]]) != !(modsForKey & shiftKey))
-					CGPostKeyboardEvent(0, keyTable[XK_Shift_L], cl->modiferKeys[keyTable[XK_Shift_L]]);
+					CGEventCreateKeyboardEvent(NULL, keyTable[XK_Shift_L], cl->modiferKeys[keyTable[XK_Shift_L]]);
 			}
         
 			if (keyCode >= keyTable[XK_Alt_L] && keyCode <= keyTable[XK_Control_L]) {
@@ -128,8 +129,8 @@ void keyboardReleaseKeysForClient(rfbClientPtr cl) {
 
     for (i = keyTable[XK_Alt_L]; i <= keyTable[XK_Control_L]; i++) {
         if (cl->modiferKeys[i]) {
-            CGPostKeyboardEvent(0, i, 0); // Release all modifier keys that were held down
-										  //rfbLog("Released Key: %d", index);
+            CGEventCreateKeyboardEvent(NULL, i, 0); // Release all modifier keys that were held down
+                                                    //rfbLog("Released Key: %d", index);
         }
     }
 }
@@ -150,16 +151,19 @@ void PtrAddEvent(int buttonMask, int x, int y, rfbClientPtr cl) {
             mouseWheelDistance = 10;
 
         if (buttonMask & rfbWheelUpMask)
-            CGPostScrollWheelEvent(1,  mouseWheelDistance);
+            CGEventCreateScrollWheelEvent(NULL, kCGScrollEventUnitPixel,  1,  mouseWheelDistance);
 
         if (buttonMask & rfbWheelDownMask)
-            CGPostScrollWheelEvent(1, -mouseWheelDistance);
+            CGEventCreateScrollWheelEvent(NULL, kCGScrollEventUnitPixel,  1, -mouseWheelDistance);
 
         [pool release];
     }
     else {
         cl->clientCursorLocation.x = x;
         cl->clientCursorLocation.y = y;
+
+        // Tricky here -- new events need to specify up, down and dragged, not just button state.
+        //CGEventCreateMouseEvent(NULL, NX_OMOUSEDRAGGED, CGPointMake(x,y), kCGMouseButtonCenter)
 
         if (cl->swapMouseButtons23)
             CGPostMouseEvent(cl->clientCursorLocation, TRUE, 3,
