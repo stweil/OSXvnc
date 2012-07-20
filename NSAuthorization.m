@@ -55,7 +55,7 @@
     copyArguments[i] = NULL;
     
     myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, 
-                                                  [command lossyCString], 
+                                                  [command UTF8String],
                                                   kAuthorizationFlagDefaults,
                                                   copyArguments, 
                                                   (sync ? &communicationStream : NULL)); // FILE HANDLE for I/O
@@ -71,7 +71,7 @@
     free(copyArguments);
     
     if (myStatus != errAuthorizationSuccess)
-        NSLog(@"Error: Executing %@ with Authorization: %d", command, myStatus);
+        NSLog(@"Error: Executing %@ with Authorization: %ld", command, myStatus);
 
     return (myStatus == errAuthorizationSuccess);
 }

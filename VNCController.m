@@ -33,13 +33,12 @@
 #import <fcntl.h>
 #import <sys/types.h>
 #import <ifaddrs.h>
-#include <netdb.h>
+#import <netdb.h>
 
 #define PasswordProxy @"********"
 
 #define LocalizedString(X)      [[NSBundle mainBundle] localizedStringForKey:(X) value:nil table:nil]
 
-#import "RFBBundleProtocol.h"
 
 // So we can still build on Panther and below
 #ifndef NSAppKitVersionNumber10_3
@@ -81,13 +80,7 @@
 }
 
 - (BOOL) createFullDirectoryAtPath:(NSString *)path attributes:(NSDictionary *)attributes {
-    if ([self directoryExistsAtPath: path])
-        return YES;
-	
-    if ([path length] && [self createFullDirectoryAtPath:[path stringByDeletingLastPathComponent] attributes:attributes])
-        return [self createDirectoryAtPath:path attributes:attributes];
-    
-    return NO;
+    return [self createDirectoryAtPath:path withIntermediateDirectories:YES attributes:attributes error:NULL];
 }
 
 - (BOOL) canWriteToFile: (NSString *) path {
@@ -423,7 +416,7 @@ NSMutableArray *localIPAddresses() {
 		else {
 			NSRange endOfIP = [anIP rangeOfString:@"\t"];
 			NSAttributedString *ipString = ipAddress;
-			NSAttributedString *noteString = @"";
+			NSAttributedString *noteString = [NSMutableString string];
 			NSString *tooltipString = @"";
 			
 			if (endOfIP.location != NSNotFound && [ipAddress isKindOfClass:[NSAttributedString class]]) {
@@ -909,7 +902,7 @@ NSMutableArray *localIPAddresses() {
 		return;
 	}
 	
-    if (argv = [self formCommandLineForSystemServer: NO]) {
+    if ((argv = [self formCommandLineForSystemServer: NO])) {
         NSDictionary *infoDictionary = [[NSBundle mainBundle] infoDictionary];
 
         NSString *executionPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"OSXvnc-server"];
@@ -925,9 +918,9 @@ NSMutableArray *localIPAddresses() {
             [serverOutput closeFile];
         }
         serverOutput = [[NSFileHandle fileHandleForUpdatingAtPath:logFile] retain];
-        [serverOutput writeData:[noteStartup dataUsingEncoding:NSASCIIStringEncoding]];
-        [serverOutput writeData:[[argv componentsJoinedByString:@" "] dataUsingEncoding:NSASCIIStringEncoding]];
-        [serverOutput writeData:[@"\n\n" dataUsingEncoding:NSASCIIStringEncoding]];
+        [serverOutput writeData:[noteStartup dataUsingEncoding: NSUTF8StringEncoding]];
+        [serverOutput writeData:[[argv componentsJoinedByString:@" "] dataUsingEncoding: NSUTF8StringEncoding]];
+        [serverOutput writeData:[@"\n\n" dataUsingEncoding: NSUTF8StringEncoding]];
 
         controller = [[NSTask alloc] init];
         [controller setLaunchPath:executionPath];
@@ -1252,11 +1245,11 @@ NSMutableArray *localIPAddresses() {
 
 	// VNC Password
 	if (newAuth == 1) {
-		[[NSUserDefaults standardUserDefaults] setObject:[NSData dataWithBytes:(const void *)vncEncryptPasswd([passwordString cString]) length:8] forKey:@"vncauth"];
+		[[NSUserDefaults standardUserDefaults] setObject:[NSData dataWithBytes:(const void *)vncEncryptPasswd([passwordString UTF8String]) length:8] forKey:@"vncauth"];
 	}
 	// No Auth
 	else if (newAuth == 2) {
-		[[NSFileManager defaultManager] removeFileAtPath:passwordFile handler:nil];
+		[[NSFileManager defaultManager] removeItemAtPath:passwordFile error:NULL];
 		[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"vncauth"];
 		[passwordField setStringValue:@""];
 	}
@@ -1325,7 +1318,7 @@ NSMutableArray *localIPAddresses() {
 		}
 		// No Auth
 		else if (newAuth == 2) {
-			[[NSFileManager defaultManager] removeFileAtPath:passwordFile handler:nil];
+			[[NSFileManager defaultManager] removeItemAtPath:passwordFile error:NULL];
 			[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"vncauth"];
 			[passwordField setStringValue:@""];
 			[preferenceWindow makeFirstResponder: nil];
@@ -1343,7 +1336,7 @@ NSMutableArray *localIPAddresses() {
 	
     if ([passwordString length] && ![passwordString isEqualToString:PasswordProxy]) {
 		[authenticationType selectCellWithTag:1];
-		[[NSUserDefaults standardUserDefaults] setObject:[NSData dataWithBytes:(const void *)vncEncryptPasswd([passwordString cString]) length:8] forKey:@"vncauth"];
+		[[NSUserDefaults standardUserDefaults] setObject:[NSData dataWithBytes:(const void *)vncEncryptPasswd([passwordString UTF8String]) length:8] forKey:@"vncauth"];
 		
         if (sender != self) {
             [self saveUserDefaults: self];
@@ -1383,7 +1376,7 @@ NSMutableArray *localIPAddresses() {
 	int sysServerAuthType = [[systemServerAuthenticationType selectedCell] tag];
 	
 	if (sender == systemServerPasswordField && [passwordString length] && ![passwordString isEqualToString:PasswordProxy]) {
-		char *encPassword = vncEncryptPasswd([passwordString cString]);
+		char *encPassword = vncEncryptPasswd([passwordString UTF8String]);
 		
 		[systemServerAuthenticationType selectCellWithTag:1];
 		[[NSUserDefaults standardUserDefaults] setObject:[NSData dataWithBytes:(const void *)encPassword length:8] forKey:@"vncauthSystemServer"];		
@@ -1597,11 +1590,11 @@ NSMutableArray *localIPAddresses() {
 			}
 		}
 		
-        startupScript = [NSMutableString stringWithContentsOfFile:[sourceFolder stringByAppendingPathComponent:@"OSXvnc"]];
+        startupScript = [NSMutableString stringWithContentsOfFile:[sourceFolder stringByAppendingPathComponent:@"OSXvnc"] encoding:NSUTF8StringEncoding error:NULL];
     }
     else {
         // Would be nice to always use this but there is a timing issue with the AuthorizationExecuteWithPrivileges command
-        startupScript = [NSMutableString stringWithContentsOfFile:@"/Library/StartupItems/OSXvnc/OSXvnc"];
+        startupScript = [NSMutableString stringWithContentsOfFile:@"/Library/StartupItems/OSXvnc/OSXvnc" encoding:NSUTF8StringEncoding error:NULL];
     }
     
     // Now we will modify the script file
@@ -1639,7 +1632,7 @@ NSMutableArray *localIPAddresses() {
 		// Coerce the CommandLine string with slight modifications
 		if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_1)) {
 			NSMutableString *newDesktopName = [[oldDesktopName mutableCopy] autorelease];
-			[newDesktopName replaceOccurrencesOfString:@" " withString:@"_" options:nil range:NSMakeRange(0,[oldDesktopName length])];
+			[newDesktopName replaceOccurrencesOfString:@" " withString:@"_" options:0 range:NSMakeRange(0,[oldDesktopName length])];
 			[systemServerDisplayNameField setStringValue:newDesktopName];
 		}
 		replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLineForSystemServer: YES] componentsJoinedByString:@" "]];
@@ -1649,7 +1642,7 @@ NSMutableArray *localIPAddresses() {
 		[systemServerDisplayNameField setStringValue:oldDesktopName];
 		passwordFile = oldPasswordFile;
 	}
-    if ([startupScript writeToFile:@"/tmp/OSXvnc.script" atomically:YES]) {
+    if ([startupScript writeToFile:@"/tmp/OSXvnc.script" atomically:YES encoding:NSUTF8StringEncoding error:NULL]) {
 		success &= [myAuthorization executeCommand:@"/bin/mv" 
 										  withArgs:[NSArray arrayWithObjects:@"-f", @"/tmp/OSXvnc.script", @"/Library/StartupItems/OSXvnc/OSXvnc", nil]];
         success &= [myAuthorization executeCommand:@"/usr/sbin/chown" 
