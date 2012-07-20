@@ -44,7 +44,7 @@ void rfbAuthInit() {
 }
 
 int failedAttemptsForClient(rfbClientPtr cl) {
-	NSString *clientHost = [[NSString alloc] initWithCString:cl->host];
+	NSString *clientHost = [[NSString alloc] initWithCString:cl->host encoding:NSUTF8StringEncoding];
 	int failedAttempts=0;
 	
 	[authClientLock	lock];
@@ -56,7 +56,7 @@ int failedAttemptsForClient(rfbClientPtr cl) {
 }
 
 int incrementFailedAttemptsForClient(rfbClientPtr cl) {
-	NSString *clientHost = [[NSString alloc] initWithCString:cl->host];
+	NSString *clientHost = [[NSString alloc] initWithCString:cl->host encoding:NSUTF8StringEncoding];
 	NSNumber *failedNumber = nil;
 	int failedAttempts=0;
 	
@@ -72,7 +72,7 @@ int incrementFailedAttemptsForClient(rfbClientPtr cl) {
 }
 
 void clearFailedAttemptsForClient(rfbClientPtr cl) {
-	NSString *clientHost = [[NSString alloc] initWithCString:cl->host];
+	NSString *clientHost = [[NSString alloc] initWithCString:cl->host encoding:NSUTF8StringEncoding];
 	[authClientLock	lock];
 	[authClientFailures removeObjectForKey:clientHost];
 	[authClientLock	unlock];

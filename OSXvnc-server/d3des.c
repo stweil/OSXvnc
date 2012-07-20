@@ -70,7 +70,9 @@ static unsigned char pc2[48] = {
 	43, 48, 38, 55, 33, 52, 45, 41, 49, 35, 28, 31 };
 
 void preventWarningAboutUnusedVariables() {
-	if (KnR || Kn3 || Df_Key);
+	if (KnR || Kn3 || Df_Key) {
+        return;
+    }
 }
 
 void deskey(key, edf)	/* Thanks to James Gillogly & Phil Karn! */

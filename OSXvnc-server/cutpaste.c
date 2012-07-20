@@ -66,7 +66,7 @@
 	if (parentDirectory && ![parentDirectory isEqualToString:@""]) {
 		BOOL parentExists = [self fileExistsAtPath:parentDirectory isDirectory:&isDir];
 		if (parentExists || [self ensureDirectoryAtPath:parentDirectory attributes:attributes]) {
-			return [self createDirectoryAtPath:path attributes:attributes];
+			return [self createDirectoryAtPath:path withIntermediateDirectories: NO attributes:attributes error:NULL];
 		} else {
 			return NO; // failed to find or create parent directory
 		}
@@ -270,7 +270,7 @@ static BOOL debugPB = NO;
 	}
 	else { // Error occured
 		NSString *errorString = [[NSString alloc] initWithData:clientPointer->richClipboardReceivedNSData encoding:NSUTF8StringEncoding];
-		NSLog(errorString);
+		NSLog(@"%@", errorString);
 		[errorString release];
 	};
 	
@@ -311,10 +311,10 @@ static BOOL debugPB = NO;
 // or possibly run with -inetd...hmmm...
 
 // This is the global VNC change count
-NSLock *pasteboardLock = nil;
+NSRecursiveLock *pasteboardLock = nil;
 
 // Used to lock access to pasteboardString, clientCutText and pasteboards array
-NSLock *pasteboardVariablesLock = nil;
+NSRecursiveLock *pasteboardVariablesLock = nil;
 
 NSString *pasteboardString = nil;
 NSString *clientCutText = nil;
@@ -895,13 +895,13 @@ void checkTotalSize(unsigned long long *totalSize, NSString *path, NSFileManager
 	BOOL isDirectory = NO;
 	if ([fileManager fileExistsAtPath:path isDirectory:&isDirectory]) {
 		if (isDirectory) {
-			NSArray *contents = [fileManager directoryContentsAtPath:path];
+			NSArray *contents = [fileManager contentsOfDirectoryAtPath:path error:NULL];
 			int index;
 			for (index=0; index<[contents count]; index++) {
 				checkTotalSize(totalSize, [path stringByAppendingPathComponent:[contents objectAtIndex:index]], fileManager);
 			}
 		} else { // regular file
-			NSDictionary *attributes = [fileManager fileAttributesAtPath:path traverseLink:YES];
+			NSDictionary *attributes = [fileManager attributesOfItemAtPath:[path stringByResolvingSymlinksInPath] error:NULL];
 			unsigned long long size = [[attributes objectForKey:NSFileSize] unsignedLongLongValue];
 			*totalSize += size;
 			if (*totalSize > maxTransferSize) {
