@@ -217,9 +217,6 @@ NSMutableArray *localIPAddresses() {
     signal(SIGSEGV, terminateOnSignal);
     signal(SIGTERM, terminateOnSignal);
     signal(SIGTSTP, terminateOnSignal);
-
-	bundleArray = [[NSMutableArray alloc] init];
-	[self loadDynamicBundles];	
 	
     return self;
 }
@@ -240,58 +237,6 @@ NSMutableArray *localIPAddresses() {
 		[sheet orderOut:self];
 		[NSApp terminate: self];
 	}
-}
-
-- (void) bundlesPerformSelector: (SEL) performSel {
-    NSEnumerator *bundleEnum = [bundleArray objectEnumerator];
-    NSBundle *bundle = nil;
-	
-    while ((bundle = [bundleEnum nextObject])) {
-		if ([[bundle principalClass] respondsToSelector:performSel])
-			[[bundle principalClass] performSelector:performSel];
-	}
-}
-
-- (void) loadDynamicBundles {
-    NSBundle *osxvncBundle = [NSBundle mainBundle];
-    NSString *execPath =[[NSProcessInfo processInfo] processName];
-		
-    if (!osxvncBundle) {
-        // If We Launched Relative - make it absolute
-        if (![execPath isAbsolutePath])
-            execPath = [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent:execPath];
-		
-        execPath = [execPath stringByStandardizingPath];
-        execPath = [execPath stringByResolvingSymlinksInPath];
-		
-        osxvncBundle = [NSBundle bundleWithPath:execPath];
-        //resourcesPath = [[[resourcesPath stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"Resources"];
-    }
-	
-    if (osxvncBundle) {
-        NSArray *bundlePathArray = [NSBundle pathsForResourcesOfType:@"bundle" inDirectory:[osxvncBundle resourcePath]];
-        NSEnumerator *bundleEnum = [bundlePathArray reverseObjectEnumerator];
-        NSString *bundlePath = nil;
-		
-        while ((bundlePath = [bundleEnum nextObject])) {
-            NSBundle *aBundle = [NSBundle bundleWithPath:bundlePath];
-			
-            NSLog(@"Loading Bundle %@", bundlePath);
-
-			NS_DURING {
-				if ([aBundle load]) 
-					[bundleArray addObject: aBundle];
-				else
-					NSLog(@"\t-Bundle Load Failed");
-			};
-			NS_HANDLER
-				NSLog(@"\t-Bundle Load Failed (%@)", [localException name]);
-			NS_ENDHANDLER
-        }
-    }
-    else {
-        NSLog(@"No Bundles Loaded - Run %@ from inside %@.app", execPath, execPath);
-    }
 }
 
 - (BOOL) authenticationIsValid {
@@ -550,8 +495,6 @@ NSMutableArray *localIPAddresses() {
 	[self updateIPAddresses: localIPAddresses()];
 	
 	[self updateHostInfo];
-	
-	[self bundlesPerformSelector:@selector(loadGUI)];
 }
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {	

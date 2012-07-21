@@ -31,11 +31,12 @@
 #import <stdio.h>
 #import <ApplicationServices/ApplicationServices.h>
 
+#import "VNCServer.h"
+
 #import <X11/keysym.h>
 #import "rfb.h"
 
 #import "kbdptr.h"
-#import "RFBBundleProtocol.h"
 
 CGKeyCode keyTable[keyTableSize];
 unsigned char keyTableMods[keyTableSize]; // 8 Bits for Modifier Keys
@@ -74,8 +75,8 @@ void loadKeyTable() {
 void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl) {
 	rfbUndim();	
 	
-	if (alternateKeyboardHandler != nil)
-		[(id)alternateKeyboardHandler handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl];
+	if ([VNCServer sharedServer])
+		[[VNCServer sharedServer] handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl];
 	else {
 		CGKeyCode keyCode = keyTable[(unsigned short)keySym];
 		CGCharCode keyChar = 0;

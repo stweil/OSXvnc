@@ -141,8 +141,6 @@
 
 - (void) awakeFromNib;
 
-- (void) loadDynamicBundles;
-
 - (void) loadUIForSystemServer;
 - (void) loadUIForPort: (int) port;
 

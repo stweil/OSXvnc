@@ -41,8 +41,6 @@
 #include "rfbserver.h"
 #import "VNCServer.h"
 
-#import "../RFBBundleProtocol.h"
-
 /* That's great that they #define it to use the new symbol that doesn't exist in older versions
 better to just not even define it - but give a warning or something  */
 // This should be in CGRemoteOperationApi.h
@@ -124,8 +122,6 @@ CGDisplayErr displayErr;
 
 // Server Data
 rfbserver thisServer;
-// List of Loaded Bundles
-NSMutableArray *bundleArray = nil;
 
 VNCServer *vncServerObject = nil;
 
@@ -172,24 +168,9 @@ void rfbLogPerror(char *str) {
     rfbLog("%s: %s\n", str, strerror(errno));
 }
 
-void bundlesPerformSelector(SEL performSel) {
-    NSAutoreleasePool *bundlePool = [[NSAutoreleasePool alloc] init];
-    NSEnumerator *bundleEnum = [bundleArray objectEnumerator];
-    NSBundle *bundle = nil;
-
-    while ((bundle = [bundleEnum nextObject])) {
-		if ([[bundle principalClass] respondsToSelector:performSel])
-			[[bundle principalClass] performSelector:performSel];
-	}
-
-    [bundlePool release];
-}
-
 // Some calls fail under older OS X'es so we will do some detected loading
 void loadDynamicBundles(BOOL startup) {
     NSAutoreleasePool *startPool = [[NSAutoreleasePool alloc] init];
-    NSBundle *osxvncBundle = [NSBundle mainBundle];
-    NSString *execPath =[[NSProcessInfo processInfo] processName];
 
     // Setup thisServer structure
 	thisServer.vncServer = vncServerObject;
@@ -206,49 +187,7 @@ void loadDynamicBundles(BOOL startup) {
     thisServer.pressModsForKeys = &pressModsForKeys;
 	thisServer.alternateKeyboardHandler = &alternateKeyboardHandler;
 	
-    NSLog(@"Main Bundle: %@", [osxvncBundle bundlePath]);
-    if (!osxvncBundle) {
-        // If We Launched Relative - make it absolute
-        if (![execPath isAbsolutePath])
-            execPath = [[[NSFileManager defaultManager] currentDirectoryPath] stringByAppendingPathComponent:execPath];
-
-        execPath = [execPath stringByStandardizingPath];
-        execPath = [execPath stringByResolvingSymlinksInPath];
-
-        osxvncBundle = [NSBundle bundleWithPath:execPath];
-        //resourcesPath = [[[resourcesPath stringByDeletingLastPathComponent] stringByDeletingLastPathComponent] stringByAppendingPathComponent:@"Resources"];
-    }
-
-    if (osxvncBundle) {
-        NSArray *bundlePathArray = [NSBundle pathsForResourcesOfType:@"bundle" inDirectory:[osxvncBundle resourcePath]];
-        NSEnumerator *bundleEnum = [bundlePathArray reverseObjectEnumerator];
-        NSString *bundlePath = nil;
-
-        bundleArray = [[NSMutableArray alloc] init];
-
-        while ((bundlePath = [bundleEnum nextObject])) {
-            NSBundle *aBundle = [NSBundle bundleWithPath:bundlePath];
-
-            NSLog(@"Loading Bundle %@", bundlePath);
-
-			NS_DURING {
-				if ([aBundle load]) {
-					[bundleArray addObject:aBundle];
-					[[aBundle principalClass] rfbStartup: &thisServer];
-				}
-				else {
-					NSLog(@"\t-Bundle Load Failed");
-				}
-			}
-			NS_HANDLER
-				NSLog(@"\t-Bundle Load Failed (%@)", [localException name]);
-			NS_ENDHANDLER
-        }
-    }
-    else {
-        NSLog(@"No Bundles Loaded - Run %@ from inside OSXvnc.app", execPath);
-    }
-
+	[[VNCServer sharedServer] rfbStartup: &thisServer];
 
     [startPool release];
 }
@@ -494,7 +433,7 @@ void *clientInput(void *data) {
     pthread_create(&output_thread, NULL, clientOutput, (void *)cl);
 
     while (1) {
-        bundlesPerformSelector(@selector(rfbReceivedClientMessage));
+        [[VNCServer sharedServer] rfbReceivedClientMessage];
         rfbProcessClientMessage(cl);
 
         // Some people will connect but not request screen updates - just send events, this will delay registering the CG callback until then
@@ -504,7 +443,7 @@ void *clientInput(void *data) {
 			if (result != kCGErrorSuccess) {
 				NSLog(@"Error (%d) registering for Screen Update Notification", result);
 			}
-			bundlesPerformSelector(@selector(rfbConnect));
+			[[VNCServer sharedServer] rfbConnect];
 			//CGScreenRegisterMoveCallback(screenUpdateMoveCallback, NULL);
             registered = TRUE;
         }
@@ -555,7 +494,7 @@ static void *listenerRun(void *ignore) {
     unsigned int len4=sizeof(sin4);
 	
 	// Must register IPv6 first otherwise it seems to clear our unique binding for IPv4 portNum
-	bundlesPerformSelector(@selector(rfbRunning));
+	[[VNCServer sharedServer] rfbRunning];
 
 	// Ok, we are leaving IPv4 binding on even with IPv6 on so that OSXvnc will bind up the port regardless 
 	// When both are enabled you can't have another VNC server "steal" the IPv4 port
@@ -816,7 +755,7 @@ static void usage(void) {
     fprintf(stderr, "-restartonuserswitch flag  For Use on Panther 10.3 systems, this will cause the server to restart when a fast user switch occurs");
     fprintf(stderr, "                       (default: no)\n");
 	fprintf(stderr, "-disableLog			Don't log anything in console\n");
-    bundlesPerformSelector(@selector(rfbUsage));
+    [[VNCServer sharedServer] rfbUsage];
     fprintf(stderr, "\n");
 
     exit(255);
@@ -978,8 +917,7 @@ static void processArguments(int argc, char *argv[]) {
 }
 
 void rfbShutdown(void) {
-    bundlesPerformSelector(@selector(rfbShutdown));
-    [bundleArray release];
+    [[VNCServer sharedServer] rfbShutdown];
 
     CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
     //CGDisplayShowCursor(displayID);
@@ -1233,7 +1171,7 @@ int main(int argc, char *argv[]) {
 				if (registered && unregisterWhenNoConnections) {
 					rfbLog("UnRegistering Screen Update Notification - waiting for clients\n");
 					CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
-					bundlesPerformSelector(@selector(rfbDisconnect));
+					[[VNCServer sharedServer] rfbDisconnect];
 					registered = NO;
 				}
 				else
@@ -1242,7 +1180,7 @@ int main(int argc, char *argv[]) {
 				pthread_cond_wait(&listenerGotNewClient, &listenerAccepting);
 				pthread_mutex_unlock(&listenerAccepting);
 			}
-            bundlesPerformSelector(@selector(rfbPoll));
+            [[VNCServer sharedServer] rfbPoll];
 
             rfbCheckForPasteboardChange();
             rfbCheckForCursorChange();
