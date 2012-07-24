@@ -41,26 +41,6 @@
 #include "rfbserver.h"
 #import "VNCServer.h"
 
-/* That's great that they #define it to use the new symbol that doesn't exist in older versions
-better to just not even define it - but give a warning or something  */
-// This should be in CGRemoteOperationApi.h
-#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_3
-#undef CGSetLocalEventsFilterDuringSupressionState
-//#warning Using Obsolete CGSetLocalEventsFilterDuringSupressionState for backwards compatibility to 10.2
-CG_EXTERN CGError CGSetLocalEventsFilterDuringSupressionState(CGEventFilterMask filter, CGEventSupressionState state);
-#endif
-
-// So we can compile on 10.2
-#ifndef NSAppKitVersionNumber10_3
-#define NSAppKitVersionNumber10_3 743
-#endif
-//#ifndef NSWorkspaceSessionDidBecomeActiveNotification
-//#define NSWorkspaceSessionDidBecomeActiveNotification @"NSWorkspaceSessionDidBecomeActiveNotification"
-//#endif
-//#ifndef NSWorkspaceSessionDidResignActiveNotification
-//#define NSWorkspaceSessionDidResignActiveNotification @"NSWorkspaceSessionDidResignActiveNotification"
-//#endif
-
 ScreenRec hackScreen;
 rfbScreenInfo rfbScreen;
 
@@ -185,7 +165,6 @@ void loadDynamicBundles(BOOL startup) {
     thisServer.keyTableMods = keyTableMods;
 	
     thisServer.pressModsForKeys = &pressModsForKeys;
-	thisServer.alternateKeyboardHandler = &alternateKeyboardHandler;
 	
 	[[VNCServer sharedServer] rfbStartup: &thisServer];
 
