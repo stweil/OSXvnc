@@ -64,7 +64,9 @@
 
 - (void) loadUnicodeKeyboard;
 
+- (void) handleMouseButtons:(int) buttonMask atPoint:(NSPoint) aPoint forClient: (rfbClientPtr) cl;
 - (void) handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl;
+- (void) releaseModifiersForClient: (rfbClientPtr) cl;
 
 - (void) setKeyModifiers: (CGEventFlags) modifierFlags;
 - (BOOL) checkModiferState;

@@ -34,7 +34,8 @@
 @implementation VNCServer
 
 static VNCServer *sharedServer = nil;
-static unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 25, 0, 11, 8, 2, 14, 3 };
+// These correspond to the keycodes of the keys 0-9,A-F
+static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 25, 0, 11, 8, 2, 14, 3 };
 
 + sharedServer {
 	if (!sharedServer) {
@@ -56,7 +57,6 @@ static unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 25, 
 		readyToStartup = TRUE;
 		dynamicKeyboard = FALSE;
 		
-		// These correspond to the keycodes of the keys 0-9,A-F
 	}
 	return self;
 }
@@ -172,11 +172,6 @@ static unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 25, 
 	}
 }
 
-
-
-void SyncSetKeyboardLayout (TISInputSourceRef inputSource);
-
-bool isConsoleSession();
 
 // The Keycodes to various modifiers on the current keyboard
 CGKeyCode keyCodeShift;
@@ -354,7 +349,7 @@ bool isConsoleSession() {
 			vncSourceRef = CGEventSourceCreate(kCGEventSourceStatePrivate);
 			break;
 		case 1:
-			// Combines with only with other User Session
+			// Combines only with other User Session Events
 			NSLog(@"Using Combined Event Source, WARNING: Doesn't work if we FUS off-screen (10.5.1)");
 			vncSourceRef = CGEventSourceCreate(kCGEventSourceStateCombinedSessionState);
 			break;
@@ -458,17 +453,17 @@ bool isConsoleSession() {
     fprintf(stderr,
             "-keyboardLoading flag  This feature allows OSXvnc to look at the users selected keyboard and map keystrokes using it.\n"
             "                       Disabling this returns OSXvnc to standard (U.S. Keyboard) which will work better with Dead Keys.\n"
-            "                       (default: no), 10.2+ ONLY\n"
+            "                       (default: no)\n"
             "-pressModsForKeys flag If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it.\n"
             "                       This flag works well if you have different keyboards on the local and remote machines.\n"
             "                       Only works if -keyboardLoading is on\n"
-            "                       (default: yes), 10.2+ ONLY\n"
+            "                       (default: yes)\n"
 	        "-bonjour flag       Allow OSXvnc to advertise VNC server using Bonjour discovery services.\n"
 			"                       'VNC' will enable the service named VNC (For Eggplant & Chicken 2.02b)\n"
 			"                       'Both' or '2' will enable the services named RFB and VNC\n"
-			"                       (default: RFB:YES VNC:NO), 10.2+ ONLY\n"
-	        "-ipv4                  Listen For Connections on IPv4 ONLY (Default: Off). 10.2+ ONLY\n"
-	        "-ipv6                  Listen For Connections on IPv6 ONLY (Default: Off). 10.2+ ONLY\n"
+			"                       (default: RFB:YES VNC:NO)\n"
+	        "-ipv4                  Listen For Connections on IPv4 ONLY (Default: Off)\n"
+	        "-ipv6                  Listen For Connections on IPv6 ONLY (Default: Off)\n"
 			);
 }
 
@@ -507,10 +502,60 @@ bool isConsoleSession() {
 	[vncService stop];
 }
 
+// Mouse handling code
+
+- (void) handleMouseButtons:(int) buttonMask atPoint:(NSPoint) aPoint forClient: (rfbClientPtr) cl {
+    rfbUndim();
+    
+    if (buttonMask & rfbWheelMask) {
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+        NSUserDefaults *currentUserDefs = [[NSUserDefaults alloc] initWithUser:NSUserName()];
+        CGEventRef scrollEvent;
+        int mouseWheelDistance;
+ 
+        // I would rather cache this data than look it up each time but I don't know how to get notification of a change
+        // A - User changes his setting in SysPrefs
+        // B - Running OSXvnc as root and user swiches
+        
+        mouseWheelDistance = 8 * [currentUserDefs floatForKey:@"com.apple.scrollwheel.scaling"];
+        if (!mouseWheelDistance)
+            mouseWheelDistance = 10;
+        
+        if (buttonMask & rfbWheelUpMask)
+            scrollEvent = CGEventCreateScrollWheelEvent(NULL, kCGScrollEventUnitPixel,  1,  mouseWheelDistance);
+        
+        if (buttonMask & rfbWheelDownMask)
+            scrollEvent = CGEventCreateScrollWheelEvent(NULL, kCGScrollEventUnitPixel,  1, -mouseWheelDistance);
+        
+        CGEventPost(vncTapLocation, scrollEvent);
+        [pool release];
+    }
+    else {
+        cl->clientCursorLocation.x = aPoint.x;
+        cl->clientCursorLocation.y = aPoint.y;
+        
+        // Tricky here -- new events need to specify up, down and dragged, not just button state.
+        //CGEventCreateMouseEvent(NULL, NX_OMOUSEDRAGGED, CGPointMake(x,y), kCGMouseButtonCenter)
+        
+        if (cl->swapMouseButtons23)
+            CGPostMouseEvent(cl->clientCursorLocation, TRUE, 3,
+                             (buttonMask & rfbButton1Mask) ? TRUE : FALSE,
+                             (buttonMask & rfbButton3Mask) ? TRUE : FALSE,
+                             (buttonMask & rfbButton2Mask) ? TRUE : FALSE);
+        else
+            CGPostMouseEvent(cl->clientCursorLocation, TRUE, 3,
+                             (buttonMask & rfbButton1Mask) ? TRUE : FALSE,
+                             (buttonMask & rfbButton2Mask) ? TRUE : FALSE,
+                             (buttonMask & rfbButton3Mask) ? TRUE : FALSE);
+    }
+}
+
 // Keyboard handling code
 - (void) handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl {
 	CGKeyCode keyCode = theServer->keyTable[(unsigned short)keySym];
 	CGEventFlags modifiersToSend = 0;
+	
+    rfbUndim();	
 	
 	if (1) {
 		// Find the right keycodes base on the loaded keyboard
@@ -635,6 +680,11 @@ bool isConsoleSession() {
 		}
 	}
 }
+
+- (void) releaseModifiersForClient: (rfbClientPtr) cl {
+    [self setKeyModifiers: 0];
+}
+
 
 - (void) setKeyModifiers: (CGEventFlags) modifierFlags {
 	// If it's a session tap (and we have an event source) then we can specify our own modifiers as part of the event (nothing to do here)
