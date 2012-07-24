@@ -444,7 +444,6 @@ extern void rfbReceiveRichClipboardData(rfbClientPtr cl);
 extern u_int16_t keyTable[];
 extern unsigned char keyTableMods[]; // 8 Bits for Modifier Keys
 extern BOOL pressModsForKeys;
-extern void *alternateKeyboardHandler;
 
 extern void PtrAddEvent(int buttonMask, int x, int y, rfbClientPtr cl);
 extern void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl);
