@@ -46,10 +46,6 @@ unsigned char keyTableMods[keyTableSize]; // 8 Bits for Modifier Keys
 // It will be turned on by JaguarExtensions unless specified
 BOOL pressModsForKeys = FALSE;
 
-void *alternateKeyboardHandler = nil;
-
-static int mouseWheelDistance;
-
 void loadKeyTable() {
     unsigned int i;
 
@@ -73,108 +69,13 @@ void loadKeyTable() {
 }
 
 void KbdAddEvent(Bool down, KeySym keySym, rfbClientPtr cl) {
-	rfbUndim();	
-	
-	if ([VNCServer sharedServer])
-		[[VNCServer sharedServer] handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl];
-	else {
-		CGKeyCode keyCode = keyTable[(unsigned short)keySym];
-		CGCharCode keyChar = 0;
-		UInt32 modsForKey = keyTableMods[keySym];
-		bool doMods = (modsForKey != 0xFF && down && pressModsForKeys);
-
-		if (keySym < 0xFF) // If it's an ASCII key we'll send the keyChar
-			keyChar = (CGCharCode) keySym;
-
-		//rfbLog("Key Char:%c Key Code:%d Key Sym:%d\n", keyChar, keyCode, keySym);
-		if (keyCode == 0xFFFF)
-			rfbLog("Warning: Unable to determine Key Code for X Key Sym %d (0x%x)\n", (int)keySym, (int)keySym);
-		else {
-			if (doMods) {
-				modsForKey = modsForKey << 8;
-				
-				// Toggle the state of the appropriate keys
-				if (!(cl->modiferKeys[keyTable[XK_Meta_L]]) != !(modsForKey & optionKey))
-					CGEventCreateKeyboardEvent(NULL, keyTable[XK_Meta_L], (modsForKey & optionKey));
-				
-				if (!(cl->modiferKeys[keyTable[XK_Control_L]]) != !(modsForKey & controlKey))
-					CGEventCreateKeyboardEvent(NULL, keyTable[XK_Control_L], (modsForKey & controlKey));
-            
-				if (!(cl->modiferKeys[keyTable[XK_Shift_L]]) != !(modsForKey & shiftKey))
-					CGEventCreateKeyboardEvent(NULL, keyTable[XK_Shift_L], (modsForKey & shiftKey));
-			}
-        
-			CGEventCreateKeyboardEvent(NULL, keyCode, down);
-			
-			if (doMods) {
-				// Return keys to previous state
-				if (!(cl->modiferKeys[keyTable[XK_Meta_L]]) != !(modsForKey & optionKey))
-					CGEventCreateKeyboardEvent(NULL, keyTable[XK_Meta_L], cl->modiferKeys[keyTable[XK_Meta_L]]);
-
-				if (!(cl->modiferKeys[keyTable[XK_Control_L]]) != !(modsForKey & controlKey))
-					CGEventCreateKeyboardEvent(NULL, keyTable[XK_Control_L], cl->modiferKeys[keyTable[XK_Control_L]]);
-				
-				if (!(cl->modiferKeys[keyTable[XK_Shift_L]]) != !(modsForKey & shiftKey))
-					CGEventCreateKeyboardEvent(NULL, keyTable[XK_Shift_L], cl->modiferKeys[keyTable[XK_Shift_L]]);
-			}
-        
-			if (keyCode >= keyTable[XK_Alt_L] && keyCode <= keyTable[XK_Control_L]) {
-				cl->modiferKeys[keyCode] = down; // Mark the key state for that client, we'll release down keys later
-			}
-		}
-	}
+    [[VNCServer sharedServer] handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl];
 }
 
 void keyboardReleaseKeysForClient(rfbClientPtr cl) {
-    int i = keyTable[XK_Alt_L];
-
-    for (i = keyTable[XK_Alt_L]; i <= keyTable[XK_Control_L]; i++) {
-        if (cl->modiferKeys[i]) {
-            CGEventCreateKeyboardEvent(NULL, i, 0); // Release all modifier keys that were held down
-                                                    //rfbLog("Released Key: %d", index);
-        }
-    }
+    [[VNCServer sharedServer] releaseModifiersForClient: (rfbClientPtr) cl];
 }
 
 void PtrAddEvent(int buttonMask, int x, int y, rfbClientPtr cl) {
-    rfbUndim();
-
-    if (buttonMask & rfbWheelMask) {
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        NSUserDefaults *currentUserDefs = [[NSUserDefaults alloc] initWithUser:NSUserName()];
-
-        // I would rather cache this data than look it up each time but I don't know how to get notification of a change
-        // A - User changes his setting in SysPrefs
-        // B - Running OSXvnc as root and user swiches
-
-        mouseWheelDistance = 8 * [currentUserDefs floatForKey:@"com.apple.scrollwheel.scaling"];
-        if (!mouseWheelDistance)
-            mouseWheelDistance = 10;
-
-        if (buttonMask & rfbWheelUpMask)
-            CGEventCreateScrollWheelEvent(NULL, kCGScrollEventUnitPixel,  1,  mouseWheelDistance);
-
-        if (buttonMask & rfbWheelDownMask)
-            CGEventCreateScrollWheelEvent(NULL, kCGScrollEventUnitPixel,  1, -mouseWheelDistance);
-
-        [pool release];
-    }
-    else {
-        cl->clientCursorLocation.x = x;
-        cl->clientCursorLocation.y = y;
-
-        // Tricky here -- new events need to specify up, down and dragged, not just button state.
-        //CGEventCreateMouseEvent(NULL, NX_OMOUSEDRAGGED, CGPointMake(x,y), kCGMouseButtonCenter)
-
-        if (cl->swapMouseButtons23)
-            CGPostMouseEvent(cl->clientCursorLocation, TRUE, 3,
-                             (buttonMask & rfbButton1Mask) ? TRUE : FALSE,
-                             (buttonMask & rfbButton3Mask) ? TRUE : FALSE,
-                             (buttonMask & rfbButton2Mask) ? TRUE : FALSE);
-        else
-            CGPostMouseEvent(cl->clientCursorLocation, TRUE, 3,
-                             (buttonMask & rfbButton1Mask) ? TRUE : FALSE,
-                             (buttonMask & rfbButton2Mask) ? TRUE : FALSE,
-                             (buttonMask & rfbButton3Mask) ? TRUE : FALSE);
-    }
+    [[VNCServer sharedServer] handleMouseButtons:buttonMask atPoint:NSMakePoint(x, y) forClient: (rfbClientPtr) cl];
 }
