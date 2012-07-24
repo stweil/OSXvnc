@@ -271,6 +271,9 @@ rfbClientPtr rfbNewClient(int sock) {
     cl->zrleData = 0;
     cl->mosData = 0;
 
+    for (i = 0; i < 256; i++)
+        cl->modiferKeys[i] = 0;
+
     box.x1 = box.y1 = 0;
     box.x2 = rfbScreen.width;
     box.y2 = rfbScreen.height;
