@@ -57,9 +57,44 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
 		readyToStartup = TRUE;
 		dynamicKeyboard = FALSE;
 		
+        [self loadKeyTable];
 	}
 	return self;
 }
+
+- (void) loadKeyTable {
+    unsigned int i;
+    
+    // Initialize them all to 0xFFFF
+    for (i = 0; i < keyTableSize; i++) {
+        keyTable[i] = 0xFFFF;
+        keyTableMods[i] = 0;
+    }
+    
+    // This is the old US only keyboard mapping
+    // Map the above key table into a static array so we can just look them up directly
+    // NSLog(@"Unable To Determine Key Map - Reverting to US Mapping\n");
+    for (i = 0; i < (sizeof(USKeyCodes) / sizeof(int)); i += 2)
+        keyTable[(unsigned short)USKeyCodes[i]] = (CGKeyCode) USKeyCodes[i+1];
+    
+    // This is the old SpecialKeyCodes keyboard mapping
+    // Map the above key table into a static array so we can just look them up directly
+    // NSLog(@"Loading %d XKeysym Special Keys\n", (sizeof(SpecialKeyCodes) / sizeof(int)));
+    for (i = 0; i < (sizeof(SpecialKeyCodes) / sizeof(int)); i += 2)
+        keyTable[(unsigned short)SpecialKeyCodes[i]] = (CGKeyCode) SpecialKeyCodes[i+1];
+
+
+	if (1) {
+		// Find the right keycodes base on the loaded keyboard
+		keyCodeShift = keyTable[XK_Shift_L];
+		keyCodeOption = keyTable[XK_Meta_L];
+		keyCodeControl = keyTable[XK_Control_L];
+		keyCodeCommand = keyTable[XK_Alt_L];
+	}		
+	
+
+}
+
 
 // Here are the resources we can think about using for Int'l keyboard support
 
@@ -102,8 +137,8 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
     }
 	
     // Initialize them all to 0xFFFF
-    memset(theServer->keyTable, 0xFF, keyTableSize * sizeof(CGKeyCode));
-    memset(theServer->keyTableMods, 0xFF, keyTableSize * sizeof(unsigned char));
+    memset(keyTable, 0xFF, keyTableSize * sizeof(CGKeyCode));
+    memset(keyTableMods, 0xFF, keyTableSize * sizeof(unsigned char));
 	
     if (uchrHandle) {
         // Ok - we could get the LIST of Modifier Key States out of the Keyboard Layout
@@ -143,9 +178,9 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
 						}
 						else {
 							// We'll use the FIRST keyCode that we find for that UNICODE character
-							if (theServer->keyTable[unicodeChar[0]] == 0xFFFF) {
-								theServer->keyTable[unicodeChar[0]] = keyCode;
-								theServer->keyTableMods[unicodeChar[0]] = modifierKeyState;
+							if (keyTable[unicodeChar[0]] == 0xFFFF) {
+								keyTable[unicodeChar[0]] = keyCode;
+								keyTableMods[unicodeChar[0]] = modifierKeyState;
 							}
 						}
 					}
@@ -161,25 +196,28 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
         // Map the above key table into a static array so we can just look them up directly
         NSLog(@"Unable To Determine Key Map - Reverting to US Mapping\n");
         for (i = 0; i < (sizeof(USKeyCodes) / sizeof(int)); i += 2)
-            theServer->keyTable[(unsigned short)USKeyCodes[i]] = (CGKeyCode) USKeyCodes[i+1];
+            keyTable[(unsigned short)USKeyCodes[i]] = (CGKeyCode) USKeyCodes[i+1];
     }
 	
     // This is the old SpecialKeyCodes keyboard mapping
     // Map the above key table into a static array so we can just look them up directly
     NSLog(@"Loading %ld XKeysym Special Keys\n", (sizeof(SpecialKeyCodes) / sizeof(int))/2);
     for (i = 0; i < (sizeof(SpecialKeyCodes) / sizeof(int)); i += 2) {
-        theServer->keyTable[(unsigned short)SpecialKeyCodes[i]] = (CGKeyCode) SpecialKeyCodes[i+1];
+        keyTable[(unsigned short)SpecialKeyCodes[i]] = (CGKeyCode) SpecialKeyCodes[i+1];
 	}
+
+    keyCodeShift = keyTable[XK_Shift_L];
+    keyCodeOption = keyTable[XK_Meta_L];
+    keyCodeControl = keyTable[XK_Control_L];
+    keyCodeCommand = keyTable[XK_Alt_L];
 }
 
-
-// The Keycodes to various modifiers on the current keyboard
-CGKeyCode keyCodeShift;
-CGKeyCode keyCodeOption;
-CGKeyCode keyCodeControl;
-CGKeyCode keyCodeCommand;
-
-int modifierDelay = 0;
+void SyncSetKeyboardLayout (TISInputSourceRef inputSource) {
+	// http://developer.apple.com/library/mac/#documentation/TextFonts/Reference/TextInputSourcesReference/Reference/reference.html
+	if (TISSelectInputSource(inputSource) != noErr) {
+		NSLog(@"Error selecting input source:");
+	}
+}
 
 // This routine waits for the window server to register its per-session 
 // services in our session.  This code was necessary in various pre-release 
@@ -295,8 +333,8 @@ bool isConsoleSession() {
 		
         NSLog(@"Keyboard Loading - Enabled");
 		
-        *(theServer->pressModsForKeys) = [[NSUserDefaults standardUserDefaults] boolForKey:@"pressModsForKeys"];
-        if (*(theServer->pressModsForKeys))
+        pressModsForKeys = [[NSUserDefaults standardUserDefaults] boolForKey:@"pressModsForKeys"];
+        if (pressModsForKeys)
             NSLog(@"Press Modifiers For Keys - Enabled");
         else
             NSLog(@"Press Modifiers For Keys - Disabled");
@@ -417,7 +455,7 @@ bool isConsoleSession() {
 		// OSStatus result = KLGetKeyboardLayoutWithIdentifier([[NSUserDefaults standardUserDefaults] integerForKey:@"UnicodeKeyboardIdentifier"], &unicodeLayout);
 		
 		// Unicode Keyboard Should load keys from definition
-		(*(theServer->pressModsForKeys) = YES);
+		pressModsForKeys = YES;
 		[self loadKeyboard:unicodeInputSource];
 	}	
 }
@@ -552,18 +590,10 @@ bool isConsoleSession() {
 
 // Keyboard handling code
 - (void) handleKeyboard:(Bool) down forSym: (KeySym) keySym forClient: (rfbClientPtr) cl {
-	CGKeyCode keyCode = theServer->keyTable[(unsigned short)keySym];
+	CGKeyCode keyCode = keyTable[(unsigned short)keySym];
 	CGEventFlags modifiersToSend = 0;
 	
     rfbUndim();	
-	
-	if (1) {
-		// Find the right keycodes base on the loaded keyboard
-		keyCodeShift = theServer->keyTable[XK_Shift_L];
-		keyCodeOption = theServer->keyTable[XK_Meta_L];
-		keyCodeControl = theServer->keyTable[XK_Control_L];
-		keyCodeCommand = theServer->keyTable[XK_Alt_L];
-	}		
 	
 	// If we can't locate the keycode then we will use the special OPTION+4 HEX coding that is available on the Unicode HexInput Keyboard
 	if (keyCode == 0xFFFF) {
@@ -639,17 +669,17 @@ bool isConsoleSession() {
 			[self sendKeyEvent:keyCode down:down modifiers:currentModifiers];
 		}
 		else {
-			if (*(theServer->pressModsForKeys)) {
-				if (theServer->keyTableMods[keySym] != 0xFF) {					
+			if (pressModsForKeys) {
+				if (keyTableMods[keySym] != 0xFF) {					
 					// Setup the state of the appropriate keys based on the value in the KeyTableMods
 					CGEventFlags oldModifiers = currentModifiers;
 					CGEventFlags modifiersToSend = kCGEventFlagMaskNonCoalesced;
 					
-					if ((theServer->keyTableMods[keySym] << 8) & shiftKey)
+					if ((keyTableMods[keySym] << 8) & shiftKey)
 						modifiersToSend |= kCGEventFlagMaskShift;
-					if ((theServer->keyTableMods[keySym] << 8) & optionKey)
+					if ((keyTableMods[keySym] << 8) & optionKey)
 						modifiersToSend |= kCGEventFlagMaskAlternate;
-					if ((theServer->keyTableMods[keySym] << 8) & controlKey)
+					if ((keyTableMods[keySym] << 8) & controlKey)
 						modifiersToSend |= kCGEventFlagMaskControl;
 					
 					// Treat command key separately (not as part of the generation string)
@@ -758,15 +788,6 @@ bool isConsoleSession() {
 	}
 }
 
-
-void SyncSetKeyboardLayout (TISInputSourceRef inputSource) {
-	// http://developer.apple.com/library/mac/#documentation/TextFonts/Reference/TextInputSourcesReference/Reference/reference.html
-	if (TISSelectInputSource(inputSource) != noErr) {
-		NSLog(@"Error selecting input source:");
-	}
-}
-
-
 - (void) setupIPv6: argument {
     int listen_fd6=0, client_fd=0;
 	int value=1;  // Need to pass a ptr to this
@@ -826,6 +847,7 @@ void SyncSetKeyboardLayout (TISInputSourceRef inputSource) {
 }
 
 - (void) registerRendezvous {
+    NSAutoreleasePool *tempPool = [[NSAutoreleasePool alloc] init];
 	BOOL loadRendezvousVNC = NO;
 	BOOL loadRendezvousRFB = YES;
 	int argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-rendezvous"];
@@ -878,6 +900,8 @@ void SyncSetKeyboardLayout (TISInputSourceRef inputSource) {
 	}
 	//	else
 	//		NSLog(@"Bonjour (_vnc._tcp) - Disabled");
+    
+    [tempPool release];
 }
 
 - (void) rfbReceivedClientMessage {

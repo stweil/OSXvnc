@@ -13,6 +13,8 @@
 
 #import "rfb.h"
 #import "rfbserver.h"
+#import <X11/keysym.h>
+#import "kbdptr.h"
 
 
 @interface VNCServer : NSObject {
@@ -28,6 +30,8 @@
 	
 	BOOL readyToStartup;
 	BOOL dynamicKeyboard;
+    // This flag will try to change the modifier key state to the required set for the unicode key that came in
+    BOOL pressModsForKeys;
 	CGEventSourceRef vncSourceRef;
 	CGEventTapLocation vncTapLocation;
 	
@@ -38,6 +42,17 @@
 	// This only matters for event taps.  Ideally we could detect their values but
 	// that seems to require an active event loop.
 	CGEventFlags currentModifiers;
+    
+    CGKeyCode keyTable[keyTableSize];
+    unsigned char keyTableMods[keyTableSize]; // 8 Bits for Modifier Keys
+    
+    // The Keycodes to various modifiers on the current keyboard
+    CGKeyCode keyCodeShift;
+    CGKeyCode keyCodeOption;
+    CGKeyCode keyCodeControl;
+    CGKeyCode keyCodeCommand;
+    
+    int modifierDelay;    
 }
 
 + sharedServer;

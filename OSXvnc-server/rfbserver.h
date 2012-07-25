@@ -32,12 +32,6 @@ typedef struct rfbserver {
 
      */
     
-    // kbdptr.c
-
-    CGKeyCode *keyTable;
-    unsigned char *keyTableMods;
-    BOOL *pressModsForKeys;
-
     /*
     // rfbserver.c 
 
