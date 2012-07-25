@@ -160,12 +160,6 @@ void loadDynamicBundles(BOOL startup) {
 	thisServer.listenerAccepting = listenerAccepting;
 	thisServer.listenerGotNewClient = listenerGotNewClient;
 	
-	// These can be modified by the bundles
-    thisServer.keyTable = keyTable;
-    thisServer.keyTableMods = keyTableMods;
-	
-    thisServer.pressModsForKeys = &pressModsForKeys;
-	
 	[[VNCServer sharedServer] rfbStartup: &thisServer];
 
     [startPool release];
@@ -416,15 +410,21 @@ void *clientInput(void *data) {
         rfbProcessClientMessage(cl);
 
         // Some people will connect but not request screen updates - just send events, this will delay registering the CG callback until then
-        if (rfbShouldSendUpdates && !registered && REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion)) {
-            rfbLog("Client Connected - Registering Screen Update Notification\n");
-            CGError result = CGRegisterScreenRefreshCallback(refreshCallback, NULL);
-			if (result != kCGErrorSuccess) {
-				NSLog(@"Error (%d) registering for Screen Update Notification", result);
-			}
-			[[VNCServer sharedServer] rfbConnect];
-			//CGScreenRegisterMoveCallback(screenUpdateMoveCallback, NULL);
-            registered = TRUE;
+        if (rfbShouldSendUpdates && REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion)) {
+            @synchronized([VNCServer sharedServer]) { // Registering twice sometimes prevents getting notice on 10.6  
+                if (!registered) {
+                    CGError result = CGRegisterScreenRefreshCallback(refreshCallback, NULL);
+                    if (result == kCGErrorSuccess) {
+                        rfbLog("Client Connected - Registering Screen Update Notification\n");
+                        [[VNCServer sharedServer] rfbConnect];
+                        //CGScreenRegisterMoveCallback(screenUpdateMoveCallback, NULL);
+                        registered = TRUE;
+                    }
+                    else {
+                        NSLog(@"Error (%d) registering for Screen Update Notification", result);
+                    }
+                }
+            }
         }
         
         if (cl->sock == -1) {
@@ -1055,8 +1055,6 @@ int main(int argc, char *argv[]) {
     pthread_mutex_init(&logMutex, NULL);
     pthread_mutex_init(&listenerAccepting, NULL);
     pthread_cond_init(&listenerGotNewClient, NULL);
-
-    loadKeyTable();
 
 	[[NSUserDefaults standardUserDefaults] addSuiteNamed:@"com.redstonesoftware.VineServer"];
 	
