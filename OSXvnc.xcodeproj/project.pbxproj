@@ -6,6 +6,21 @@
 	objectVersion = 46;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		ABA30D3D15BEE7310001BAE5 /* Vine Server Package */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = ABA30D4215BEE7670001BAE5 /* Build configuration list for PBXAggregateTarget "Vine Server Package" */;
+			buildPhases = (
+				ABA30D3C15BEE7310001BAE5 /* Build DMG */,
+			);
+			dependencies = (
+				ABA30D4115BEE7490001BAE5 /* PBXTargetDependency */,
+			);
+			name = "Vine Server Package";
+			productName = "Vine Server Package";
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		9199995B0B1135FF0099EA7A /* getMACAddress.c in Sources */ = {isa = PBXBuildFile; fileRef = 919999430B11348E0099EA7A /* getMACAddress.c */; };
 		AB25D81F08686B520065843D /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = F57BB467027E036F014B5D3F /* Credits.rtf */; };
@@ -137,6 +152,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = AB25D88E08686FC40065843D;
 			remoteInfo = "OSXvnc-server";
+		};
+		ABA30D4015BEE7490001BAE5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 29B97313FDCFA39411CA2CEA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AB25D81508686B520065843D;
+			remoteInfo = "Vine Server";
 		};
 		ABA7B55A094A07AE00CD7499 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -887,7 +909,6 @@
 				AB25D83208686B520065843D /* CopyFiles */,
 				AB25D83508686B520065843D /* Link CLI files */,
 				AB139E5C0CEA05C200EE873A /* Record our Version */,
-				AB25D83608686B520065843D /* Build DMG */,
 			);
 			buildRules = (
 			);
@@ -993,6 +1014,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				ABA30D3D15BEE7310001BAE5 /* Vine Server Package */,
 				AB25D81508686B520065843D /* Vine Server */,
 				AB25D88E08686FC40065843D /* OSXvnc-server */,
 				AB25D98F086876B80065843D /* storepasswd */,
@@ -1045,9 +1067,9 @@
 			shellPath = /bin/sh;
 			shellScript = "# Set up links for the OSXvnc-server process and the storepasswd process\npushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\";\n/bin/ln -fs Contents/Resources/OSXvnc-server .;\n/bin/ln -fs Contents/Resources/storepasswd .;\ncd Contents/MacOS;\n/bin/ln -fs ../Resources/OSXvnc-server .;\n/bin/ln -fs ../Resources/storepasswd .;\npopd";
 		};
-		AB25D83608686B520065843D /* Build DMG */ = {
+		ABA30D3C15BEE7310001BAE5 /* Build DMG */ = {
 			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 8;
+			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
@@ -1055,9 +1077,9 @@
 			name = "Build DMG";
 			outputPaths = (
 			);
-			runOnlyForDeploymentPostprocessing = 1;
+			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# This removes any re-link reference to the $INSTALL_DIR\nrm -f \"$INSTALL_DIR/$PRODUCT_NAME.app/$PRODUCT_NAME.app\"\n# UDIF\nhdiutil create -ov -format UDZO -imagekey zlib-level=9 -srcfolder \"$INSTALL_DIR\" \"$INSTALL_DIR/../$PRODUCT_NAME.dmg\";\nhdiutil internet-enable \"$INSTALL_DIR/../$PRODUCT_NAME.dmg\"\n";
+			shellScript = "# Create a UDIF DMG\nPACKAGE_FOLDER=\"/tmp/Vine Server\"\nrm -rf \"$PACKAGE_FOLDER\"\nmkdir -p \"$PACKAGE_FOLDER\"\ncp -r \"$BUILT_PRODUCTS_DIR/Vine Server.app\" \"$PACKAGE_FOLDER\"\nhdiutil create -ov -format UDZO -imagekey zlib-level=9 -srcfolder \"$PACKAGE_FOLDER\" \"/tmp/Vine Server.dmg\";\nhdiutil internet-enable \"/tmp/Vine Server.dmg\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1193,6 +1215,11 @@
 			target = AB25D88E08686FC40065843D /* OSXvnc-server */;
 			targetProxy = AB52324608689C02003F66AC /* PBXContainerItemProxy */;
 		};
+		ABA30D4115BEE7490001BAE5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AB25D81508686B520065843D /* Vine Server */;
+			targetProxy = ABA30D4015BEE7490001BAE5 /* PBXContainerItemProxy */;
+		};
 		ABA7B55B094A07AE00CD7499 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = ABA7B52C094A053000CD7499 /* rdr */;
@@ -1256,6 +1283,27 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		ABA30D3E15BEE7310001BAE5 /* Development */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "Vine Server Package";
+			};
+			name = Development;
+		};
+		ABA30D3F15BEE7310001BAE5 /* Deployment */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				PRODUCT_NAME = "Vine Server Package";
+				ZERO_LINK = NO;
+			};
+			name = Deployment;
+		};
 		ABA7B538094A054A00CD7499 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1378,6 +1426,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CODE_SIGN_IDENTITY = "Developer ID Application: TestPlant Inc.";
 				DEPLOYMENT_POSTPROCESSING = YES;
 				INSTALL_PATH = /tmp;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
@@ -1389,6 +1438,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		ABA30D4215BEE7670001BAE5 /* Build configuration list for PBXAggregateTarget "Vine Server Package" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				ABA30D3E15BEE7310001BAE5 /* Development */,
+				ABA30D3F15BEE7310001BAE5 /* Deployment */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Development;
+		};
 		ABA7B537094A054A00CD7499 /* Build configuration list for PBXNativeTarget "rdr" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
