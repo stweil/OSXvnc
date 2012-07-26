@@ -160,6 +160,7 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
             for (keyCode = 0; keyCode < 255; keyCode++) {
 				for (j=0; j < [keyStates count]; j++) {
 					int keyActionState = [[keyStates objectAtIndex:j] intValue];
+                    UInt32 deadKeyState = 0;
 					OSStatus resultCode = UCKeyTranslate (uchrHandle,
 														  keyCode,
 														  keyActionState,
@@ -177,6 +178,7 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
 							//unicodeChar[0] = unicodeChar[actualStringLength-1];
 						}
 						else {
+                            NSLog(@"Loaded %d (%04lx)",  keyCode, modifierKeyState);
 							// We'll use the FIRST keyCode that we find for that UNICODE character
 							if (keyTable[unicodeChar[0]] == 0xFFFF) {
 								keyTable[unicodeChar[0]] = keyCode;
@@ -185,7 +187,7 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
 						}
 					}
 					else {
-						NSLog(@"Error Translating %d (%04lx): %ld",  keyCode, modifierKeyState, resultCode);
+						NSLog(@"Error Translating %d (%04lx): %s - %s",  keyCode, modifierKeyState, GetMacOSStatusErrorString(resultCode), GetMacOSStatusCommentString(resultCode));
 					}
 				}
 			}
@@ -291,7 +293,7 @@ bool isConsoleSession() {
 															 @"NO", @"SystemServer", 
 															 @"NO", @"keyboardLoading", // allows OSXvnc to look at the users selected keyboard and map keystrokes using it
 															 @"YES", @"pressModsForKeys", // If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it
-															 [NSArray arrayWithObjects:[NSNumber numberWithInt:kUCKeyActionDisplay], [NSNumber numberWithInt:kUCKeyActionAutoKey], nil], @"KeyStates", // Key States to review to find KeyCodes
+															 [NSArray arrayWithObjects:[NSNumber numberWithInt:kUCKeyActionAutoKey /*kUCKeyActionDisplay*/], nil], @"KeyStates", // Key States to review to find KeyCodes
 															 nil]];
 	
     theServer = aServer;
@@ -453,7 +455,10 @@ bool isConsoleSession() {
 		// Need to figure out a way to lookup the Unicode Keyboard before this will work
 		
 		// OSStatus result = KLGetKeyboardLayoutWithIdentifier([[NSUserDefaults standardUserDefaults] integerForKey:@"UnicodeKeyboardIdentifier"], &unicodeLayout);
-		
+		//  *    Use TISCreateInputSourceList API to create a list of input
+        //        *    sources that match specified properties, such as the
+        //*    kTISPropertyInputSourceID property.
+
 		// Unicode Keyboard Should load keys from definition
 		pressModsForKeys = YES;
 		[self loadKeyboard:unicodeInputSource];
