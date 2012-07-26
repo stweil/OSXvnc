@@ -1286,7 +1286,7 @@
 		ABA30D3E15BEE7310001BAE5 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = NO;
+				CODE_SIGN_IDENTITY = "Developer ID Application: TestPlant Inc.";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = "Vine Server Package";
@@ -1296,11 +1296,10 @@
 		ABA30D3F15BEE7310001BAE5 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
+				CODE_SIGN_IDENTITY = "Developer ID Application: TestPlant Inc.";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PRODUCT_NAME = "Vine Server Package";
-				ZERO_LINK = NO;
 			};
 			name = Deployment;
 		};
