@@ -1417,7 +1417,7 @@
 			buildSettings = {
 				INSTALL_PATH = /tmp;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.6.sdk";
+				SDKROOT = macosx10.7;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Development;
@@ -1430,7 +1430,7 @@
 				DEPLOYMENT_POSTPROCESSING = YES;
 				INSTALL_PATH = /tmp;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				SDKROOT = "$(DEVELOPER_SDK_DIR)/MacOSX10.6.sdk";
+				SDKROOT = macosx10.7;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Deployment;
