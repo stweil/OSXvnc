@@ -91,6 +91,10 @@ Bool rfbDisableScreenSaver = FALSE;
 // Display ID
 CGDirectDisplayID displayID = 0;
 
+// Deprecated in 10.6 but required since the new api doesn't work for off-screen sessions
+size_t CGDisplayBytesPerRow ( CGDirectDisplayID display );
+void * CGDisplayBaseAddress ( CGDirectDisplayID display );
+
 extern void rfbScreensaverTimer(EventLoopTimerRef timer, void *userData);
 
 int rfbDeferUpdateTime = 40; /* in ms */
@@ -557,49 +561,71 @@ static int frameBufferBytesPerRow = 0;
 static int frameBufferBitsPerPixel = 0;
 
 char *rfbGetFramebuffer(void) {
-	if (!frameBufferData) {
-		CGDirectDisplayID mainDisplayID = CGMainDisplayID();	
-		CGImageRef imageRef = CGDisplayCreateImage(mainDisplayID);	
-		CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
-		
-		CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
-		frameBufferBytesPerRow = CGImageGetBytesPerRow(imageRef);
-		frameBufferBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
-		
-		frameBufferData = [(NSData *)dataRef mutableCopy];
-		CFRelease(dataRef);
-        
-		if (imageRef != NULL)
-			CGImageRelease(imageRef);
+	if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6)) {
+		if (!frameBufferData) {
+			CGDirectDisplayID mainDisplayID = CGMainDisplayID();	
+			CGImageRef imageRef = CGDisplayCreateImage(mainDisplayID);	
+			CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
+			
+			CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
+			frameBufferBytesPerRow = CGImageGetBytesPerRow(imageRef);
+			frameBufferBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
+			
+			frameBufferData = [(NSData *)dataRef mutableCopy];
+			CFRelease(dataRef);
+			
+			if (imageRef != NULL)
+				CGImageRelease(imageRef);
+		}
+		return [frameBufferData mutableBytes];
 	}
-	return [frameBufferData mutableBytes];
+	else { // Old API is required for off screen user sessions
+		int maxWait =   5000000;
+		int retryWait =  500000;
+		
+		char *returnValue = (char *) CGDisplayBaseAddress(CGMainDisplayID());
+		while (!returnValue && maxWait > 0) {
+			NSLog(@"Unable to obtain base address");
+			usleep(retryWait); // Buffer goes away while screen is "switching", it'll be back
+			maxWait -= retryWait;
+			returnValue = (char *) CGDisplayBaseAddress(CGMainDisplayID());
+		}
+		if (!returnValue) {
+			NSLog(@"Unable to obtain base address -- Giving up");
+			exit(1);
+		}
+		
+		return returnValue;
+	}
 }
 
-
+// Called to get record updates of the requested region into our framebuffer
 void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
-	CGDirectDisplayID mainDisplayID = CGMainDisplayID();
-	CGRect rect = CGRectMake (x,y,w,h);
-	CGImageRef imageRef = CGDisplayCreateImageForRect(mainDisplayID, rect);	
-	CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
-	CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
-	int imgBytesPerRow = CGImageGetBytesPerRow(imageRef);
-	int imgBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
-	
-	if (imgBitsPerPixel != frameBufferBitsPerPixel)
-		NSLog(@"BitsPerPixel MISMATCH: frameBuffer %d, rect image %d", frameBufferBitsPerPixel, imgBitsPerPixel);
-	
-	char *dest = (char *)[frameBufferData mutableBytes] + frameBufferBytesPerRow * y + x * (frameBufferBitsPerPixel/8);
-	const char *source = [(NSData *)dataRef bytes];
+	if (frameBufferData) {
+		CGDirectDisplayID mainDisplayID = CGMainDisplayID();
+		CGRect rect = CGRectMake (x,y,w,h);
+		CGImageRef imageRef = CGDisplayCreateImageForRect(mainDisplayID, rect);	
+		CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
+		CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
+		int imgBytesPerRow = CGImageGetBytesPerRow(imageRef);
+		int imgBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
 		
-	while (h--) {
-		memcpy(dest, source, w*(imgBitsPerPixel/8));
-		dest += frameBufferBytesPerRow;
-		source += imgBytesPerRow;
+		if (imgBitsPerPixel != frameBufferBitsPerPixel)
+			NSLog(@"BitsPerPixel MISMATCH: frameBuffer %d, rect image %d", frameBufferBitsPerPixel, imgBitsPerPixel);
+		
+		char *dest = (char *)[frameBufferData mutableBytes] + frameBufferBytesPerRow * y + x * (frameBufferBitsPerPixel/8);
+		const char *source = [(NSData *)dataRef bytes];
+		
+		while (h--) {
+			memcpy(dest, source, w*(imgBitsPerPixel/8));
+			dest += frameBufferBytesPerRow;
+			source += imgBytesPerRow;
+		}
+		
+		if (imageRef != NULL)
+			CGImageRelease(imageRef);
+		[(id)dataRef release];
 	}
-	
-	if (imageRef != NULL)
-		CGImageRelease(imageRef);
-	[(id)dataRef release];
 }
 
 static bool rfbScreenInit(void) {
@@ -622,8 +648,13 @@ static bool rfbScreenInit(void) {
 	rfbScreen.height = CGDisplayPixelsHigh(displayID);
 	rfbScreen.bitsPerPixel = bitsPerPixelForDisplay(displayID);
 	rfbScreen.depth = samplesPerPixel * bitsPerSample;
-	rfbScreen.paddedWidthInBytes = rfbScreen.width*rfbScreen.bitsPerPixel/8;
-
+    if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6)) {
+        rfbScreen.paddedWidthInBytes = rfbScreen.width*rfbScreen.bitsPerPixel/8;
+    }
+    else {
+        rfbScreen.paddedWidthInBytes = CGDisplayBytesPerRow(displayID);
+    }
+    
     rfbServerFormat.bitsPerPixel = rfbScreen.bitsPerPixel;
     rfbServerFormat.depth = rfbScreen.depth;
 	rfbServerFormat.trueColour = TRUE;
