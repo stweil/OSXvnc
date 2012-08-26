@@ -232,7 +232,8 @@ rfbClientPtr rfbNewClient(int sock) {
      */
 
     cl = (rfbClientPtr)xalloc(sizeof(rfbClientRec));
-
+    memset(cl, 0, sizeof(rfbClientRec));
+    
     cl->sock = sock;
 	if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_1)) {
 		struct sockaddr_in6 addr;
