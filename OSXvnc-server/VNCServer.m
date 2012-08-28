@@ -133,7 +133,7 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
     if (inputSource) {
         keyboardName = (CFStringRef) TISGetInputSourceProperty(inputSource, kTISPropertyLocalizedName);
         NSLog(@"Keyboard Detected: %@ - Loading Keys\n", keyboardName);
-		uchrHandle = (UCKeyboardLayout *) TISGetInputSourceProperty(inputSource, kTISPropertyUnicodeKeyLayoutData);
+		uchrHandle = (UCKeyboardLayout *) CFDataGetBytePtr(TISGetInputSourceProperty(inputSource, kTISPropertyUnicodeKeyLayoutData));
     }
 	
     // Initialize them all to 0xFFFF
