@@ -1687,7 +1687,7 @@ miSubtractO (pReg, r1, r1End, r2, r2End, y1, y2, pOverlap)
         else if (r2->x1 <= x1)
         {
             /*
-             * Subtrahend preceeds minuend: nuke left edge of minuend.
+             * Subtrahend precedes minuend: nuke left edge of minuend.
              */
             x1 = r2->x2;
             if (x1 >= r1->x2)
@@ -1805,7 +1805,7 @@ miSubtract(regD, regM, regS)
     }
  
     /* Add those rectangles in region 1 that aren't in region 2,
-       do yucky substraction for overlaps, and
+       do yucky subtraction for overlaps, and
        just throw away rectangles in region 2 that aren't in region 1 */
     if (!miRegionOp(regD, regM, regS, miSubtractO, TRUE, FALSE, &overlap))
         return FALSE;
@@ -1863,7 +1863,7 @@ miInverse(newReg, reg1, invRect)
     }
 
     /* Add those rectangles in region 1 that aren't in region 2,
-       do yucky substraction for overlaps, and
+       do yucky subtraction for overlaps, and
        just throw away rectangles in region 2 that aren't in region 1 */
     invReg.extents = *invRect;
     invReg.data = (RegDataPtr)NULL;

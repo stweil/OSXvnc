@@ -6,7 +6,7 @@
 //  Copyright (c) 2003 __MyCompanyName__. All rights reserved.
 //
 
-// This object is arround to recieve NSNotfication events, it can then dispatch them into the regular C code
+// This object is around to receive NSNotfication events, it can then dispatch them into the regular C code
 
 #import <Foundation/Foundation.h>
 #import <Carbon/Carbon.h>

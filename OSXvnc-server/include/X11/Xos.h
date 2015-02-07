@@ -31,7 +31,7 @@ in this Software without prior written authorization from the X Consortium.
  */
 
 /* This is a collection of things to try and minimize system dependencies
- * in a "signficant" number of source files.
+ * in a "significant" number of source files.
  */
 
 #ifndef _XOS_H_

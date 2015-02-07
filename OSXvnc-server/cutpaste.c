@@ -268,7 +268,7 @@ static BOOL debugPB = NO;
 			//clipBoardReceivedChangeCount = lastChangeCount;
 		}
 	}
-	else { // Error occured
+	else { // Error occurred
 		NSString *errorString = [[NSString alloc] initWithData:clientPointer->richClipboardReceivedNSData encoding:NSUTF8StringEncoding];
 		NSLog(@"%@", errorString);
 		[errorString release];

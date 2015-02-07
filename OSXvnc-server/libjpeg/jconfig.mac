@@ -34,7 +34,7 @@
 #define TARGA_SUPPORTED		/* Targa image file format */
 
 #define USE_CCOMMAND		/* Command line reader for Macintosh */
-#define TWO_FILE_COMMANDLINE	/* Binary I/O thru stdin/stdout doesn't work */
+#define TWO_FILE_COMMANDLINE	/* Binary I/O through stdin/stdout doesn't work */
 
 #undef NEED_SIGNAL_CATCHER
 #undef DONT_USE_B_MODE

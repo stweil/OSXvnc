@@ -1062,7 +1062,7 @@ hardcode_action=
 if test -n "$hardcode_libdir_flag_spec" || \
    test -n "$runpath_var"; then
 
-  # We can hardcode non-existant directories.
+  # We can hardcode non-existent directories.
   if test "$hardcode_direct" != no && \
      test "$hardcode_minus_L" != no && \
      test "$hardcode_shlibpath_var" != no; then
