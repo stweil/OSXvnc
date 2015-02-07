@@ -49,7 +49,7 @@ class CBlowFish
 	  } w;
 	};
 #else
-#error Unknown endianess.
+#error Unknown endianness.
 #endif
 
 /*

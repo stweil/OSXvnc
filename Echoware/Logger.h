@@ -26,7 +26,7 @@ public:
 
 	//write the string to logger file
 	void Write(const char* szText);
-	//write formated string(like printf) to logger file
+	//write formatted string(like printf) to logger file
 	void WriteFormated(const char* szFormat, ...);
 
 protected:

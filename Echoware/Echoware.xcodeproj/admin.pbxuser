@@ -1342,7 +1342,7 @@
 	8456E7200B4D0EC2006B7550 /* PBXTextBookmark */ = {
 		isa = PBXTextBookmark;
 		fRef = 8456E5570B4CFD3B006B7550 /* MacTypes.h */;
-		name = "TimeBase            base;                   /* refernce to the time base */";
+		name = "TimeBase            base;                   /* reference to the time base */";
 		rLen = 78;
 		rLoc = 20972;
 		rType = 0;

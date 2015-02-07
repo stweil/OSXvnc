@@ -353,7 +353,7 @@ tDirStatus CDirService::DoPasswordAuth(tDirReference inDSRef, tDirNodeReference 
 		AppendStringToBuffer( pAuthStepData, inRecordName, strlen(inRecordName) );
 		AppendStringToBuffer( pAuthStepData, inPassword, strlen(inPassword) );
 		
-		// attemp the authentication
+		// attempt the authentication
 		dsStatus = dsDoDirNodeAuth( inNodeRef, pAuthMethod, 1, pAuthStepData, pAuthRespData, &pContextData );
 		
 	} else {

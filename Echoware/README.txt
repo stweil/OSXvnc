@@ -33,7 +33,7 @@ EchoWare is available for use under the open-source "Sleepycat"
 license. Details can be found in the LICENSE file. In general, 
 the Sleepycat license allows the binary to be freely included in
 any other open-source application. Any application wishing to
-remain closed-source must purcahse a seperate license from
+remain closed-source must purchase a separate license from
 Echogent Systems, Inc, the owner of EchoWare.
 
 EchoWare(R) is a registered trademark of Echogent Systems, Inc.
