@@ -1290,6 +1290,7 @@
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = "Vine Server Package";
+				SDKROOT = macosx;
 			};
 			name = Development;
 		};
@@ -1300,6 +1301,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PRODUCT_NAME = "Vine Server Package";
+				SDKROOT = macosx;
 			};
 			name = Deployment;
 		};
@@ -1416,7 +1418,7 @@
 			buildSettings = {
 				INSTALL_PATH = /tmp;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Development;
@@ -1429,7 +1431,7 @@
 				DEPLOYMENT_POSTPROCESSING = YES;
 				INSTALL_PATH = /tmp;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
-				SDKROOT = macosx10.7;
+				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Deployment;
