@@ -9,7 +9,7 @@ class CAES
 public:
 	CAES(void);
 	~CAES(void);
-	
+
 	void Decrypt(const unsigned char *in, int length, unsigned char *out);
 	void Encrypt(const unsigned char *in, int length, unsigned char *out);
 
@@ -17,9 +17,9 @@ public:
 	int SetEncryptKey(const unsigned char *userKey, const int bits);
 
 protected:
-	void CryptData(const unsigned char *in, unsigned char *out, int length, const int enc); 
+	void CryptData(const unsigned char *in, unsigned char *out, int length, const int enc);
 
-protected:	
+protected:
 	AES_KEY m_aesEncKey;
 	AES_KEY m_aesDecKey;
 

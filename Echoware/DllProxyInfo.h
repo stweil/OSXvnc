@@ -3,26 +3,26 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 #include <string>
 #include "InterfaceDllProxyInfo.h"
 
 //#define ID_STRING_SIZE		255
 
-//IDllProxyInfo implementation 
+//IDllProxyInfo implementation
 
 class CDllProxyInfo : public IDllProxyInfo
 {
-protected:    
+protected:
 	std::string m_strName;
 	std::string m_strIP;
 	std::string m_strPort;
 	std::string  m_strPass;
-	std::string m_strMyID;	
+	std::string m_strMyID;
 	DWORD m_dwStatus;
-	
-	int m_nConnectTimeOut, m_nReceiveTimeOut, m_nSendTimeOut;	
+
+	int m_nConnectTimeOut, m_nReceiveTimeOut, m_nSendTimeOut;
 
 	std::string m_strIPPort;
 	bool m_bReconnectProxy;
@@ -52,6 +52,6 @@ public:
 
 	virtual int GetConnectTimeout() const;
 	virtual int GetReceiveTimeout() const;
-	virtual int GetSendTimeout() const;	
+	virtual int GetSendTimeout() const;
 };
-#endif 
+#endif

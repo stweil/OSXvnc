@@ -17,8 +17,8 @@ CLocalListener::~CLocalListener(void)
 //notify message
 //a local client is connected and can create a local data channel
 void CLocalListener::OnNewClient(unsigned int sock)
-{	
-	APISocket::CSocket sock_obj(sock);	
+{
+	APISocket::CSocket sock_obj(sock);
 
 	sock_obj.SetSockOption(true);
 

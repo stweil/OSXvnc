@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 //enum
 //{
@@ -17,7 +17,7 @@
 #define STATUS_SEARCHING_FOR_PARTNER		0x00000020
 #define STATUS_DISCONNECTED_FROM_PROXY		0x00000040
 
-//	STATUS_MSG_LAST	
+//	STATUS_MSG_LAST
 //};
 
 enum
@@ -33,7 +33,7 @@ enum
 
 class IDllProxyInfo
 {
-public:	
+public:
 	virtual void SetName(char* name) = 0;
 	virtual void SetIPPort(char* ipport) = 0;
 	virtual void SetIP(const char* ip) = 0;

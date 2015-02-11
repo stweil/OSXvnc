@@ -30,8 +30,8 @@
 
 int DoNTLMv1
 (
-	int sock, 
-	const char* destIp, 
+	int sock,
+	const char* destIp,
 	unsigned int	destPort,
 	unsigned char host[MAX_NAME_LEN],
 	unsigned char domain[MAX_NAME_LEN],
@@ -43,8 +43,8 @@ int DoNTLMv1
 
 int DoNTLMv2
 (
-	int sock, 
-	const char* destIp, 
+	int sock,
+	const char* destIp,
 	unsigned int	destPort,
 	unsigned char host[MAX_NAME_LEN],
 	unsigned char domain[MAX_NAME_LEN],

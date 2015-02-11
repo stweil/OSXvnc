@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 #include "apisocket.h"
 
@@ -22,7 +22,7 @@ public:
 	virtual void OnLeaveClient(APISocket::CSocket* pClient);
 
 protected:
-	
+
 
 protected:
 	bool m_bAcceptConnection;

@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 #define WIN32_LEAN_AND_MEAN
 

@@ -10,7 +10,7 @@ CAES::~CAES(void)
 }
 
 void CAES::Decrypt(const unsigned char *in, int length, unsigned char *out)
-{	
+{
 	CryptData(in, out, length, AES_DECRYPT);
 }
 
@@ -34,22 +34,22 @@ int CAES::SetEncryptKey(const unsigned char *userKey, const int bits)
 	return 0;
 }
 
-void CAES::CryptData(const unsigned char *in, unsigned char *out, int length, const int enc) 
+void CAES::CryptData(const unsigned char *in, unsigned char *out, int length, const int enc)
 {
 	AES_KEY aesKey;
 	if (AES_ENCRYPT == enc)
 		AES_set_encrypt_key(m_userEncKey, 128, &aesKey);
-	else 
+	else
 		AES_set_decrypt_key(m_userDecKey, 128, &aesKey);
 
 	unsigned long len = length;
 	unsigned char tmp[AES_BLOCK_SIZE];
 
-	while (len >= AES_BLOCK_SIZE) 
+	while (len >= AES_BLOCK_SIZE)
 	{
 		memset(tmp,0,AES_BLOCK_SIZE);
 		memcpy(tmp,in,AES_BLOCK_SIZE);
-		
+
 		if (AES_ENCRYPT == enc)
 		{
 			AES_encrypt(tmp, out, &aesKey);
@@ -64,7 +64,7 @@ void CAES::CryptData(const unsigned char *in, unsigned char *out, int length, co
 		out += AES_BLOCK_SIZE;
 	}
 
-	if (len) 
+	if (len)
 	{
 		memset(tmp,0,AES_BLOCK_SIZE);
 		memcpy(tmp,in,AES_BLOCK_SIZE);
@@ -77,5 +77,5 @@ void CAES::CryptData(const unsigned char *in, unsigned char *out, int length, co
 			AES_decrypt(tmp, tmp, &aesKey);
 		}
 		memcpy(out, tmp, AES_BLOCK_SIZE);
-	}			
+	}
 }

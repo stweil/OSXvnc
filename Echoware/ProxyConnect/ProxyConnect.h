@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 #define LOCAL_PROXY_CONNECT_FAIL		-10
 #define LOCAL_PROXY_AUTH_FAIL			-11
@@ -57,32 +57,32 @@ public:
 	CProxyConnect();
 	~CProxyConnect();
 
-	int TestSocks4Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp, 
+	int TestSocks4Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp,
 			unsigned int proxyPort, char* username,  char* password);
 
-	int TestSocks5Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp, 
-			unsigned int proxyPort, char* username,  char* password);	
-
-	int TestHttpProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp, 
-			unsigned int proxyPort, char* username,  char* password);	
-
-	int DetectProxyType(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp, 
+	int TestSocks5Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp,
 			unsigned int proxyPort, char* username,  char* password);
-	
-	int ConnectViaHttpProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp, 
+
+	int TestHttpProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp,
+			unsigned int proxyPort, char* username,  char* password);
+
+	int DetectProxyType(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp,
+			unsigned int proxyPort, char* username,  char* password);
+
+	int ConnectViaHttpProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp,
 			unsigned int proxyPort, char* username, char* password);
 
-	int ConnectViaSocks5Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp, 
+	int ConnectViaSocks5Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp,
 			unsigned int proxyPort, char* username, char* password);
 
-	int ConnectViaSocks4Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp, 
+	int ConnectViaSocks4Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp,
 			unsigned int proxyPort, char* username, char* password);
 
-	int ConnectViaProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp, 
-			unsigned int proxyPort, char* username, char* password);	
-	
-	int AnalyzeHttpProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp, 
-			unsigned int proxyPort, char* username, char* password);	
+	int ConnectViaProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp,
+			unsigned int proxyPort, char* username, char* password);
+
+	int AnalyzeHttpProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp,
+			unsigned int proxyPort, char* username, char* password);
 
 	int m_httpProxyAuthType;
 	int m_temphttpProxyAuthType;

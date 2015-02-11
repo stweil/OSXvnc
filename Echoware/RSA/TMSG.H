@@ -1,6 +1,6 @@
 #ifndef __TMsg
 #define __TMsg
-// Class for encoding/decoding operations. Any message for 
+// Class for encoding/decoding operations. Any message for
 // coding should be represented as an object of this class.
 class TMsg
 {

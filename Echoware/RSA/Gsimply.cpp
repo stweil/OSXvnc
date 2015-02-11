@@ -33,7 +33,7 @@ int N_size_max=0;
 int N_razr=22;
 
 #define razr_default DeltaIndex
-#define MaxRepeat 555	// Amount of attempts of multiplier's selection 
+#define MaxRepeat 555	// Amount of attempts of multiplier's selection
 
 
 int WasRandomized=0;
@@ -83,7 +83,7 @@ void Razl(unsigned long y)
 					// Otherwise the flag will be equal 'N'.
 
 	for (flag='Y'; flag=='Y'; )
-	{	// We shall leave from this cycle when we find out that the tested 
+	{	// We shall leave from this cycle when we find out that the tested
 		// number has no any prime divider.
 		flag='N';
 		n=(long)(sqrt(y))+1;
@@ -190,7 +190,7 @@ int GeneratePrime(HugeNumber &p)
 	Razl(UnsignedLong(x));
 
 	// Check of decomposition of number pm1 on prime multipliers
-	// This check isn't necessary, but it is a good way to check my 
+	// This check isn't necessary, but it is a good way to check my
 	// previous calculatings.
    y=N[0];
 	for (i=1; i<N_size; i++)

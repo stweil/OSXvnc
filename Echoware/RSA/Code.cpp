@@ -40,7 +40,7 @@ int Encode(unsigned char *msg, int msgLen, HugeNumber &FirstHalf, HugeNumber &Se
    x.digit[k++]=CheckSum%base;
 
    if (SecondHalf<=x) return 0;   // Message is too long for encoding
-   
+
    ModPower(y,x,FirstHalf,SecondHalf);
    y.ToStr((char*)msg,2222);
    return 1;

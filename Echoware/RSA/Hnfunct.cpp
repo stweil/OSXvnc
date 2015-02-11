@@ -149,7 +149,7 @@ void Div(HugeNumber& uu, HugeNumber& vv, HugeNumber& qq, HugeNumber& r)
 	word d;
 	size_t Nrazr;  //				Nomer razriada, ispolzuemogo pri poluchenii
                   //				predstavlenia chisla v dopolnitelnom kode.
-						/// Number of the rank used at reception of representation 
+						/// Number of the rank used at reception of representation
 						/// of number in an additional code.
 	HugeNumber u,v,w,z,x,f;
 	int M;         //				Razriadnost chastnogo
@@ -159,7 +159,7 @@ void Div(HugeNumber& uu, HugeNumber& vv, HugeNumber& qq, HugeNumber& r)
 						/// Rank of remainder (divisor)
 
 	int n;         /// n==N-1
-	int i,j;       
+	int i,j;
 	int c;         /// Control value on step D4
 	unsigned long q;
    int x_razr,f_razr,z_razr;
@@ -243,15 +243,15 @@ void Div(HugeNumber& uu, HugeNumber& vv, HugeNumber& qq, HugeNumber& r)
 		while ( v.digit[n-1]*q > (( u.digit[j]*dword(base) + u.digit[j-1] - q*v.digit[n] )*dword(base) + u.digit[j-2])) q--;
 
 		// D4.		Umnogit i vichest. u[j..j+N]=u[j..j+N]-v[0..N]*q
-		/// Multiply and subtract. 
+		/// Multiply and subtract.
 		Mult1(v,word(q),w); // w=v*q
 		//Protocol("w=",w);
-		
+
 		for (i=0; i<=N;     i++) x.digit[N-i]=u.digit[j-i];	// x[]=u[j..j+N]
       x_razr=x.Razr();
 		for (   ; i<x_razr; i++) x.digit[i]=0;
 		//Protocol("x=",x);
-		
+
 		if (x < w)
 			c=-1;
 		else
@@ -267,12 +267,12 @@ void Div(HugeNumber& uu, HugeNumber& vv, HugeNumber& qq, HugeNumber& r)
 
 		f=x-w;	//				Operisija prisvaivanija moget umenshit razriadnost
 					///  Giving operation can reduce rank
-		//Protocol("f=",f);	
+		//Protocol("f=",f);
       f_razr=f.Razr();
 		for (i=0; i<f_razr; i++) z.digit[i]=f.digit[i];
       z_razr=z.Razr();
 		for (   ; i<z_razr; i++) z.digit[i]=0;
-		//Protocol("z=",z);	
+		//Protocol("z=",z);
 
 		for (i=0; i<=N; i++)
 		{
@@ -282,12 +282,12 @@ void Div(HugeNumber& uu, HugeNumber& vv, HugeNumber& qq, HugeNumber& r)
 			else
 				u.digit[j-i]=z.digit[N-i];
 		};
-		//Protocol("u=",u);	
+		//Protocol("u=",u);
 
 		//D5.			Proverit ostatok
 		/// Check up the remainder.
 		qq.digit[j-N]=word(q);
-		//Protocol("qq=",qq);	
+		//Protocol("qq=",qq);
 
 		if (c<0)
 		{
@@ -298,7 +298,7 @@ void Div(HugeNumber& uu, HugeNumber& vv, HugeNumber& qq, HugeNumber& r)
 
 			//			z zapisano v dopolnitelnom kode -> pri slogenii bydet vixod za
 			//			'razriadnyjy setky'
-			/// z it is written down in additional code - > addition there 
+			/// z it is written down in additional code - > addition there
 			/// will be an output for a 'grid '
 			x=z+v;
 
@@ -311,7 +311,7 @@ void Div(HugeNumber& uu, HugeNumber& vv, HugeNumber& qq, HugeNumber& r)
 
 			//			Pri kompensiryjyshem slogenii pojavliaetsia perenos v starshij
 			//			razriad -  etim perenosom sledyet prenebrech
-			/// At compensating addition there is a carry to the senior 
+			/// At compensating addition there is a carry to the senior
 			/// rank - this carry should be neglected.
 			//Protocol("2) x=",x);
 			for (i=0; i<=N; i++) u.digit[j-i]=x.digit[N-i];

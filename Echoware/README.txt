@@ -6,21 +6,21 @@
 INTRODUCTION
 ------------
 EchoWare is an OSX bundle that enables both client-server as 
-well as peer-to-peer applications to communicate with each other 
-via a "relay server" (aka, an "echoServer"). All communication 
-between echoWare and the echoserver appears to be outgoing TCP 
-from the point of view of the OSX network. This allows the 
-echoWare-enabled applications to communicate with each other 
-without either side of the connection needing to set or adjust 
+well as peer-to-peer applications to communicate with each other
+via a "relay server" (aka, an "echoServer"). All communication
+between echoWare and the echoserver appears to be outgoing TCP
+from the point of view of the OSX network. This allows the
+echoWare-enabled applications to communicate with each other
+without either side of the connection needing to set or adjust
 any firewall or router's port-forwarding settings.
 
-EchoWare is utilized in both the Kaboodle "Network Manager 
+EchoWare is utilized in both the Kaboodle "Network Manager
 and Personal VPN application", as well as in EchoVNC, a
-firewall-friendly VNC Server and Viewer. For more details on 
+firewall-friendly VNC Server and Viewer. For more details on
 these projects, please visit our website at:
 
    http://www.echogent.com/
- 
+
 EchoWare includes software developed by the OpenSSL Project
 for use in the OpenSSL Toolkit. (http://www.openssl.org/)
 
@@ -51,9 +51,9 @@ CHANGELIST
 ENCRYPTION
 ----------
 EchoWare's 128-bit AES encryption is enabled by the
-OpenSSL source-code. It is covered by the following 
+OpenSSL source-code. It is covered by the following
 Copyrights:
- 
+
    Copyright (c) 1998-2004 The OpenSSL Project
    Copyright (c) 1995-1998 Eric A. Young, Tim J. Hudson
 
@@ -69,8 +69,8 @@ Mailing list support is available for all users; you can find
 those details on the EchoVNC homepage:
 
   http://echovnc.sourceforge.net/fom-serve/cache/1.html
-  
-When asking a tech-support question, be sure to include as much 
+
+When asking a tech-support question, be sure to include as much
 information about your computer and network as possible.
 
 Thanks for using EchoWare!

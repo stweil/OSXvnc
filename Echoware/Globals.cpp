@@ -21,22 +21,22 @@ CGlobals::~CGlobals()
 }
 
 bool CGlobals::InitSockets(unsigned char nHighVersion, unsigned char nLowVersion)
-{	
+{
 // No Socket System Init Needed on OSX
 //	WORD wVersionRequested;
 //	WSADATA wsaData;
 //	int err;
-//	 
+//
 //	wVersionRequested = MAKEWORD(nLowVersion, nHighVersion);
-//	 
+//
 //	err = WSAStartup( wVersionRequested, &wsaData );
 //	if (err!=0)
-//		return false;	
-//	 
-//	if (LOBYTE(wsaData.wVersion)!=nLowVersion || HIBYTE(wsaData.wVersion)!=nHighVersion) 
-//	{		
+//		return false;
+//
+//	if (LOBYTE(wsaData.wVersion)!=nLowVersion || HIBYTE(wsaData.wVersion)!=nHighVersion)
+//	{
 //		WSACleanup();
-//		return false; 
+//		return false;
 //	}
 	return true;
 }

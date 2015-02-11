@@ -8,10 +8,10 @@
 #define RSA_PUBLIC_KEY	80
 
 #pragma warning(disable : 4355)
-CDataChannel::CDataChannel(CDataChannels* pDataChannels, const char* szChannelCode, 
-						   const char* szSessionKey, bool bEncryptDecrypt) : 
+CDataChannel::CDataChannel(CDataChannels* pDataChannels, const char* szChannelCode,
+						   const char* szSessionKey, bool bEncryptDecrypt) :
 	 m_localListener(this), m_bEncryptDecrypt(bEncryptDecrypt)
-{	
+{
 	m_pLocalDCTimer=new CLocalDCTimer(this);
 	m_bLocalDC=false;
 
@@ -34,9 +34,9 @@ CDataChannel::CDataChannel(CDataChannels* pDataChannels, const char* szChannelCo
 	m_szSessionKey=new char[1024];
 	strcpy(m_szSessionKey, szSessionKey);
 
-	m_aes.SetEncryptKey((const unsigned char*)m_szSessionKey, 128); 
-	
-	m_aes.SetDecryptKey((const unsigned char*)m_szSessionKey, 128); 	
+	m_aes.SetEncryptKey((const unsigned char*)m_szSessionKey, 128);
+
+	m_aes.SetDecryptKey((const unsigned char*)m_szSessionKey, 128);
 
 	g_globals.m_logger.WriteFormated("CDataChannel: New data channel: code=%s , encrypt=%c", szChannelCode, (m_bEncryptDecrypt)?('Y'):('N'));
 }
@@ -53,37 +53,37 @@ CDataChannel::~CDataChannel(void)
 	StopListen();
 
 	if (m_pEchoServerDataChannel)
-	{		
+	{
 		m_pEchoServerDataChannel->Shutdown(SD_BOTH);
 		m_pEchoServerDataChannel->Close();
 
 		m_pEchoServerDataChannel->StopReceive(THREAD_STOP_TIMEOUT);
-		m_pEchoServerDataChannel->StopSend(THREAD_STOP_TIMEOUT);		
+		m_pEchoServerDataChannel->StopSend(THREAD_STOP_TIMEOUT);
 	}
 
 	if (m_pLocalDataChannel)
-	{	
-		m_pLocalDataChannel->Shutdown(SD_BOTH);	
-		m_pLocalDataChannel->Close();		
+	{
+		m_pLocalDataChannel->Shutdown(SD_BOTH);
+		m_pLocalDataChannel->Close();
 
 		m_pLocalDataChannel->StopReceive(THREAD_STOP_TIMEOUT);
-		m_pLocalDataChannel->StopSend(THREAD_STOP_TIMEOUT);		
-	}	
+		m_pLocalDataChannel->StopSend(THREAD_STOP_TIMEOUT);
+	}
 
 	if (m_pEchoServerDataChannel)
 	{
 		delete m_pEchoServerDataChannel;
 		m_pEchoServerDataChannel=0;
-	}	
+	}
 
 	if (m_pLocalDataChannel)
 	{
 		delete m_pLocalDataChannel;
 		m_pLocalDataChannel=0;
-	}	
+	}
 
 	delete []m_szChannelCode;
-	delete []m_szSessionKey;	
+	delete []m_szSessionKey;
 }
 
 bool CDataChannel::ConnectEchoServer()
@@ -92,18 +92,18 @@ bool CDataChannel::ConnectEchoServer()
 	if (!m_pEchoServerDataChannel->Create() ||
 		m_pEchoServerDataChannel->Connect(m_pDataChannels->GetProxyInfo()->GetIP(),
 										atoi(m_pDataChannels->GetProxyInfo()->GetPort()),
-										m_szChannelCode, 
+										m_szChannelCode,
 										m_pDataChannels->GetProxyInfo()->GetMyID())!=0)
 	{
 		OnError(m_pEchoServerDataChannel, 1);
 
-		g_globals.m_logger.WriteFormated("CDataChannel: Error connect data channel %p to channel code %s", this, m_szChannelCode);	
+		g_globals.m_logger.WriteFormated("CDataChannel: Error connect data channel %p to channel code %s", this, m_szChannelCode);
 
 		return false;
 	}
 
 	m_pLocalDataChannel->SetPairChannel(m_pEchoServerDataChannel);
-	m_pEchoServerDataChannel->SetPairChannel(m_pLocalDataChannel);	
+	m_pEchoServerDataChannel->SetPairChannel(m_pLocalDataChannel);
 
 	m_pEchoServerDataChannel->SetOffLoadingDataChannel();
 	m_pEchoServerDataChannel->StartReceive();
@@ -111,7 +111,7 @@ bool CDataChannel::ConnectEchoServer()
 
 	//ConnectLocalServer();
 
-	m_pLocalDCTimer->SetTimer(CONNECTION_TO_OFFLOAD_TIMER_VALUE);	
+	m_pLocalDCTimer->SetTimer(CONNECTION_TO_OFFLOAD_TIMER_VALUE);
 
 	g_globals.m_logger.Write("<=ConnectEchoServer");
 
@@ -129,7 +129,7 @@ bool CDataChannel::ConnectLocalServer()
 bool CDataChannel::ConnectLocalServer(unsigned int nPort)
 {
 	g_globals.m_logger.Write("=>CDataChannel::ConnectLocalServer");
-	m_crtLocalDCSection.Lock();	
+	m_crtLocalDCSection.Lock();
 
 	if (m_bLocalDC)
 	{
@@ -169,15 +169,15 @@ bool CDataChannel::ConnectLocalServer(unsigned int nPort)
 
 	g_globals.m_logger.Write("<=Try connect local server - success");
 
-	m_crtLocalDCSection.Unlock();	
+	m_crtLocalDCSection.Unlock();
 
 	return true;
 }
 
 //start to listen for local connections
 bool CDataChannel::Listen(unsigned int& nPort)
-{	
-	g_globals.m_logger.Write("CDataChannel: Enter Listen for local client");	
+{
+	g_globals.m_logger.Write("CDataChannel: Enter Listen for local client");
 	if (!m_localListener.Create())
 		return false;
 
@@ -189,7 +189,7 @@ bool CDataChannel::Listen(unsigned int& nPort)
 	if (!m_localListener.StartAccept())
 		return false;
 
-	g_globals.m_logger.Write("CDataChannel: Listen for local client started");	
+	g_globals.m_logger.Write("CDataChannel: Listen for local client started");
 
 	return true;
 }
@@ -203,11 +203,11 @@ void CDataChannel::StopListen()
 
 //notify that there was an error on sockets operations
 void CDataChannel::OnError(APISocket::CSocket* pSocket, unsigned int err)
-{	
-	g_globals.m_logger.WriteFormated("CDataChannel: Start Remove data channel %p", this); 
+{
+	g_globals.m_logger.WriteFormated("CDataChannel: Start Remove data channel %p", this);
 	if (m_pDataChannels)
-		m_pDataChannels->RemoveDataChannel(this);		
-	g_globals.m_logger.WriteFormated("CDataChannel: End Remove data channel %p", this); 
+		m_pDataChannels->RemoveDataChannel(this);
+	g_globals.m_logger.WriteFormated("CDataChannel: End Remove data channel %p", this);
 }
 
 //sets the encryption level
@@ -231,32 +231,32 @@ void CDataChannel::OnLocalDataChannel(unsigned int sock, bool bOffLoadingDataCha
 	m_pLocalDataChannel->m_bOffLoadingDataChannel=bOffLoadingDataChannel;
 
 	if (!bOffLoadingDataChannel)
-	{	
-		g_globals.m_logger.WriteFormated("CDataChannel: Try connect data channel %p to channel code %s", this, m_szChannelCode);	
+	{
+		g_globals.m_logger.WriteFormated("CDataChannel: Try connect data channel %p to channel code %s", this, m_szChannelCode);
 
 		if (!m_pEchoServerDataChannel->Create() ||
 			m_pEchoServerDataChannel->Connect(m_pDataChannels->GetProxyInfo()->GetIP(),
 											atoi(m_pDataChannels->GetProxyInfo()->GetPort()),
-											m_szChannelCode, 
+											m_szChannelCode,
 											m_pDataChannels->GetProxyInfo()->GetMyID())!=0)
 		{
 			OnError(m_pEchoServerDataChannel, 1);
 
-			g_globals.m_logger.WriteFormated("CDataChannel: Error connect data channel %p to channel code %s", this, m_szChannelCode);	
+			g_globals.m_logger.WriteFormated("CDataChannel: Error connect data channel %p to channel code %s", this, m_szChannelCode);
 
 			return;
 		}
 
-		g_globals.m_logger.WriteFormated("CDataChannel: Success connect data channel %p to channel code %s", this, m_szChannelCode);			
+		g_globals.m_logger.WriteFormated("CDataChannel: Success connect data channel %p to channel code %s", this, m_szChannelCode);
 
 		m_pLocalDataChannel->SetPairChannel(m_pEchoServerDataChannel);
-		m_pEchoServerDataChannel->SetPairChannel(m_pLocalDataChannel);	
+		m_pEchoServerDataChannel->SetPairChannel(m_pLocalDataChannel);
 
 		m_pEchoServerDataChannel->StartReceive();
-		m_pEchoServerDataChannel->StartSend();	
+		m_pEchoServerDataChannel->StartSend();
 	}
-	
-	
+
+
 	m_pLocalDataChannel->StartReceive();
-	m_pLocalDataChannel->StartSend();	
+	m_pLocalDataChannel->StartSend();
 }

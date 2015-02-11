@@ -18,15 +18,15 @@ int main(int argc, char* argv[])
    // Generate keys
    Keys(e,d,n);
 
-   SaveKeys("EncodeKey.txt",d,n);	
+   SaveKeys("EncodeKey.txt",d,n);
 	// Now "EncodeKey.txt" contains a key for encoding
 
    SaveKeys("DecodeKey.txt",e,n);
 	// Now "DecodeKey.txt" contains a key for decoding
-   
+
 	printf("\nPress any key...");
 //   getch();
    return 0;
-	// File "Prot.txt" contains some debug information. 
+	// File "Prot.txt" contains some debug information.
 	// We don't need this file for work.
 }
