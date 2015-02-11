@@ -116,32 +116,32 @@ static bool rfbScreenInit(void);
  */
 
 void rfbLog(char *format, ...) {
-	if (logEnable && format != NULL) {
-		va_list args;
-		NSString *nsFormat = [[NSString alloc] initWithUTF8String:format];	
-		pthread_mutex_lock(&logMutex);
-		NS_DURING {
-			va_start(args, format);
-			NSLogv(nsFormat, args);
-			va_end(args);
-		};
-		NS_HANDLER
-		NS_ENDHANDLER
-		pthread_mutex_unlock(&logMutex);
-		[nsFormat release];
-	}
+    if (logEnable && format != NULL) {
+        va_list args;
+        NSString *nsFormat = [[NSString alloc] initWithUTF8String:format];
+        pthread_mutex_lock(&logMutex);
+        NS_DURING {
+            va_start(args, format);
+            NSLogv(nsFormat, args);
+            va_end(args);
+        };
+        NS_HANDLER
+        NS_ENDHANDLER
+        pthread_mutex_unlock(&logMutex);
+        [nsFormat release];
+    }
 }
 
 void rfbDebugLog(char *format, ...) {
 #ifdef __DEBUGGING__
     va_list args;
     NSString *nsFormat = [[NSString alloc] initWithUTF8String:format];
-	
+
     pthread_mutex_lock(&logMutex);
     va_start(args, format);
     NSLogv(nsFormat, args);
     va_end(args);
-	
+
     [nsFormat release];
     pthread_mutex_unlock(&logMutex);
 #endif
@@ -157,14 +157,14 @@ void loadDynamicBundles(BOOL startup) {
     NSAutoreleasePool *startPool = [[NSAutoreleasePool alloc] init];
 
     // Setup thisServer structure
-	thisServer.vncServer = vncServerObject;
-	thisServer.desktopName = desktopName;
-	thisServer.rfbPort = rfbPort;
-	thisServer.rfbLocalhostOnly = rfbLocalhostOnly;
-	thisServer.listenerAccepting = listenerAccepting;
-	thisServer.listenerGotNewClient = listenerGotNewClient;
-	
-	[[VNCServer sharedServer] rfbStartup: &thisServer];
+    thisServer.vncServer = vncServerObject;
+    thisServer.desktopName = desktopName;
+    thisServer.rfbPort = rfbPort;
+    thisServer.rfbLocalhostOnly = rfbLocalhostOnly;
+    thisServer.listenerAccepting = listenerAccepting;
+    thisServer.listenerGotNewClient = listenerGotNewClient;
+
+    [[VNCServer sharedServer] rfbStartup: &thisServer];
 
     [startPool release];
 }
@@ -198,39 +198,39 @@ void refreshCallback(CGRectCount count, const CGRect *rectArray, void *ignore) {
 }
 
 //CGError screenUpdateMoveCallback(CGScreenUpdateMoveDelta delta, CGRectCount count, const CGRect * rectArray, void * userParameter) {
-//	//NSLog(@"Moved Callback");
-//	return 0;
+//    //NSLog(@"Moved Callback");
+//    return 0;
 //}
 
 static int bitsPerPixelForDisplay(CGDirectDisplayID dispID) {
-	int bitsPerPixel = 0;
-	CGDisplayModeRef mode = CGDisplayCopyDisplayMode(dispID);
-	CFStringRef pixelEncoding = CGDisplayModeCopyPixelEncoding(mode);
+    int bitsPerPixel = 0;
+    CGDisplayModeRef mode = CGDisplayCopyDisplayMode(dispID);
+    CFStringRef pixelEncoding = CGDisplayModeCopyPixelEncoding(mode);
 
-	if (!pixelEncoding) // When off-screen the BPP is not accessible -- 32 is default and works.
-		bitsPerPixel = 32;
-	else if(CFStringCompare(pixelEncoding, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
-		bitsPerPixel = 32;
-	else if(CFStringCompare(pixelEncoding, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
-		bitsPerPixel = 16;
-	else if(CFStringCompare(pixelEncoding, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
-		bitsPerPixel = 8;
-	[(id)pixelEncoding release];
-	CGDisplayModeRelease(mode);
-	return bitsPerPixel;
+    if (!pixelEncoding) // When off-screen the BPP is not accessible -- 32 is default and works.
+        bitsPerPixel = 32;
+    else if(CFStringCompare(pixelEncoding, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+        bitsPerPixel = 32;
+    else if(CFStringCompare(pixelEncoding, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+        bitsPerPixel = 16;
+    else if(CFStringCompare(pixelEncoding, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+        bitsPerPixel = 8;
+    [(id)pixelEncoding release];
+    CGDisplayModeRelease(mode);
+    return bitsPerPixel;
 }
 
 void rfbCheckForScreenResolutionChange() {
     BOOL sizeChange = (rfbScreen.width != CGDisplayPixelsWide(displayID) ||
                        rfbScreen.height != CGDisplayPixelsHigh(displayID));
-	BOOL colorChange = (bitsPerPixelForDisplay(displayID) > 0 && rfbScreen.bitsPerPixel != bitsPerPixelForDisplay(displayID));
-	
+    BOOL colorChange = (bitsPerPixelForDisplay(displayID) > 0 && rfbScreen.bitsPerPixel != bitsPerPixelForDisplay(displayID));
+
     // See if screen changed
     if (sizeChange || colorChange) {
         rfbClientIteratorPtr iterator;
         rfbClientPtr cl = NULL;
-		BOOL screenOK = TRUE;
-		int maxTries = 12;
+        BOOL screenOK = TRUE;
+        int maxTries = 12;
 
         // Block listener from accepting new connections while we restart
         pthread_mutex_lock(&listenerAccepting);
@@ -243,19 +243,19 @@ void rfbCheckForScreenResolutionChange() {
         }
         rfbReleaseClientIterator(iterator);
 
-		do {
-			screenOK = rfbScreenInit();
-		} while (!screenOK && maxTries-- && usleep(2000000)==0);
-		if (!screenOK)
-			exit(1);
-		
-		rfbLog("Screen Geometry Changed - (%d,%d) Depth: %d\n",
+        do {
+            screenOK = rfbScreenInit();
+        } while (!screenOK && maxTries-- && usleep(2000000)==0);
+        if (!screenOK)
+            exit(1);
+
+        rfbLog("Screen Geometry Changed - (%d,%d) Depth: %d\n",
                CGDisplayPixelsWide(displayID),
                CGDisplayPixelsHigh(displayID),
                bitsPerPixelForDisplay(displayID));
-		
-		
-		iterator = rfbGetClientIterator();
+
+
+        iterator = rfbGetClientIterator();
         while ((cl = rfbClientIteratorNext(iterator))) {
             // Only need to notify them on a SIZE change - other changes just make us re-init
             if (sizeChange) {
@@ -268,37 +268,37 @@ void rfbCheckForScreenResolutionChange() {
 
                     rfbSendScreenUpdateEncoding(cl);
 
-					cl->screenBuffer = rfbGetFramebuffer();
-					if (cl->scalingFactor == 1) {
-						cl->scalingFrameBuffer = cl->screenBuffer;
-						cl->scalingPaddedWidthInBytes = rfbScreen.paddedWidthInBytes;
-					}
-					else {
-						const unsigned long csh = (rfbScreen.height+cl->scalingFactor-1)/ cl->scalingFactor;
-						const unsigned long csw = (rfbScreen.width +cl->scalingFactor-1)/ cl->scalingFactor;
-						
-						// Reset Frame Buffer
-						free(cl->scalingFrameBuffer);
-						cl->scalingFrameBuffer = malloc( csw*csh*rfbScreen.bitsPerPixel/8 );
-						cl->scalingPaddedWidthInBytes = csw * rfbScreen.bitsPerPixel/8;
-					}
-					
+                    cl->screenBuffer = rfbGetFramebuffer();
+                    if (cl->scalingFactor == 1) {
+                        cl->scalingFrameBuffer = cl->screenBuffer;
+                        cl->scalingPaddedWidthInBytes = rfbScreen.paddedWidthInBytes;
+                    }
+                    else {
+                        const unsigned long csh = (rfbScreen.height+cl->scalingFactor-1)/ cl->scalingFactor;
+                        const unsigned long csw = (rfbScreen.width +cl->scalingFactor-1)/ cl->scalingFactor;
+
+                        // Reset Frame Buffer
+                        free(cl->scalingFrameBuffer);
+                        cl->scalingFrameBuffer = malloc( csw*csh*rfbScreen.bitsPerPixel/8 );
+                        cl->scalingPaddedWidthInBytes = csw * rfbScreen.bitsPerPixel/8;
+                    }
+
                     box.x1 = box.y1 = 0;
                     box.x2 = rfbScreen.width;
                     box.y2 = rfbScreen.height;
-					REGION_INIT(pScreen,&cl->modifiedRegion,&box,0);
+                    REGION_INIT(pScreen,&cl->modifiedRegion,&box,0);
                     //cl->needNewScreenSize = TRUE;
                 }
                 else
                     rfbCloseClient(cl);
             }
             else {
-				// In theory we shouldn't need to disconnect them but some state in the cl record seems to cause a problem
-				rfbCloseClient(cl);
+                // In theory we shouldn't need to disconnect them but some state in the cl record seems to cause a problem
+                rfbCloseClient(cl);
                 rfbSetTranslateFunction(cl);
             }
 
-			sleep(2); // We may detect the new depth before OS X has quite finished getting everything ready for it.
+            sleep(2); // We may detect the new depth before OS X has quite finished getting everything ready for it.
             pthread_mutex_unlock(&cl->updateMutex);
             pthread_cond_signal(&cl->updateCond);
         }
@@ -316,7 +316,7 @@ static void *clientOutput(void *data) {
 
     while (1) {
         haveUpdate = false;
-		
+
         pthread_mutex_lock(&cl->updateMutex);
         while (!haveUpdate) {
             if (cl->sock == -1) {
@@ -328,35 +328,35 @@ static void *clientOutput(void *data) {
             // Check for (and send immediately) pending PB changes
             rfbClientUpdatePasteboard(cl);
 
-			// Only do checks if we HAVE an outstanding request
-			if (REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion)) {
-				/* REDSTONE */
-				if (rfbDeferUpdateTime > 0 && !cl->immediateUpdate) {
-					// Compare Request with Update Area
-					REGION_INIT(&hackScreen, &updateRegion, NullBox, 0);
-					REGION_INTERSECT(&hackScreen, &updateRegion, &cl->modifiedRegion, &cl->requestedRegion);
-					haveUpdate = REGION_NOTEMPTY(&hackScreen, &updateRegion);
+            // Only do checks if we HAVE an outstanding request
+            if (REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion)) {
+                /* REDSTONE */
+                if (rfbDeferUpdateTime > 0 && !cl->immediateUpdate) {
+                    // Compare Request with Update Area
+                    REGION_INIT(&hackScreen, &updateRegion, NullBox, 0);
+                    REGION_INTERSECT(&hackScreen, &updateRegion, &cl->modifiedRegion, &cl->requestedRegion);
+                    haveUpdate = REGION_NOTEMPTY(&hackScreen, &updateRegion);
 
-					REGION_UNINIT(&hackScreen, &updateRegion);
-				}
-				else {
-					/*  If we've turned off deferred updating
-					We are going to send an update as soon as we have a requested,
-					regardless of if we have a "change" intersection */
-					haveUpdate = TRUE;
-				}
+                    REGION_UNINIT(&hackScreen, &updateRegion);
+                }
+                else {
+                    /*  If we've turned off deferred updating
+                    We are going to send an update as soon as we have a requested,
+                    regardless of if we have a "change" intersection */
+                    haveUpdate = TRUE;
+                }
 
-				if (rfbShouldSendNewCursor(cl))
-					haveUpdate = TRUE;
-				else if (rfbShouldSendNewPosition(cl))
-					// Could Compare with the request area but for now just always send it
-					haveUpdate = TRUE;
-				else if (cl->needNewScreenSize)
-					haveUpdate = TRUE;
-			}
+                if (rfbShouldSendNewCursor(cl))
+                    haveUpdate = TRUE;
+                else if (rfbShouldSendNewPosition(cl))
+                    // Could Compare with the request area but for now just always send it
+                    haveUpdate = TRUE;
+                else if (cl->needNewScreenSize)
+                    haveUpdate = TRUE;
+            }
 
-			if (!haveUpdate)
-				pthread_cond_wait(&cl->updateCond, &cl->updateMutex);
+            if (!haveUpdate)
+                pthread_cond_wait(&cl->updateCond, &cl->updateMutex);
         }
 
         // OK, now, to save bandwidth, wait a little while for more updates to come along.
@@ -380,13 +380,13 @@ static void *clientOutput(void *data) {
         REGION_INIT(&hackScreen, &cl->requestedRegion,NullBox,0);
 
         /*  This does happen but it's asynchronous (and slow to occur)
-			what we really want to happen is to just temporarily hide the cursor (while sending to the remote screen)
-			-- It's not even usually there (as it's handled by the display driver - but under certain occasions it does appear
+            what we really want to happen is to just temporarily hide the cursor (while sending to the remote screen)
+            -- It's not even usually there (as it's handled by the display driver - but under certain occasions it does appear
          displayErr = CGDisplayHideCursor(displayID);
          if (displayErr != 0)
          rfbLog("Error Hiding Cursor %d", displayErr);
          CGDisplayMoveCursorToPoint(displayID, CGPointZero);
-											*/
+                                            */
 
         /* Now actually send the update. */
         rfbSendFramebufferUpdate(cl, updateRegion);
@@ -415,7 +415,7 @@ void *clientInput(void *data) {
 
         // Some people will connect but not request screen updates - just send events, this will delay registering the CG callback until then
         if (rfbShouldSendUpdates && REGION_NOTEMPTY(&hackScreen, &cl->requestedRegion)) {
-            @synchronized([VNCServer sharedServer]) { // Registering twice sometimes prevents getting notice on 10.6  
+            @synchronized([VNCServer sharedServer]) { // Registering twice sometimes prevents getting notice on 10.6
                 if (!registered) {
                     CGError result = CGRegisterScreenRefreshCallback(refreshCallback, NULL);
                     if (result == kCGErrorSuccess) {
@@ -430,7 +430,7 @@ void *clientInput(void *data) {
                 }
             }
         }
-        
+
         if (cl->sock == -1) {
             /* Client has disconnected. */
             break;
@@ -451,109 +451,109 @@ void *clientInput(void *data) {
 void rfbStartClientWithFD(int client_fd) {
     rfbClientPtr cl;
     pthread_t client_thread;
-	int one=1;
-	
-	if (!rfbClientsConnected())
-		rfbCheckForScreenResolutionChange();
-	
-	pthread_mutex_lock(&listenerAccepting);
-	
-	if (setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, (void *)&one, sizeof(one)) < 0)
-		rfbLogPerror("setsockopt TCP_NODELAY failed"); 
-	
-	rfbUndim();
-	cl = rfbNewClient(client_fd);
-	
-	pthread_create(&client_thread, NULL, clientInput, (void *)cl);
-	
-	pthread_mutex_unlock(&listenerAccepting);
-	pthread_cond_signal(&listenerGotNewClient);	
+    int one=1;
+
+    if (!rfbClientsConnected())
+        rfbCheckForScreenResolutionChange();
+
+    pthread_mutex_lock(&listenerAccepting);
+
+    if (setsockopt(client_fd, IPPROTO_TCP, TCP_NODELAY, (void *)&one, sizeof(one)) < 0)
+        rfbLogPerror("setsockopt TCP_NODELAY failed");
+
+    rfbUndim();
+    cl = rfbNewClient(client_fd);
+
+    pthread_create(&client_thread, NULL, clientInput, (void *)cl);
+
+    pthread_mutex_unlock(&listenerAccepting);
+    pthread_cond_signal(&listenerGotNewClient);
 }
 
 static void *listenerRun(void *ignore) {
     int listen_fd4=0, client_fd=0;
-	int value=1;  // Need to pass a ptr to this
-	struct sockaddr_in sin4, peer4;
+    int value=1;  // Need to pass a ptr to this
+    struct sockaddr_in sin4, peer4;
     unsigned int len4=sizeof(sin4);
-	
-	// Must register IPv6 first otherwise it seems to clear our unique binding for IPv4 portNum
-	[[VNCServer sharedServer] rfbRunning];
 
-	// Ok, we are leaving IPv4 binding on even with IPv6 on so that OSXvnc will bind up the port regardless 
-	// When both are enabled you can't have another VNC server "steal" the IPv4 port
-	if (useIP4) {
-		bzero(&sin4, sizeof(sin4));
-		sin4.sin_len = sizeof(sin4);
-		sin4.sin_family = AF_INET;
-		sin4.sin_port = htons(rfbPort);
-		if (rfbLocalhostOnly)
-			sin4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-		else
-			sin4.sin_addr.s_addr = htonl(INADDR_ANY);
+    // Must register IPv6 first otherwise it seems to clear our unique binding for IPv4 portNum
+    [[VNCServer sharedServer] rfbRunning];
 
-		if ((listen_fd4 = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-			rfbLogPerror("Unable to open socket");
-		}
-		else if (nonBlocking && (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0)) {
-			rfbLogPerror("fcntl O_NONBLOCK failed\n");
-		}
-	    else if (setsockopt(listen_fd4, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-			rfbLogPerror("setsockopt SO_REUSEADDR failed\n");
-		}
-		else if (bind(listen_fd4, (struct sockaddr *) &sin4, len4) < 0) {
-			rfbLog("Failed to Bind Socket: Port %d may be in use by another VNC\n", rfbPort);
-		}
-		else if (listen(listen_fd4, 5) < 0) {
-			rfbLogPerror("Listen failed\n");
-		}
-		else {
-			rfbLog("Started Listener Thread on port %d\n", rfbPort);
+    // Ok, we are leaving IPv4 binding on even with IPv6 on so that OSXvnc will bind up the port regardless
+    // When both are enabled you can't have another VNC server "steal" the IPv4 port
+    if (useIP4) {
+        bzero(&sin4, sizeof(sin4));
+        sin4.sin_len = sizeof(sin4);
+        sin4.sin_family = AF_INET;
+        sin4.sin_port = htons(rfbPort);
+        if (rfbLocalhostOnly)
+            sin4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        else
+            sin4.sin_addr.s_addr = htonl(INADDR_ANY);
 
-			// Thread stays here forever unless something goes wrong
-			while (keepRunning) {
-				client_fd = accept(listen_fd4, (struct sockaddr *) &peer4, &len4);
-				if (client_fd != -1)
-					rfbStartClientWithFD(client_fd);
-				else {
-					if (errno == EWOULDBLOCK) {
-						usleep(100000);
-					}
-					else {
-						rfbLog("Accept failed %d\n", errno);
-						exit(1);
-					}
-				}
-			}
+        if ((listen_fd4 = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+            rfbLogPerror("Unable to open socket");
+        }
+        else if (nonBlocking && (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0)) {
+            rfbLogPerror("fcntl O_NONBLOCK failed\n");
+        }
+        else if (setsockopt(listen_fd4, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
+            rfbLogPerror("setsockopt SO_REUSEADDR failed\n");
+        }
+        else if (bind(listen_fd4, (struct sockaddr *) &sin4, len4) < 0) {
+            rfbLog("Failed to Bind Socket: Port %d may be in use by another VNC\n", rfbPort);
+        }
+        else if (listen(listen_fd4, 5) < 0) {
+            rfbLogPerror("Listen failed\n");
+        }
+        else {
+            rfbLog("Started Listener Thread on port %d\n", rfbPort);
 
-			rfbLog("Listener thread exiting");
-			return NULL;
-		}
+            // Thread stays here forever unless something goes wrong
+            while (keepRunning) {
+                client_fd = accept(listen_fd4, (struct sockaddr *) &peer4, &len4);
+                if (client_fd != -1)
+                    rfbStartClientWithFD(client_fd);
+                else {
+                    if (errno == EWOULDBLOCK) {
+                        usleep(100000);
+                    }
+                    else {
+                        rfbLog("Accept failed %d\n", errno);
+                        exit(1);
+                    }
+                }
+            }
 
-		if (strlen(reverseHost)) {
-			rfbLog("Listener Disabled\n");
-		}
-		else {
-			exit(250);
-		}
-	}
-	return NULL;
+            rfbLog("Listener thread exiting");
+            return NULL;
+        }
+
+        if (strlen(reverseHost)) {
+            rfbLog("Listener Disabled\n");
+        }
+        else {
+            exit(250);
+        }
+    }
+    return NULL;
 }
 
 void connectReverseClient(char *hostName, int portNum) {
     pthread_t client_thread;
     rfbClientPtr cl;
-	
-	pthread_mutex_lock(&listenerAccepting);
+
+    pthread_mutex_lock(&listenerAccepting);
     rfbUndim();
     cl = rfbReverseConnection(hostName, portNum);
-	if (cl) {	
-		pthread_create(&client_thread, NULL, clientInput, (void *)cl);
-		pthread_mutex_unlock(&listenerAccepting);
-		pthread_cond_signal(&listenerGotNewClient);
-	}
-	else {
-		pthread_mutex_unlock(&listenerAccepting);
-	}
+    if (cl) {
+        pthread_create(&client_thread, NULL, clientInput, (void *)cl);
+        pthread_mutex_unlock(&listenerAccepting);
+        pthread_cond_signal(&listenerGotNewClient);
+    }
+    else {
+        pthread_mutex_unlock(&listenerAccepting);
+    }
 }
 
 static NSMutableData *frameBufferData = nil;
@@ -561,118 +561,118 @@ static int frameBufferBytesPerRow = 0;
 static int frameBufferBitsPerPixel = 0;
 
 char *rfbGetFramebuffer(void) {
-	if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6)) {
-		if (!frameBufferData) {
-			CGDirectDisplayID mainDisplayID = CGMainDisplayID();	
-			CGImageRef imageRef = CGDisplayCreateImage(mainDisplayID);	
-			CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
-			
-			CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
-			frameBufferBytesPerRow = CGImageGetBytesPerRow(imageRef);
-			frameBufferBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
-			
-			frameBufferData = [(NSData *)dataRef mutableCopy];
-			CFRelease(dataRef);
-			
-			if (imageRef != NULL)
-				CGImageRelease(imageRef);
-		}
-		return [frameBufferData mutableBytes];
-	}
-	else { // Old API is required for off screen user sessions
-		int maxWait =   5000000;
-		int retryWait =  500000;
-		
-		char *returnValue = (char *) CGDisplayBaseAddress(CGMainDisplayID());
-		while (!returnValue && maxWait > 0) {
-			NSLog(@"Unable to obtain base address");
-			usleep(retryWait); // Buffer goes away while screen is "switching", it'll be back
-			maxWait -= retryWait;
-			returnValue = (char *) CGDisplayBaseAddress(CGMainDisplayID());
-		}
-		if (!returnValue) {
-			NSLog(@"Unable to obtain base address -- Giving up");
-			exit(1);
-		}
-		
-		return returnValue;
-	}
+    if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6)) {
+        if (!frameBufferData) {
+            CGDirectDisplayID mainDisplayID = CGMainDisplayID();
+            CGImageRef imageRef = CGDisplayCreateImage(mainDisplayID);
+            CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
+
+            CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
+            frameBufferBytesPerRow = CGImageGetBytesPerRow(imageRef);
+            frameBufferBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
+
+            frameBufferData = [(NSData *)dataRef mutableCopy];
+            CFRelease(dataRef);
+
+            if (imageRef != NULL)
+                CGImageRelease(imageRef);
+        }
+        return [frameBufferData mutableBytes];
+    }
+    else { // Old API is required for off screen user sessions
+        int maxWait =   5000000;
+        int retryWait =  500000;
+
+        char *returnValue = (char *) CGDisplayBaseAddress(CGMainDisplayID());
+        while (!returnValue && maxWait > 0) {
+            NSLog(@"Unable to obtain base address");
+            usleep(retryWait); // Buffer goes away while screen is "switching", it'll be back
+            maxWait -= retryWait;
+            returnValue = (char *) CGDisplayBaseAddress(CGMainDisplayID());
+        }
+        if (!returnValue) {
+            NSLog(@"Unable to obtain base address -- Giving up");
+            exit(1);
+        }
+
+        return returnValue;
+    }
 }
 
 // Called to get record updates of the requested region into our framebuffer
 void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
-	if (frameBufferData) {
-		CGDirectDisplayID mainDisplayID = CGMainDisplayID();
-		CGRect rect = CGRectMake (x,y,w,h);
-		CGImageRef imageRef = CGDisplayCreateImageForRect(mainDisplayID, rect);	
-		CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
-		CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
-		int imgBytesPerRow = CGImageGetBytesPerRow(imageRef);
-		int imgBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
-		
-		if (imgBitsPerPixel != frameBufferBitsPerPixel)
-			NSLog(@"BitsPerPixel MISMATCH: frameBuffer %d, rect image %d", frameBufferBitsPerPixel, imgBitsPerPixel);
-		
-		char *dest = (char *)[frameBufferData mutableBytes] + frameBufferBytesPerRow * y + x * (frameBufferBitsPerPixel/8);
-		const char *source = [(NSData *)dataRef bytes];
-		
-		while (h--) {
-			memcpy(dest, source, w*(imgBitsPerPixel/8));
-			dest += frameBufferBytesPerRow;
-			source += imgBytesPerRow;
-		}
-		
-		if (imageRef != NULL)
-			CGImageRelease(imageRef);
-		[(id)dataRef release];
-	}
+    if (frameBufferData) {
+        CGDirectDisplayID mainDisplayID = CGMainDisplayID();
+        CGRect rect = CGRectMake (x,y,w,h);
+        CGImageRef imageRef = CGDisplayCreateImageForRect(mainDisplayID, rect);
+        CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
+        CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
+        int imgBytesPerRow = CGImageGetBytesPerRow(imageRef);
+        int imgBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
+
+        if (imgBitsPerPixel != frameBufferBitsPerPixel)
+            NSLog(@"BitsPerPixel MISMATCH: frameBuffer %d, rect image %d", frameBufferBitsPerPixel, imgBitsPerPixel);
+
+        char *dest = (char *)[frameBufferData mutableBytes] + frameBufferBytesPerRow * y + x * (frameBufferBitsPerPixel/8);
+        const char *source = [(NSData *)dataRef bytes];
+
+        while (h--) {
+            memcpy(dest, source, w*(imgBitsPerPixel/8));
+            dest += frameBufferBytesPerRow;
+            source += imgBytesPerRow;
+        }
+
+        if (imageRef != NULL)
+            CGImageRelease(imageRef);
+        [(id)dataRef release];
+    }
 }
 
 static bool rfbScreenInit(void) {
-	/* Note: As of 10.7 there doesn't appear to be an easy way to get the bitsPerSample or samplesPerPixel of the screen buffer. It looks like that information may be in the bitsPerComponent and componentCount elements of the IOPixelInformation structure. But we'd have to get into poorly-documented IOKit functions to get it. It seems very unlikely that it will be anything other than 8 bits and 3 samples, and in any case we're not really prepared to handle anything else, so the best we could do is die gracefully. Now we are likely to die ungracefully (or maybe just produce garbage) if the screen buffer is in a different format.
-	 */
-	int bitsPerSample = 8; // Let's presume 8 bits x 3 samples and hope for the best.....
-	int samplesPerPixel = 3;
-	
-	[frameBufferData release]; // release previous screen buffer, if any
-	frameBufferData = nil;
-	
-	displayID = CGMainDisplayID();
-	
-	if (samplesPerPixel != 3) {
-		rfbLog("screen format not supported.\n");
-		return FALSE;
-	}
+    /* Note: As of 10.7 there doesn't appear to be an easy way to get the bitsPerSample or samplesPerPixel of the screen buffer. It looks like that information may be in the bitsPerComponent and componentCount elements of the IOPixelInformation structure. But we'd have to get into poorly-documented IOKit functions to get it. It seems very unlikely that it will be anything other than 8 bits and 3 samples, and in any case we're not really prepared to handle anything else, so the best we could do is die gracefully. Now we are likely to die ungracefully (or maybe just produce garbage) if the screen buffer is in a different format.
+     */
+    int bitsPerSample = 8; // Let's presume 8 bits x 3 samples and hope for the best.....
+    int samplesPerPixel = 3;
 
-	rfbScreen.width = CGDisplayPixelsWide(displayID);
-	rfbScreen.height = CGDisplayPixelsHigh(displayID);
-	rfbScreen.bitsPerPixel = bitsPerPixelForDisplay(displayID);
-	rfbScreen.depth = samplesPerPixel * bitsPerSample;
+    [frameBufferData release]; // release previous screen buffer, if any
+    frameBufferData = nil;
+
+    displayID = CGMainDisplayID();
+
+    if (samplesPerPixel != 3) {
+        rfbLog("screen format not supported.\n");
+        return FALSE;
+    }
+
+    rfbScreen.width = CGDisplayPixelsWide(displayID);
+    rfbScreen.height = CGDisplayPixelsHigh(displayID);
+    rfbScreen.bitsPerPixel = bitsPerPixelForDisplay(displayID);
+    rfbScreen.depth = samplesPerPixel * bitsPerSample;
     if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6)) {
         rfbScreen.paddedWidthInBytes = rfbScreen.width*rfbScreen.bitsPerPixel/8;
     }
     else {
         rfbScreen.paddedWidthInBytes = CGDisplayBytesPerRow(displayID);
     }
-    
+
     rfbServerFormat.bitsPerPixel = rfbScreen.bitsPerPixel;
     rfbServerFormat.depth = rfbScreen.depth;
-	rfbServerFormat.trueColour = TRUE;
-	
-	rfbServerFormat.redMax = (1 << bitsPerSample) - 1;
-	rfbServerFormat.greenMax = (1 << bitsPerSample) - 1;
-	rfbServerFormat.blueMax = (1 << bitsPerSample) - 1;
-	
-	if (littleEndian)
-		rfbLog("Running in Little Endian");
-	else
-		rfbLog("Running in Big Endian");
+    rfbServerFormat.trueColour = TRUE;
 
-	rfbServerFormat.bigEndian = !littleEndian;
-	rfbServerFormat.redShift = bitsPerSample * 2;
-	rfbServerFormat.greenShift = bitsPerSample * 1;
-	rfbServerFormat.blueShift = bitsPerSample * 0;
-	
+    rfbServerFormat.redMax = (1 << bitsPerSample) - 1;
+    rfbServerFormat.greenMax = (1 << bitsPerSample) - 1;
+    rfbServerFormat.blueMax = (1 << bitsPerSample) - 1;
+
+    if (littleEndian)
+        rfbLog("Running in Little Endian");
+    else
+        rfbLog("Running in Big Endian");
+
+    rfbServerFormat.bigEndian = !littleEndian;
+    rfbServerFormat.redShift = bitsPerSample * 2;
+    rfbServerFormat.greenShift = bitsPerSample * 1;
+    rfbServerFormat.blueShift = bitsPerSample * 0;
+
     /* We want to use the X11 REGION_* macros without having an actual
         X11 ScreenPtr, so we do this.  Pretty ugly, but at least it lets us
         avoid hacking up regionstr.h, or changing every call to REGION_* */
@@ -694,8 +694,8 @@ static bool rfbScreenInit(void) {
     hackScreen.RegionExtents = miRegionExtents;
     hackScreen.RegionAppend = miRegionAppend;
     hackScreen.RegionValidate = miRegionValidate;
-	
-	return TRUE;
+
+    return TRUE;
 }
 
 static void usage(void) {
@@ -705,46 +705,46 @@ static void usage(void) {
     fprintf(stderr, "-rfbwait time          Maximum time in ms to wait for RFB client\n");
     fprintf(stderr, "-rfbnoauth             Run the server with NO password protection\n");
     fprintf(stderr, "-rfbauth passwordFile  Use this password file for VNC authentication\n");
-	fprintf(stderr, "                       (use 'storepasswd' to create a password file)\n");
+    fprintf(stderr, "                       (use 'storepasswd' to create a password file)\n");
     fprintf(stderr, "-maxauthattempts num   Maximum Number of auth tries before disabling access from a host\n");
-	fprintf(stderr, "                       (default: 5), zero disables\n");
+    fprintf(stderr, "                       (default: 5), zero disables\n");
     fprintf(stderr, "-deferupdate time      Time in ms to defer updates (default %d)\n", rfbDeferUpdateTime);
     fprintf(stderr, "-desktop name          VNC desktop name (default \"MacOS X\")\n");
     fprintf(stderr, "-alwaysshared          Always treat new clients as shared\n");
     fprintf(stderr, "-nevershared           Never treat new clients as shared\n");
     fprintf(stderr, "-dontdisconnect        Don't disconnect existing clients when a new non-shared\n");
-	fprintf(stderr, "                       connection comes in (refuse new connection instead)\n");
+    fprintf(stderr, "                       connection comes in (refuse new connection instead)\n");
     fprintf(stderr, "-nodimming             Never allow the display to dim\n");
-	fprintf(stderr, "                       (default: display can dim, input undims)\n");
+    fprintf(stderr, "                       (default: display can dim, input undims)\n");
     fprintf(stderr, "-maxdepth bits         Maximum allowed bit depth for connecting clients (32,16,8).\n");
-	fprintf(stderr, "                       (default: bit depth of display)\n");
+    fprintf(stderr, "                       (default: bit depth of display)\n");
     /*
      fprintf(stderr, "-reversemods           reverse the interpretation of control\n");
      fprintf(stderr, "                       and command (for windows clients)\n");
      */
     fprintf(stderr, "-allowsleep            Allow machine to sleep\n");
-	fprintf(stderr, "                       (default: sleep is disabled)\n");
+    fprintf(stderr, "                       (default: sleep is disabled)\n");
     fprintf(stderr, "-disableScreenSaver    Disable screen saver while users are connected\n");
-	fprintf(stderr, "                       (default: no, allow screen saver to engage)\n");
-	fprintf(stderr, "-swapButtons           Swap mouse buttons 2 & 3\n");
-	fprintf(stderr, "                       (default: YES)\n");
-	fprintf(stderr, "-dontswapButtons       Disable swap mouse buttons 2 & 3\n");
-	fprintf(stderr, "                       (default: NO)\n");
-	fprintf(stderr, "-disableRemoteEvents   Ignore remote keyboard, pointer, and clipboard event\n");
-	fprintf(stderr, "                       (default: no, process them)\n");
-	fprintf(stderr, "-disableRichClipboards Don't share rich clipboard events\n");
-	fprintf(stderr, "                       (default: no, process them)\n");
-	fprintf(stderr, "-connectHost host      Host Name or IP of listening client to establishing a reverse conneect\n");
-	fprintf(stderr, "-connectPort port      TCP port of listening client to establishing a reverse conneect\n");
-	fprintf(stderr, "                       (default: 5500)\n");
-	fprintf(stderr, "-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n");
-	fprintf(stderr, "-protocol protocol     Force a particular protocol version (eg 3.3)\n");
-	fprintf(stderr, "                       (default:" rfbProtocolVersionFormat ")", rfbProtocolMajorVersion, rfbProtocolMinorVersion);
-	fprintf(stderr, "-bigEndian             Force Big-Endian mode (PPC)\n");
-	fprintf(stderr, "                       (default: detect)\n");
-	fprintf(stderr, "-littleEndian          Force Little-Endian mode (INTEL)\n");
-	fprintf(stderr, "                       (default: detect)\n");
-	
+    fprintf(stderr, "                       (default: no, allow screen saver to engage)\n");
+    fprintf(stderr, "-swapButtons           Swap mouse buttons 2 & 3\n");
+    fprintf(stderr, "                       (default: YES)\n");
+    fprintf(stderr, "-dontswapButtons       Disable swap mouse buttons 2 & 3\n");
+    fprintf(stderr, "                       (default: NO)\n");
+    fprintf(stderr, "-disableRemoteEvents   Ignore remote keyboard, pointer, and clipboard event\n");
+    fprintf(stderr, "                       (default: no, process them)\n");
+    fprintf(stderr, "-disableRichClipboards Don't share rich clipboard events\n");
+    fprintf(stderr, "                       (default: no, process them)\n");
+    fprintf(stderr, "-connectHost host      Host Name or IP of listening client to establishing a reverse conneect\n");
+    fprintf(stderr, "-connectPort port      TCP port of listening client to establishing a reverse conneect\n");
+    fprintf(stderr, "                       (default: 5500)\n");
+    fprintf(stderr, "-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n");
+    fprintf(stderr, "-protocol protocol     Force a particular protocol version (eg 3.3)\n");
+    fprintf(stderr, "                       (default:" rfbProtocolVersionFormat ")", rfbProtocolMajorVersion, rfbProtocolMinorVersion);
+    fprintf(stderr, "-bigEndian             Force Big-Endian mode (PPC)\n");
+    fprintf(stderr, "                       (default: detect)\n");
+    fprintf(stderr, "-littleEndian          Force Little-Endian mode (INTEL)\n");
+    fprintf(stderr, "                       (default: detect)\n");
+
     /* This isn't ready to go yet
     {
         CGDisplayCount displayCount;
@@ -764,7 +764,7 @@ static void usage(void) {
     fprintf(stderr, "                       (default: no, allow remote connections)\n");
     fprintf(stderr, "-restartonuserswitch flag  For Use on Panther 10.3 systems, this will cause the server to restart when a fast user switch occurs");
     fprintf(stderr, "                       (default: no)\n");
-	fprintf(stderr, "-disableLog			Don't log anything in console\n");
+    fprintf(stderr, "-disableLog            Don't log anything in console\n");
     [[VNCServer sharedServer] rfbUsage];
     fprintf(stderr, "\n");
 
@@ -789,84 +789,84 @@ static void checkForUsage(int argc, char *argv[]) {
 }
 
 static void processArguments(int argc, char *argv[]) {
-	char argString[1024] = "Arguments: ";
+    char argString[1024] = "Arguments: ";
     int i, j;
-	
+
     for (i = 1; i < argc; i++) {
-		strcat(argString, argv[i]);
-		strcat(argString, " ");
-	}
-	rfbLog(argString);
-	
+        strcat(argString, argv[i]);
+        strcat(argString, " ");
+    }
+    rfbLog(argString);
+
     for (i = 1; i < argc; i++) {
-		// Lowercase it
-		for (j=0;j<strlen(argv[i]);j++)
-			argv[i][j] = tolower(argv[i][j]);
-		
+        // Lowercase it
+        for (j=0;j<strlen(argv[i]);j++)
+            argv[i][j] = tolower(argv[i][j]);
+
         if (strcmp(argv[i], "-rfbport") == 0) { // -rfbport port
             if (i + 1 >= argc) usage();
             rfbPort = atoi(argv[++i]);
         } else if (strcmp(argv[i], "-protocol") == 0) { // -rfbport port
-			double protocol;
+            double protocol;
             if (i + 1 >= argc) usage();
             protocol = atof(argv[++i]);
-			rfbProtocolMajorVersion = MIN(rfbProtocolMajorVersion, floor(protocol));
-			protocol = protocol-floor(protocol); // Now just the fractional part
-												 // Ok some folks think of it as 3.3 others as 003.003, so let's repeat...
-			while (protocol > 0 && protocol < 1)
-				protocol *= 10;
-			rfbProtocolMinorVersion = MIN(rfbProtocolMinorVersion, rint(protocol));
-			rfbLog("Forcing: " rfbProtocolVersionFormat,rfbProtocolMajorVersion, rfbProtocolMinorVersion);
+            rfbProtocolMajorVersion = MIN(rfbProtocolMajorVersion, floor(protocol));
+            protocol = protocol-floor(protocol); // Now just the fractional part
+                                                 // Ok some folks think of it as 3.3 others as 003.003, so let's repeat...
+            while (protocol > 0 && protocol < 1)
+                protocol *= 10;
+            rfbProtocolMinorVersion = MIN(rfbProtocolMinorVersion, rint(protocol));
+            rfbLog("Forcing: " rfbProtocolVersionFormat,rfbProtocolMajorVersion, rfbProtocolMinorVersion);
         } else if (strcmp(argv[i], "-rfbwait") == 0) {  // -rfbwait ms
             if (i + 1 >= argc) usage();
             rfbMaxClientWait = atoi(argv[++i]);
-		} else if (strcmp(argv[i], "-rfbnoauth") == 0) {
-			allowNoAuth = TRUE;
-			rfbLog("Warning: No Auth specified, running with no password protection");
+        } else if (strcmp(argv[i], "-rfbnoauth") == 0) {
+            allowNoAuth = TRUE;
+            rfbLog("Warning: No Auth specified, running with no password protection");
         } else if (strcmp(argv[i], "-rfbauth") == 0) {  // -rfbauth passwd-file
             if (i + 1 >= argc) usage();
             rfbAuthPasswdFile = argv[++i];
-        } else if (strcmp(argv[i], "-maxauthattempts") == 0) {  
+        } else if (strcmp(argv[i], "-maxauthattempts") == 0) {
             if (i + 1 >= argc) usage();
             rfbMaxLoginAttempts = atoi(argv[++i]);
         } else if (strcmp(argv[i], "-connecthost") == 0) {  // -connect host
             if (i + 1 >= argc) usage();
-			strncpy(reverseHost, argv[++i], 255);
+            strncpy(reverseHost, argv[++i], 255);
             if (strlen(reverseHost) == 0) usage();
         } else if (strcmp(argv[i], "-connectport") == 0) {  // -connect host
             if (i + 1 >= argc) usage();
             reversePort = atoi(argv[++i]);
-		} else if (strcmp(argv[i], "-deferupdate") == 0) {  // -deferupdate ms
+        } else if (strcmp(argv[i], "-deferupdate") == 0) {  // -deferupdate ms
             if (i + 1 >= argc) usage();
             rfbDeferUpdateTime = atoi(argv[++i]);
         } else if (strcmp(argv[i], "-maxdepth") == 0) {  // -maxdepth
             if (i + 1 >= argc) usage();
             rfbMaxBitDepth = atoi(argv[++i]);
-			switch (rfbMaxBitDepth) {
-				case 24:
-					rfbMaxBitDepth = 32;
-					break;
-				case 32:
-				case 16:
-				case 8:
-					break;
-				default:
-					rfbLog("Invalid maxDepth");
-					exit(-1);
-					break;
-			}
+            switch (rfbMaxBitDepth) {
+                case 24:
+                    rfbMaxBitDepth = 32;
+                    break;
+                case 32:
+                case 16:
+                case 8:
+                    break;
+                default:
+                    rfbLog("Invalid maxDepth");
+                    exit(-1);
+                    break;
+            }
         } else if (strcmp(argv[i], "-desktop") == 0) {  // -desktop desktop-name
             if (i + 1 >= argc) usage();
-			strncpy(desktopName, argv[++i], 255);
+            strncpy(desktopName, argv[++i], 255);
         } else if (strcmp(argv[i], "-display") == 0) {  // -display DisplayID
             CGDisplayCount displayCount;
             CGDirectDisplayID activeDisplays[100];
-			
+
             CGGetActiveDisplayList(100, activeDisplays, &displayCount);
-			
+
             if (i + 1 >= argc || atoi(argv[i+1]) >= displayCount)
                 usage();
-			
+
             displayID = activeDisplays[atoi(argv[++i])];
         } else if (strcmp(argv[i], "-alwaysshared") == 0) {
             rfbAlwaysShared = TRUE;
@@ -894,36 +894,36 @@ static void processArguments(int argc, char *argv[]) {
             rfbLocalhostOnly = TRUE;
         } else if (strcmp(argv[i], "-inhibitevents") == 0) {
             rfbInhibitEvents = TRUE;
-		} else if (strcmp(argv[i], "-noupdates") == 0) {
-			rfbShouldSendUpdates = FALSE;
-		} else if (strcmp(argv[i], "-littleendian") == 0) {
-			littleEndian = TRUE;
-		} else if (strcmp(argv[i], "-bigendian") == 0) {
-			littleEndian = FALSE;
-		} else if (strcmp(argv[i], "-ipv6") == 0) { // Ok so the code to enable is in the Bundle, but this disables 4
-			useIP4 = FALSE;
-		} else if (strcmp(argv[i], "-keepregistration") == 0) {
-			unregisterWhenNoConnections = FALSE;
-		} else if (strcmp(argv[i], "-dontkeepregistration") == 0) {
-			unregisterWhenNoConnections = TRUE;
-		} else if (strcmp(argv[i], "-restartonuserswitch") == 0) {
-			if (i + 1 >= argc) 
-				usage();
-			else {
-				char *argument = argv[++i];
-				restartOnUserSwitch = (argument[0] == 'y' || argument[0] == 'Y' || argument[0] == 't' || argument[0] == 'T' || atoi(argument));
-			}
-		} else if (strcmp(argv[i], "-disablelog") == 0) {
-			logEnable = FALSE;
-		} else if (strcmp(argv[i], "-useopengl") == 0) {
-			rfbLog("OpenGL no longer supported");
-		}
-	}
+        } else if (strcmp(argv[i], "-noupdates") == 0) {
+            rfbShouldSendUpdates = FALSE;
+        } else if (strcmp(argv[i], "-littleendian") == 0) {
+            littleEndian = TRUE;
+        } else if (strcmp(argv[i], "-bigendian") == 0) {
+            littleEndian = FALSE;
+        } else if (strcmp(argv[i], "-ipv6") == 0) { // Ok so the code to enable is in the Bundle, but this disables 4
+            useIP4 = FALSE;
+        } else if (strcmp(argv[i], "-keepregistration") == 0) {
+            unregisterWhenNoConnections = FALSE;
+        } else if (strcmp(argv[i], "-dontkeepregistration") == 0) {
+            unregisterWhenNoConnections = TRUE;
+        } else if (strcmp(argv[i], "-restartonuserswitch") == 0) {
+            if (i + 1 >= argc)
+                usage();
+            else {
+                char *argument = argv[++i];
+                restartOnUserSwitch = (argument[0] == 'y' || argument[0] == 'Y' || argument[0] == 't' || argument[0] == 'T' || atoi(argument));
+            }
+        } else if (strcmp(argv[i], "-disablelog") == 0) {
+            logEnable = FALSE;
+        } else if (strcmp(argv[i], "-useopengl") == 0) {
+            rfbLog("OpenGL no longer supported");
+        }
+    }
 
-	if (!rfbAuthPasswdFile && !allowNoAuth && !reverseHost) {
-		rfbLog("ERROR: No authentication specified, use -rfbauth passwordfile OR -rfbnoauth");
-		exit (255);
-	}
+    if (!rfbAuthPasswdFile && !allowNoAuth && !reverseHost) {
+        rfbLog("ERROR: No authentication specified, use -rfbauth passwordfile OR -rfbnoauth");
+        exit (255);
+    }
 }
 
 void rfbShutdown(void) {
@@ -935,35 +935,35 @@ void rfbShutdown(void) {
 
     rfbDebugLog("Removing Observers");
     [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver: vncServerObject];
-	[[NSNotificationCenter defaultCenter] removeObserver:vncServerObject];
-	[[NSDistributedNotificationCenter defaultCenter] removeObserver:vncServerObject];
+    [[NSNotificationCenter defaultCenter] removeObserver:vncServerObject];
+    [[NSDistributedNotificationCenter defaultCenter] removeObserver:vncServerObject];
 
     if (rfbDisableScreenSaver) {
         /* remove the screensaver timer */
         RemoveEventLoopTimer(screensaverTimer);
         DisposeEventLoopTimerUPP(screensaverTimerUPP);
     }
-	
-	if (nonBlocking) {
-		keepRunning = NO;
-		pthread_join(listener_thread,NULL);
-	}
-	
+
+    if (nonBlocking) {
+        keepRunning = NO;
+        pthread_join(listener_thread,NULL);
+    }
+
     rfbDebugLog("RFB Shudown Complete");
 }
 
 static void executeEventLoop (int signal) {
-	pthread_cond_signal(&listenerGotNewClient);	
+    pthread_cond_signal(&listenerGotNewClient);
 }
-	
+
 static void rfbShutdownOnSignal(int signal) {
     rfbLog("OSXvnc-server received signal: %d\n", signal);
     rfbShutdown();
 
-	if (signal == SIGTERM)
-		exit (0);
-	else
-		exit (signal);
+    if (signal == SIGTERM)
+        exit (0);
+    else
+        exit (signal);
 }
 
 void daemonize( void ) {
@@ -979,11 +979,11 @@ void daemonize( void ) {
     // Ignore signals here
     signal(SIGHUP, SIG_IGN);
     signal(SIGPIPE, SIG_IGN);
-	// Shutdown on these
+    // Shutdown on these
     signal(SIGTERM, rfbShutdownOnSignal);
     signal(SIGINT, rfbShutdownOnSignal);
     signal(SIGQUIT, rfbShutdownOnSignal);
-    
+
     // Fork a second new process
     if ( fork( ) != 0 )
         exit( 0 );
@@ -999,81 +999,81 @@ void daemonize( void ) {
 }
 
 int scanForOpenPort() {
-	int tryPort = 5900;
+    int tryPort = 5900;
     int listen_fd4=0;
     int value=1;
-	struct sockaddr_in sin4;	
+    struct sockaddr_in sin4;
 
-	bzero(&sin4, sizeof(sin4));
-	sin4.sin_len = sizeof(sin4);
-	sin4.sin_family = AF_INET;
-	
+    bzero(&sin4, sizeof(sin4));
+    sin4.sin_len = sizeof(sin4);
+    sin4.sin_family = AF_INET;
+
 //    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnly"])
-//		sin4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-//    else 
-	sin4.sin_addr.s_addr = htonl(INADDR_ANY);
-    
-	while (tryPort < 5910) {
-		sin4.sin_port = htons(tryPort);
-		
-		if ((listen_fd4 = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-			//NSLog(@"Socket Init failed %d\n", tryPort);
-		}
-		else if (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0) {
-			//rfbLogPerror("fcntl O_NONBLOCK failed\n");
-		}
-		else if (setsockopt(listen_fd4, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-			//NSLog(@"setsockopt SO_REUSEADDR failed %d\n", tryPort);
-		}
-		else if (bind(listen_fd4, (struct sockaddr *) &sin4, sizeof(sin4)) < 0) {
-			//NSLog(@"Failed to Bind Socket: Port %d may be in use by another VNC\n", tryPort);
-		}
-		else if (listen(listen_fd4, 5) < 0) {
-			//NSLog(@"Listen failed %d\n", tryPort);
-		}
-		else {
-			close(listen_fd4);
-			
-			return tryPort;
-		}
-		close(listen_fd4);
-		
-		tryPort++;
-	}
-	
-	rfbLog("Unable to find open port 5900-5909");
-	
-	return 0;
+//        sin4.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+//    else
+    sin4.sin_addr.s_addr = htonl(INADDR_ANY);
+
+    while (tryPort < 5910) {
+        sin4.sin_port = htons(tryPort);
+
+        if ((listen_fd4 = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
+            //NSLog(@"Socket Init failed %d\n", tryPort);
+        }
+        else if (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0) {
+            //rfbLogPerror("fcntl O_NONBLOCK failed\n");
+        }
+        else if (setsockopt(listen_fd4, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
+            //NSLog(@"setsockopt SO_REUSEADDR failed %d\n", tryPort);
+        }
+        else if (bind(listen_fd4, (struct sockaddr *) &sin4, sizeof(sin4)) < 0) {
+            //NSLog(@"Failed to Bind Socket: Port %d may be in use by another VNC\n", tryPort);
+        }
+        else if (listen(listen_fd4, 5) < 0) {
+            //NSLog(@"Listen failed %d\n", tryPort);
+        }
+        else {
+            close(listen_fd4);
+
+            return tryPort;
+        }
+        close(listen_fd4);
+
+        tryPort++;
+    }
+
+    rfbLog("Unable to find open port 5900-5909");
+
+    return 0;
 }
 
-BOOL runningLittleEndian ( void ) {	
-	return (CFByteOrderGetCurrent() == CFByteOrderLittleEndian);
-	/*
-	 // rosetta is so complete that it obsucres even CFByteOrderGetCurrent
+BOOL runningLittleEndian ( void ) {
+    return (CFByteOrderGetCurrent() == CFByteOrderLittleEndian);
+    /*
+     // rosetta is so complete that it obsucres even CFByteOrderGetCurrent
     int hasMMX = 0;
     size_t length = sizeof(hasMMX);
-	 // No Error and it does have MMX
-	 return (!sysctlbyname("hw.optional.mmx", &hasMMX, &length, NULL, 0) && hasMMX);
-	 */
+     // No Error and it does have MMX
+     return (!sysctlbyname("hw.optional.mmx", &hasMMX, &length, NULL, 0) && hasMMX);
+     */
 }
-	
+
 int main(int argc, char *argv[]) {
-	NSAutoreleasePool *tempPool = [[NSAutoreleasePool alloc] init];
+    NSAutoreleasePool *tempPool = [[NSAutoreleasePool alloc] init];
     vncServerObject = [[VNCServer alloc] init];
-	littleEndian = runningLittleEndian();
+    littleEndian = runningLittleEndian();
     checkForUsage(argc,argv);
-    
-	// The bug with unregistering from user updates may have been fixed in 10.4 Tiger
-	if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_3))
-		unregisterWhenNoConnections = TRUE;
-	
-    // This guarantees separating us from any terminal - 
-	// Right now this causes problems with the keep-alive script and the GUI app (since it causes the process to return right away)
-	// it allows you to survive when launched in SSH, etc but doesn't solves the problem of being killed on GUI logout.
-	// It also doesn't help with any of the pasteboard security issues, those requires secure sessionID's, see:
-	// http://developer.apple.com/documentation/MacOSX/Conceptual/BPMultipleUsers/index.html
-	// 
-	// daemonize();
+
+    // The bug with unregistering from user updates may have been fixed in 10.4 Tiger
+    if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_3))
+        unregisterWhenNoConnections = TRUE;
+
+    // This guarantees separating us from any terminal -
+    // Right now this causes problems with the keep-alive script and the GUI app (since it causes the process to return right away)
+    // it allows you to survive when launched in SSH, etc but doesn't solves the problem of being killed on GUI logout.
+    // It also doesn't help with any of the pasteboard security issues, those requires secure sessionID's, see:
+    // http://developer.apple.com/documentation/MacOSX/Conceptual/BPMultipleUsers/index.html
+    //
+    // daemonize();
 
     // Let's not shutdown on a SIGHUP at some point perhaps we can use that to reload configuration
     signal(SIGHUP, SIG_IGN);
@@ -1087,27 +1087,27 @@ int main(int argc, char *argv[]) {
     pthread_mutex_init(&listenerAccepting, NULL);
     pthread_cond_init(&listenerGotNewClient, NULL);
 
-	[[NSUserDefaults standardUserDefaults] addSuiteNamed:@"com.redstonesoftware.VineServer"];
-	
+    [[NSUserDefaults standardUserDefaults] addSuiteNamed:@"com.redstonesoftware.VineServer"];
+
     processArguments(argc, argv);
 
-	if (rfbPort == 0)
-		rfbPort = scanForOpenPort();
+    if (rfbPort == 0)
+        rfbPort = scanForOpenPort();
 
-	loadDynamicBundles(TRUE);
-	
-	// If no Desktop Name Provided Try to Get it
-	if (strlen(desktopName) == 0) {
-		gethostname(desktopName, 256);
-	}
-	
-	if (!rfbScreenInit())
-		exit(1);
+    loadDynamicBundles(TRUE);
+
+    // If no Desktop Name Provided Try to Get it
+    if (strlen(desktopName) == 0) {
+        gethostname(desktopName, 256);
+    }
+
+    if (!rfbScreenInit())
+        exit(1);
 
     rfbClientListInit();
     rfbDimmingInit();
-	rfbAuthInit();
-	initPasteboard();
+    rfbAuthInit();
+    initPasteboard();
 
     // Register for User Switch Notification
     // This works on pre-Panther systems since the Notification just wont get called
@@ -1121,30 +1121,30 @@ int main(int argc, char *argv[]) {
                                                                    name: NSWorkspaceSessionDidResignActiveNotification
                                                                  object:nil];
     }
-    
-	{
-		// Setup Notifications so other Bundles can post user connect
-		[[NSNotificationCenter defaultCenter] addObserver:vncServerObject
-												 selector:@selector(clientConnected:)
-													 name:@"NewRFBClient"
-												   object:nil];
 
-		// Setup Notifications so we can add listening hosts
-		[[NSDistributedNotificationCenter defaultCenter] addObserver:vncServerObject 
-															selector:@selector(connectHost:)
-																name:@"VNCConnectHost" 
-															  object:[NSString stringWithFormat:@"OSXvnc%d", rfbPort]];
-	}
-	
+    {
+        // Setup Notifications so other Bundles can post user connect
+        [[NSNotificationCenter defaultCenter] addObserver:vncServerObject
+                                                 selector:@selector(clientConnected:)
+                                                     name:@"NewRFBClient"
+                                                   object:nil];
+
+        // Setup Notifications so we can add listening hosts
+        [[NSDistributedNotificationCenter defaultCenter] addObserver:vncServerObject
+                                                            selector:@selector(connectHost:)
+                                                                name:@"VNCConnectHost"
+                                                              object:[NSString stringWithFormat:@"OSXvnc%d", rfbPort]];
+    }
+
     // Does this need to be in 10.1 and greater (does any of this stuff work in 10.0?)
     if (!rfbInhibitEvents) {
         //NSLog(@"Core Graphics - Event Suppression Turned Off");
         // This seems to actually sometimes inhibit REMOTE events as well, but all the same let's let everything pass through for now
         //        CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateSupressionInterval);
-        //        CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateRemoteMouseDrag);		
+        //        CGSetLocalEventsFilterDuringSupressionState(kCGEventFilterMaskPermitAllEvents, kCGEventSupressionStateRemoteMouseDrag);
     }
-	// Better to handle this at the event level, see kbdptr.c
-	//CGEnableEventStateCombining(FALSE);
+    // Better to handle this at the event level, see kbdptr.c
+    //CGEnableEventStateCombining(FALSE);
 
     if (rfbDisableScreenSaver) {
         /* setup screen saver disabling timer */
@@ -1157,37 +1157,37 @@ int main(int argc, char *argv[]) {
                               &screensaverTimer);
     }
 
-	nonBlocking = [[NSUserDefaults standardUserDefaults] boolForKey:@"NonBlocking"];
+    nonBlocking = [[NSUserDefaults standardUserDefaults] boolForKey:@"NonBlocking"];
     pthread_create(&listener_thread, NULL, listenerRun, NULL);
-	
-	if (strlen(reverseHost) > 0)
-		connectReverseClient(reverseHost, reversePort);
-	
+
+    if (strlen(reverseHost) > 0)
+        connectReverseClient(reverseHost, reversePort);
+
     // This segment is what is responsible for causing the server to shutdown when a user logs out
     // The problem being that OS X sends it first a SIGTERM and then a SIGKILL (un-trappable)
     // Presumable because it's running a Carbon Event loop
     if (1) {
         OSStatus resultCode = 0;
-		
+
         while (keepRunning) {
             // No Clients - go into hibernation
             if (!rfbClientsConnected()) {
-				pthread_mutex_lock(&listenerAccepting);
-				
-				// You would think that there is no point in getting screen updates with no clients connected
-				// But it seems that unregistering but keeping the process (or event loop) around can cause a stuttering behavior in OS X.
-				if (registered && unregisterWhenNoConnections) {
-					rfbLog("UnRegistering Screen Update Notification - waiting for clients\n");
-					CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
-					[[VNCServer sharedServer] rfbDisconnect];
-					registered = NO;
-				}
-				else
-					rfbLog("Waiting for clients\n");
-				
-				pthread_cond_wait(&listenerGotNewClient, &listenerAccepting);
-				pthread_mutex_unlock(&listenerAccepting);
-			}
+                pthread_mutex_lock(&listenerAccepting);
+
+                // You would think that there is no point in getting screen updates with no clients connected
+                // But it seems that unregistering but keeping the process (or event loop) around can cause a stuttering behavior in OS X.
+                if (registered && unregisterWhenNoConnections) {
+                    rfbLog("UnRegistering Screen Update Notification - waiting for clients\n");
+                    CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
+                    [[VNCServer sharedServer] rfbDisconnect];
+                    registered = NO;
+                }
+                else
+                    rfbLog("Waiting for clients\n");
+
+                pthread_cond_wait(&listenerGotNewClient, &listenerAccepting);
+                pthread_mutex_unlock(&listenerAccepting);
+            }
             [[VNCServer sharedServer] rfbPoll];
 
             rfbCheckForPasteboardChange();
@@ -1208,15 +1208,15 @@ int main(int argc, char *argv[]) {
         CGRectCount rectCount;
         CGRect *rectArray;
         CGEventErr result;
-		
+
         result = CGWaitForScreenRefreshRects( &rectArray, &rectCount );
         refreshCallback(rectCount, rectArray, NULL);
         CGReleaseScreenRefreshRects( rectArray );
     };
-		
-	[tempPool release];
-	
-	rfbShutdown();
-	
+
+    [tempPool release];
+
+    rfbShutdown();
+
     return 0;
 }
