@@ -47,6 +47,25 @@ SOFTWARE.
 ******************************************************************/
 #ifndef XMD_H
 #define XMD_H 1
+
+#if 1
+#include <stdint.h>
+#define B16 :16
+#define B32 :32
+typedef int8_t INT8;
+typedef int16_t INT16;
+typedef int32_t INT32;
+typedef int8_t BOOL;
+#ifndef __EMX__
+#endif
+typedef uint32_t BITS32;
+typedef uint8_t BYTE;
+typedef uint8_t CARD8;
+typedef uint16_t CARD16;
+typedef uint32_t CARD32;
+typedef uint64_t CARD64;
+#else
+
 /* $XConsortium: Xmd.h,v 1.49 95/06/08 23:20:39 gildea Exp $ */
 /* $XFree86: xc/include/Xmd.h,v 3.4 1996/12/31 04:15:20 dawes Exp $ */
 /*
@@ -207,5 +226,7 @@ typedef CARD8           BOOL;
  */  
 #define NEXTPTR(p,t) (((t *)(p)) + 1)
 #endif /* MUSTCOPY - used machines whose C structs don't line up with proto */
+
+#endif /* 0 */
 
 #endif /* XMD_H */
