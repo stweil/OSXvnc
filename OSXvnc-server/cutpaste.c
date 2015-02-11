@@ -79,18 +79,18 @@
 
 @interface NSData (RSDataAdditions)
 
-- (unsigned int) locationOfData:(NSData *)target startingAtLocation:(unsigned int)startLoc;
+- (NSUInteger) locationOfData:(NSData *)target startingAtLocation:(NSUInteger)startLoc;
 - (NSMutableArray *) dataComponentsSeparatedByData:(NSData *)separator;
 
 @end
 	
 @implementation NSData (RSDataAdditions)
 
-- (unsigned int) locationOfData:(NSData *)target startingAtLocation:(unsigned int)startLoc {
+- (NSUInteger) locationOfData:(NSData *)target startingAtLocation:(NSUInteger)startLoc {
 	char *myBytes = (char *)[self bytes];
 	char *targetBytes = (char *)[target bytes];
-	unsigned int targetLen = [target length];
-	unsigned int loc, inner;
+	NSUInteger targetLen = [target length];
+	NSUInteger loc, inner;
 	for (loc = startLoc; loc+targetLen < [self length]; loc++) {
 		BOOL found = YES; // assume we will match at this loc until disproven
 		for (inner = 0; found && inner < targetLen; inner++) {
@@ -105,8 +105,8 @@
 
 - (NSMutableArray *) dataComponentsSeparatedByData:(NSData *)separator {
 	NSMutableArray *array = [NSMutableArray array];
-	unsigned int prevLoc = 0;
-	unsigned int nextLoc = [self locationOfData:separator startingAtLocation:0];
+	NSUInteger prevLoc = 0;
+	NSUInteger nextLoc = [self locationOfData:separator startingAtLocation:0];
 	while (nextLoc != NSNotFound) {
 		[array addObject:[self subdataWithRange:NSMakeRange(prevLoc, nextLoc - prevLoc)]];
 		prevLoc = nextLoc + [separator length];
@@ -876,7 +876,7 @@ void rfbReceiveRichClipboardAvailable(rfbClientPtr cl) {
 			pthread_mutex_unlock(&cl->updateMutex);
 			
 			//if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_2) //We're just disabling rich clipboards below 10.2
-			int flstIndex = [availableTypes indexOfObject:CorePasteboardFlavor_flst];
+			NSUInteger flstIndex = [availableTypes indexOfObject:CorePasteboardFlavor_flst];
 			if (flstIndex != NSNotFound) {
 				availableTypes = [[availableTypes mutableCopy] autorelease];
 				[(NSMutableArray *)availableTypes removeObjectAtIndex:flstIndex]; // don't declare flst
