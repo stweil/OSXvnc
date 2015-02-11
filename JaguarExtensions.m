@@ -283,9 +283,4 @@ rfbserver *theServer;
 	return CGMainDisplayID();
 }
 
-- (struct hostent *) getHostByName:(char *) host {
-	return gethostbyname(host);
-}
-
 @end
-

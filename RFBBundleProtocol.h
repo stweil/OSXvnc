@@ -43,6 +43,5 @@
 @interface NSProcessInfo (VNCExtension)
 
 - (CGDirectDisplayID) CGMainDisplayID;
-- (struct hostent *) getHostByName:(char *) host;
 
 @end

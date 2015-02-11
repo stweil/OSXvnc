@@ -133,7 +133,6 @@ rfbClientPtr rfbReverseConnection(char *host, int port) {
 	struct addrinfo *res, *res0, hint;
 	int errCode;
     rfbClientPtr cl;
-
 	
 	{
 		// Old IPV4 stuff
@@ -144,10 +143,7 @@ rfbClientPtr rfbReverseConnection(char *host, int port) {
 		sin.sin_addr.s_addr = inet_addr(host);
 		sin.sin_port = htons(port);
 		if ((int)sin.sin_addr.s_addr == -1) {
-			struct hostent *hostinfo = NULL;
-			//gethostbyname is NOT compatible with 10.1, we'll try calling a cover method on the Jaguar Bundle
-			if ([[NSProcessInfo processInfo] respondsToSelector:@selector(getHostByName:)])
-				hostinfo = (struct hostent *) [[NSProcessInfo processInfo] performSelector:@selector(getHostByName:) withObject:(id)host];
+			struct hostent *hostinfo = gethostbyname(host);
 			if (hostinfo && hostinfo->h_addr) {
 				sin.sin_addr.s_addr = ((struct in_addr *)hostinfo->h_addr)->s_addr;
 			}
