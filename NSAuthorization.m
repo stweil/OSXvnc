@@ -71,7 +71,7 @@
     free(copyArguments);
     
     if (myStatus != errAuthorizationSuccess)
-        NSLog(@"Error: Executing %@ with Authorization: %ld", command, myStatus);
+        NSLog(@"Error: Executing %@ with Authorization: %d", command, (int)myStatus);
 
     return (myStatus == errAuthorizationSuccess);
 }
