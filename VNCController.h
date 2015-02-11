@@ -98,7 +98,7 @@
     IBOutlet NSTextField *connectPort;
 	IBOutlet NSTextField *reverseConnectionMessageField;
 	
-	// Inital Settings UI
+	// Initial Settings UI
 	IBOutlet NSWindow *initialWindow;
 	IBOutlet NSTextField *initialPasswordText;
 	IBOutlet NSMatrix *initialAuthenticationType;
