@@ -173,7 +173,7 @@ void refreshCallback(CGRectCount count, const CGRect *rectArray, void *ignore) {
     BoxRec box;
     RegionRec region;
     rfbClientIteratorPtr iterator;
-    rfbClientPtr cl = NULL;
+    rfbClientPtr cl;
     int i;
 
     for (i = 0; i < count; i++) {
@@ -407,7 +407,7 @@ void *clientInput(void *data) {
     rfbClientPtr cl = (rfbClientPtr)data;
     pthread_t output_thread;
 
-    pthread_create(&output_thread, NULL, clientOutput, (void *)cl);
+    pthread_create(&output_thread, NULL, clientOutput, cl);
 
     while (1) {
         [[VNCServer sharedServer] rfbReceivedClientMessage];
