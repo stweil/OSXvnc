@@ -42,14 +42,8 @@
 //#include "Keyboards.h"
 //#import <Carbon/Carbon.h>
 //#include <ApplicationServices/ApplicationServices.h>
-//#include "CoreGraphics/CGGeometry.h"
-#ifndef COREGRAPHICS_H_
-struct CGPoint {
-    float x;
-    float y;
-};
-typedef struct CGPoint CGPoint;
-#endif
+
+#include "CoreGraphics/CGGeometry.h"
 
 #define MAX_ENCODINGS 17
 
@@ -323,7 +317,7 @@ typedef struct rfbClientRec {
 
 #define UPDATE_BUF_SIZE 30000
     char updateBuf[UPDATE_BUF_SIZE];
-    int ublen;
+    uint32_t ublen;
     
     struct rfbClientRec *prev;
     struct rfbClientRec *next;
