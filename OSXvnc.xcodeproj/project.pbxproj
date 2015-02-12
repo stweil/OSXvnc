@@ -441,8 +441,6 @@
 		F58DDDE7056A861001A8015E /* VNCServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VNCServer.h; sourceTree = "<group>"; };
 		F58DDDE8056A861001A8015E /* VNCServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VNCServer.m; sourceTree = "<group>"; };
 		F5C9A8F1038C6F5D01A80117 /* mousecursor.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = mousecursor.c; sourceTree = "<group>"; };
-		F5C9A8F4038C747101A80117 /* localbuffer.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = localbuffer.c; sourceTree = "<group>"; };
-		F5C9A8F5038C747101A80117 /* localbuffer.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = localbuffer.h; sourceTree = "<group>"; };
 		F5C9A8F6038C74D301A80117 /* CGS.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = CGS.h; sourceTree = "<group>"; };
 		F5C9B02C038DA64501A80117 /* zrle.cc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = zrle.cc; sourceTree = "<group>"; };
 		F5C9B02F038DA99401A80117 /* Exception.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Exception.h; sourceTree = "<group>"; };
@@ -599,7 +597,6 @@
 				F5C9A8F6038C74D301A80117 /* CGS.h */,
 				F538E11302F9812C01A80186 /* rfb.h */,
 				F538E11402F9812C01A80186 /* rfbproto.h */,
-				F5C9A8F5038C747101A80117 /* localbuffer.h */,
 				F538E01002F9812901A80186 /* auth.c */,
 				F538E01302F9812901A80186 /* corre.c */,
 				919999420B11348C0099EA7A /* getMACAddress.h */,
@@ -610,7 +607,6 @@
 				F538E01602F9812901A80186 /* hextile.c */,
 				AB82E81904FA629800A80117 /* kbdptr.h */,
 				F538E03502F9812901A80186 /* kbdptr.c */,
-				F5C9A8F4038C747101A80117 /* localbuffer.c */,
 				F538E10E02F9812C01A80186 /* main.c */,
 				F538E11002F9812C01A80186 /* miregion.c */,
 				AB82E81D04FA6D0A00A80117 /* rfbserver.h */,

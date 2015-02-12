@@ -15,7 +15,6 @@
 
 #include "rfb.h"
 //#import "rfbproto.h"
-//#include "localbuffer.h"
 #include "pthread.h"
 
 #include "CGS.h"

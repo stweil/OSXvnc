@@ -36,7 +36,6 @@
 #include <sys/sysctl.h>
 
 #include "rfb.h"
-//#include "localbuffer.h"
 
 #include "rfbserver.h"
 #import "VNCServer.h"
