@@ -4,7 +4,7 @@
 
 typedef struct rfbserver {
 	id vncServer;
-	
+
 	char *desktopName;
 	int rfbPort;
 	BOOL rfbLocalhostOnly;
@@ -15,7 +15,7 @@ typedef struct rfbserver {
     /*
     ScreenRec hackScreen;
     rfbScreenInfo rfbScreen;
-	 
+
     Bool rfbAlwaysShared;
     Bool rfbNeverShared;
     Bool rfbDontDisconnect;
@@ -31,9 +31,9 @@ typedef struct rfbserver {
     int rfbMaxClientWait;
 
      */
-    
+
     /*
-    // rfbserver.c 
+    // rfbserver.c
 
     rfbClientPtr pointerClient;
 
@@ -46,7 +46,7 @@ typedef struct rfbserver {
     rfbPixelFormat *rfbServerFormat;
 
 
-    // httpd.c 
+    // httpd.c
 
     int *httpPort;
     char *httpDir;
@@ -60,7 +60,7 @@ typedef struct rfbserver {
 
     Bool rfbTightDisableGradient;
 
-    // stats.c 
+    // stats.c
 
     char* encNames[];
 

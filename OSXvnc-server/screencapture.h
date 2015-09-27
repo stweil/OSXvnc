@@ -13,19 +13,19 @@
 typedef struct screen_data_t
 {
 	CGLContextObj screen;
-	
+
 	CGLContextObj scaled;
 	char *scaled_image;
-	
+
 	GLuint texture;
-	char *texture_image;	
-	
+	char *texture_image;
+
 	// Data capture from screen
 	unsigned char * data_return;
-	
+
 	int screen_width;
 	int screen_height;
-	
+
 	int offscreen_width;
 	int offscreen_height;
 } screen_data_t;

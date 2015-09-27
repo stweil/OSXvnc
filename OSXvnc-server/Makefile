@@ -3,7 +3,7 @@ CXX=cc
 CFLAGS=-O3 -Wall -ObjC
 CXXFLAGS=-g -Wall
 INCLUDES=-I. -Ilibvncauth -Iinclude -Iinclude/X11 -Iinclude/Xserver -Ilibjpeg
-VNCAUTHLIB=-Llibvncauth -lvncauth 
+VNCAUTHLIB=-Llibvncauth -lvncauth
 SUPPORTLIB=-lz -Llibjpeg -ljpeg
 RDRLIB=-Lrdr -lrdr
 EXTRALIBS=-lstdc++
@@ -21,7 +21,7 @@ all: OSXvnc-server storepasswd
 
 install:
 
-.m.o: 
+.m.o:
 	$(CC) $(CFLAGS) $(INCLUDES) -c $<
 
 .c.o:
@@ -29,9 +29,9 @@ install:
 
 .cc.o:
 	$(CXX) $(CXXFLAGS) $(INCLUDES) -c $<
-        
+
 OSXvnc-server: $(OBJS) libvncauth/libvncauth.a libjpeg/libjpeg.a rdr/librdr.a
-	$(CC) -o OSXvnc-server $(OBJS) $(LIBS) 
+	$(CC) -o OSXvnc-server $(OBJS) $(LIBS)
 
 storepasswd: storepasswd.o libvncauth/libvncauth.a
 	$(CC) -o storepasswd storepasswd.o $(VNCAUTHLIB)

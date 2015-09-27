@@ -1,8 +1,8 @@
 /*
  * $XConsortium: Xfuncs.h,v 1.16 94/12/01 16:25:53 kaleb Exp $
  * $XFree86: xc/include/Xfuncs.h,v 3.2 1995/01/28 15:42:03 dawes Exp $
- * 
- * 
+ *
+ *
 Copyright (c) 1990  X Consortium
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

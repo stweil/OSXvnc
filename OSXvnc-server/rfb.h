@@ -4,7 +4,7 @@
 
 /*
  *  OSXvnc Copyright (C) 2001  *  OSXvnc Copyright (C) 2002-2004 Redstone Software osxvnc@redstonesoftware.comGuirk <mcguirk@incompleteness.net>.
- *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.  
+ *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.
  *  All Rights Reserved.
  *
  *  This is free software; you can redistribute it and/or modify
@@ -178,7 +178,7 @@ typedef struct rfbClientRec {
      * larger than the raw data or if it exceeds zlibAfterBufSize then
      * raw encoding is used instead.
      */
-    
+
     int client_zlibBeforeBufSize;
     char *client_zlibBeforeBuf;
 
@@ -194,7 +194,7 @@ typedef struct rfbClientRec {
 #define zlibAfterBufSize  cl->client_zlibAfterBufSize
 #define zlibAfterBuf      cl->client_zlibAfterBuf
 #define zlibAfterBufLen   cl->client_zlibAfterBufLen
-    
+
     /* tight encoding -- preserve zlib streams' state for each client */
 
     z_stream zsStruct[4];
@@ -212,12 +212,12 @@ typedef struct rfbClientRec {
     Bool reverseConnection;
     Bool readyForSetColourMapEntries;
     Bool useCopyRect;
-    
+
     int preferredEncoding;
-    
+
     /* tight encoding -- This variable is set on every rfbSendRectEncodingTight() call. */
     Bool usePixelFormat24;
-    
+
     /* tight encoding -- Compression level stuff. */
 
     int compressLevel;
@@ -278,7 +278,7 @@ typedef struct rfbClientRec {
     Bool disableRemoteEvents;      // Ignore PB, Keyboard and Mouse events
     Bool swapMouseButtons23;       // How to interpret mouse buttons 2 & 3
     Bool immediateUpdate;          // To request that we get immediate updates (even 0 rects)
-	
+
 	Bool richClipboardSupport;     // Client has indicated they support rich clipboards
 	void *richClipboardChangeCounts; // Dictionary of local ChangeCount NSNumbers stored by PB Name
 
@@ -288,24 +288,24 @@ typedef struct rfbClientRec {
 	char *richClipboardType;
 	void *richClipboardNSData;
 	int   richClipboardDataChangeCount;
-	
+
 	void *richClipboardReceivedName;
 	void *richClipboardReceivedType;
 	void *richClipboardReceivedNSData;
 	void *receivedFileTempFolder;
 	int   richClipboardReceivedChangeCount;
-	
-	
+
+
     int generalPBLastChange;      // Used to see if we need to send the latest general PB
-	
+
 	// Cursor Info
-	
+
     int currentCursorSeed;         // Used to see if we need to send a new cursor
     CGPoint clientCursorLocation;  // The last location the client left the mouse at
 
     BOOL needNewScreenSize;        // Flag to indicate we must send a new screen resolution
     BOOL modiferKeys[256];         // BOOL Array to record which keys THIS user has down, if they disconnect we will release those keys
-    
+
     /* REDSTONE - These (updateBuf, ublen) need to be in the CL, not global, for multiple clients */
 	screen_data_t * p_data;
 
@@ -318,7 +318,7 @@ typedef struct rfbClientRec {
 #define UPDATE_BUF_SIZE 30000
     char updateBuf[UPDATE_BUF_SIZE];
     uint32_t ublen;
-    
+
     struct rfbClientRec *prev;
     struct rfbClientRec *next;
 } rfbClientRec, *rfbClientPtr;
@@ -335,7 +335,7 @@ typedef struct rfbClientRec {
 
 /*
  * This macro creates an empty region (ie. a region with no areas) if it is
- * given a rectangle with a width or height of zero. It appears that 
+ * given a rectangle with a width or height of zero. It appears that
  * REGION_INTERSECT does not quite do the right thing with zero-width
  * rectangles, but it should with completely empty regions.
  */

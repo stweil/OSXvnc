@@ -47,14 +47,14 @@ char *vncEncryptPasswd(const char *passwd) {
 
 	// Handles copying 0's into extra space
 	strncpy((char *)encryptedPasswd, passwd, 8);
-	
+
     /* Do encryption in-place - this way we overwrite our copy of the plaintext password */
     deskey(fixedkey, EN0);
     des(encryptedPasswd, encryptedPasswd);
-	
+
 	returnPass = malloc(8);
 	strncpy(returnPass, (const char *) encryptedPasswd, 8);
-	
+
     return (char *)returnPass;
 }
 
@@ -93,7 +93,7 @@ vncEncryptAndStorePasswd(char *passwd, char *fname)
     for (i = 0; i < 8; i++) {
 	putc(encryptedPasswd[i], fp);
     }
-  
+
     fclose(fp);
     return 0;
 }
@@ -147,7 +147,7 @@ vncRandomBytes(unsigned char *bytes)
 
     srandom(seed);
     for (i = 0; i < CHALLENGESIZE; i++) {
-	bytes[i] = (unsigned char)(random() & 255);    
+	bytes[i] = (unsigned char)(random() & 255);
     }
 }
 

@@ -47,7 +47,7 @@
 
 Bool Must_have_memory = FALSE;
 
-unsigned long * 
+unsigned long *
 Xalloc (amount)
     unsigned long amount;
 {
@@ -55,7 +55,7 @@ Xalloc (amount)
     char                *malloc();
 #endif
     register pointer  ptr;
-        
+
     if ((long)amount <= 0) {
         return (unsigned long *)NULL;
     }
@@ -75,7 +75,7 @@ Xalloc (amount)
 }
 
 /*****************
- * XNFalloc 
+ * XNFalloc
  * "no failure" realloc, alternate interface to Xalloc w/o Must_have_memory
  *****************/
 
@@ -154,9 +154,9 @@ Xrealloc (ptr, amount)
         FatalError("Out of memory");
     return (unsigned long *)NULL;
 }
-                    
+
 /*****************
- * XNFrealloc 
+ * XNFrealloc
  * "no failure" realloc, alternate interface to Xrealloc w/o Must_have_memory
  *****************/
 
@@ -174,15 +174,15 @@ XNFrealloc (ptr, amount)
 
 /*****************
  *  Xfree
- *    calls free 
- *****************/    
+ *    calls free
+ *****************/
 
 void
 Xfree(ptr)
     register pointer ptr;
 {
     if (ptr)
-        free((char *)ptr); 
+        free((char *)ptr);
 }
 
 void

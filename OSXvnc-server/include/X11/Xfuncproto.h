@@ -1,6 +1,6 @@
 /* $XConsortium: Xfuncproto.h,v 1.9 95/06/08 23:20:39 gildea Exp $ */
-/* 
- * 
+/*
+ *
 Copyright (c) 1989, 1991  X Consortium
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

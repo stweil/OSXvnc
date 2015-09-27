@@ -21,38 +21,38 @@
 	NSNetService *rfbService;
 	NSNetService *vncService;
 	BOOL keyboardLoading;
-	
+
 	TISInputSourceRef loadedKeyboardRef;
 	BOOL useIP6;
 	BOOL listenerFinished;
-	
+
 	rfbserver *theServer;
-	
+
 	BOOL readyToStartup;
 	BOOL dynamicKeyboard;
     // This flag will try to change the modifier key state to the required set for the unicode key that came in
     BOOL pressModsForKeys;
 	CGEventSourceRef vncSourceRef;
 	CGEventTapLocation vncTapLocation;
-	
+
 	TISInputSourceRef unicodeInputSource;
 	TISInputSourceRef currentInputSource;
-	
+
 	// Current Modifiers reflect the "global" state of the modifier keys (not a particular VNC connection)
 	// This only matters for event taps.  Ideally we could detect their values but
 	// that seems to require an active event loop.
 	CGEventFlags currentModifiers;
-    
+
     CGKeyCode keyTable[keyTableSize];
     unsigned char keyTableMods[keyTableSize]; // 8 Bits for Modifier Keys
-    
+
     // The Keycodes to various modifiers on the current keyboard
     CGKeyCode keyCodeShift;
     CGKeyCode keyCodeOption;
     CGKeyCode keyCodeControl;
     CGKeyCode keyCodeCommand;
-    
-    int modifierDelay;    
+
+    int modifierDelay;
 }
 
 + sharedServer;

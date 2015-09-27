@@ -1,8 +1,8 @@
 /*
  * $XConsortium: Xos.h /main/70 1996/11/15 16:00:41 kaleb $
  * $XFree86: xc/include/Xos.h,v 3.21.2.1 1998/01/23 12:35:11 dawes Exp $
- * 
- * 
+ *
+ *
 Copyright (c) 1987  X Consortium
 
 Permission is hereby granted, free of charge, to any person obtaining a copy

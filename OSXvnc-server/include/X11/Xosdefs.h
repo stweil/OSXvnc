@@ -72,7 +72,7 @@ in this Software without prior written authorization from the X Consortium.
 #define X_NOT_POSIX
 #define X_NOT_STDC_ENV
 #endif
-  
+
 #ifdef USL
 #ifdef SYSV /* (release 3.2) */
 #define X_NOT_POSIX

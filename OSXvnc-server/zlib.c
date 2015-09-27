@@ -105,7 +105,7 @@ rfbSendOneRectEncodingZlib(cl, x, y, w, h)
 	    zlibAfterBuf = (char *)xrealloc(zlibAfterBuf, zlibAfterBufSize);
     }
 
-    /* 
+    /*
      * Convert pixel data to client format.
      */
     (*cl->translateFn)(cl->translateLookupTable, &rfbServerFormat,

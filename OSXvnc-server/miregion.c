@@ -22,20 +22,20 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 Except as contained in this notice, the name of the X Consortium shall not be
 used in advertising or otherwise to promote the sale, use or other dealings
 in this Software without prior written authorization from the X Consortium.
- 
 
-Copyright 1987, 1988, 1989 by 
-Digital Equipment Corporation, Maynard, Massachusetts. 
+
+Copyright 1987, 1988, 1989 by
+Digital Equipment Corporation, Maynard, Massachusetts.
 
                         All Rights Reserved
 
-Permission to use, copy, modify, and distribute this software and its 
-documentation for any purpose and without fee is hereby granted, 
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
 provided that the above copyright notice appear in all copies and that
-both that copyright notice and this permission notice appear in 
+both that copyright notice and this permission notice appear in
 supporting documentation, and that the name of Digital not be
 used in advertising or publicity pertaining to distribution of the
-software without specific, written prior permission.  
+software without specific, written prior permission.
 
 DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
 ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
@@ -94,9 +94,9 @@ extern Bool Must_have_memory;
  * there is no separate list of band start pointers.
  *
  * The y-x band representation does not minimize rectangles.  In particular,
- * if a rectangle vertically crosses a band (the rectangle has scanlines in 
+ * if a rectangle vertically crosses a band (the rectangle has scanlines in
  * the y1 to y2 area spanned by the band), then the rectangle may be broken
- * down into two or more smaller rectangles stacked one atop the other. 
+ * down into two or more smaller rectangles stacked one atop the other.
  *
  *  -----------                             -----------
  *  |         |                             |         |             band 0
@@ -226,7 +226,7 @@ miRegionsEqual(reg1, reg2)
     if (reg1->extents.y1 != reg2->extents.y1) return FALSE;
     if (reg1->extents.y2 != reg2->extents.y2) return FALSE;
     if (REGION_NUM_RECTS(reg1) != REGION_NUM_RECTS(reg2)) return FALSE;
-    
+
     rects1 = REGION_RECTS(reg1);
     rects2 = REGION_RECTS(reg2);
     for (i = 0; i != REGION_NUM_RECTS(reg1); i++) {
@@ -299,7 +299,7 @@ miRegionCreate(rect, size)
     int size;
 {
     register RegionPtr pReg;
-   
+
     Must_have_memory = TRUE; /* XXX */
     pReg = (RegionPtr)xalloc(sizeof(RegionRec));
     Must_have_memory = FALSE; /* XXX */
@@ -427,7 +427,7 @@ miRegionCopy(dst, src)
         dst->data->size = src->data->numRects;
     }
     dst->data->numRects = src->data->numRects;
-    memmove((char *)REGION_BOXPTR(dst),(char *)REGION_BOXPTR(src), 
+    memmove((char *)REGION_BOXPTR(dst),(char *)REGION_BOXPTR(src),
           dst->data->numRects * sizeof(BoxRec));
     return TRUE;
 }
@@ -699,7 +699,7 @@ miRegionOp(newReg, reg1, reg2, overlapFunc, appendNon1, appendNon2, pOverlap)
      */
 
     ybot = min(r1->y1, r2->y1);
-    
+
     /*
      * prevBand serves to mark the start of the previous band so rectangles
      * can be coalesced into larger rectangles. qv. miCoalesce, above.
@@ -710,7 +710,7 @@ miRegionOp(newReg, reg1, reg2, overlapFunc, appendNon1, appendNon2, pOverlap)
      * array of rectangles.
      */
     prevBand = 0;
-    
+
     do {
         /*
          * This algorithm proceeds one source-band (as opposed to a
@@ -721,7 +721,7 @@ miRegionOp(newReg, reg1, reg2, overlapFunc, appendNon1, appendNon2, pOverlap)
          */
         assert(r1 != r1End);
         assert(r2 != r2End);
-    
+
         FindBand(r1, r1BandEnd, r1End, r1y1);
         FindBand(r2, r2BandEnd, r2End, r2y1);
 
@@ -1093,14 +1093,14 @@ miUnionO (pReg, r1, r1End, r2, r2End, y1, y2, pOverlap)
             MERGERECT(r2);
         } while (r2 != r2End);
     }
-    
+
     /* Add current rectangle */
     NEWRECT(pReg, pNextRect, x1, y1, x2, y2);
 
     return TRUE;
 }
 
-Bool 
+Bool
 miUnion(newReg, reg1, reg2)
     RegionPtr           newReg;                  /* destination Region */
     register RegionPtr  reg1;
@@ -1181,7 +1181,7 @@ miUnion(newReg, reg1, reg2)
 /*-
  *-----------------------------------------------------------------------
  * miRegionAppend --
- * 
+ *
  *      "Append" the rgn rectangles onto the end of dstrgn, maintaining
  *      knowledge of YX-banding when it's easy.  Otherwise, dstrgn just
  *      becomes a non-y-x-banded random collection of rectangles, and not
@@ -1264,7 +1264,7 @@ miRegionAppend(dstrgn, rgn)
         if (dnumRects == 1)
             *new = *REGION_BOXPTR(dstrgn);
         else
-            memmove((char *)new,(char *)REGION_BOXPTR(dstrgn), 
+            memmove((char *)new,(char *)REGION_BOXPTR(dstrgn),
                   dnumRects * sizeof(BoxRec));
         new = REGION_BOXPTR(dstrgn);
     }
@@ -1278,7 +1278,7 @@ miRegionAppend(dstrgn, rgn)
     return TRUE;
 }
 
-   
+
 #define ExchangeRects(a, b) \
 {                           \
     BoxRec     t;           \
@@ -1349,7 +1349,7 @@ QuickSortRects(rects, numRects)
 /*-
  *-----------------------------------------------------------------------
  * miRegionValidate --
- * 
+ *
  *      Take a ``region'' which is a non-y-x-banded random collection of
  *      rectangles, and compute a nice region which is the union of all the
  *      rectangles.
@@ -1669,7 +1669,7 @@ miSubtractO (pReg, r1, r1End, r2, r2End, y1, y2, pOverlap)
     register int        x1;
 
     x1 = r1->x1;
-    
+
     assert(y1<y2);
     assert(r1 != r1End && r2 != r2End);
 
@@ -1763,7 +1763,7 @@ miSubtractO (pReg, r1, r1End, r2, r2End, y1, y2, pOverlap)
     }
     return TRUE;
 }
-        
+
 /*-
  *-----------------------------------------------------------------------
  * miSubtract --
@@ -1780,9 +1780,9 @@ miSubtractO (pReg, r1, r1End, r2, r2End, y1, y2, pOverlap)
  */
 Bool
 miSubtract(regD, regM, regS)
-    register RegionPtr  regD;               
+    register RegionPtr  regD;
     register RegionPtr  regM;
-    register RegionPtr  regS;          
+    register RegionPtr  regS;
 {
     Bool overlap; /* result ignored */
 
@@ -1803,7 +1803,7 @@ miSubtract(regD, regM, regS)
         regD->data = &miEmptyData;
         return TRUE;
     }
- 
+
     /* Add those rectangles in region 1 that aren't in region 2,
        do yucky subtraction for overlaps, and
        just throw away rectangles in region 2 that aren't in region 1 */
@@ -2295,7 +2295,7 @@ miClipSpans(prgnDst, ppt, pwidth, nspans, pptNew, pwidthNew, fSorted)
     if (!prgnDst->data)
     {
         /* Do special fast code with clip boundaries in registers(?) */
-        /* It doesn't pay much to make use of fSorted in this case, 
+        /* It doesn't pay much to make use of fSorted in this case,
            so we lump everything together. */
 
         register    int clipx1, clipx2, clipy1, clipy2;
@@ -2304,7 +2304,7 @@ miClipSpans(prgnDst, ppt, pwidth, nspans, pptNew, pwidthNew, fSorted)
         clipy1 = prgnDst->extents.y1;
         clipx2 = prgnDst->extents.x2;
         clipy2 = prgnDst->extents.y2;
-            
+
         for (; ppt != pptLast; ppt++, pwidth++)
         {
             y = ppt->y;
@@ -2342,7 +2342,7 @@ miClipSpans(prgnDst, ppt, pwidth, nspans, pptNew, pwidthNew, fSorted)
 
         pboxBandStart = REGION_BOXPTR(prgnDst);
         pboxLast = pboxBandStart + numRects;
-    
+
         NextBand();
 
         for (; ppt != pptLast; )

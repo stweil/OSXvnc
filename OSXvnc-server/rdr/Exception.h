@@ -52,12 +52,12 @@ namespace rdr {
       strncat(str_, buf, len-1-strlen(str_));
       strncat(str_, ")", len-1-strlen(str_));
     }
-  }; 
+  };
 
   struct TimedOut : public Exception {
     TimedOut(const char* s=0) : Exception(s,"rdr::TimedOut") {}
   };
- 
+
   struct EndOfStream : public Exception {
     EndOfStream(const char* s=0) : Exception(s,"rdr::EndOfStream") {}
   };

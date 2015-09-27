@@ -52,7 +52,7 @@ inline CGSConnectionRef getConnection() {
 			pthread_mutex_init(&cursorMutex, NULL);
 		}
     }
-	
+
 	return sharedConnection;
 }
 
@@ -64,24 +64,24 @@ CGPoint currentCursorLoc() {
 		if (CGSGetCurrentCursorLocation(connection, &cursorLoc) != kCGErrorSuccess)
 			rfbLog("Error obtaining cursor location\n");
     }
-	
+
     return cursorLoc;
 }
 
 void loadCurrentCursorData() {
     CGError err;
     CGSConnectionRef connection = getConnection();
-	
+
 	if (!connection) {
 		if (!maxFailsRemaining)
 			return;
 	}
-	
+
     if (CGSGetGlobalCursorDataSize(connection, &cursorDataSize) != kCGErrorSuccess) {
         rfbLog("Error obtaining cursor data - cursor not sent\n");
         return;
     }
-	
+
 	if (cursorData)
 		free(cursorData);
     cursorData = (unsigned char*)malloc(sizeof(unsigned char) * cursorDataSize);
@@ -94,7 +94,7 @@ void loadCurrentCursorData() {
                                  &cursorDepth,
                                  &components,
                                  &cursorBitsPerComponent);
-	
+
     //CGSReleaseConnection(connection);
     if (err != kCGErrorSuccess) {
 		free(cursorData);
@@ -102,7 +102,7 @@ void loadCurrentCursorData() {
         rfbLog("Error obtaining cursor data - cursor not sent\n");
         return;
     }
-	
+
     cursorFormat.depth = (cursorDepth == 32 ? 24 : cursorDepth);
     cursorFormat.bitsPerPixel = cursorDepth;
     cursorFormat.bigEndian = TRUE;
@@ -112,16 +112,16 @@ void loadCurrentCursorData() {
 	cursorFormat.redShift   = (unsigned char) (cursorBitsPerComponent * 2);
 	cursorFormat.greenShift = (unsigned char) (cursorBitsPerComponent * 1);
 	cursorFormat.blueShift  = (unsigned char) (cursorBitsPerComponent * 0);
-	    
+
     cursorMaskSize = floor((cursorRect.size.width+7)/8) * cursorRect.size.height;
 
 	if (cursorMaskData)
 		free(cursorMaskData);
 	cursorMaskData = (unsigned char*)malloc(sizeof(unsigned char) * cursorMaskSize);
-	
+
 	// Apple Cursors can use a full Alpha channel.
     // Since we can only send a bit mask - to get closer we will compose the full color with a white
-	
+
     // For starters we'll set mask to OFF (transparent) everywhere)
     memset(cursorMaskData, 0, cursorMaskSize);
     // This algorithm assumes the Alpha channel is the first component
@@ -135,7 +135,7 @@ void loadCurrentCursorData() {
         unsigned char fullOn = (0xFF) >> alphaShift;
         unsigned char alphaThreshold = (0x60) >> alphaShift; // Only include the pixel if it's coverage is greater than this
         int dataX, dataY, componentIndex;
-		
+
         for (dataY = 0; dataY < cursorRect.size.height; dataY++) {
             cursorColumnData = cursorRowData;
             for (dataX = 0; dataX < cursorRect.size.width; dataX++) {
@@ -159,7 +159,7 @@ void loadCurrentCursorData() {
                 else
                     cursorColumnData += cursorBytesPerPixel;
             }
-			
+
             maskPointer += (int) floor(((int)cursorRect.size.width+7)/8);
             cursorRowData += cursorRowBytes;
         }
@@ -229,7 +229,7 @@ void rfbCheckForCursorChange() {
 	Bool sendNotice = FALSE;
     CGPoint cursorLoc = currentCursorLoc();
 	int currentSeed = CGSCurrentCursorSeed();
-	
+
 	pthread_mutex_lock(&cursorMutex);
 	if (!CGPointEqualToPoint(lastCursorPosition, cursorLoc)) {
 		lastCursorPosition = cursorLoc;
@@ -238,16 +238,16 @@ void rfbCheckForCursorChange() {
 	if (lastCursorSeed != currentSeed) {
         // Record first in case another change occurs after notifying clients
         lastCursorSeed = currentSeed;
-		loadCurrentCursorData();	
+		loadCurrentCursorData();
 		sendNotice = TRUE;
 	}
 	pthread_mutex_unlock(&cursorMutex);
-	
+
     //rfbLog("Check For Cursor Change");
     if (sendNotice) {
         rfbClientIteratorPtr iterator = rfbGetClientIterator();
         rfbClientPtr cl;
-		
+
         // Notify each client
         while ((cl = rfbClientIteratorNext(iterator)) != NULL) {
             if (rfbShouldSendNewCursor(cl) || (rfbShouldSendNewPosition(cl)))
@@ -320,18 +320,18 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
 
 	cursorIsDifferentFormat = !(PF_EQ(cursorFormat,rfbServerFormat));
 	cursorSize = (cursorRect.size.width * cursorRect.size.height * (cl->format.bitsPerPixel / 8));
-	
+
 	if (!cursorData || cursorRect.size.height > 128 || cursorRect.size.width > 128) {
-		// Wow That's one big cursor! We don't handle cursors this big 
+		// Wow That's one big cursor! We don't handle cursors this big
 		// (they are probably cursors with lots of states and that doesn't work so good for VNC.
 		// For now just ignore them
 		cl->currentCursorSeed = lastCursorSeed;
 		returnValue = FALSE;
 	}
-	    
+
     // Make Sure we have space on the buffer (otherwise push the data out now)
 
-    if (returnValue && 
+    if (returnValue &&
 		cl->ublen + sz_rfbFramebufferUpdateRectHeader + cursorSize + cursorMaskSize > UPDATE_BUF_SIZE) {
         if (!rfbSendUpdateBuf(cl))
             returnValue = FALSE;
@@ -346,14 +346,14 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
 		rect.r.w = Swap16IfLE((short) cursorRect.size.width);
 		rect.r.h = Swap16IfLE((short) cursorRect.size.height);
 		rect.encoding = Swap32IfLE(rfbEncodingRichCursor);
-		
+
 		memcpy(&cl->updateBuf[cl->ublen], (char *)&rect,sz_rfbFramebufferUpdateRectHeader);
 		cl->ublen += sz_rfbFramebufferUpdateRectHeader;
-		
+
 		// Temporarily set it to the cursor format
 		if (cursorIsDifferentFormat)
 			rfbSetTranslateFunctionUsingFormat(cl, cursorFormat);
-		
+
 		// Now Send The Cursor
 		(*cl->translateFn)(cl->translateLookupTable, // The Lookup Table
 						   &cursorFormat, // Our Cursor format
@@ -364,20 +364,20 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
 						   cursorRect.size.width,
 						   cursorRect.size.height);
 		cl->ublen += cursorSize;
-		
+
 		if (cursorIsDifferentFormat)
 			rfbSetTranslateFunctionUsingFormat(cl, rfbServerFormat);
-		
+
 		// Now Send The Cursor Bitmap (1 for on, 0 for clear)
 		memcpy(&cl->updateBuf[cl->ublen], cursorMaskData, cursorMaskSize);
 		cl->ublen += cursorMaskSize;
-		
+
 		// Update Stats
 		cl->rfbRectanglesSent[rfbStatsRichCursor]++;
 		cl->rfbBytesSent[rfbStatsRichCursor] += sz_rfbFramebufferUpdateRectHeader + cursorSize + cursorMaskSize;
 		cl->currentCursorSeed = lastCursorSeed;
 	}
-	
+
 	pthread_mutex_unlock(&cursorMutex);
 
 	return returnValue;

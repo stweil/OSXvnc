@@ -320,7 +320,7 @@ typedef struct {
    Special Encodings
 
    rfbImmediateUpdate
-    Sending this encoding asks the server to respond immediately 
+    Sending this encoding asks the server to respond immediately
     upon seeing a FBU request and not wait to consolidate events
     and not to wait for an update to occur
    rfbPasteboardError

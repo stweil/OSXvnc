@@ -15,7 +15,7 @@
 
 /*
  *  OSXvnc Copyright (C) 2001 Dan McGuirk <mcguirk@incompleteness.net>.
- *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.  
+ *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.
  *  All Rights Reserved.
  *
  *  This is free software; you can redistribute it and/or modify
@@ -73,7 +73,7 @@ rfbInitTrueColourSingleTableOUT (char **table, rfbPixelFormat *in,
         inRed   = (i >> in->redShift)   & in->redMax;
         inGreen = (i >> in->greenShift) & in->greenMax;
         inBlue  = (i >> in->blueShift)  & in->blueMax;
-        
+
         outRed   = (inRed   * out->redMax   + in->redMax / 2)   / in->redMax;
         outGreen = (inGreen * out->greenMax + in->greenMax / 2) / in->greenMax;
         outBlue  = (inBlue  * out->blueMax  + in->blueMax / 2)  / in->blueMax;

@@ -4,7 +4,7 @@
 
 /*
  *  OSXvnc Copyright (C) 2001 Dan McGuirk <mcguirk@incompleteness.net>.
- *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.  
+ *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.
  *  All Rights Reserved.
  *
  *  This is free software; you can redistribute it and/or modify
@@ -159,7 +159,7 @@ Bool rfbSetTranslateFunction(rfbClientPtr cl) {
     //cl->format = rfbServerFormat;
     cl->translateFn = rfbTranslateNone;
     cl->translateLookupTable = NULL;
-	
+
     return rfbSetTranslateFunctionUsingFormat(cl, rfbServerFormat);
 }
 
@@ -234,7 +234,7 @@ Bool rfbSetTranslateFunctionUsingFormat(rfbClientPtr cl, rfbPixelFormat inFormat
         /* we can use a single lookup table for <= 16 bpp */
 
         //rfbLog("single lookup table translation, function [%d][%d]\n", inFormat.bitsPerPixel / 16, cl->format.bitsPerPixel / 16);
-		
+
         cl->translateFn = rfbTranslateWithSingleTableFns
                               [inFormat.bitsPerPixel / 16]
                                   [cl->format.bitsPerPixel / 16];
@@ -298,12 +298,12 @@ rfbSetClientColourMapBGR233(cl)
         for (g = 0; g < 8; g++) {
             for (r = 0; r < 8; r++) {
                 rgb[i++] = Swap16IfLE(r * 65535 / 7);
-                rgb[i++] = Swap16IfLE(g * 65535 / 7); 
-                rgb[i++] = Swap16IfLE(b * 65535 / 3); 
+                rgb[i++] = Swap16IfLE(g * 65535 / 7);
+                rgb[i++] = Swap16IfLE(b * 65535 / 3);
             }
         }
     }
-    
+
     len += 256 * 3 * 2;
 
     if (WriteExact(cl, buf, len) < 0) {

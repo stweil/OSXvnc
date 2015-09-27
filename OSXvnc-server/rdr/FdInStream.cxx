@@ -127,7 +127,7 @@ int FdInStream::checkReadable(int fd, int timeout)
   while (true) {
     fd_set rfds;
     struct timeval tv;
-    
+
     tv.tv_sec = timeout / 1000;
     tv.tv_usec = (timeout % 1000) * 1000;
 
@@ -232,7 +232,7 @@ void FdInStream::startTiming()
 
 void FdInStream::stopTiming()
 {
-  timing = false; 
+  timing = false;
   if (timeWaitedIn100us < timedKbits/2)
     timeWaitedIn100us = timedKbits/2; // upper limit 20Mbit/s
 }

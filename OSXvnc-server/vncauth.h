@@ -17,7 +17,7 @@
  *  USA.
  */
 
-/* 
+/*
  * vncauth.h - describes the functions provided by the vncauth library.
  */
 

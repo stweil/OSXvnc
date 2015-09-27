@@ -151,7 +151,7 @@ static int SpecialKeyCodes[] = {
     XK_KP_Subtract,       78,      /* KP - */
     XK_KP_Multiply,       67,      /* KP * */
     XK_KP_Divide,         75,      /* KP / */
-	XK_KP_Equal,		  81,      /* KP = */ 
+	XK_KP_Equal,		  81,      /* KP = */
 
     /* Function keys */
     XK_F1,               122,      /* F1 */
