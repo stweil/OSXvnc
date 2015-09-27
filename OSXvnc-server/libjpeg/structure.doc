@@ -272,7 +272,7 @@ responsibilities:
    which it will select among when given its initialization call.  The master
    control code need only be concerned with decisions that affect more than
    one module.
- 
+
 2. Data buffering control.  A separate control module exists for each
    inter-processing-step data buffer.  This module is responsible for
    invoking the processing steps that write or read that data buffer.

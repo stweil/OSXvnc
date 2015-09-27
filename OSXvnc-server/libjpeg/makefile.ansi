@@ -14,10 +14,10 @@ CFLAGS= -O
 # NOT via -D switches here.
 
 # Link-time cc options:
-LDFLAGS= 
+LDFLAGS=
 
 # To link any special libraries, add the necessary -l commands here.
-LDLIBS= 
+LDLIBS=
 
 # Put here the object file name for the correct system-dependent memory
 # manager file.  For Unix this is usually jmemnobs.o, but you may want

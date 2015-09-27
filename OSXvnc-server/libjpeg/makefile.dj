@@ -17,7 +17,7 @@ CFLAGS= -O2 -Wall -I.
 LDFLAGS= -s
 
 # To link any special libraries, add the necessary -l commands here.
-LDLIBS= 
+LDLIBS=
 
 # Put here the object file name for the correct system-dependent memory
 # manager file.  For DJGPP this is usually jmemnobs.o, but you could

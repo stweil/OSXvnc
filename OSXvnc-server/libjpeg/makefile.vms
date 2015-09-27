@@ -17,13 +17,13 @@ $ EndIf
 $ On Control_Y Then GoTo End
 $ On Error     Then GoTo End
 $
-$ If F$GetSyi ("HW_MODEL") .gt. 1023 
+$ If F$GetSyi ("HW_MODEL") .gt. 1023
 $   Then
 $       OPT = ""
 $   Else
 $       OPT = ",Sys$Disk:[]makvms.opt/Option"
 $ EndIf
-$ 
+$
 $ DoCompile := CC /NoDebug /Optimize /NoList
 $!
 $ DoCompile jcapimin.c

@@ -548,14 +548,14 @@ EOF
 			16)
 				UNAME_MACHINE="alphaev6"
 				;;
-			esac	
+			esac
 
 			objdump --private-headers dummy | \
 			  grep ld.so.1 > /dev/null
 			if test "$?" = 0 ; then
 				LIBC="libc1"
 			fi
-		fi	
+		fi
 		rm -f dummy.s dummy
 		echo ${UNAME_MACHINE}-unknown-linux-gnu${LIBC} ; exit 0
 	elif test "${UNAME_MACHINE}" = "mips" ; then

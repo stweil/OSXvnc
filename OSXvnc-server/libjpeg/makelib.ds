@@ -6,27 +6,27 @@
 !IF "$(CFG)" == ""
 CFG=jpeg - Win32
 !MESSAGE No configuration specified.  Defaulting to jpeg - Win32.
-!ENDIF 
+!ENDIF
 
 !IF "$(CFG)" != "jpeg - Win32"
 !MESSAGE Invalid configuration "$(CFG)" specified.
 !MESSAGE You can specify a configuration when running NMAKE on this makefile
 !MESSAGE by defining the macro CFG on the command line.  For example:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "jpeg.mak" CFG="jpeg - Win32"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Possible choices for configuration are:
-!MESSAGE 
+!MESSAGE
 !MESSAGE "jpeg - Win32" (based on "Win32 (x86) Static Library")
-!MESSAGE 
+!MESSAGE
 !ERROR An invalid configuration is specified.
-!ENDIF 
+!ENDIF
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
-!ELSE 
+!ELSE
 NULL=nul
-!ENDIF 
+!ENDIF
 ################################################################################
 # Begin Project
 # PROP Target_Last_Scanned "jpeg - Win32"
@@ -49,7 +49,7 @@ INTDIR=.\Release
 
 ALL : "$(OUTDIR)\jpeg.lib"
 
-CLEAN : 
+CLEAN :
 	-@erase "$(INTDIR)\jcapimin.obj"
 	-@erase "$(INTDIR)\jcapistd.obj"
 	-@erase "$(INTDIR)\jctrans.obj"
@@ -104,19 +104,19 @@ CLEAN :
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
 # ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /c
 CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS"\
- /Fp"$(INTDIR)/jpeg.pch" /YX /Fo"$(INTDIR)/" /c 
+ /Fp"$(INTDIR)/jpeg.pch" /YX /Fo"$(INTDIR)/" /c
 CPP_OBJS=.\Release/
 CPP_SBRS=.\.
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-BSC32_FLAGS=/nologo /o"$(OUTDIR)/jpeg.bsc" 
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/jpeg.bsc"
 BSC32_SBRS= \
-	
+
 LIB32=link.exe -lib
 # ADD BASE LIB32 /nologo
 # ADD LIB32 /nologo
-LIB32_FLAGS=/nologo /out:"$(OUTDIR)/jpeg.lib" 
+LIB32_FLAGS=/nologo /out:"$(OUTDIR)/jpeg.lib"
 LIB32_OBJS= \
 	"$(INTDIR)\jcapimin.obj" \
 	"$(INTDIR)\jcapistd.obj" \
@@ -170,25 +170,25 @@ LIB32_OBJS= \
   $(LIB32_FLAGS) $(DEF_FLAGS) $(LIB32_OBJS)
 <<
 
-!ENDIF 
+!ENDIF
 
 .c{$(CPP_OBJS)}.obj:
-   $(CPP) $(CPP_PROJ) $<  
+   $(CPP) $(CPP_PROJ) $<
 
 .cpp{$(CPP_OBJS)}.obj:
-   $(CPP) $(CPP_PROJ) $<  
+   $(CPP) $(CPP_PROJ) $<
 
 .cxx{$(CPP_OBJS)}.obj:
-   $(CPP) $(CPP_PROJ) $<  
+   $(CPP) $(CPP_PROJ) $<
 
 .c{$(CPP_SBRS)}.sbr:
-   $(CPP) $(CPP_PROJ) $<  
+   $(CPP) $(CPP_PROJ) $<
 
 .cpp{$(CPP_SBRS)}.sbr:
-   $(CPP) $(CPP_PROJ) $<  
+   $(CPP) $(CPP_PROJ) $<
 
 .cxx{$(CPP_SBRS)}.sbr:
-   $(CPP) $(CPP_PROJ) $<  
+   $(CPP) $(CPP_PROJ) $<
 
 ################################################################################
 # Begin Target
@@ -197,7 +197,7 @@ LIB32_OBJS= \
 
 !IF  "$(CFG)" == "jpeg - Win32"
 
-!ENDIF 
+!ENDIF
 
 ################################################################################
 # Begin Source File
@@ -210,7 +210,7 @@ DEP_CPP_JCAPI=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jcapimin.obj" : $(SOURCE) $(DEP_CPP_JCAPI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -228,7 +228,7 @@ DEP_CPP_JCAPIS=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jcapistd.obj" : $(SOURCE) $(DEP_CPP_JCAPIS) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -246,7 +246,7 @@ DEP_CPP_JCCOE=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jccoefct.obj" : $(SOURCE) $(DEP_CPP_JCCOE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -264,7 +264,7 @@ DEP_CPP_JCCOL=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jccolor.obj" : $(SOURCE) $(DEP_CPP_JCCOL) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -283,7 +283,7 @@ DEP_CPP_JCDCT=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jdct.h"\
-	
+
 
 "$(INTDIR)\jcdctmgr.obj" : $(SOURCE) $(DEP_CPP_JCDCT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -302,7 +302,7 @@ DEP_CPP_JCHUF=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jchuff.h"\
-	
+
 
 "$(INTDIR)\jchuff.obj" : $(SOURCE) $(DEP_CPP_JCHUF) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -320,7 +320,7 @@ DEP_CPP_JCINI=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jcinit.obj" : $(SOURCE) $(DEP_CPP_JCINI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -338,7 +338,7 @@ DEP_CPP_JCMAI=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jcmainct.obj" : $(SOURCE) $(DEP_CPP_JCMAI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -356,7 +356,7 @@ DEP_CPP_JCMAR=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jcmarker.obj" : $(SOURCE) $(DEP_CPP_JCMAR) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -374,7 +374,7 @@ DEP_CPP_JCMAS=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jcmaster.obj" : $(SOURCE) $(DEP_CPP_JCMAS) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -392,7 +392,7 @@ DEP_CPP_JCOMA=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jcomapi.obj" : $(SOURCE) $(DEP_CPP_JCOMA) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -410,7 +410,7 @@ DEP_CPP_JCPAR=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jcparam.obj" : $(SOURCE) $(DEP_CPP_JCPAR) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -429,7 +429,7 @@ DEP_CPP_JCPHU=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jchuff.h"\
-	
+
 
 "$(INTDIR)\jcphuff.obj" : $(SOURCE) $(DEP_CPP_JCPHU) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -447,7 +447,7 @@ DEP_CPP_JCPRE=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jcprepct.obj" : $(SOURCE) $(DEP_CPP_JCPRE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -465,7 +465,7 @@ DEP_CPP_JCSAM=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jcsample.obj" : $(SOURCE) $(DEP_CPP_JCSAM) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -483,7 +483,7 @@ DEP_CPP_JCTRA=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jctrans.obj" : $(SOURCE) $(DEP_CPP_JCTRA) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -501,7 +501,7 @@ DEP_CPP_JDAPI=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdapimin.obj" : $(SOURCE) $(DEP_CPP_JDAPI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -519,7 +519,7 @@ DEP_CPP_JDAPIS=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdapistd.obj" : $(SOURCE) $(DEP_CPP_JDAPIS) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -536,7 +536,7 @@ DEP_CPP_JDATA=\
 	"jpeglib.h"\
 	"jmorecfg.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdatadst.obj" : $(SOURCE) $(DEP_CPP_JDATA) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -553,7 +553,7 @@ DEP_CPP_JDATAS=\
 	"jpeglib.h"\
 	"jmorecfg.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdatasrc.obj" : $(SOURCE) $(DEP_CPP_JDATAS) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -571,7 +571,7 @@ DEP_CPP_JDCOE=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdcoefct.obj" : $(SOURCE) $(DEP_CPP_JDCOE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -589,7 +589,7 @@ DEP_CPP_JDCOL=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdcolor.obj" : $(SOURCE) $(DEP_CPP_JDCOL) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -608,7 +608,7 @@ DEP_CPP_JDDCT=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jdct.h"\
-	
+
 
 "$(INTDIR)\jddctmgr.obj" : $(SOURCE) $(DEP_CPP_JDDCT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -627,7 +627,7 @@ DEP_CPP_JDHUF=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jdhuff.h"\
-	
+
 
 "$(INTDIR)\jdhuff.obj" : $(SOURCE) $(DEP_CPP_JDHUF) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -645,7 +645,7 @@ DEP_CPP_JDINP=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdinput.obj" : $(SOURCE) $(DEP_CPP_JDINP) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -663,7 +663,7 @@ DEP_CPP_JDMAI=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdmainct.obj" : $(SOURCE) $(DEP_CPP_JDMAI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -681,7 +681,7 @@ DEP_CPP_JDMAR=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdmarker.obj" : $(SOURCE) $(DEP_CPP_JDMAR) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -699,7 +699,7 @@ DEP_CPP_JDMAS=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdmaster.obj" : $(SOURCE) $(DEP_CPP_JDMAS) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -717,7 +717,7 @@ DEP_CPP_JDMER=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdmerge.obj" : $(SOURCE) $(DEP_CPP_JDMER) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -736,7 +736,7 @@ DEP_CPP_JDPHU=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jdhuff.h"\
-	
+
 
 "$(INTDIR)\jdphuff.obj" : $(SOURCE) $(DEP_CPP_JDPHU) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -754,7 +754,7 @@ DEP_CPP_JDPOS=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdpostct.obj" : $(SOURCE) $(DEP_CPP_JDPOS) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -772,7 +772,7 @@ DEP_CPP_JDSAM=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdsample.obj" : $(SOURCE) $(DEP_CPP_JDSAM) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -790,7 +790,7 @@ DEP_CPP_JDTRA=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jdtrans.obj" : $(SOURCE) $(DEP_CPP_JDTRA) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -808,7 +808,7 @@ DEP_CPP_JERRO=\
 	"jmorecfg.h"\
 	"jversion.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jerror.obj" : $(SOURCE) $(DEP_CPP_JERRO) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -827,7 +827,7 @@ DEP_CPP_JFDCT=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jdct.h"\
-	
+
 
 "$(INTDIR)\jfdctflt.obj" : $(SOURCE) $(DEP_CPP_JFDCT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -846,7 +846,7 @@ DEP_CPP_JFDCTF=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jdct.h"\
-	
+
 
 "$(INTDIR)\jfdctfst.obj" : $(SOURCE) $(DEP_CPP_JFDCTF) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -865,7 +865,7 @@ DEP_CPP_JFDCTI=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jdct.h"\
-	
+
 
 "$(INTDIR)\jfdctint.obj" : $(SOURCE) $(DEP_CPP_JFDCTI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -884,7 +884,7 @@ DEP_CPP_JIDCT=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jdct.h"\
-	
+
 
 "$(INTDIR)\jidctflt.obj" : $(SOURCE) $(DEP_CPP_JIDCT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -903,7 +903,7 @@ DEP_CPP_JIDCTF=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jdct.h"\
-	
+
 
 "$(INTDIR)\jidctfst.obj" : $(SOURCE) $(DEP_CPP_JIDCTF) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -922,7 +922,7 @@ DEP_CPP_JIDCTI=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jdct.h"\
-	
+
 
 "$(INTDIR)\jidctint.obj" : $(SOURCE) $(DEP_CPP_JIDCTI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -941,7 +941,7 @@ DEP_CPP_JIDCTR=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jdct.h"\
-	
+
 
 "$(INTDIR)\jidctred.obj" : $(SOURCE) $(DEP_CPP_JIDCTR) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -959,7 +959,7 @@ DEP_CPP_JQUAN=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jquant1.obj" : $(SOURCE) $(DEP_CPP_JQUAN) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -977,7 +977,7 @@ DEP_CPP_JQUANT=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jquant2.obj" : $(SOURCE) $(DEP_CPP_JQUANT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -995,7 +995,7 @@ DEP_CPP_JUTIL=\
 	"jmorecfg.h"\
 	"jpegint.h"\
 	"jerror.h"\
-	
+
 
 "$(INTDIR)\jutils.obj" : $(SOURCE) $(DEP_CPP_JUTIL) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -1014,7 +1014,7 @@ DEP_CPP_JMEMM=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jmemsys.h"\
-	
+
 
 "$(INTDIR)\jmemmgr.obj" : $(SOURCE) $(DEP_CPP_JMEMM) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -1033,7 +1033,7 @@ DEP_CPP_JMEMN=\
 	"jpegint.h"\
 	"jerror.h"\
 	"jmemsys.h"\
-	
+
 
 "$(INTDIR)\jmemnobs.obj" : $(SOURCE) $(DEP_CPP_JMEMN) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)

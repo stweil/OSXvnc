@@ -6,7 +6,7 @@
 !IF "$(CFG)" == ""
 CFG=cjpeg - Win32
 !MESSAGE No configuration specified.  Defaulting to cjpeg - Win32.
-!ENDIF 
+!ENDIF
 
 !IF "$(CFG)" != "cjpeg - Win32" && "$(CFG)" != "djpeg - Win32" &&\
  "$(CFG)" != "jpegtran - Win32" && "$(CFG)" != "rdjpgcom - Win32" &&\
@@ -14,25 +14,25 @@ CFG=cjpeg - Win32
 !MESSAGE Invalid configuration "$(CFG)" specified.
 !MESSAGE You can specify a configuration when running NMAKE on this makefile
 !MESSAGE by defining the macro CFG on the command line.  For example:
-!MESSAGE 
+!MESSAGE
 !MESSAGE NMAKE /f "apps.mak" CFG="cjpeg - Win32"
-!MESSAGE 
+!MESSAGE
 !MESSAGE Possible choices for configuration are:
-!MESSAGE 
+!MESSAGE
 !MESSAGE "cjpeg - Win32" (based on "Win32 (x86) Console Application")
 !MESSAGE "djpeg - Win32" (based on "Win32 (x86) Console Application")
 !MESSAGE "jpegtran - Win32" (based on "Win32 (x86) Console Application")
 !MESSAGE "rdjpgcom - Win32" (based on "Win32 (x86) Console Application")
 !MESSAGE "wrjpgcom - Win32" (based on "Win32 (x86) Console Application")
-!MESSAGE 
+!MESSAGE
 !ERROR An invalid configuration is specified.
-!ENDIF 
+!ENDIF
 
 !IF "$(OS)" == "Windows_NT"
 NULL=
-!ELSE 
+!ELSE
 NULL=nul
-!ENDIF 
+!ENDIF
 ################################################################################
 # Begin Project
 # PROP Target_Last_Scanned "cjpeg - Win32"
@@ -56,7 +56,7 @@ INTDIR=.\cjpeg\Release
 
 ALL : "$(OUTDIR)\cjpeg.exe"
 
-CLEAN : 
+CLEAN :
 	-@erase "$(INTDIR)\cjpeg.obj"
 	-@erase "$(INTDIR)\rdppm.obj"
 	-@erase "$(INTDIR)\rdgif.obj"
@@ -73,7 +73,7 @@ CLEAN :
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
 # ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
 CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE"\
- /Fp"$(INTDIR)/cjpeg.pch" /YX /Fo"$(INTDIR)/" /c 
+ /Fp"$(INTDIR)/cjpeg.pch" /YX /Fo"$(INTDIR)/" /c
 CPP_OBJS=.\cjpeg\Release/
 CPP_SBRS=.\.
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -81,16 +81,16 @@ CPP_SBRS=.\.
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-BSC32_FLAGS=/nologo /o"$(OUTDIR)/cjpeg.bsc" 
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/cjpeg.bsc"
 BSC32_SBRS= \
-	
+
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 Release\jpeg.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 LINK32_FLAGS=Release\jpeg.lib kernel32.lib user32.lib gdi32.lib winspool.lib\
  comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib\
  odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no\
- /pdb:"$(OUTDIR)/cjpeg.pdb" /machine:I386 /out:"$(OUTDIR)/cjpeg.exe" 
+ /pdb:"$(OUTDIR)/cjpeg.pdb" /machine:I386 /out:"$(OUTDIR)/cjpeg.exe"
 LINK32_OBJS= \
 	"$(INTDIR)\cjpeg.obj" \
 	"$(INTDIR)\rdppm.obj" \
@@ -124,7 +124,7 @@ INTDIR=.\djpeg\Release
 
 ALL : "$(OUTDIR)\djpeg.exe"
 
-CLEAN : 
+CLEAN :
 	-@erase "$(INTDIR)\djpeg.obj"
 	-@erase "$(INTDIR)\wrppm.obj"
 	-@erase "$(INTDIR)\wrgif.obj"
@@ -141,7 +141,7 @@ CLEAN :
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
 # ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
 CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE"\
- /Fp"$(INTDIR)/djpeg.pch" /YX /Fo"$(INTDIR)/" /c 
+ /Fp"$(INTDIR)/djpeg.pch" /YX /Fo"$(INTDIR)/" /c
 CPP_OBJS=.\djpeg\Release/
 CPP_SBRS=.\.
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -149,16 +149,16 @@ CPP_SBRS=.\.
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-BSC32_FLAGS=/nologo /o"$(OUTDIR)/djpeg.bsc" 
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/djpeg.bsc"
 BSC32_SBRS= \
-	
+
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 Release\jpeg.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 LINK32_FLAGS=Release\jpeg.lib kernel32.lib user32.lib gdi32.lib winspool.lib\
  comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib\
  odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no\
- /pdb:"$(OUTDIR)/djpeg.pdb" /machine:I386 /out:"$(OUTDIR)/djpeg.exe" 
+ /pdb:"$(OUTDIR)/djpeg.pdb" /machine:I386 /out:"$(OUTDIR)/djpeg.exe"
 LINK32_OBJS= \
 	"$(INTDIR)\djpeg.obj" \
 	"$(INTDIR)\wrppm.obj" \
@@ -192,7 +192,7 @@ INTDIR=.\jpegtran\Release
 
 ALL : "$(OUTDIR)\jpegtran.exe"
 
-CLEAN : 
+CLEAN :
 	-@erase "$(INTDIR)\jpegtran.obj"
 	-@erase "$(INTDIR)\rdswitch.obj"
 	-@erase "$(INTDIR)\cdjpeg.obj"
@@ -205,7 +205,7 @@ CLEAN :
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
 # ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
 CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE"\
- /Fp"$(INTDIR)/jpegtran.pch" /YX /Fo"$(INTDIR)/" /c 
+ /Fp"$(INTDIR)/jpegtran.pch" /YX /Fo"$(INTDIR)/" /c
 CPP_OBJS=.\jpegtran\Release/
 CPP_SBRS=.\.
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -213,16 +213,16 @@ CPP_SBRS=.\.
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-BSC32_FLAGS=/nologo /o"$(OUTDIR)/jpegtran.bsc" 
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/jpegtran.bsc"
 BSC32_SBRS= \
-	
+
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 Release\jpeg.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 LINK32_FLAGS=Release\jpeg.lib kernel32.lib user32.lib gdi32.lib winspool.lib\
  comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib\
  odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no\
- /pdb:"$(OUTDIR)/jpegtran.pdb" /machine:I386 /out:"$(OUTDIR)/jpegtran.exe" 
+ /pdb:"$(OUTDIR)/jpegtran.pdb" /machine:I386 /out:"$(OUTDIR)/jpegtran.exe"
 LINK32_OBJS= \
 	"$(INTDIR)\jpegtran.obj" \
 	"$(INTDIR)\rdswitch.obj" \
@@ -252,7 +252,7 @@ INTDIR=.\rdjpgcom\Release
 
 ALL : "$(OUTDIR)\rdjpgcom.exe"
 
-CLEAN : 
+CLEAN :
 	-@erase "$(INTDIR)\rdjpgcom.obj"
 	-@erase "$(OUTDIR)\rdjpgcom.exe"
 
@@ -262,7 +262,7 @@ CLEAN :
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
 # ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
 CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE"\
- /Fp"$(INTDIR)/rdjpgcom.pch" /YX /Fo"$(INTDIR)/" /c 
+ /Fp"$(INTDIR)/rdjpgcom.pch" /YX /Fo"$(INTDIR)/" /c
 CPP_OBJS=.\rdjpgcom\Release/
 CPP_SBRS=.\.
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -270,16 +270,16 @@ CPP_SBRS=.\.
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-BSC32_FLAGS=/nologo /o"$(OUTDIR)/rdjpgcom.bsc" 
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/rdjpgcom.bsc"
 BSC32_SBRS= \
-	
+
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 Release\jpeg.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 LINK32_FLAGS=Release\jpeg.lib kernel32.lib user32.lib gdi32.lib winspool.lib\
  comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib\
  odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no\
- /pdb:"$(OUTDIR)/rdjpgcom.pdb" /machine:I386 /out:"$(OUTDIR)/rdjpgcom.exe" 
+ /pdb:"$(OUTDIR)/rdjpgcom.pdb" /machine:I386 /out:"$(OUTDIR)/rdjpgcom.exe"
 LINK32_OBJS= \
 	"$(INTDIR)\rdjpgcom.obj"
 
@@ -305,7 +305,7 @@ INTDIR=.\wrjpgcom\Release
 
 ALL : "$(OUTDIR)\wrjpgcom.exe"
 
-CLEAN : 
+CLEAN :
 	-@erase "$(INTDIR)\wrjpgcom.obj"
 	-@erase "$(OUTDIR)\wrjpgcom.exe"
 
@@ -315,7 +315,7 @@ CLEAN :
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
 # ADD CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /YX /c
 CPP_PROJ=/nologo /ML /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_CONSOLE"\
- /Fp"$(INTDIR)/wrjpgcom.pch" /YX /Fo"$(INTDIR)/" /c 
+ /Fp"$(INTDIR)/wrjpgcom.pch" /YX /Fo"$(INTDIR)/" /c
 CPP_OBJS=.\wrjpgcom\Release/
 CPP_SBRS=.\.
 # ADD BASE RSC /l 0x409 /d "NDEBUG"
@@ -323,16 +323,16 @@ CPP_SBRS=.\.
 BSC32=bscmake.exe
 # ADD BASE BSC32 /nologo
 # ADD BSC32 /nologo
-BSC32_FLAGS=/nologo /o"$(OUTDIR)/wrjpgcom.bsc" 
+BSC32_FLAGS=/nologo /o"$(OUTDIR)/wrjpgcom.bsc"
 BSC32_SBRS= \
-	
+
 LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 Release\jpeg.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:console /machine:I386
 LINK32_FLAGS=Release\jpeg.lib kernel32.lib user32.lib gdi32.lib winspool.lib\
  comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib\
  odbc32.lib odbccp32.lib /nologo /subsystem:console /incremental:no\
- /pdb:"$(OUTDIR)/wrjpgcom.pdb" /machine:I386 /out:"$(OUTDIR)/wrjpgcom.exe" 
+ /pdb:"$(OUTDIR)/wrjpgcom.pdb" /machine:I386 /out:"$(OUTDIR)/wrjpgcom.exe"
 LINK32_OBJS= \
 	"$(INTDIR)\wrjpgcom.obj"
 
@@ -341,25 +341,25 @@ LINK32_OBJS= \
   $(LINK32_FLAGS) $(LINK32_OBJS)
 <<
 
-!ENDIF 
+!ENDIF
 
 .c{$(CPP_OBJS)}.obj:
-   $(CPP) $(CPP_PROJ) $<  
+   $(CPP) $(CPP_PROJ) $<
 
 .cpp{$(CPP_OBJS)}.obj:
-   $(CPP) $(CPP_PROJ) $<  
+   $(CPP) $(CPP_PROJ) $<
 
 .cxx{$(CPP_OBJS)}.obj:
-   $(CPP) $(CPP_PROJ) $<  
+   $(CPP) $(CPP_PROJ) $<
 
 .c{$(CPP_SBRS)}.sbr:
-   $(CPP) $(CPP_PROJ) $<  
+   $(CPP) $(CPP_PROJ) $<
 
 .cpp{$(CPP_SBRS)}.sbr:
-   $(CPP) $(CPP_PROJ) $<  
+   $(CPP) $(CPP_PROJ) $<
 
 .cxx{$(CPP_SBRS)}.sbr:
-   $(CPP) $(CPP_PROJ) $<  
+   $(CPP) $(CPP_PROJ) $<
 
 ################################################################################
 # Begin Target
@@ -368,7 +368,7 @@ LINK32_OBJS= \
 
 !IF  "$(CFG)" == "cjpeg - Win32"
 
-!ENDIF 
+!ENDIF
 
 ################################################################################
 # Begin Source File
@@ -383,7 +383,7 @@ DEP_CPP_CJPEG=\
 	"jerror.h"\
 	"cderror.h"\
 	"jversion.h"\
-	
+
 
 "$(INTDIR)\cjpeg.obj" : $(SOURCE) $(DEP_CPP_CJPEG) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -402,7 +402,7 @@ DEP_CPP_CDJPE=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\cdjpeg.obj" : $(SOURCE) $(DEP_CPP_CDJPE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -421,7 +421,7 @@ DEP_CPP_RDSWI=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\rdswitch.obj" : $(SOURCE) $(DEP_CPP_RDSWI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -440,7 +440,7 @@ DEP_CPP_RDPPM=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\rdppm.obj" : $(SOURCE) $(DEP_CPP_RDPPM) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -459,7 +459,7 @@ DEP_CPP_RDGIF=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\rdgif.obj" : $(SOURCE) $(DEP_CPP_RDGIF) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -478,7 +478,7 @@ DEP_CPP_RDTAR=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\rdtarga.obj" : $(SOURCE) $(DEP_CPP_RDTAR) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -497,7 +497,7 @@ DEP_CPP_RDBMP=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\rdbmp.obj" : $(SOURCE) $(DEP_CPP_RDBMP) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -516,7 +516,7 @@ DEP_CPP_RDRLE=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\rdrle.obj" : $(SOURCE) $(DEP_CPP_RDRLE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -531,7 +531,7 @@ DEP_CPP_RDRLE=\
 
 !IF  "$(CFG)" == "djpeg - Win32"
 
-!ENDIF 
+!ENDIF
 
 ################################################################################
 # Begin Source File
@@ -546,7 +546,7 @@ DEP_CPP_DJPEG=\
 	"jerror.h"\
 	"cderror.h"\
 	"jversion.h"\
-	
+
 
 "$(INTDIR)\djpeg.obj" : $(SOURCE) $(DEP_CPP_DJPEG) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -565,7 +565,7 @@ DEP_CPP_CDJPE=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\cdjpeg.obj" : $(SOURCE) $(DEP_CPP_CDJPE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -584,7 +584,7 @@ DEP_CPP_RDCOL=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\rdcolmap.obj" : $(SOURCE) $(DEP_CPP_RDCOL) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -603,7 +603,7 @@ DEP_CPP_WRPPM=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\wrppm.obj" : $(SOURCE) $(DEP_CPP_WRPPM) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -622,7 +622,7 @@ DEP_CPP_WRGIF=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\wrgif.obj" : $(SOURCE) $(DEP_CPP_WRGIF) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -641,7 +641,7 @@ DEP_CPP_WRTAR=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\wrtarga.obj" : $(SOURCE) $(DEP_CPP_WRTAR) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -660,7 +660,7 @@ DEP_CPP_WRBMP=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\wrbmp.obj" : $(SOURCE) $(DEP_CPP_WRBMP) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -679,7 +679,7 @@ DEP_CPP_WRRLE=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\wrrle.obj" : $(SOURCE) $(DEP_CPP_WRRLE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -694,7 +694,7 @@ DEP_CPP_WRRLE=\
 
 !IF  "$(CFG)" == "jpegtran - Win32"
 
-!ENDIF 
+!ENDIF
 
 ################################################################################
 # Begin Source File
@@ -710,7 +710,7 @@ DEP_CPP_JPEGT=\
 	"cderror.h"\
 	"transupp.h"\
 	"jversion.h"\
-	
+
 
 "$(INTDIR)\jpegtran.obj" : $(SOURCE) $(DEP_CPP_JPEGT) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -729,7 +729,7 @@ DEP_CPP_CDJPE=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\cdjpeg.obj" : $(SOURCE) $(DEP_CPP_CDJPE) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -748,7 +748,7 @@ DEP_CPP_RDSWI=\
 	"jmorecfg.h"\
 	"jerror.h"\
 	"cderror.h"\
-	
+
 
 "$(INTDIR)\rdswitch.obj" : $(SOURCE) $(DEP_CPP_RDSWI) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -767,7 +767,7 @@ DEP_CPP_TRANS=\
 	"jpegint.h"\
 	"jerror.h"\
 	"transupp.h"\
-	
+
 
 "$(INTDIR)\transupp.obj" : $(SOURCE) $(DEP_CPP_TRANS) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -782,7 +782,7 @@ DEP_CPP_TRANS=\
 
 !IF  "$(CFG)" == "rdjpgcom - Win32"
 
-!ENDIF 
+!ENDIF
 
 ################################################################################
 # Begin Source File
@@ -791,7 +791,7 @@ SOURCE="rdjpgcom.c"
 DEP_CPP_RDJPG=\
 	"jinclude.h"\
 	"jconfig.h"\
-	
+
 
 "$(INTDIR)\rdjpgcom.obj" : $(SOURCE) $(DEP_CPP_RDJPG) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)
@@ -806,7 +806,7 @@ DEP_CPP_RDJPG=\
 
 !IF  "$(CFG)" == "wrjpgcom - Win32"
 
-!ENDIF 
+!ENDIF
 
 ################################################################################
 # Begin Source File
@@ -815,7 +815,7 @@ SOURCE="wrjpgcom.c"
 DEP_CPP_WRJPG=\
 	"jinclude.h"\
 	"jconfig.h"\
-	
+
 
 "$(INTDIR)\wrjpgcom.obj" : $(SOURCE) $(DEP_CPP_WRJPG) "$(INTDIR)"
    $(CPP) $(CPP_PROJ) $(SOURCE)

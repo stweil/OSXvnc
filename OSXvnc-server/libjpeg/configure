@@ -1,7 +1,7 @@
 #! /bin/sh
 
 # Guess values for system-dependent variables and create Makefiles.
-# Generated automatically using autoconf version 2.12 
+# Generated automatically using autoconf version 2.12
 # Copyright (C) 1992, 93, 94, 95, 96 Free Software Foundation, Inc.
 #
 # This configure script is free software; the Free Software Foundation
@@ -758,7 +758,7 @@ int test2function (void)	/* check void arg list */
 { return 0; }
 
 int main() {
- 
+
 ; return 0; }
 EOF
 if { (eval echo configure:765: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
@@ -776,7 +776,7 @@ fi
 echo "$ac_t""$ijg_cv_have_prototypes" 1>&6
 if test $ijg_cv_have_prototypes = yes; then
   cat >> confdefs.h <<\EOF
-#define HAVE_PROTOTYPES 
+#define HAVE_PROTOTYPES
 EOF
 
 else
@@ -815,7 +815,7 @@ fi
 if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
   echo "$ac_t""yes" 1>&6
   cat >> confdefs.h <<\EOF
-#define HAVE_STDDEF_H 
+#define HAVE_STDDEF_H
 EOF
 
 else
@@ -851,7 +851,7 @@ fi
 if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
   echo "$ac_t""yes" 1>&6
   cat >> confdefs.h <<\EOF
-#define HAVE_STDLIB_H 
+#define HAVE_STDLIB_H
 EOF
 
 else
@@ -890,7 +890,7 @@ if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
 else
   echo "$ac_t""no" 1>&6
 cat >> confdefs.h <<\EOF
-#define NEED_BSD_STRINGS 
+#define NEED_BSD_STRINGS
 EOF
 
 fi
@@ -916,7 +916,7 @@ cat > conftest.$ac_ext <<EOF
 typedef size_t my_size_t;
 
 int main() {
- my_size_t foovar; 
+ my_size_t foovar;
 ; return 0; }
 EOF
 if { (eval echo configure:923: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
@@ -960,7 +960,7 @@ fi
 if eval "test \"`echo '$ac_cv_header_'$ac_safe`\" = yes"; then
   echo "$ac_t""yes" 1>&6
   cat >> confdefs.h <<\EOF
-#define NEED_SYS_TYPES_H 
+#define NEED_SYS_TYPES_H
 EOF
 
 cat > conftest.$ac_ext <<EOF
@@ -996,14 +996,14 @@ cat > conftest.$ac_ext <<EOF
 #include "confdefs.h"
 
 int main() {
- unsigned char un_char; 
+ unsigned char un_char;
 ; return 0; }
 EOF
 if { (eval echo configure:1003: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   echo "$ac_t""yes" 1>&6
 cat >> confdefs.h <<\EOF
-#define HAVE_UNSIGNED_CHAR 
+#define HAVE_UNSIGNED_CHAR
 EOF
 
 else
@@ -1020,14 +1020,14 @@ cat > conftest.$ac_ext <<EOF
 #include "confdefs.h"
 
 int main() {
- unsigned short un_short; 
+ unsigned short un_short;
 ; return 0; }
 EOF
 if { (eval echo configure:1027: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
   rm -rf conftest*
   echo "$ac_t""yes" 1>&6
 cat >> confdefs.h <<\EOF
-#define HAVE_UNSIGNED_SHORT 
+#define HAVE_UNSIGNED_SHORT
 EOF
 
 else
@@ -1065,7 +1065,7 @@ void test3function (arg1, arg2)
 }
 
 int main() {
- 
+
 ; return 0; }
 EOF
 if { (eval echo configure:1072: \"$ac_compile\") 1>&5; (eval $ac_compile) 2>&5; }; then
@@ -1153,7 +1153,7 @@ fi
 echo "$ac_t""$ac_cv_c_const" 1>&6
 if test $ac_cv_c_const = no; then
   cat >> confdefs.h <<\EOF
-#define const 
+#define const
 EOF
 
 fi
@@ -1224,7 +1224,7 @@ echo "configure:1224: checking for broken incomplete types" >&5
 cat > conftest.$ac_ext <<EOF
 #line 1226 "configure"
 #include "confdefs.h"
- typedef struct undefined_structure * undef_struct_ptr; 
+ typedef struct undefined_structure * undef_struct_ptr;
 int main() {
 
 ; return 0; }
@@ -1238,7 +1238,7 @@ else
   rm -rf conftest*
   echo "$ac_t""broken" 1>&6
 cat >> confdefs.h <<\EOF
-#define INCOMPLETE_TYPES_BROKEN 
+#define INCOMPLETE_TYPES_BROKEN
 EOF
 
 fi
@@ -1253,7 +1253,7 @@ int possibly_duplicate_function () { return 0; }
 int possibly_dupli_function () { return 1; }
 
 int main() {
- 
+
 ; return 0; }
 EOF
 if { (eval echo configure:1260: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
@@ -1265,7 +1265,7 @@ else
   rm -rf conftest*
   echo "$ac_t""short" 1>&6
 cat >> confdefs.h <<\EOF
-#define NEED_SHORT_EXTERNAL_NAMES 
+#define NEED_SHORT_EXTERNAL_NAMES
 EOF
 
 fi
@@ -1306,7 +1306,7 @@ if { (eval echo configure:1306: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && t
 then
   echo "$ac_t""no" 1>&6
 cat >> confdefs.h <<\EOF
-#define CHAR_IS_UNSIGNED 
+#define CHAR_IS_UNSIGNED
 EOF
 
 else
@@ -1358,7 +1358,7 @@ if { (eval echo configure:1358: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && t
 then
   echo "$ac_t""no" 1>&6
 cat >> confdefs.h <<\EOF
-#define RIGHT_SHIFT_IS_UNSIGNED 
+#define RIGHT_SHIFT_IS_UNSIGNED
 EOF
 
 else
@@ -1395,7 +1395,7 @@ else
   rm -fr conftest*
   echo "$ac_t""no" 1>&6
 cat >> confdefs.h <<\EOF
-#define DONT_USE_B_MODE 
+#define DONT_USE_B_MODE
 EOF
 
 fi
@@ -1598,7 +1598,7 @@ cat > conftest.$ac_ext <<EOF
 #include "confdefs.h"
 #include <stdio.h>
 int main() {
- FILE * tfile = tmpfile(); 
+ FILE * tfile = tmpfile();
 ; return 0; }
 EOF
 if { (eval echo configure:1605: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
@@ -1612,7 +1612,7 @@ else
   echo "$ac_t""no" 1>&6
 MEMORYMGR='jmemname.$(O)'
 cat >> confdefs.h <<\EOF
-#define NEED_SIGNAL_CATCHER 
+#define NEED_SIGNAL_CATCHER
 EOF
 
 echo $ac_n "checking for 'mktemp()'""... $ac_c" 1>&6
@@ -1622,7 +1622,7 @@ cat > conftest.$ac_ext <<EOF
 #include "confdefs.h"
 
 int main() {
- char fname[80]; mktemp(fname); 
+ char fname[80]; mktemp(fname);
 ; return 0; }
 EOF
 if { (eval echo configure:1629: \"$ac_link\") 1>&5; (eval $ac_link) 2>&5; } && test -s conftest; then
@@ -1634,7 +1634,7 @@ else
   rm -rf conftest*
   echo "$ac_t""no" 1>&6
 cat >> confdefs.h <<\EOF
-#define NO_MKTEMP 
+#define NO_MKTEMP
 EOF
 
 fi

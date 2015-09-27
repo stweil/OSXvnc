@@ -12,7 +12,7 @@
 ;      * * * Output file * * *
 libjpeg.lib
 ;
-; * * * COMPILER OPTIONS * * *  
+; * * * COMPILER OPTIONS * * *
 .C[-P]        ; absolute calls
 .C[-M]        ; and no string merging, folks
 .C[-w-cln]    ; no "constant is long" warnings
@@ -21,7 +21,7 @@ libjpeg.lib
 .C[-wsig]     ; warn if significant digits may be lost
 .L[-J]        ; link new Obj-format (so we get a library)
 =
-; * * * * List of modules * * * * 
+; * * * * List of modules * * * *
 jcapimin.c	(jinclude.h,jconfig.h,jpeglib.h,jmorecfg.h,jpegint.h,jerror.h)
 jcapistd.c	(jinclude.h,jconfig.h,jpeglib.h,jmorecfg.h,jpegint.h,jerror.h)
 jccoefct.c	(jinclude.h,jconfig.h,jpeglib.h,jmorecfg.h,jpegint.h,jerror.h)
