@@ -57,7 +57,7 @@ int failedAttemptsForClient(rfbClientPtr cl) {
 
 int incrementFailedAttemptsForClient(rfbClientPtr cl) {
 	NSString *clientHost = [[NSString alloc] initWithCString:cl->host encoding:NSUTF8StringEncoding];
-	NSNumber *failedNumber = nil;
+	NSNumber *failedNumber;
 	int failedAttempts=0;
 
 	[authClientLock	lock];
@@ -312,10 +312,10 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
     vncEncryptBytes(cl->authChallenge, passwd);
 
     /* Lose the password from memory */
-    for (i = strlen(passwd); i >= 0; i--) {
+    for (i = 0; passwd[i] != '\0'; i++) {
         passwd[i] = '\0';
     }
-    free((char *)passwd);
+    free(passwd);
 
     if (memcmp(cl->authChallenge, response, CHALLENGESIZE) != 0) {
 		incrementFailedAttemptsForClient(cl);
