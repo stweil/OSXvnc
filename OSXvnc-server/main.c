@@ -98,7 +98,7 @@ extern void rfbScreensaverTimer(EventLoopTimerRef timer, void *userData);
 
 int rfbDeferUpdateTime = 40; /* in ms */
 
-static char reverseHost[255] = "";
+static char reverseHost[256] = "";
 static int reversePort = 5500;
 
 CGDisplayErr displayErr;
@@ -528,7 +528,7 @@ static void *listenerRun(void *ignore) {
             return NULL;
         }
 
-        if (strlen(reverseHost)) {
+        if (reverseHost[0] != '\0') {
             rfbLog("Listener Disabled\n");
         }
         else {
@@ -831,7 +831,7 @@ static void processArguments(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-connecthost") == 0) {  // -connect host
             if (i + 1 >= argc) usage();
             strncpy(reverseHost, argv[++i], 255);
-            if (strlen(reverseHost) == 0) usage();
+            if (reverseHost[0] == '\0') usage();
         } else if (strcmp(argv[i], "-connectport") == 0) {  // -connect host
             if (i + 1 >= argc) usage();
             reversePort = atoi(argv[++i]);
@@ -919,7 +919,7 @@ static void processArguments(int argc, char *argv[]) {
         }
     }
 
-    if (!rfbAuthPasswdFile && !allowNoAuth && !reverseHost) {
+    if (!rfbAuthPasswdFile && !allowNoAuth && reverseHost[0] == '\0') {
         rfbLog("ERROR: No authentication specified, use -rfbauth passwordfile OR -rfbnoauth");
         exit (255);
     }
@@ -1159,7 +1159,7 @@ int main(int argc, char *argv[]) {
     nonBlocking = [[NSUserDefaults standardUserDefaults] boolForKey:@"NonBlocking"];
     pthread_create(&listener_thread, NULL, listenerRun, NULL);
 
-    if (strlen(reverseHost) > 0)
+    if (reverseHost[0] != '\0')
         connectReverseClient(reverseHost, reversePort);
 
     // This segment is what is responsible for causing the server to shutdown when a user logs out
