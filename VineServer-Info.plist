@@ -7,7 +7,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>__PRODUCT_VERSION__ - Copyright __YEAR__ TestPlant, Inc. </string>
+	<string>__PRODUCT_VERSION__ - (C) 2013 TestPlant, Inc., (C) __YEAR__ Stefan Weil </string>
 	<key>CFBundleIconFile</key>
 	<string>VineServer.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -29,7 +29,7 @@
 	<key>NSHelpFile</key>
 	<string>Vine Server.pdf</string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright© __YEAR__ TestPlant, Inc.</string>
+	<string>© 2013 TestPlant, Inc., © __YEAR__ Stefan Weil</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
