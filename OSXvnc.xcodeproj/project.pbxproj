@@ -59,8 +59,8 @@
 		AB25DA3B0868842E0065843D /* IOKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB25DA3A0868842E0065843D /* IOKit.framework */; };
 		AB25DA3D086884420065843D /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB25DA3C086884420065843D /* libz.dylib */; };
 		AB3E27F80AF947FB004AF567 /* Vine Server.pdf in Resources */ = {isa = PBXBuildFile; fileRef = AB3E27F70AF947FB004AF567 /* Vine Server.pdf */; };
-		AB82605A08689AC00010AB63 /* storepasswd in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB82605708689AC00010AB63 /* storepasswd */; };
-		AB82605E08689AC00010AB63 /* OSXvnc-server in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB82605B08689AC00010AB63 /* OSXvnc-server */; };
+		AB82605A08689AC00010AB63 /* storepasswd in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB82605708689AC00010AB63 /* storepasswd */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		AB82605E08689AC00010AB63 /* OSXvnc-server in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB82605B08689AC00010AB63 /* OSXvnc-server */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		AB95E3EE0FD4AA3800D063EC /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB95E3ED0FD4AA3700D063EC /* OpenGL.framework */; };
 		ABA7B3D60948CB5D00CD7499 /* d3des.c in Sources */ = {isa = PBXBuildFile; fileRef = ABA7B3D10948CB5D00CD7499 /* d3des.c */; };
 		ABA7B3D70948CB5D00CD7499 /* vncauth.c in Sources */ = {isa = PBXBuildFile; fileRef = ABA7B3D30948CB5D00CD7499 /* vncauth.c */; };
@@ -993,7 +993,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = NO;
-				LastUpgradeCheck = 0430;
+				LastUpgradeCheck = 0700;
 			};
 			buildConfigurationList = ABECD3EE08E46414009C84A0 /* Build configuration list for PBXProject "OSXvnc" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1304,6 +1304,7 @@
 		ABA7B538094A054A00CD7499 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
@@ -1316,6 +1317,7 @@
 		ABA7B539094A054A00CD7499 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				CXX = "g++-3.3 ";
 				DEPLOYMENT_POSTPROCESSING = NO;
 				GCC_INPUT_FILETYPE = sourcecode.cpp.cpp;
@@ -1329,6 +1331,7 @@
 		ABA7B638094A0A6E00CD7499 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				PRODUCT_NAME = jpg;
 			};
 			name = Development;
@@ -1336,6 +1339,7 @@
 		ABA7B639094A0A6E00CD7499 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				PRODUCT_NAME = jpg;
 			};
 			name = Deployment;
@@ -1389,8 +1393,10 @@
 		ABECD3EB08E46414009C84A0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "VineServer-Info.plist";
 				INSTALL_PATH = "/Vine Server/";
+				PRODUCT_BUNDLE_IDENTIFIER = com.redstonesoftware.VineServer;
 				PRODUCT_NAME = "Vine Server";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1399,11 +1405,13 @@
 		ABECD3EC08E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp;
 				INFOPLIST_FILE = "VineServer-Info.plist";
 				INSTALL_PATH = "/Vine Server/";
+				PRODUCT_BUNDLE_IDENTIFIER = com.redstonesoftware.VineServer;
 				PRODUCT_NAME = "Vine Server";
 				WRAPPER_EXTENSION = app;
 			};
@@ -1412,8 +1420,10 @@
 		ABECD3EF08E46414009C84A0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_TESTABILITY = YES;
 				INSTALL_PATH = /tmp;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
@@ -1422,7 +1432,6 @@
 		ABECD3F008E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CODE_SIGN_IDENTITY = "Developer ID Application: TestPlant Inc.";
 				DEPLOYMENT_POSTPROCESSING = YES;
 				INSTALL_PATH = /tmp;
