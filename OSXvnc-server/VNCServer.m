@@ -174,11 +174,11 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
 
                     if (resultCode == noErr) {
                         if (actualStringLength > 1) {
-                            NSLog(@"Multiple Characters For %d (%#04lx): %S",  keyCode, modifierKeyState, (int *) unicodeChar);
+                            NSLog(@"Multiple Characters For %d (%#04x): %S",  keyCode, (unsigned int)modifierKeyState, (const unichar *)unicodeChar);
                             //unicodeChar[0] = unicodeChar[actualStringLength-1];
                         }
                         else {
-                            NSLog(@"Loaded %d (%04lx)",  keyCode, modifierKeyState);
+                            NSLog(@"Loaded %d (%04x)",  keyCode, (unsigned int)modifierKeyState);
                             // We'll use the FIRST keyCode that we find for that UNICODE character
                             if (keyTable[unicodeChar[0]] == 0xFFFF) {
                                 keyTable[unicodeChar[0]] = keyCode;
@@ -187,7 +187,7 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
                         }
                     }
                     else {
-                        NSLog(@"Error Translating %d (%04lx): %s - %s",  keyCode, modifierKeyState, GetMacOSStatusErrorString(resultCode), GetMacOSStatusCommentString(resultCode));
+                        NSLog(@"Error Translating %d (%04x): %s - %s",  keyCode, (unsigned int)modifierKeyState, GetMacOSStatusErrorString(resultCode), GetMacOSStatusCommentString(resultCode));
                     }
                 }
             }
@@ -319,7 +319,7 @@ bool isConsoleSession() {
             while (!readyToStartup) {
                 OSStatus resultCode = RunCurrentEventLoop(kEventDurationSecond); //EventTimeout
                 if (resultCode != eventLoopTimedOutErr) {
-                    NSLog(@"Received Result: %ld during event loop, Shutting Down", resultCode);
+                    NSLog(@"Received Result: %d during event loop, Shutting Down", (int)resultCode);
                     //rfbShutdown();
                     exit(0);
                 }
