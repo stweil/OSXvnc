@@ -1122,9 +1122,9 @@ NSMutableArray *localIPAddresses() {
 			break;
 	}
 	[argv addObject:@"-EventTap"];
-	[argv addObject:[NSString stringWithFormat:@"%d", [[keyboardEvents selectedItem] tag]]];
+	[argv addObject:[NSString stringWithFormat:@"%ld", [[keyboardEvents selectedItem] tag]]];
 	[argv addObject:@"-EventSource"];
-	[argv addObject:[NSString stringWithFormat:@"%d", [[eventSourcePopup selectedItem] tag]]];
+	[argv addObject:[NSString stringWithFormat:@"%ld", [[eventSourcePopup selectedItem] tag]]];
 	
 	
     if ([swapMouseButtonsCheckbox state])
@@ -1765,9 +1765,12 @@ NSMutableArray *localIPAddresses() {
 - (IBAction) installAsService: sender {
 	// No password, so double check
 	if (![[passwordField stringValue] length]) {
-		NSBeginAlertSheet(LocalizedString(@"System Server"), LocalizedString(@"Cancel"), LocalizedString(@"Start Server"), nil, 
-						  systemServerWindow, self, @selector(serviceSheetDidEnd:returnCode:contextInfo:), NULL, NULL, 
-						  LocalizedString(@"No password has been specified for the System Server.  The System Server will automatic launch every time your machine is restarted.  Are you sure that you want to install a System Server with no password"));
+		NSBeginAlertSheet(LocalizedString(@"System Server"),
+                          LocalizedString(@"Cancel"),
+                          LocalizedString(@"Start Server"),
+                          nil, systemServerWindow, self, @selector(serviceSheetDidEnd:returnCode:contextInfo:),
+                          NULL, NULL,
+                          LocalizedString(@"No password has been specified for the System Server.  The System Server will automatic launch every time your machine is restarted.  Are you sure that you want to install a System Server with no password"));
 	}
 	else {
 		[self installAsService];
