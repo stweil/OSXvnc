@@ -147,7 +147,7 @@ NSMutableArray *localIPAddresses() {
 }
 
 - init {
-    [super init];
+    self = [super init];
 	
 	// Transform the GUI into a "ForegroundApp" with Dock Icon and Menu
 	// This is so the server can run without a UI

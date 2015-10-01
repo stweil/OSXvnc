@@ -331,8 +331,6 @@ bool isConsoleSession() {
 
     keyboardLoading = [[NSUserDefaults standardUserDefaults] boolForKey:@"keyboardLoading"];
     if (keyboardLoading) {
-        OSErr result;
-
         NSLog(@"Keyboard Loading - Enabled");
 
         pressModsForKeys = [[NSUserDefaults standardUserDefaults] boolForKey:@"pressModsForKeys"];
@@ -346,7 +344,7 @@ bool isConsoleSession() {
         if (loadedKeyboardRef)
             [self loadKeyboard:loadedKeyboardRef];
         else
-            NSLog(@"Error (%u) unabled to load current keyboard layout", result);
+            NSLog(@"Error unable to load current keyboard layout");
     }
 
     if ([[[NSProcessInfo processInfo] arguments] indexOfObject:@"-ipv4"] != NSNotFound) {

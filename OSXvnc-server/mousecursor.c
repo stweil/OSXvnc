@@ -128,7 +128,6 @@ void loadCurrentCursorData() {
     {
 		unsigned char *maskPointer = cursorMaskData;
         unsigned char *cursorRowData = cursorData;
-        unsigned char *cursorColumnData = cursorData;
         unsigned int cursorBytesPerPixel = (cursorDepth/8);
         unsigned char mask = 0;
 		unsigned int alphaShift = (8 - cursorBitsPerComponent);
@@ -137,7 +136,7 @@ void loadCurrentCursorData() {
         int dataX, dataY, componentIndex;
 
         for (dataY = 0; dataY < cursorRect.size.height; dataY++) {
-            cursorColumnData = cursorRowData;
+            unsigned char *cursorColumnData = cursorRowData;
             for (dataX = 0; dataX < cursorRect.size.width; dataX++) {
 				if (littleEndian)
 					mask = (unsigned char)(*(cursorColumnData+(cursorBytesPerPixel-1))) >> alphaShift;

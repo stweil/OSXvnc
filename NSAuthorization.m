@@ -21,7 +21,7 @@
     AuthorizationItem myItems = {kAuthorizationRightExecute, 0, NULL, 0};
     AuthorizationRights myRights = {1, &myItems};
     
-    [super init];
+    self = [super init];
     
     myStatus = AuthorizationCreate(NULL, kAuthorizationEmptyEnvironment, myFlags, &myAuthorizationRef);
 
