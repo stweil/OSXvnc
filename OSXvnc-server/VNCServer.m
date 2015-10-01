@@ -148,7 +148,6 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
 
         UInt16 keyCode;
         UInt32 keyboardType = LMGetKbdType();
-        UInt32 deadKeyState = 0;
         UniCharCount actualStringLength;
         UniChar unicodeChar[255];
 
@@ -601,7 +600,6 @@ bool isConsoleSession() {
     // If we can't locate the keycode then we will use the special OPTION+4 HEX coding that is available on the Unicode HexInput Keyboard
     if (keyCode == 0xFFFF) {
         if (down && unicodeInputSource != NULL) {
-            CGKeyCode keyCodeMeta = 58; // KeyCode for the Option key with the Unicode Hex input keyboard
             unsigned short mask=0xF000;
             int rightShift;
             CGEventFlags oldModifiers = currentModifiers;
@@ -723,8 +721,6 @@ bool isConsoleSession() {
     // If it's a session tap (and we have an event source) then we can specify our own modifiers as part of the event (nothing to do here)
     // Otherwise we will have to explicitly twiddle them at the HID level based on their current state
     if (vncTapLocation == kCGHIDEventTap || !vncSourceRef) {
-        CGEventRef event = nil;
-
         // Toggle the state of the appropriate keys
         if ((currentModifiers & kCGEventFlagMaskCommand) != (modifierFlags & kCGEventFlagMaskCommand)) {
             [self sendKeyEvent:keyCodeCommand down:((modifierFlags & kCGEventFlagMaskCommand) != 0) modifiers:0];
