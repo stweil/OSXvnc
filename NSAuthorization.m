@@ -42,13 +42,13 @@
 		
 - (BOOL) executeCommand:(NSString *) command withArgs: (NSArray *) argumentArray synchronous: (BOOL) sync {
 	FILE *communicationStream = NULL;
-    char **copyArguments = NULL;
     int i;
     OSStatus myStatus;
 	char outputString[1024];
 	int startTime=time(NULL);
         
-    copyArguments = malloc(sizeof(char *) * ([argumentArray count]+1));
+    char **copyArguments = malloc(sizeof(char *) * ([argumentArray count] + 1));
+
     for (i=0;i<[argumentArray count];i++) {
         copyArguments[i] = (char *) [[argumentArray objectAtIndex:i] lossyCString];
     }
