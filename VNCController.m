@@ -254,9 +254,12 @@ NSMutableArray *localIPAddresses() {
 // Since this can block for a long time in certain DNS situations we will put this in a separate thread
 - (void) dedicatedUpdateHostInfoThread {
 	NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-	NS_DURING {		
+	NS_DURING {
+        // flushHostCache is no longer needed since OS X 10.6.
+#if 0
 		[NSHost flushHostCache];
-		
+#endif
+
 		NSHost *currentHost = [NSHost currentHost];
 		NSMutableArray *commonHostNames = [[currentHost names] mutableCopy];
 		NSMutableArray *commonIPAddresses = [[currentHost addresses] mutableCopy];
@@ -1770,7 +1773,7 @@ NSMutableArray *localIPAddresses() {
                           LocalizedString(@"Cancel"),
                           LocalizedString(@"Start Server"),
                           nil, systemServerWindow, self, @selector(serviceSheetDidEnd:returnCode:contextInfo:),
-                          NULL, NULL,
+                          NULL, NULL, @"%@",
                           LocalizedString(@"No password has been specified for the System Server.  The System Server will automatic launch every time your machine is restarted.  Are you sure that you want to install a System Server with no password"));
 	}
 	else {
