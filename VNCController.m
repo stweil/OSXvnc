@@ -1549,7 +1549,7 @@ NSMutableArray *localIPAddresses() {
     // Replace the VNCPATH line
     lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCPATH="]];
     if (lineRange.location != NSNotFound) {
-        NSMutableString *replaceString = [NSString stringWithFormat:@"VNCPATH=\"%@\"\n", startupPath];        
+        NSMutableString *replaceString = [NSMutableString stringWithFormat:@"VNCPATH=\"%@\"\n", startupPath];
         [startupScript replaceCharactersInRange:lineRange withString:replaceString];
     }
 	
@@ -1557,7 +1557,6 @@ NSMutableArray *localIPAddresses() {
     lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCARGS="]];
     if (lineRange.location != NSNotFound) {
 		NSData *vncauth = [[NSUserDefaults standardUserDefaults] dataForKey:@"vncauthSystemServer"];
-        NSMutableString *replaceString = nil;
 		NSString *oldPasswordFile = passwordFile;
 		NSString *oldDesktopName = [systemServerDisplayNameField stringValue];
 			
@@ -1578,7 +1577,9 @@ NSMutableArray *localIPAddresses() {
 			[newDesktopName replaceOccurrencesOfString:@" " withString:@"_" options:0 range:NSMakeRange(0,[oldDesktopName length])];
 			[systemServerDisplayNameField setStringValue:newDesktopName];
 		}
-		replaceString = [NSString stringWithFormat:@"VNCARGS=\"%@\"\n",[[self formCommandLineForSystemServer: YES] componentsJoinedByString:@" "]];
+		NSMutableString *replaceString =
+            [NSMutableString stringWithFormat:@"VNCARGS=\"%@\"\n",
+             [[self formCommandLineForSystemServer: YES] componentsJoinedByString:@" "]];
 
         [startupScript replaceCharactersInRange:lineRange withString:replaceString];
 
