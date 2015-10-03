@@ -40,7 +40,7 @@
 #include "rfbserver.h"
 #import "VNCServer.h"
 
-ScreenRec hackScreen;
+static ScreenRec hackScreen;
 rfbScreenInfo rfbScreen;
 
 int rfbProtocolMajorVersion = 3;

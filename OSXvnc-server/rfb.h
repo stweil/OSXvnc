@@ -325,15 +325,6 @@ typedef struct rfbClientRec {
 
 
 /*
- * This macro is used to test whether there is a framebuffer update needing to
- * be sent to the client.
- */
-
-#define FB_UPDATE_PENDING(cl)                           \
-     REGION_NOTEMPTY(&hackScreen,&(cl)->copyRegion) ||  \
-     REGION_NOTEMPTY(&hackScreen,&(cl)->modifiedRegion)
-
-/*
  * This macro creates an empty region (ie. a region with no areas) if it is
  * given a rectangle with a width or height of zero. It appears that
  * REGION_INTERSECT does not quite do the right thing with zero-width
@@ -387,7 +378,6 @@ extern void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h);
 extern void rfbStartClientWithFD(int client_fd);
 extern void connectReverseClient(char *hostName, int portNum);
 
-extern ScreenRec hackScreen;
 extern rfbScreenInfo rfbScreen;
 
 extern char desktopName[256];
