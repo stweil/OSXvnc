@@ -1,6 +1,6 @@
 CC=cc
 CXX=cc
-CFLAGS=-O3 -Wall -ObjC
+CFLAGS=-O3 -Wall -Wextra -g
 CXXFLAGS=-g -Wall
 INCLUDES=-I. -Ilibvncauth -Iinclude -Iinclude/X11 -Iinclude/Xserver -Ilibjpeg
 VNCAUTHLIB=-Llibvncauth -lvncauth
@@ -37,7 +37,7 @@ storepasswd: storepasswd.o libvncauth/libvncauth.a
 	$(CC) -o storepasswd storepasswd.o $(VNCAUTHLIB)
 
 libvncauth/libvncauth.a:
-	(cd libvncauth; make)
+	(cd libvncauth && make)
 
 libjpeg/libjpeg.a:
 	(cd libjpeg; make libjpeg.a)
@@ -47,9 +47,9 @@ rdr/librdr.a:
 
 clean:
 	rm -f $(OBJS) *~ core "#"* *.bak *.orig *.o
-	(cd libvncauth; make clean)
-	(cd libjpeg; make clean)
-	(cd rdr; make clean)
+	(cd libvncauth && make clean)
+	(cd libjpeg && make clean)
+	(cd rdr && make clean)
 
 realclean: clean
 	rm -f OSXvnc-server storepasswd .depend
