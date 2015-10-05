@@ -12,7 +12,7 @@
 
 @implementation NSAuthorization
 
-- init {
+- (instancetype) init {
     AuthorizationFlags myFlags = kAuthorizationFlagDefaults |
     kAuthorizationFlagInteractionAllowed |
     kAuthorizationFlagPreAuthorize |
@@ -47,15 +47,15 @@
 	char outputString[1024];
 	int startTime=time(NULL);
         
-    char **copyArguments = malloc(sizeof(char *) * ([argumentArray count] + 1));
+    char **copyArguments = malloc(sizeof(char *) * (argumentArray.count + 1));
 
-    for (i=0;i<[argumentArray count];i++) {
-        copyArguments[i] = (char *) [[argumentArray objectAtIndex:i] lossyCString];
+    for (i = 0; i < argumentArray.count; i++) {
+        copyArguments[i] = (char *) [argumentArray[i] lossyCString];
     }
     copyArguments[i] = NULL;
     
     myStatus = AuthorizationExecuteWithPrivileges(myAuthorizationRef, 
-                                                  [command UTF8String],
+                                                  command.UTF8String,
                                                   kAuthorizationFlagDefaults,
                                                   copyArguments, 
                                                   (sync ? &communicationStream : NULL)); // FILE HANDLE for I/O

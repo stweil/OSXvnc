@@ -134,10 +134,10 @@
 	NSString *automaticReversePort;
 }
 
-- init;
+- (instancetype) init;
 
-- (NSWindow *) window;
-- (int) runningPortNum;
+@property (NS_NONATOMIC_IOSONLY, readonly, strong) NSWindow *window;
+@property (NS_NONATOMIC_IOSONLY, readonly) int runningPortNum;
 
 - (void) awakeFromNib;
 
