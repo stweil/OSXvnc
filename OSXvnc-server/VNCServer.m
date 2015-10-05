@@ -157,8 +157,8 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
             //NSLog(@"Loading Keys For Modifer State: %#04x", modifierKeyState);
             // Iterate Over Each Key Code
             for (keyCode = 0; keyCode < 255; keyCode++) {
-                for (j=0; j < [keyStates count]; j++) {
-                    int keyActionState = [[keyStates objectAtIndex:j] intValue];
+                for (j=0; j < keyStates.count; j++) {
+                    int keyActionState = [keyStates[j] intValue];
                     UInt32 deadKeyState = 0;
                     OSStatus resultCode = UCKeyTranslate (uchrHandle,
                                                           keyCode,
@@ -281,19 +281,17 @@ bool isConsoleSession() {
 }
 
 - (void) rfbStartup: (rfbserver *) aServer {
-    [[NSUserDefaults standardUserDefaults] registerDefaults:[NSDictionary dictionaryWithObjectsAndKeys:
-                                                             @"NO", @"UnicodeKeyboard", // Load The Unicode Keyboard
-                                                             @"NO", @"DynamicKeyboard", // Try to set the keyboard "as we need it", doesn't work well on Tiger
-                                                             @"-1", @"UnicodeKeyboardIdentifier", // ID of the Unicode Keyboard resource to use (-1 is Apple's)
+    [[NSUserDefaults standardUserDefaults] registerDefaults:@{@"UnicodeKeyboard": @"NO", // Load The Unicode Keyboard
+                                                             @"DynamicKeyboard": @"NO", // Try to set the keyboard "as we need it", doesn't work well on Tiger
+                                                             @"UnicodeKeyboardIdentifier": @"-1", // ID of the Unicode Keyboard resource to use (-1 is Apple's)
 
-                                                             @"2", @"EventSource", // Always private event source so we don't consolidate with existing keys (however HID for the EventTap always does anyhow)
-                                                             @"3", @"EventTap", // Default Event Tap (3=HID for Console User and Session For OffScreen Users)
-                                                             @"5000", @"ModifierDelay", // Delay when shifting modifier keys
-                                                             @"NO", @"SystemServer",
-                                                             @"NO", @"keyboardLoading", // allows OSXvnc to look at the users selected keyboard and map keystrokes using it
-                                                             @"YES", @"pressModsForKeys", // If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it
-                                                             [NSArray arrayWithObjects:[NSNumber numberWithInt:kUCKeyActionAutoKey /*kUCKeyActionDisplay*/], nil], @"KeyStates", // Key States to review to find KeyCodes
-                                                             nil]];
+                                                             @"EventSource": @"2", // Always private event source so we don't consolidate with existing keys (however HID for the EventTap always does anyhow)
+                                                             @"EventTap": @"3", // Default Event Tap (3=HID for Console User and Session For OffScreen Users)
+                                                             @"ModifierDelay": @"5000", // Delay when shifting modifier keys
+                                                             @"SystemServer": @"NO",
+                                                             @"keyboardLoading": @"NO", // allows OSXvnc to look at the users selected keyboard and map keystrokes using it
+                                                             @"pressModsForKeys": @"YES", // If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it
+                                                             @"KeyStates": @[@(kUCKeyActionAutoKey)]}];
 
     theServer = aServer;
 
@@ -301,14 +299,14 @@ bool isConsoleSession() {
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"SystemServer"]) {
         // We need quit if the user switches out (so we can relinquish the port)
         if (isConsoleSession()) {
-            [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+            [[NSWorkspace sharedWorkspace].notificationCenter addObserver:self
                                                                    selector:@selector(systemServerShouldQuit:)
                                                                        name: NSWorkspaceSessionDidResignActiveNotification
                                                                      object:nil];
         }
         // We need to be able to "hold" if we aren't the console session
         else {
-            [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+            [[NSWorkspace sharedWorkspace].notificationCenter addObserver:self
                                                                    selector:@selector(systemServerShouldContinue:)
                                                                        name: NSWorkspaceSessionDidBecomeActiveNotification
                                                                      object:nil];
@@ -346,7 +344,7 @@ bool isConsoleSession() {
             NSLog(@"Error unable to load current keyboard layout");
     }
 
-    if ([[[NSProcessInfo processInfo] arguments] indexOfObject:@"-ipv4"] != NSNotFound) {
+    if ([[NSProcessInfo processInfo].arguments indexOfObject:@"-ipv4"] != NSNotFound) {
         useIP6 = FALSE;
     }
 
@@ -354,13 +352,13 @@ bool isConsoleSession() {
 }
 
 - (void) systemServerShouldQuit: (NSNotification *) aNotification {
-    NSLog(@"User Switched Out, Stopping System Server - %@", [aNotification name]);
+    NSLog(@"User Switched Out, Stopping System Server - %@", aNotification.name);
     //rfbShutdown();
     exit(0);
     return;
 }
 - (void) systemServerShouldContinue: (NSNotification *) aNotification {
-    NSLog(@"User Switched In, Starting System Server - %@", [aNotification name]);
+    NSLog(@"User Switched In, Starting System Server - %@", aNotification.name);
     readyToStartup = YES;
     return;
 }
@@ -415,11 +413,11 @@ bool isConsoleSession() {
                 vncTapLocation = kCGSessionEventTap;
             }
 
-            [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+            [[NSWorkspace sharedWorkspace].notificationCenter addObserver:self
                                                                    selector:@selector(userSwitchedIn:)
                                                                        name: NSWorkspaceSessionDidBecomeActiveNotification
                                                                      object:nil];
-            [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
+            [[NSWorkspace sharedWorkspace].notificationCenter addObserver:self
                                                                    selector:@selector(userSwitchedOut:)
                                                                        name: NSWorkspaceSessionDidResignActiveNotification
                                                                      object:nil];
@@ -464,12 +462,12 @@ bool isConsoleSession() {
 
 
 - (void) userSwitchedIn: (NSNotification *) aNotification {
-    NSLog(@"User Switched In, Using HID Tap - %@", [aNotification name]);
+    NSLog(@"User Switched In, Using HID Tap - %@", aNotification.name);
     vncTapLocation = kCGHIDEventTap;
     return;
 }
 - (void) userSwitchedOut: (NSNotification *) aNotification {
-    NSLog(@"User Switched Out, Using Session Tap - %@", [aNotification name]);
+    NSLog(@"User Switched Out, Using Session Tap - %@", aNotification.name);
     vncTapLocation = kCGSessionEventTap;
     return;
 }
@@ -831,7 +829,7 @@ bool isConsoleSession() {
             NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
 
             [[NSNotificationCenter defaultCenter] postNotification:
-             [NSNotification notificationWithName:@"NewRFBClient" object:[NSNumber numberWithInt:client_fd]]];
+             [NSNotification notificationWithName:@"NewRFBClient" object:@(client_fd)]];
 
             // We have to trigger a signal so the event loop will pickup (if no clients are connected)
             pthread_cond_signal(&(theServer->listenerGotNewClient));
@@ -850,18 +848,18 @@ bool isConsoleSession() {
     NSAutoreleasePool *tempPool = [[NSAutoreleasePool alloc] init];
     BOOL loadRendezvousVNC = NO;
     BOOL loadRendezvousRFB = YES;
-    int argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-rendezvous"];
+    int argumentIndex = [[NSProcessInfo processInfo].arguments indexOfObject:@"-rendezvous"];
     RendezvousDelegate *rendezvousDelegate = [[RendezvousDelegate alloc] init];
 
     if (argumentIndex == NSNotFound) {
-        argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-bonjour"];
+        argumentIndex = [[NSProcessInfo processInfo].arguments indexOfObject:@"-bonjour"];
     }
 
     if (argumentIndex != NSNotFound) {
         NSString *value = nil;
 
-        if ([[[NSProcessInfo processInfo] arguments] count] > argumentIndex + 1)
-            value = [[[NSProcessInfo processInfo] arguments] objectAtIndex:argumentIndex+1];
+        if ([NSProcessInfo processInfo].arguments.count > argumentIndex + 1)
+            value = [NSProcessInfo processInfo].arguments[argumentIndex+1];
 
         if ([value hasPrefix:@"n"] || [value hasPrefix:@"N"] || [value hasPrefix:@"0"]) {
             loadRendezvousVNC = NO; loadRendezvousRFB = NO;
@@ -881,9 +879,9 @@ bool isConsoleSession() {
     if (loadRendezvousRFB) {
         rfbService = [[NSNetService alloc] initWithDomain:@""
                                                      type:@"_rfb._tcp."
-                                                     name:[NSString stringWithUTF8String:theServer->desktopName]
+                                                     name:@(theServer->desktopName)
                                                      port:(int) theServer->rfbPort];
-        [rfbService setDelegate:rendezvousDelegate];
+        rfbService.delegate = rendezvousDelegate;
         [rfbService publish];
     }
     //    else
@@ -892,9 +890,9 @@ bool isConsoleSession() {
     if (loadRendezvousVNC) {
         vncService = [[NSNetService alloc] initWithDomain:@""
                                                      type:@"_vnc._tcp."
-                                                     name:[NSString stringWithUTF8String:theServer->desktopName]
+                                                     name:@(theServer->desktopName)
                                                      port:(int) theServer->rfbPort];
-        [vncService setDelegate:rendezvousDelegate];
+        vncService.delegate = rendezvousDelegate;
 
         [vncService publish];
     }
@@ -909,7 +907,7 @@ bool isConsoleSession() {
 }
 
 - (void) userSwitched: (NSNotification *) aNotification {
-    NSLog(@"User Switched Restarting - %@", [aNotification name]);
+    NSLog(@"User Switched Restarting - %@", aNotification.name);
 
     sleep(10);
     rfbShutdown();
@@ -918,15 +916,15 @@ bool isConsoleSession() {
 }
 
 - (void) clientConnected: (NSNotification *) aNotification {
-    NSLog(@"New IPv6 Client Notification - %@", [aNotification name]);
-    rfbStartClientWithFD([[aNotification object] intValue]);
+    NSLog(@"New IPv6 Client Notification - %@", aNotification.name);
+    rfbStartClientWithFD([aNotification.object intValue]);
 }
 
 - (void) connectHost: (NSNotification *) aNotification {
     NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
 
-    char *reverseHost = (char *)[[[aNotification userInfo] objectForKey:@"ConnectHost"] UTF8String];
-    int reversePort = [[[aNotification userInfo] objectForKey:@"ConnectPort"] intValue];
+    char *reverseHost = (char *)[aNotification.userInfo[@"ConnectHost"] UTF8String];
+    int reversePort = [aNotification.userInfo[@"ConnectPort"] intValue];
 
     NSLog(@"Connecting VNC Client %s(%d)",reverseHost,reversePort);
     connectReverseClient(reverseHost,reversePort);
@@ -944,18 +942,18 @@ bool isConsoleSession() {
 // Sent when the service is about to publish
 
 - (void)netServiceWillPublish:(NSNetService *)netService {
-    NSLog(@"Registering Bonjour Service(%@) - %@", [netService type], [netService name]);
+    NSLog(@"Registering Bonjour Service(%@) - %@", netService.type, netService.name);
 }
 
 // Sent if publication fails
 - (void)netService:(NSNetService *)netService didNotPublish:(NSDictionary *)errorDict {
     NSLog(@"An error occurred with service %@.%@.%@, error code = %@",
-          [netService name], [netService type], [netService domain], [errorDict objectForKey:NSNetServicesErrorCode]);
+          netService.name, netService.type, netService.domain, errorDict[NSNetServicesErrorCode]);
 }
 
 // Sent when the service stops
 - (void)netServiceDidStop:(NSNetService *)netService {
-    NSLog(@"Disabling Bonjour Service - %@", [netService name]);
+    NSLog(@"Disabling Bonjour Service - %@", netService.name);
     // You may want to do something here, such as updating a user interfac
 }
 

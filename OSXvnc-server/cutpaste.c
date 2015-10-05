@@ -57,12 +57,12 @@
 - (BOOL)ensureDirectoryAtPath:(NSString *)path attributes:(NSDictionary *)attributes {
 	NSString *parentDirectory;
 	BOOL isDir = NO;
-	path = [path stringByStandardizingPath];
+	path = path.stringByStandardizingPath;
 	if ([self fileExistsAtPath:path isDirectory:&isDir]) {
 		if (!isDir && [path isEqualToString:@"/tmp"]) return YES; // work around craziness
 		return isDir; // if it's already there, we succeed iff it's a directory
 	}
-	parentDirectory = [path stringByDeletingLastPathComponent];
+	parentDirectory = path.stringByDeletingLastPathComponent;
 	if (parentDirectory && ![parentDirectory isEqualToString:@""]) {
 		BOOL parentExists = [self fileExistsAtPath:parentDirectory isDirectory:&isDir];
 		if (parentExists || [self ensureDirectoryAtPath:parentDirectory attributes:attributes]) {
@@ -87,11 +87,11 @@
 @implementation NSData (RSDataAdditions)
 
 - (NSUInteger) locationOfData:(NSData *)target startingAtLocation:(NSUInteger)startLoc {
-	char *myBytes = (char *)[self bytes];
-	char *targetBytes = (char *)[target bytes];
-	NSUInteger targetLen = [target length];
+	char *myBytes = (char *)self.bytes;
+	char *targetBytes = (char *)target.bytes;
+	NSUInteger targetLen = target.length;
 	NSUInteger loc, inner;
-	for (loc = startLoc; loc+targetLen < [self length]; loc++) {
+	for (loc = startLoc; loc+targetLen < self.length; loc++) {
 		BOOL found = YES; // assume we will match at this loc until disproven
 		for (inner = 0; found && inner < targetLen; inner++) {
 			if (*(myBytes+loc+inner) != *(targetBytes+inner))
@@ -109,11 +109,11 @@
 	NSUInteger nextLoc = [self locationOfData:separator startingAtLocation:0];
 	while (nextLoc != NSNotFound) {
 		[array addObject:[self subdataWithRange:NSMakeRange(prevLoc, nextLoc - prevLoc)]];
-		prevLoc = nextLoc + [separator length];
+		prevLoc = nextLoc + separator.length;
 		nextLoc = [self locationOfData:separator startingAtLocation:prevLoc];
 	}
-	if (prevLoc <= [self length]) // add the final section (use '<=' to get an empty data if separator was found at the end)
-		[array addObject:[self subdataWithRange:NSMakeRange(prevLoc, [self length] - prevLoc)]];
+	if (prevLoc <= self.length) // add the final section (use '<=' to get an empty data if separator was found at the end)
+		[array addObject:[self subdataWithRange:NSMakeRange(prevLoc, self.length - prevLoc)]];
 	return array;
 }
 
@@ -157,7 +157,7 @@ static BOOL debugPB = NO;
 	int newChangeCount = [thePasteboard declareTypes:[availableTypes arrayByAddingObject:VineRemoteProxy] owner:self];
 	// Don't send it back to the same client via rich clipboards
 	pthread_mutex_lock(&clientPointer->updateMutex);
-	[(NSMutableDictionary *)clientPointer->richClipboardChangeCounts setObject:[NSNumber numberWithInt:newChangeCount] forKey:pasteboardName];
+	((NSMutableDictionary *)clientPointer->richClipboardChangeCounts)[pasteboardName] = @(newChangeCount);
 	pthread_mutex_unlock(&clientPointer->updateMutex);
 }
 
@@ -172,7 +172,7 @@ static BOOL debugPB = NO;
 	pthread_mutex_lock(&clientPointer->updateMutex);
 
 	// Notify sending thread of request
-	clientPointer->richClipboardReceivedName = [[thePasteboard name] retain];
+	clientPointer->richClipboardReceivedName = [thePasteboard.name retain];
 	clientPointer->richClipboardReceivedType = [type retain];
 
 	pthread_mutex_unlock(&clientPointer->updateMutex);
@@ -201,14 +201,14 @@ static BOOL debugPB = NO;
 				// create path to file(s) in /tmp
 				NSFileManager *fileManager = [NSFileManager defaultManager];
 				if (!clientPointer->receivedFileTempFolder) {
-					clientPointer->receivedFileTempFolder = [[@"/tmp/Vine-" stringByAppendingString:[[NSProcessInfo processInfo] globallyUniqueString]] retain];
+					clientPointer->receivedFileTempFolder = [[@"/tmp/Vine-" stringByAppendingString:[NSProcessInfo processInfo].globallyUniqueString] retain];
 					[fileManager ensureDirectoryAtPath:clientPointer->receivedFileTempFolder attributes:nil];
 				}
 				// write the files
-				NSString *filename = [theWrapper preferredFilename];
+				NSString *filename = theWrapper.preferredFilename;
 				BOOL setOfFiles = [filename isEqualToString:@"<Redstone set of files>"];
 				if (setOfFiles) {
-					filename = [@"Files-" stringByAppendingString:[[NSProcessInfo processInfo] globallyUniqueString]];
+					filename = [@"Files-" stringByAppendingString:[NSProcessInfo processInfo].globallyUniqueString];
 				}
 				filename = [(NSString *)clientPointer->receivedFileTempFolder stringByAppendingPathComponent:filename]; // get full path
 				// set pasteboard data to point to the files
@@ -216,14 +216,14 @@ static BOOL debugPB = NO;
 					// got a set of files -- put their local names on PB as NSFilenamesPboardType
 					NSMutableArray *filenames = [NSMutableArray array];
 					if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_3)) { // Tiger+
-						NSDictionary *filesDict = [theWrapper fileWrappers];
+						NSDictionary *filesDict = theWrapper.fileWrappers;
 						NSEnumerator *fileEnum = [filesDict keyEnumerator];
 						NSString *aFilename;
 						while (aFilename = [fileEnum nextObject]) {
 							[filenames addObject:[filename stringByAppendingPathComponent:aFilename]];
 						}
 						[theWrapper writeToFile:filename atomically:NO updateFilenames:NO];
-						filename = [filenames objectAtIndex:0]; // this is needed for setting the URL later (must be set to one of the files, not the folder)
+						filename = filenames[0]; // this is needed for setting the URL later (must be set to one of the files, not the folder)
 					} else {
 						// for 10.2 and 10.3, can't receive multiple files -- put them in a folder
 						static int batchCounter = 0;
@@ -232,11 +232,11 @@ static BOOL debugPB = NO;
 						[filenames addObject:filename];
 						//[theWrapper writeToFile:filename atomically:NO updateFilenames:NO];
 						// let's avoid saving the extra .tiff files that seem to get written for each file
-						NSDictionary *filesDict = [theWrapper fileWrappers];
+						NSDictionary *filesDict = theWrapper.fileWrappers;
 						NSEnumerator *fileEnum = [filesDict keyEnumerator];
 						NSString *aFilename;
 						while (aFilename = [fileEnum nextObject]) {
-							NSFileWrapper *singleItemWrapper = [filesDict objectForKey:aFilename];
+							NSFileWrapper *singleItemWrapper = filesDict[aFilename];
 							NSString *singleItemPath = [filename stringByAppendingPathComponent:aFilename];
 							[singleItemWrapper writeToFile:singleItemPath atomically:NO updateFilenames:NO];
 						}
@@ -245,7 +245,7 @@ static BOOL debugPB = NO;
 					//clipBoardReceivedChangeCount = lastChangeCount;
 				} else if ([availableType isEqualToString:NSFilenamesPboardType]) { // Filenames type sent, but only got 1 file
 					[theWrapper writeToFile:filename atomically:NO updateFilenames:YES];
-					[thePasteboard setPropertyList:[NSArray arrayWithObject:filename] forType:NSFilenamesPboardType];
+					[thePasteboard setPropertyList:@[filename] forType:NSFilenamesPboardType];
 					//clipBoardReceivedChangeCount = lastChangeCount;
 				} else {
 					[theWrapper writeToFile:filename atomically:NO updateFilenames:YES];
@@ -254,7 +254,7 @@ static BOOL debugPB = NO;
 					// got a URL type -- so put a URL on the PB, even if we already supplied file names
 					NSURL *theUrl = [NSURL fileURLWithPath:filename];
 						//[theUrl writeToPasteboard:thePasteboard];
-						NSData *theData = [[theUrl absoluteString] dataUsingEncoding:NSUTF8StringEncoding];
+						NSData *theData = [theUrl.absoluteString dataUsingEncoding:NSUTF8StringEncoding];
 								[thePasteboard setData:theData forType:availableType];
 						//clipBoardReceivedChangeCount = lastChangeCount;
 					} else if (![availableType isEqualToString:NSFilenamesPboardType]) {
@@ -344,7 +344,7 @@ void initPasteboard() {
 		rfbDisableRichClipboards = TRUE;
 	}
 	else {
-		NSArray *pbNames = [NSArray arrayWithObjects:NSGeneralPboard, NSRulerPboard, NSFontPboard, NSFindPboard, NSDragPboard, nil];
+		NSArray *pbNames = @[NSGeneralPboard, NSRulerPboard, NSFontPboard, NSFindPboard, NSDragPboard];
 		NSEnumerator *objEnum = [pbNames objectEnumerator];
 		NSString *aPasteboard = nil;
 
@@ -352,11 +352,11 @@ void initPasteboard() {
 
 		while (aPasteboard = [objEnum nextObject]) {
 			// Each Pasteboard has an array with item 0 = the ChangeCount and item 1 = the AvailableTypes Array
-			[pasteboards setObject:[NSMutableArray arrayWithObjects:[NSNumber numberWithInt:0], [NSArray array], nil] forKey:aPasteboard];
+			pasteboards[aPasteboard] = [NSMutableArray arrayWithObjects:@0, [NSArray array], nil];
 		}
 
 		[[NSUserDefaults standardUserDefaults] registerDefaults:
-			[NSDictionary dictionaryWithObject:[NSNumber numberWithUnsignedLongLong:0x10000000] forKey:@"MaxFileTransferSize"]];
+			@{@"MaxFileTransferSize": @0x10000000ULL}];
 
 		maxTransferSize = [[[NSUserDefaults standardUserDefaults] objectForKey:@"MaxFileTransferSize"] unsignedLongLongValue];
 		debugPB = [[NSUserDefaults standardUserDefaults] boolForKey:@"DebugPB"];
@@ -415,13 +415,13 @@ void rfbSetCutText(rfbClientPtr cl, char *str, int len) {
 }
 
 static BOOL pasteboardRepresentsExistingFile(NSPasteboard *thePasteboard) {
-	NSArray *pboardTypes = [thePasteboard types];
+	NSArray *pboardTypes = thePasteboard.types;
 	if ([pboardTypes containsObject:NSFilenamesPboardType]) {
 		NSArray *fileNames = [thePasteboard propertyListForType:NSFilenamesPboardType];
 		NSFileManager *fileManager = [NSFileManager defaultManager];
 		int index;
-		for (index = 0; index < [fileNames count]; index++) {
-			if ([fileManager fileExistsAtPath:[fileNames objectAtIndex:index]]) {
+		for (index = 0; index < fileNames.count; index++) {
+			if ([fileManager fileExistsAtPath:fileNames[index]]) {
 				return YES; // at least one of the files exists
 			}
 		}
@@ -437,8 +437,8 @@ static BOOL pasteboardRepresentsExistingFile(NSPasteboard *thePasteboard) {
 	}
 	else if ([pboardTypes containsObject:NSURLPboardType]) {
 		NSURL *theUrl = [NSURL URLFromPasteboard:thePasteboard];
-		if ([theUrl isFileURL]) {
-			return [[NSFileManager defaultManager] fileExistsAtPath:[theUrl path]];
+		if (theUrl.fileURL) {
+			return [[NSFileManager defaultManager] fileExistsAtPath:theUrl.path];
 		}
 	}
 	return NO;
@@ -453,19 +453,19 @@ static NSArray *arrayFromFlstData(NSData *flstData) {
 		if (debugPB) NSLog(@"PROBLEM: flst data doesn't start with 'dle2' !!");
 		error = YES;
 	}
-	for (fileIndex = 1; !error && fileIndex < [fileArray count]; fileIndex++) { // (note: start at 1 -- ignore first chunk)
-		NSArray *componentArray = [[fileArray objectAtIndex:fileIndex] dataComponentsSeparatedByData: [@"nameseld" dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES]];
+	for (fileIndex = 1; !error && fileIndex < fileArray.count; fileIndex++) { // (note: start at 1 -- ignore first chunk)
+		NSArray *componentArray = [fileArray[fileIndex] dataComponentsSeparatedByData: [@"nameseld" dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES]];
 		NSString *filePath = @"/";
-		for (componentIndex = 1; componentIndex < [componentArray count]; componentIndex++) { // (note: start at 1 -- ignore first chunk)
-			NSData *componentData = [componentArray objectAtIndex:componentIndex];
+		for (componentIndex = 1; componentIndex < componentArray.count; componentIndex++) { // (note: start at 1 -- ignore first chunk)
+			NSData *componentData = componentArray[componentIndex];
 			if ([componentData locationOfData:[@"utxt" dataUsingEncoding:NSUTF8StringEncoding allowLossyConversion:YES] startingAtLocation:0] != 0) {
 				if (debugPB) NSLog(@"PROBLEM: flst component doesn't start with 'utxt' !!");
 				error = YES;
 				break;
 			}
 			unsigned char high, low;
-			high = *(unsigned char *)([componentData bytes]+6);
-			low = *(unsigned char *)([componentData bytes]+7);
+			high = *(unsigned char *)(componentData.bytes+6);
+			low = *(unsigned char *)(componentData.bytes+7);
 			unsigned short len = 256*high + low;
 			NSData *subdata = [componentData subdataWithRange:NSMakeRange(8,len)];
 			NSString *componentStr = [[NSString alloc] initWithData:subdata encoding:NSUnicodeStringEncoding];
@@ -478,7 +478,7 @@ static NSArray *arrayFromFlstData(NSData *flstData) {
 }
 
 static NSArray *getListOfFilenamesFromPasteboard(NSPasteboard *thePasteboard) {
-	NSArray *pboardTypes = [thePasteboard types];
+	NSArray *pboardTypes = thePasteboard.types;
 	if ([pboardTypes containsObject:CorePasteboardFlavor_flst]) { // 10.2 & 10.3
 		NSData *flstData = [thePasteboard dataForType:CorePasteboardFlavor_flst];
 		return arrayFromFlstData(flstData); //pathArray;
@@ -496,7 +496,7 @@ void rfbCheckForPasteboardChange() {
 	[pasteboardVariablesLock lock]; // Protect references to clientCutText
 	NS_DURING
 		if (clientCutText) {
-			if ([[NSPasteboard generalPasteboard] declareTypes:[NSArray arrayWithObject:NSStringPboardType] owner:nil]) {
+			if ([[NSPasteboard generalPasteboard] declareTypes:@[NSStringPboardType] owner:nil]) {
 				[[NSPasteboard generalPasteboard] setString:clientCutText forType:NSStringPboardType];
 			}
 			[clientCutText release];
@@ -508,15 +508,15 @@ void rfbCheckForPasteboardChange() {
 	[pasteboardVariablesLock unlock];
 
 	// First Let's see if we have new info on the pasteboard - if so we'll send an update to each client
-	if (generalPBLastChangeCount != [[NSPasteboard generalPasteboard] changeCount]) {
+	if (generalPBLastChangeCount != [NSPasteboard generalPasteboard].changeCount) {
 		rfbClientPtr cl;
 		rfbClientIteratorPtr iterator = rfbGetClientIterator();
 
 		// Let's grab a copy of it here in the Main/Event Thread so that the output threads don't have to deal with the PB directly
-		if ([[NSPasteboard generalPasteboard] availableTypeFromArray:[NSArray arrayWithObject:NSStringPboardType]]) {
+		if ([[NSPasteboard generalPasteboard] availableTypeFromArray:@[NSStringPboardType]]) {
 			[pasteboardVariablesLock lock];
 			// Record first in case another event comes in after notifying clients
-			generalPBLastChangeCount = [[NSPasteboard generalPasteboard] changeCount];
+			generalPBLastChangeCount = [NSPasteboard generalPasteboard].changeCount;
 			[pasteboardString release];
 			pasteboardString = [[[NSPasteboard generalPasteboard] stringForType:NSStringPboardType] copy];
 			[pasteboardVariablesLock unlock];
@@ -532,18 +532,18 @@ void rfbCheckForPasteboardChange() {
 
 	// Check EACH pasteboard  by name to see if it has new data
 	while (pasteboardName = [pasteboardsEnum nextObject]) {
-		NSMutableArray *pbInfoArray = [pasteboards objectForKey:pasteboardName];
+		NSMutableArray *pbInfoArray = pasteboards[pasteboardName];
 		NSPasteboard *thePasteboard = [NSPasteboard pasteboardWithName:pasteboardName];
 
 		// Record the change count first in case another event comes in while we are pulling the Types
-		int pasteboardsChangeCount = [thePasteboard changeCount];
+		int pasteboardsChangeCount = thePasteboard.changeCount;
 
 		[pasteboardVariablesLock lock];
-		if ([[pbInfoArray objectAtIndex:0] intValue] != pasteboardsChangeCount) {
+		if ([pbInfoArray[0] intValue] != pasteboardsChangeCount) {
 			// Check for special file types (URL for a local file, or NSFilenamesPboardType for an existing file)
-			NSArray *pboardTypes = [thePasteboard types];
-			[pbInfoArray replaceObjectAtIndex:0 withObject:[NSNumber numberWithInt:pasteboardsChangeCount]];
-			if (![pboardTypes count]) {
+			NSArray *pboardTypes = thePasteboard.types;
+			pbInfoArray[0] = @(pasteboardsChangeCount);
+			if (!pboardTypes.count) {
 				if (debugPB)
 					NSLog(@"Warning - Pasteboard with no types, ignored");
 				[pasteboardVariablesLock unlock];
@@ -565,7 +565,7 @@ void rfbCheckForPasteboardChange() {
 					}
 				}
 			}
-			[pbInfoArray replaceObjectAtIndex:1 withObject:pboardTypes];
+			pbInfoArray[1] = pboardTypes;
 
 			{
 				rfbClientPtr cl;
@@ -612,14 +612,14 @@ static void rfbSendRichClipboardAvailable(rfbClientPtr cl, NSString *pasteboardN
 		int pbChangeCount;
 		CARD32 pbNameLength;
 	} rfbServerRichPasteboardInfo;
-	char *pasteboardName = (char *)[pasteboardNameString UTF8String];
-	char *pbTypesListString = (char *)[[[pbInfoArray objectAtIndex:1] componentsJoinedByString:@"\t"] UTF8String];
+	char *pasteboardName = (char *)pasteboardNameString.UTF8String;
+	char *pbTypesListString = (char *)[pbInfoArray[1] componentsJoinedByString:@"\t"].UTF8String;
 	CARD32 typesArrayLength = Swap32IfLE(strlen(pbTypesListString));
 
 	if (debugPB)
-		NSLog(@"Sending CB Available [%s] Types: %@", pasteboardName, [pbInfoArray objectAtIndex:1]);
+		NSLog(@"Sending CB Available [%s] Types: %@", pasteboardName, pbInfoArray[1]);
     rfbServerRichPasteboardInfo.type = rfbRichClipboardAvailable;
-    rfbServerRichPasteboardInfo.pbChangeCount = [[pbInfoArray objectAtIndex:0] intValue];
+    rfbServerRichPasteboardInfo.pbChangeCount = [pbInfoArray[0] intValue];
     rfbServerRichPasteboardInfo.pbNameLength = Swap32IfLE(strlen(pasteboardName));
     if (WriteExact(cl, (char *)&rfbServerRichPasteboardInfo, sizeof(rfbServerRichPasteboardInfo)) < 0) {
         rfbLogPerror("rfbSendServerNewPasteboardInfo: write");
@@ -728,7 +728,7 @@ static void rfbSendRichClipboardData(rfbClientPtr cl) {
         rfbCloseClient(cl);
     }
 	/* followed by char text[dataLength] */
-	if (WriteExact(cl, (char *)[(NSData *)cl->richClipboardNSData bytes], [(NSData *)cl->richClipboardNSData length]) < 0) {
+	if (WriteExact(cl, (char *)((NSData *)cl->richClipboardNSData).bytes, ((NSData *)cl->richClipboardNSData).length) < 0) {
         rfbLogPerror("rfbSendServerNewPasteboardInfo: write");
         rfbCloseClient(cl);
     }
@@ -768,9 +768,9 @@ void rfbClientUpdatePasteboard(rfbClientPtr cl) {
 			[pasteboardVariablesLock lock]; // Protect references to pasteboards
 			cl->generalPBLastChange = generalPBLastChangeCount;
 			while (pasteboardName = [pasteboardsEnum nextObject]) {
-				NSMutableArray *pbInfoArray = [pasteboards objectForKey:pasteboardName];
+				NSMutableArray *pbInfoArray = pasteboards[pasteboardName];
 
-				[(NSMutableDictionary *)cl->richClipboardChangeCounts setObject:[pbInfoArray objectAtIndex:0] forKey:pasteboardName];
+				((NSMutableDictionary *)cl->richClipboardChangeCounts)[pasteboardName] = pbInfoArray[0];
 			}
 			[pasteboardVariablesLock unlock]; // Protect references to pasteboards
 		}
@@ -781,14 +781,14 @@ void rfbClientUpdatePasteboard(rfbClientPtr cl) {
 
 				[pasteboardVariablesLock lock]; // Protect references to pasteboards
 				while (pasteboardName = [pasteboardsEnum nextObject]) {
-					NSMutableArray *pbInfoArray = [pasteboards objectForKey:pasteboardName];
-					int changeCountForPasteboard = [[(NSDictionary *)cl->richClipboardChangeCounts objectForKey:pasteboardName] intValue];
+					NSMutableArray *pbInfoArray = pasteboards[pasteboardName];
+					int changeCountForPasteboard = [((NSDictionary *)cl->richClipboardChangeCounts)[pasteboardName] intValue];
 
-					if (changeCountForPasteboard < [[pbInfoArray objectAtIndex:0] intValue]) {
+					if (changeCountForPasteboard < [pbInfoArray[0] intValue]) {
 						if (changeCountForPasteboard != -1)
 							rfbSendRichClipboardAvailable(cl, pasteboardName, pbInfoArray);
 
-						[(NSMutableDictionary *)cl->richClipboardChangeCounts setObject:[pbInfoArray objectAtIndex:0] forKey:pasteboardName];
+						((NSMutableDictionary *)cl->richClipboardChangeCounts)[pasteboardName] = pbInfoArray[0];
 					}
 				}
 				[pasteboardVariablesLock unlock]; // Protect references to pasteboards
@@ -799,8 +799,8 @@ void rfbClientUpdatePasteboard(rfbClientPtr cl) {
 					if (cl->generalPBLastChange != generalPBLastChangeCount && pasteboardString) {
 						NSData *encodedString = [pasteboardString dataUsingEncoding:pasteboardStringEncoding allowLossyConversion:YES];
 
-						if ([encodedString length])
-							rfbSendServerCutText(cl, (char *) [encodedString bytes], [encodedString length]);
+						if (encodedString.length)
+							rfbSendServerCutText(cl, (char *) encodedString.bytes, encodedString.length);
 
 						cl->generalPBLastChange = generalPBLastChangeCount;
 					};
@@ -837,7 +837,7 @@ void rfbReceiveRichClipboardAvailable(rfbClientPtr cl) {
 	readString = (char *) xalloc(stringLength+1);
 	readString[stringLength] = 0;
 	ReadExact(cl, readString, stringLength);
-	pasteboardName = [NSString stringWithUTF8String:readString];
+	pasteboardName = @(readString);
 	xfree(readString);
 
 	// Type String
@@ -846,7 +846,7 @@ void rfbReceiveRichClipboardAvailable(rfbClientPtr cl) {
 	readString = (char *) xalloc(stringLength+1);
 	readString[stringLength] = 0;
 	returnCheck = ReadExact(cl, readString, stringLength);
-	availableTypes = [[NSString stringWithUTF8String:readString] componentsSeparatedByString:@"\t"];
+	availableTypes = [@(readString) componentsSeparatedByString:@"\t"];
 	xfree(readString);
 
 	if (debugPB)
@@ -897,12 +897,12 @@ void checkTotalSize(unsigned long long *totalSize, NSString *path, NSFileManager
 		if (isDirectory) {
 			NSArray *contents = [fileManager contentsOfDirectoryAtPath:path error:NULL];
 			int index;
-			for (index=0; index<[contents count]; index++) {
-				checkTotalSize(totalSize, [path stringByAppendingPathComponent:[contents objectAtIndex:index]], fileManager);
+			for (index=0; index<contents.count; index++) {
+				checkTotalSize(totalSize, [path stringByAppendingPathComponent:contents[index]], fileManager);
 			}
 		} else { // regular file
-			NSDictionary *attributes = [fileManager attributesOfItemAtPath:[path stringByResolvingSymlinksInPath] error:NULL];
-			unsigned long long size = [[attributes objectForKey:NSFileSize] unsignedLongLongValue];
+			NSDictionary *attributes = [fileManager attributesOfItemAtPath:path.stringByResolvingSymlinksInPath error:NULL];
+			unsigned long long size = [attributes[NSFileSize] unsignedLongLongValue];
 			*totalSize += size;
 			if (*totalSize > maxTransferSize) {
 				[NSException raise:@"Maximum Size Exceeded" format:@"Total size of files being transferred exceeds the maximum allowed."];
@@ -946,10 +946,10 @@ void rfbReceiveRichClipboardRequest(rfbClientPtr cl) {
 		NSString *theType = [[[NSString alloc] initWithUTF8String:newClipboardType] autorelease];
 
 		// check whether we need to send file contents in place of another type
-		if (([theType isEqualToString:NSFileContentsPboardType] && ![[thePasteboard types] containsObject:NSFileContentsPboardType])
+		if (([theType isEqualToString:NSFileContentsPboardType] && ![thePasteboard.types containsObject:NSFileContentsPboardType])
 			|| (([theType isEqualToString:NSFilenamesPboardType] || [theType isEqualToString:NSURLPboardType] || [theType isEqualToString:CorePasteboardFlavor_furl]) && pasteboardRepresentsExistingFile(thePasteboard))) {
 			NSFileManager *fileManager = [NSFileManager defaultManager];
-			NSArray *pboardTypes = [thePasteboard types];
+			NSArray *pboardTypes = thePasteboard.types;
 			NSFileWrapper *theWrapper = nil;
 			unsigned long long totalSize = 0;
 
@@ -961,33 +961,33 @@ void rfbReceiveRichClipboardRequest(rfbClientPtr cl) {
 						if (debugPB)
 							NSLog(@"flst list to Send CB Data for filenames: %@", fileNames);
 					}
-					if ([fileNames count] == 1) {
-						NSString *path = [fileNames objectAtIndex:0];
+					if (fileNames.count == 1) {
+						NSString *path = fileNames[0];
 						checkTotalSize(&totalSize, path, fileManager);
 						theWrapper = [[[NSFileWrapper alloc] initWithPath:path] autorelease];
 					} else {
 						int index;
 						NSMutableDictionary *wrappers = [NSMutableDictionary dictionary];
-						for (index = 0; index < [fileNames count]; index++) {
-							NSString *path = [fileNames objectAtIndex:index];
+						for (index = 0; index < fileNames.count; index++) {
+							NSString *path = fileNames[index];
 							if ([fileManager fileExistsAtPath:path]) {
 								NSFileWrapper *wrapper = [[[NSFileWrapper alloc] initWithPath:path] autorelease];
 								checkTotalSize(&totalSize, path, fileManager);
 								if (wrapper)
-									[wrappers setObject:wrapper forKey:path];
+									wrappers[path] = wrapper;
 								else // Could possibly put a "dummy file" in place indicating the error
 									NSLog(@"Error Unable To Read File:%@", path);
 							}
 						}
 						theWrapper = [[[NSFileWrapper alloc] initDirectoryWithFileWrappers:wrappers] autorelease];
-						[theWrapper setFilename:@"<Redstone set of files>"];
-						[theWrapper setPreferredFilename:@"<Redstone set of files>"];
+						theWrapper.filename = @"<Redstone set of files>";
+						theWrapper.preferredFilename = @"<Redstone set of files>";
 					}
 				}
 				if (!theWrapper) { // try for a URL next
 					NSURL *theUrl = [NSURL URLFromPasteboard:thePasteboard];
-					if ([theUrl isFileURL]) { // only do this for file: url's
-						NSString *path = [theUrl path];
+					if (theUrl.fileURL) { // only do this for file: url's
+						NSString *path = theUrl.path;
 						if ([fileManager fileExistsAtPath:path]) {
 							checkTotalSize(&totalSize, path, fileManager);
 							theWrapper = [[[NSFileWrapper alloc] initWithPath:path] autorelease];
@@ -996,9 +996,9 @@ void rfbReceiveRichClipboardRequest(rfbClientPtr cl) {
 				}
 				if (theWrapper) { // finish setting up the wrapper
 					theType = [@"RSFileWrapper:" stringByAppendingString:theType];
-					newClipboardNSData = [[theWrapper serializedRepresentation] retain];
-					newClipboardDataChangeCount = [thePasteboard changeCount];
-					const char *newTypeStr = [theType UTF8String];
+					newClipboardNSData = [theWrapper.serializedRepresentation retain];
+					newClipboardDataChangeCount = thePasteboard.changeCount;
+					const char *newTypeStr = theType.UTF8String;
 					xfree(newClipboardType);
 					newClipboardType = (char *) xalloc(strlen(newTypeStr)+1);
 					strcpy(newClipboardType, newTypeStr);
@@ -1014,7 +1014,7 @@ void rfbReceiveRichClipboardRequest(rfbClientPtr cl) {
 
 		if (!newClipboardNSData) {
 			newClipboardNSData = [[thePasteboard dataForType:theType] retain];
-			newClipboardDataChangeCount = [thePasteboard changeCount];
+			newClipboardDataChangeCount = thePasteboard.changeCount;
 			if (!newClipboardNSData && [theType isEqualToString:CorePasteboardFlavor_fccc]) { // 10.3 "Copy" Code
 				newClipboardNSData = [[@"copy" dataUsingEncoding:NSUTF8StringEncoding] retain];
 			}
@@ -1090,14 +1090,14 @@ void rfbReceiveRichClipboardData(rfbClientPtr cl) {
 	ReadExact(cl, ((char *)&readLength), sizeof(readLength));
 	readLength = Swap32IfLE(readLength);
 	data = [[NSMutableData alloc] initWithLength:readLength];
-	returnCheck = ReadExact(cl, [data mutableBytes], readLength);
+	returnCheck = ReadExact(cl, data.mutableBytes, readLength);
 
 	if (returnCheck > 0) {
 		if (debugPB)
 			NSLog(@"Received CB Data [%@] Type: %s Length: %d bytes", cl->richClipboardReceivedName, readString, readLength);
 		pthread_mutex_lock(&cl->updateMutex);
 		cl->richClipboardReceivedChangeCount = Swap32IfLE(changeCount);
-		cl->richClipboardReceivedType = [[NSString stringWithUTF8String:readString] retain];
+		cl->richClipboardReceivedType = [@(readString) retain];
 		cl->richClipboardReceivedNSData = data;
 		pthread_mutex_unlock(&cl->updateMutex);
 	}

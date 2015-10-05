@@ -99,15 +99,13 @@ void rfbSendClientList() {
 	rfbClientPtr myClient = rfbClientHead;
 
 	while (myClient != NULL) {
-		[clientList addObject:[NSDictionary dictionaryWithObjectsAndKeys:
-							   [NSString stringWithCString: myClient->host encoding: NSUTF8StringEncoding], @"clientIP",
-			nil]];
+		[clientList addObject:@{@"clientIP": @(myClient->host)}];
 		myClient = myClient->next;
 	}
 
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"VNCConnections"
 																   object:[NSString stringWithFormat:@"OSXvnc%d",rfbPort]
-																 userInfo:[NSDictionary dictionaryWithObject:clientList forKey:@"clientList"]];
+																 userInfo:@{@"clientList": clientList}];
 
 	[pool release];
 

@@ -576,7 +576,7 @@ char *rfbGetFramebuffer(void) {
             if (imageRef != NULL)
                 CGImageRelease(imageRef);
         }
-        return [frameBufferData mutableBytes];
+        return frameBufferData.mutableBytes;
     }
     else { // Old API is required for off screen user sessions
         int maxWait =   5000000;
@@ -612,8 +612,8 @@ void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
         if (imgBitsPerPixel != frameBufferBitsPerPixel)
             NSLog(@"BitsPerPixel MISMATCH: frameBuffer %d, rect image %d", frameBufferBitsPerPixel, imgBitsPerPixel);
 
-        char *dest = (char *)[frameBufferData mutableBytes] + frameBufferBytesPerRow * y + x * (frameBufferBitsPerPixel/8);
-        const char *source = [(NSData *)dataRef bytes];
+        char *dest = (char *)frameBufferData.mutableBytes + frameBufferBytesPerRow * y + x * (frameBufferBitsPerPixel/8);
+        const char *source = ((NSData *)dataRef).bytes;
 
         while (h--) {
             memcpy(dest, source, w*(imgBitsPerPixel/8));
@@ -933,7 +933,7 @@ void rfbShutdown(void) {
     rfbDimmingShutdown();
 
     rfbDebugLog("Removing Observers");
-    [[[NSWorkspace sharedWorkspace] notificationCenter] removeObserver: vncServerObject];
+    [[NSWorkspace sharedWorkspace].notificationCenter removeObserver: vncServerObject];
     [[NSNotificationCenter defaultCenter] removeObserver:vncServerObject];
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:vncServerObject];
 
@@ -1111,11 +1111,11 @@ int main(int argc, char *argv[]) {
     // Register for User Switch Notification
     // This works on pre-Panther systems since the Notification just wont get called
     if (restartOnUserSwitch) {
-        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:vncServerObject
+        [[NSWorkspace sharedWorkspace].notificationCenter addObserver:vncServerObject
                                                                selector:@selector(userSwitched:)
                                                                    name: NSWorkspaceSessionDidBecomeActiveNotification
                                                                  object:nil];
-        [[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:vncServerObject
+        [[NSWorkspace sharedWorkspace].notificationCenter addObserver:vncServerObject
                                                                selector:@selector(userSwitched:)
                                                                    name: NSWorkspaceSessionDidResignActiveNotification
                                                                  object:nil];

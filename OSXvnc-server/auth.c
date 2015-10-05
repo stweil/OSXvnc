@@ -48,7 +48,7 @@ int failedAttemptsForClient(rfbClientPtr cl) {
 	int failedAttempts=0;
 
 	[authClientLock	lock];
-	failedAttempts = [[authClientFailures objectForKey:clientHost] intValue];
+	failedAttempts = [authClientFailures[clientHost] intValue];
 	[authClientLock unlock];
 	[clientHost release];
 
@@ -61,9 +61,9 @@ int incrementFailedAttemptsForClient(rfbClientPtr cl) {
 	int failedAttempts=0;
 
 	[authClientLock	lock];
-	failedAttempts = [[authClientFailures objectForKey:clientHost] intValue] + 1;
+	failedAttempts = [authClientFailures[clientHost] intValue] + 1;
 	failedNumber = [[NSNumber alloc] initWithInt:failedAttempts];
-	[authClientFailures setObject:failedNumber forKey:clientHost];
+	authClientFailures[clientHost] = failedNumber;
 	[authClientLock unlock];
 	[failedNumber release];
 	[clientHost release];
