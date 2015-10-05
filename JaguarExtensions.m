@@ -136,20 +136,20 @@ rfbserver *theServer;
 	}
 	/*
 	    else if (fcntl(listen_fd6, F_SETFL, O_NONBLOCK) < 0) {
-			NSLog(@"IPv6: fcntl O_NONBLOCK failed\n");
+			NSLog(@"IPv6: fcntl O_NONBLOCK failed");
 		}
 	 */
 	else if (setsockopt(listen_fd6, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-		NSLog(@"IPv6: setsockopt SO_REUSEADDR failed\n");
+		NSLog(@"IPv6: setsockopt SO_REUSEADDR failed");
 	}
 	else if (bind(listen_fd6, (struct sockaddr *) &sin6, len6) < 0) {
-		NSLog(@"IPv6: Failed to Bind Socket: Port %d may be in use by another VNC\n", theServer->rfbPort);
+		NSLog(@"IPv6: Failed to bind socket: port %d may be in use by another VNC", theServer->rfbPort);
 	}
 	else if (listen(listen_fd6, 5) < 0) {
-		NSLog(@"IPv6: Listen failed\n");
+		NSLog(@"IPv6: Listen failed");
 	}
 	else {
-		NSLog(@"IPv6: Started Listener Thread on port %d\n", theServer->rfbPort);
+		NSLog(@"Started listener thread on IPv6 port %d", theServer->rfbPort);
 		listenerFinished = TRUE;
 		
 	    while ((client_fd = accept(listen_fd6, (struct sockaddr *) &peer6, &len6)) !=-1) {
@@ -164,7 +164,7 @@ rfbserver *theServer;
 			[pool release];
 		}
 		
-		NSLog(@"IPv6: Accept failed %d\n", errno);
+		NSLog(@"IPv6: Accept failed %d", errno);
 	}
 	listenerFinished = TRUE;
 	

@@ -57,7 +57,7 @@
     // KLGetKeyboardLayoutProperty is 10.2 only how do I access these resources in early versions?
     if (inputSource) {
         keyboardName = (CFStringRef) TISGetInputSourceProperty(inputSource, kTISPropertyLocalizedName);
-        NSLog(@"Keyboard Detected: %@ - Loading Keys\n", keyboardName);
+        NSLog(@"Keyboard detected: %@ - loading keys", keyboardName);
 		uchrHandle = (CFDataRef) TISGetInputSourceProperty(inputSource, kTISPropertyUnicodeKeyLayoutData);
     }
 	
@@ -119,14 +119,14 @@
     else {
         // This is the old US only keyboard mapping
         // Map the above key table into a static array so we can just look them up directly
-        NSLog(@"Unable To Determine Key Map - Reverting to US Mapping\n");
+        NSLog(@"Unable to determine key map - reverting to US mapping");
         for (i = 0; i < (sizeof(USKeyCodes) / sizeof(int)); i += 2)
             theServer->keyTable[(unsigned short)USKeyCodes[i]] = (CGKeyCode) USKeyCodes[i+1];
     }
 	
     // This is the old SpecialKeyCodes keyboard mapping
     // Map the above key table into a static array so we can just look them up directly
-    NSLog(@"Loading %d XKeysym Special Keys\n", (sizeof(SpecialKeyCodes) / sizeof(int))/2);
+    NSLog(@"Loading %d XKeysym special keys", (sizeof(SpecialKeyCodes) / sizeof(int))/2);
     for (i = 0; i < (sizeof(SpecialKeyCodes) / sizeof(int)); i += 2) {
         theServer->keyTable[(unsigned short)SpecialKeyCodes[i]] = (CGKeyCode) SpecialKeyCodes[i+1];
 	}

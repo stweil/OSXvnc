@@ -148,16 +148,16 @@ rfbClientPtr rfbReverseConnection(char *host, int port) {
 				sin.sin_addr.s_addr = ((struct in_addr *)hostinfo->h_addr)->s_addr;
 			}
 			else {
-				rfbLog("Error resolving reverse host %s\n", host);
+				rfbLog("Error resolving reverse host %s", host);
 				return NULL;
 			}
 		}
 
 		if ((sock = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-			rfbLog("Error creating reverse socket\n");
+			rfbLog("Error creating reverse socket");
 		}
 		if (connect(sock, (struct sockaddr *)&sin, sizeof(sin)) != 0) {
-			rfbLog("Error connecting to reverse host %s:%d\n", host, port);
+			rfbLog("Error connecting to reverse host %s:%d", host, port);
 			sock = -1;
 		}
 	}
@@ -166,7 +166,7 @@ rfbClientPtr rfbReverseConnection(char *host, int port) {
 		hint.ai_family = PF_UNSPEC;
 		hint.ai_socktype = SOCK_STREAM;
 		if ((errCode = getaddrinfo(host, NULL, &hint, &res0)) != 0) {
-			rfbLog("Error resolving reverse host %s: %s\n", host, gai_strerror(errCode));
+			rfbLog("Error resolving reverse host %s: %s", host, gai_strerror(errCode));
 		}
 
 		// Iterate over all the resources looking for one we can connect with with.
@@ -176,14 +176,14 @@ rfbClientPtr rfbReverseConnection(char *host, int port) {
 			else if (res->ai_family == PF_INET)
 				((struct sockaddr_in *)(res->ai_addr))->sin_port = port;
 			else {
-				rfbLog("Error creating reverse socket: Unrecognized protocol family %d\n", res->ai_family);
+				rfbLog("Error creating reverse socket: unrecognized protocol family %d", res->ai_family);
 				continue;
 			}
 
 			if ((sock = socket(res->ai_family, res->ai_socktype, res->ai_protocol)) < 0) {
-				rfbLog("Error creating reverse socket:%s\n", strerror(errno));
+				rfbLog("Error creating reverse socket: %s", strerror(errno));
 			} else if (connect(sock, res->ai_addr, res->ai_addrlen) != 0) {
-				rfbLog("Error connecting to reverse host%s:%d: %s\n", host, port, strerror(errno));
+				rfbLog("Error connecting to reverse host %s:%d: %s", host, port, strerror(errno));
 				sock = -1;
 			}
 		}
@@ -218,10 +218,10 @@ rfbClientPtr rfbNewClient(int sock) {
      {
          rfbClientIteratorPtr iterator;
 
-         rfbLog("syncing other clients:\n");
+         rfbLog("syncing other clients:");
          iterator = rfbGetClientIterator();
          while ((cl = rfbClientIteratorNext(iterator)) != NULL) {
-             rfbLog("     %s\n",cl->host);
+             rfbLog("     %s",cl->host);
          }
          rfbReleaseClientIterator(iterator);
      }
@@ -409,7 +409,7 @@ void rfbClientConnectionGone(rfbClientPtr cl) {
 	if (cl->major && cl->minor) {
 		// If it didn't get so far as to send a protocol then let's just ignore
 		// For Clients with no activity just return with no log
-		rfbLog("Client %s disconnected\n",cl->host);
+		rfbLog("Client %s disconnected", cl->host);
 		rfbSendClientList();
 		rfbPrintStats(cl);
 	}
@@ -432,7 +432,7 @@ void rfbClientConnectionGone(rfbClientPtr cl) {
 
     xfree(cl);
     // Not sure why but this log message seems to prevent a crash
-    // rfbLog("Client gone\n");
+    // rfbLog("Client gone");
 }
 
 
@@ -473,7 +473,7 @@ void rfbProcessClientProtocolVersion(rfbClientPtr cl) {
 
     if ((n = ReadExact(cl, pv, sz_rfbProtocolVersionMsg)) <= 0) {
         if (n == 0)
-            rfbLog("rfbProcessClientProtocolVersion: client gone\n");
+            rfbLog("rfbProcessClientProtocolVersion: client gone");
         else
             rfbLogPerror("rfbProcessClientProtocolVersion: read");
         rfbCloseClient(cl);
@@ -483,15 +483,15 @@ void rfbProcessClientProtocolVersion(rfbClientPtr cl) {
     pv[sz_rfbProtocolVersionMsg] = 0;
     if (sscanf(pv,rfbProtocolVersionFormat,&cl->major,&cl->minor) != 2) {
 		if (strncmp(pv,"GET",3)) // Don't log if it was a browser
-			rfbLog("rfbProcessClientProtocolVersion: not a valid RFB client\n");
+			rfbLog("rfbProcessClientProtocolVersion: not a valid RFB client");
         rfbCloseClient(cl);
         return;
     }
-    rfbLog("Protocol version %d.%d\n", cl->major, cl->minor);
+    rfbLog("Protocol version %d.%d", cl->major, cl->minor);
 
     if (cl->major != rfbProtocolMajorVersion) {
         /* Major version mismatch - send a ConnFailed message */
-        rfbLog("Major version mismatch\n");
+        rfbLog("Major version mismatch");
         sprintf(failureReason,
                 "RFB protocol version mismatch - server %d.%d, client %d.%d",
                 rfbProtocolMajorVersion,rfbProtocolMinorVersion,cl->major,cl->minor);
@@ -501,7 +501,7 @@ void rfbProcessClientProtocolVersion(rfbClientPtr cl) {
 
     if (cl->minor != rfbProtocolMinorVersion) {
         /* Minor version mismatch - warn but try to continue */
-        rfbLog("Ignoring minor version mismatch\n");
+        rfbLog("Ignoring minor version mismatch");
     }
 
 	rfbSendClientList();
@@ -546,7 +546,7 @@ void rfbProcessClientInitMessage(rfbClientPtr cl) {
 
     if ((n = ReadExact(cl, (char *)&ci,sz_rfbClientInitMsg)) <= 0) {
         if (n == 0)
-            rfbLog("rfbProcessClientInitMessage: client gone\n");
+            rfbLog("rfbProcessClientInitMessage: client gone");
         else
             rfbLogPerror("rfbProcessClientInitMessage: read");
         rfbCloseClient(cl);
@@ -582,8 +582,8 @@ void rfbProcessClientInitMessage(rfbClientPtr cl) {
             iterator = rfbGetClientIterator();
             while ((otherCl = rfbClientIteratorNext(iterator)) != NULL) {
                 if ((otherCl != cl) && (otherCl->state == RFB_NORMAL)) {
-                    rfbLog("-dontdisconnect: Not shared & existing client\n");
-                    rfbLog("  refusing new client %s\n", cl->host);
+                    rfbLog("-dontdisconnect: Not shared & existing client");
+                    rfbLog("  refusing new client %s", cl->host);
                     rfbCloseClient(cl);
                     rfbReleaseClientIterator(iterator);
                     return;
@@ -594,7 +594,7 @@ void rfbProcessClientInitMessage(rfbClientPtr cl) {
             iterator = rfbGetClientIterator();
             while ((otherCl = rfbClientIteratorNext(iterator)) != NULL) {
                 if ((otherCl != cl) && (otherCl->state == RFB_NORMAL)) {
-                    rfbLog("Not shared - closing connection to client %s\n",
+                    rfbLog("Not shared - closing connection to client %s",
                            otherCl->host);
                     rfbCloseClient(otherCl);
                 }
@@ -716,46 +716,46 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                     case rfbEncodingZRLE:
                         if (cl->preferredEncoding == -1) {
                             cl->preferredEncoding = enc;
-                            rfbLog("ENCODING: %s for client %s\n", encNames[cl->preferredEncoding], cl->host);
+                            rfbLog("ENCODING: %s for client %s", encNames[cl->preferredEncoding], cl->host);
                         }
                         break;
 					case rfbEncodingUltra:
-						rfbLog("\tULTRA Encoding not supported(ignored): %u (%X)\n", (int)enc, (int)enc);
+						rfbLog("\tULTRA Encoding not supported(ignored): %u (%X)", (int)enc, (int)enc);
 						break;
                         /* PSEUDO_ENCODINGS */
                     case rfbEncodingLastRect:
-                        rfbLog("\tEnabling LastRect protocol extension for client %s\n", cl->host);
+                        rfbLog("\tEnabling LastRect protocol extension for client %s", cl->host);
                         cl->enableLastRectEncoding = TRUE;
                         break;
                     case rfbEncodingXCursor:
-                        //rfbLog("Enabling XCursor protocol extension for client %s\n", cl->host);
+                        //rfbLog("Enabling XCursor protocol extension for client %s", cl->host);
                         cl->enableXCursorShapeUpdates = TRUE;
                         break;
                     case rfbEncodingRichCursor:
-                        rfbLog("\tEnabling Cursor Shape protocol extension for client %s\n", cl->host);
+                        rfbLog("\tEnabling Cursor Shape protocol extension for client %s", cl->host);
                         cl->useRichCursorEncoding = TRUE;
                         cl->currentCursorSeed = 0;
                         break;
                     case rfbEncodingPointerPos:
-                        rfbLog("\tEnabling Cursor Position protocol extension for client %s\n", cl->host);
+                        rfbLog("\tEnabling Cursor Position protocol extension for client %s", cl->host);
                         cl->enableCursorPosUpdates = TRUE;
                         cl->clientCursorLocation = CGPointMake(-1.0, -1.0);
                         break;
                     case rfbEncodingDesktopResize:
-                        rfbLog("\tEnabling Dynamic Desktop Sizing for client %s\n", cl->host);
+                        rfbLog("\tEnabling Dynamic Desktop Sizing for client %s", cl->host);
                         cl->desktopSizeUpdate = TRUE;
                         break;
                     case rfbImmediateUpdate:
-                        rfbLog("\tEnabling Immediate updates for client " "%s\n", cl->host);
+                        rfbLog("\tEnabling Immediate updates for client " "%s", cl->host);
                         cl->immediateUpdate = TRUE;
                         break;
 					case rfbPasteboardRequest:
-						rfbLog("\tEnabling Pasteboard Request " "%s\n", cl->host);
+						rfbLog("\tEnabling pasteboard request " "%s", cl->host);
 						cl->generalPBLastChange = -2; // This will cause it to send a single update that shows the current PB
 						break;
 					case rfbRichPasteboard:
 						if (!rfbDisableRichClipboards) {
-							rfbLog("\tEnabling Rich Pasteboard " "%s\n", cl->host);
+							rfbLog("\tEnabling rich pasteboard " "%s", cl->host);
 							cl->richClipboardSupport = TRUE;
 							// The -2 will already trigger force sending the PB, so we don't need to send the ack.
 							if (cl->generalPBLastChange != -2)
@@ -769,17 +769,17 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                              enc <= (CARD32)rfbEncodingCompressLevel9 ) {
                             cl->zlibCompressLevel = enc & 0x0F;
                             cl->tightCompressLevel = enc & 0x0F;
-                            rfbLog("\tUsing compression level %d for client %s\n",
+                            rfbLog("\tUsing compression level %d for client %s",
                                    cl->tightCompressLevel, cl->host);
                         }
                         else if ( enc >= (CARD32)rfbEncodingQualityLevel0 &&
                                     enc <= (CARD32)rfbEncodingQualityLevel9 ) {
                             cl->tightQualityLevel = enc & 0x0F;
-                            rfbLog("\tUsing jpeg image quality level %d for client %s\n",
+                            rfbLog("\tUsing jpeg image quality level %d for client %s",
                                    cl->tightQualityLevel, cl->host);
                         }
                         else {
-                            rfbLog("\tUnknown Encoding Type(ignored): %u (%X)\n", (int)enc, (int)enc);
+                            rfbLog("\tUnknown Encoding Type(ignored): %u (%X)", (int)enc, (int)enc);
                         }
                 }
             }
@@ -811,7 +811,7 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
                 return;
             }
 
-            //rfbLog("FUR: %d (%d,%d x %d,%d)\n", msg.fur.incremental, msg.fur.x, msg.fur.y,  msg.fur.w, msg.fur.h);
+            //rfbLog("FUR: %d (%d,%d x %d,%d)", msg.fur.incremental, msg.fur.x, msg.fur.y,  msg.fur.w, msg.fur.h);
 
             box.x1 = Swap16IfLE(msg.fur.x)*cl->scalingFactor;
             box.y1 = Swap16IfLE(msg.fur.y)*cl->scalingFactor;
@@ -929,7 +929,7 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
 
                 cl->scalingFactor = msg.ssf.scale;
 
-				rfbLog("Server Side Scaling: %d for client %s\n", msg.ssf.scale, cl->host);
+				rfbLog("Server Side Scaling: %d for client %s", msg.ssf.scale, cl->host);
 
 				if (cl->scalingFactor == 1) {
 					cl->scalingFrameBuffer = cl->screenBuffer;
@@ -982,8 +982,8 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
 
         default:
 		{
-            rfbLog("ERROR: Client Sent Message: unknown message type %d\n", msg.type);
-            rfbLog("...... Closing connection to client %s\n", cl->host);
+            rfbLog("ERROR: Client Sent Message: unknown message type %d", msg.type);
+            rfbLog("...... Closing connection to client %s", cl->host);
             rfbCloseClient(cl);
             return;
 		}
@@ -1064,7 +1064,7 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
     // Sometimes send the mouse cursor update (this can fail with big cursors so we'll try it first
     if (sendRichCursorEncoding) {
         if (!rfbSendRichCursorUpdate(cl)) {
-            // rfbLog("Error Sending Cursor\n"); // We'll log at the lower level if it fails and only fail a few times
+            // rfbLog("Error Sending Cursor"); // We'll log at the lower level if it fails and only fail a few times
             // return FALSE;  Since this is the first update we can "skip the cursor update" instead of failing the whole thing
 			--nUpdateRegionRects;
 			fu->nRects = Swap16IfLE(nUpdateRegionRects);
@@ -1072,7 +1072,7 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
     }
     if (sendCursorPositionEncoding) {
         if (!rfbSendCursorPos(cl)) {
-            rfbLog("Error Sending Cursor Position\n");
+            rfbLog("Error Sending Cursor Position");
             return FALSE;
         }
 
@@ -1082,7 +1082,7 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
             cl->needNewScreenSize = FALSE;
         }
         else {
-            rfbLog("Error Sending New Screen Size\n");
+            rfbLog("Error Sending New Screen Size");
             return FALSE;
         }
     }

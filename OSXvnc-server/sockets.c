@@ -151,7 +151,7 @@ WriteExact(cl, buf, len)
 
         } else if (n == 0) {
 
-            rfbLog("WriteExact: write returned 0?\n");
+            rfbLog("WriteExact: write returned 0?");
             exit(1);
 
         } else {

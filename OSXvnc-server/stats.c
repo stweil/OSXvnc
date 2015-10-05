@@ -55,10 +55,10 @@ rfbPrintStats(rfbClientPtr cl)
     int totalRectanglesSent = 0;
     int totalBytesSent = 0;
 
-    rfbLog("Statistics:\n");
+    rfbLog("Statistics:");
 
     if ((cl->rfbKeyEventsRcvd != 0) || (cl->rfbPointerEventsRcvd != 0))
-        rfbLog("  key events received %d, pointer events %d\n",
+        rfbLog("  key events received %d, pointer events %d",
                 cl->rfbKeyEventsRcvd, cl->rfbPointerEventsRcvd);
 
     for (i = 0; i < MAX_ENCODINGS; i++) {
@@ -68,22 +68,22 @@ rfbPrintStats(rfbClientPtr cl)
     totalRectanglesSent += cl->rfbLastRectMarkersSent;
     totalBytesSent += cl->rfbLastRectBytesSent;
 
-    rfbLog("  framebuffer updates %d, rectangles %d, bytes %d\n",
+    rfbLog("  framebuffer updates %d, rectangles %d, bytes %d",
             cl->rfbFramebufferUpdateMessagesSent, totalRectanglesSent,
             totalBytesSent);
 
     if (cl->rfbLastRectMarkersSent != 0)
-        rfbLog("    LastRect markers %d, bytes %d\n",
+        rfbLog("    LastRect markers %d, bytes %d",
                 cl->rfbLastRectMarkersSent, cl->rfbLastRectBytesSent);
 
     for (i = 0; i < MAX_ENCODINGS; i++) {
         if (cl->rfbRectanglesSent[i] != 0)
-            rfbLog("    %s rectangles %d, bytes %d\n",
+            rfbLog("    %s rectangles %d, bytes %d",
                    encNames[i], cl->rfbRectanglesSent[i], cl->rfbBytesSent[i]);
     }
 
     if ((totalBytesSent - cl->rfbBytesSent[rfbEncodingCopyRect]) != 0) {
-        rfbLog("  raw bytes equivalent %d, compression ratio %f\n",
+        rfbLog("  raw bytes equivalent %d, compression ratio %f",
                 cl->rfbRawBytesEquivalent,
                 (double)cl->rfbRawBytesEquivalent
                 / (double)(totalBytesSent -

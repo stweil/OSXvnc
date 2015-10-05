@@ -577,35 +577,35 @@ NSMutableArray *localIPAddresses() {
 		//sin6.sin6_port = htons(tryPort);
 		
 		if ((listen_fd4 = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-			//NSLog(@"Socket Init failed %d\n", tryPort);
+			//NSLog(@"Socket init failed %d", tryPort);
 		}
 		else if (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0) {
-			//rfbLogPerror("fcntl O_NONBLOCK failed\n");
+			//rfbLogPerror("fcntl O_NONBLOCK failed");
 		}
 		else if (setsockopt(listen_fd4, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-			//NSLog(@"setsockopt SO_REUSEADDR failed %d\n", tryPort);
+			//NSLog(@"setsockopt SO_REUSEADDR failed %d", tryPort);
 		}
 		else if (bind(listen_fd4, (struct sockaddr *) &sin4, sizeof(sin4)) < 0) {
-			//NSLog(@"Failed to Bind Socket: Port %d may be in use by another VNC\n", tryPort);
+			//NSLog(@"Failed to bind socket: port %d may be in use by another VNC", tryPort);
 		}
 		else if (listen(listen_fd4, 5) < 0) {
-			//NSLog(@"Listen failed %d\n", tryPort);
+			//NSLog(@"Listen failed %d", tryPort);
 		}
 		/*
 		 else if ((listen_fd6 = socket(PF_INET6, SOCK_STREAM, 0)) < 0) {
-			 // NSLog(@"Socket Init 6 failed %d\n", tryPort);
+			 // NSLog(@"Socket init 6 failed %d", tryPort);
 		 }
 		 else if (fcntl(listen_fd6, F_SETFL, O_NONBLOCK) < 0) {
-			 // rfbLogPerror("IPv6: fcntl O_NONBLOCK failed\n");
+			 // rfbLogPerror("IPv6: fcntl O_NONBLOCK failed");
 		 }
 		 else if (setsockopt(listen_fd6, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-			 //NSLog(@"setsockopt 6 SO_REUSEADDR failed %d\n", tryPort);
+			 //NSLog(@"setsockopt 6 SO_REUSEADDR failed %d", tryPort);
 		 }
 		 else if (bind(listen_fd6, (struct sockaddr *) &sin6, sizeof(sin6)) < 0) {
-			 //NSLog(@"Failed to Bind Socket: Port %d may be in use by another VNC\n", tryPort);
+			 //NSLog(@"Failed to bind socket: port %d may be in use by another VNC", tryPort);
 		 }
 		 else if (listen(listen_fd6, 5) < 0) {
-			 //NSLog(@"Listen failed %d\n", tryPort);
+			 //NSLog(@"Listen failed %d", tryPort);
 		 }
 		 */
 		else {

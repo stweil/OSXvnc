@@ -71,7 +71,7 @@ rfbSendRectEncodingHextile(cl, x, y, w, h)
         return sendHextiles32(cl, x, y, w, h);
     }
 
-    rfbLog("rfbSendRectEncodingHextile: bpp %d?\n", cl->format.bitsPerPixel);
+    rfbLog("rfbSendRectEncodingHextile: bpp %d?", cl->format.bitsPerPixel);
     return FALSE;
 }
 

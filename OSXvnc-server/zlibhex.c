@@ -76,7 +76,7 @@ rfbSendRectEncodingZlibHex(cl, x, y, w, h)
 	return sendZlibHex32(cl, x, y, w, h);
     }
 
-    rfbLog("rfbSendRectEncodingZlibHex: bpp %d?\n", cl->format.bitsPerPixel);
+    rfbLog("rfbSendRectEncodingZlibHex: bpp %d?", cl->format.bitsPerPixel);
     return FALSE;
 }
 
@@ -116,7 +116,7 @@ zlibCompress( BYTE *from_buf,
 				      Z_DEFAULT_STRATEGY );
         if ( deflateResult != Z_OK )
         {
-            rfbLog( "deflateInit2 returned error:%d:%s\n",
+            rfbLog( "deflateInit2 returned error:%d:%s",
                     deflateResult,
                     compressor->msg );
             return -1;
@@ -132,7 +132,7 @@ zlibCompress( BYTE *from_buf,
 
     if ( deflateResult != Z_OK )
     {
-        rfbLog( "deflate returned error:%d:%s\n",
+        rfbLog( "deflate returned error:%d:%s",
                 deflateResult,
                 compressor->msg);
         return -1;

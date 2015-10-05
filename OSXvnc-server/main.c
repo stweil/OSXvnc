@@ -148,7 +148,7 @@ void rfbDebugLog(char *format, ...) {
 
 
 void rfbLogPerror(char *str) {
-    rfbLog("%s: %s\n", str, strerror(errno));
+    rfbLog("%s: %s", str, strerror(errno));
 }
 
 // Some calls fail under older OS X'es so we will do some detected loading
@@ -248,7 +248,7 @@ void rfbCheckForScreenResolutionChange() {
         if (!screenOK)
             exit(1);
 
-        rfbLog("Screen Geometry Changed - (%d,%d) Depth: %d\n",
+        rfbLog("Screen geometry changed - (%d,%d) depth: %d",
                CGDisplayPixelsWide(displayID),
                CGDisplayPixelsHigh(displayID),
                bitsPerPixelForDisplay(displayID));
@@ -418,7 +418,7 @@ void *clientInput(void *data) {
                 if (!registered) {
                     CGError result = CGRegisterScreenRefreshCallback(refreshCallback, NULL);
                     if (result == kCGErrorSuccess) {
-                        rfbLog("Client Connected - Registering Screen Update Notification\n");
+                        rfbLog("Client connected - registering screen update notification");
                         [[VNCServer sharedServer] rfbConnect];
                         //CGScreenRegisterMoveCallback(screenUpdateMoveCallback, NULL);
                         registered = TRUE;
@@ -494,19 +494,19 @@ static void *listenerRun(void *ignore) {
             rfbLogPerror("Unable to open socket");
         }
         else if (nonBlocking && (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0)) {
-            rfbLogPerror("fcntl O_NONBLOCK failed\n");
+            rfbLogPerror("fcntl O_NONBLOCK failed");
         }
         else if (setsockopt(listen_fd4, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-            rfbLogPerror("setsockopt SO_REUSEADDR failed\n");
+            rfbLogPerror("setsockopt SO_REUSEADDR failed");
         }
         else if (bind(listen_fd4, (struct sockaddr *) &sin4, len4) < 0) {
-            rfbLog("Failed to Bind Socket: Port %d may be in use by another VNC\n", rfbPort);
+            rfbLog("Failed to bind socket: port %d maybe in use by another VNC", rfbPort);
         }
         else if (listen(listen_fd4, 5) < 0) {
-            rfbLogPerror("Listen failed\n");
+            rfbLogPerror("Listen failed");
         }
         else {
-            rfbLog("Started Listener Thread on port %d\n", rfbPort);
+            rfbLog("Started listener thread on IPv4 port %d", rfbPort);
 
             // Thread stays here forever unless something goes wrong
             while (keepRunning) {
@@ -518,7 +518,7 @@ static void *listenerRun(void *ignore) {
                         usleep(100000);
                     }
                     else {
-                        rfbLog("Accept failed %d\n", errno);
+                        rfbLog("Accept failed %d", errno);
                         exit(1);
                     }
                 }
@@ -529,7 +529,7 @@ static void *listenerRun(void *ignore) {
         }
 
         if (reverseHost[0] != '\0') {
-            rfbLog("Listener Disabled\n");
+            rfbLog("Listener disabled");
         }
         else {
             exit(250);
@@ -639,7 +639,7 @@ static bool rfbScreenInit(void) {
     displayID = CGMainDisplayID();
 
     if (samplesPerPixel != 3) {
-        rfbLog("screen format not supported.\n");
+        rfbLog("screen format not supported");
         return FALSE;
     }
 
@@ -956,7 +956,7 @@ static void executeEventLoop (int signal) {
 }
 
 static void rfbShutdownOnSignal(int signal) {
-    rfbLog("OSXvnc-server received signal: %d\n", signal);
+    rfbLog("OSXvnc-server received signal: %d", signal);
     rfbShutdown();
 
     if (signal == SIGTERM)
@@ -1016,19 +1016,19 @@ int scanForOpenPort() {
         sin4.sin_port = htons(tryPort);
 
         if ((listen_fd4 = socket(PF_INET, SOCK_STREAM, 0)) < 0) {
-            //NSLog(@"Socket Init failed %d\n", tryPort);
+            //NSLog(@"Socket init failed %d", tryPort);
         }
         else if (fcntl(listen_fd4, F_SETFL, O_NONBLOCK) < 0) {
-            //rfbLogPerror("fcntl O_NONBLOCK failed\n");
+            //rfbLogPerror("fcntl O_NONBLOCK failed");
         }
         else if (setsockopt(listen_fd4, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-            //NSLog(@"setsockopt SO_REUSEADDR failed %d\n", tryPort);
+            //NSLog(@"setsockopt SO_REUSEADDR failed %d", tryPort);
         }
         else if (bind(listen_fd4, (struct sockaddr *) &sin4, sizeof(sin4)) < 0) {
-            //NSLog(@"Failed to Bind Socket: Port %d may be in use by another VNC\n", tryPort);
+            //NSLog(@"Failed to bind socket: port %d may be in use by another VNC", tryPort);
         }
         else if (listen(listen_fd4, 5) < 0) {
-            //NSLog(@"Listen failed %d\n", tryPort);
+            //NSLog(@"Listen failed %d", tryPort);
         }
         else {
             close(listen_fd4);
@@ -1176,13 +1176,13 @@ int main(int argc, char *argv[]) {
                 // You would think that there is no point in getting screen updates with no clients connected
                 // But it seems that unregistering but keeping the process (or event loop) around can cause a stuttering behavior in OS X.
                 if (registered && unregisterWhenNoConnections) {
-                    rfbLog("UnRegistering Screen Update Notification - waiting for clients\n");
+                    rfbLog("UnRegistering screen update notification - waiting for clients");
                     CGUnregisterScreenRefreshCallback(refreshCallback, NULL);
                     [[VNCServer sharedServer] rfbDisconnect];
                     registered = NO;
                 }
                 else
-                    rfbLog("Waiting for clients\n");
+                    rfbLog("Waiting for clients");
 
                 pthread_cond_wait(&listenerGotNewClient, &listenerAccepting);
                 pthread_mutex_unlock(&listenerAccepting);

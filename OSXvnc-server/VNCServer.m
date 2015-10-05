@@ -73,13 +73,13 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
 
     // This is the old US only keyboard mapping
     // Map the above key table into a static array so we can just look them up directly
-    // NSLog(@"Unable To Determine Key Map - Reverting to US Mapping\n");
+    // NSLog(@"Unable To determine key map - Reverting to US mapping");
     for (i = 0; i < (sizeof(USKeyCodes) / sizeof(int)); i += 2)
         keyTable[(unsigned short)USKeyCodes[i]] = (CGKeyCode) USKeyCodes[i+1];
 
     // This is the old SpecialKeyCodes keyboard mapping
     // Map the above key table into a static array so we can just look them up directly
-    // NSLog(@"Loading %d XKeysym Special Keys\n", (sizeof(SpecialKeyCodes) / sizeof(int)));
+    // NSLog(@"Loading %d XKeysym special keys", (sizeof(SpecialKeyCodes) / sizeof(int)));
     for (i = 0; i < (sizeof(SpecialKeyCodes) / sizeof(int)); i += 2)
         keyTable[(unsigned short)SpecialKeyCodes[i]] = (CGKeyCode) SpecialKeyCodes[i+1];
 
@@ -132,7 +132,7 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
     // KLGetKeyboardLayoutProperty is 10.2 only how do I access these resources in early versions?
     if (inputSource) {
         keyboardName = (CFStringRef) TISGetInputSourceProperty(inputSource, kTISPropertyLocalizedName);
-        NSLog(@"Keyboard Detected: %@ - Loading Keys\n", keyboardName);
+        NSLog(@"Keyboard detected: %@ - loading keys", keyboardName);
         uchrHandle = (UCKeyboardLayout *) CFDataGetBytePtr(TISGetInputSourceProperty(inputSource, kTISPropertyUnicodeKeyLayoutData));
     }
 
@@ -195,14 +195,14 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
     else {
         // This is the old US only keyboard mapping
         // Map the above key table into a static array so we can just look them up directly
-        NSLog(@"Unable To Determine Key Map - Reverting to US Mapping\n");
+        NSLog(@"Unable To determine key map - reverting to US mapping");
         for (i = 0; i < (sizeof(USKeyCodes) / sizeof(int)); i += 2)
             keyTable[(unsigned short)USKeyCodes[i]] = (CGKeyCode) USKeyCodes[i+1];
     }
 
     // This is the old SpecialKeyCodes keyboard mapping
     // Map the above key table into a static array so we can just look them up directly
-    NSLog(@"Loading %ld XKeysym Special Keys\n", (sizeof(SpecialKeyCodes) / sizeof(int))/2);
+    NSLog(@"Loading %ld XKeysym special keys", (sizeof(SpecialKeyCodes) / sizeof(int))/2);
     for (i = 0; i < (sizeof(SpecialKeyCodes) / sizeof(int)); i += 2) {
         keyTable[(unsigned short)SpecialKeyCodes[i]] = (CGKeyCode) SpecialKeyCodes[i+1];
     }
@@ -808,23 +808,23 @@ bool isConsoleSession() {
     }
     /*
      else if (fcntl(listen_fd6, F_SETFL, O_NONBLOCK) < 0) {
-     NSLog(@"IPv6: fcntl O_NONBLOCK failed\n");
+     NSLog(@"IPv6: fcntl O_NONBLOCK failed");
      }
      */
     else if (setsockopt(listen_fd6, IPPROTO_IPV6, IPV6_V6ONLY, &value, sizeof(value)) < 0) {
-        NSLog(@"IPv6: setsockopt IPV6_V6ONLY failed\n");
+        NSLog(@"IPv6: setsockopt IPV6_V6ONLY failed");
     }
     else if (setsockopt(listen_fd6, SOL_SOCKET, SO_REUSEADDR, &value, sizeof(value)) < 0) {
-        NSLog(@"IPv6: setsockopt SO_REUSEADDR failed\n");
+        NSLog(@"IPv6: setsockopt SO_REUSEADDR failed");
     }
     else if (bind(listen_fd6, (struct sockaddr *) &sin6, len6) < 0) {
-        NSLog(@"IPv6: Failed to Bind Socket: Port %d may be in use by another VNC\n", theServer->rfbPort);
+        NSLog(@"IPv6: Failed to Bind Socket: Port %d may be in use by another VNC", theServer->rfbPort);
     }
     else if (listen(listen_fd6, 5) < 0) {
-        NSLog(@"IPv6: Listen failed\n");
+        NSLog(@"IPv6: Listen failed");
     }
     else {
-        NSLog(@"IPv6: Started Listener Thread on port %d\n", theServer->rfbPort);
+        NSLog(@"Started listener thread on IPv6 port %d", theServer->rfbPort);
         listenerFinished = TRUE;
 
         while ((client_fd = accept(listen_fd6, (struct sockaddr *) &peer6, &len6)) !=-1) {
@@ -839,7 +839,7 @@ bool isConsoleSession() {
             [pool release];
         }
 
-        NSLog(@"IPv6: Accept failed %d\n", errno);
+        NSLog(@"IPv6: Accept failed %d", errno);
     }
     listenerFinished = TRUE;
 

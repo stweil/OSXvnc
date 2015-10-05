@@ -46,7 +46,7 @@ inline CGSConnectionRef getConnection() {
     if (!sharedConnection && maxFailsRemaining > 0) {
 		CGError result = CGSNewConnection(NULL, &sharedConnection);
         if (result != kCGErrorSuccess)
-            rfbLog("Error obtaining CGSConnection (%u)%s\n", result, (--maxFailsRemaining ? "" : " -- giving up"));
+            rfbLog("Error obtaining CGSConnection (%u)%s", result, (--maxFailsRemaining ? "" : " -- giving up"));
 		else {
 			maxFailsRemaining = 8;
 			pthread_mutex_init(&cursorMutex, NULL);
@@ -62,7 +62,7 @@ CGPoint currentCursorLoc() {
 
     if (connection) {
 		if (CGSGetCurrentCursorLocation(connection, &cursorLoc) != kCGErrorSuccess)
-			rfbLog("Error obtaining cursor location\n");
+			rfbLog("Error obtaining cursor location");
     }
 
     return cursorLoc;
@@ -78,7 +78,7 @@ void loadCurrentCursorData() {
 	}
 
     if (CGSGetGlobalCursorDataSize(connection, &cursorDataSize) != kCGErrorSuccess) {
-        rfbLog("Error obtaining cursor data - cursor not sent\n");
+        rfbLog("Error obtaining cursor data - cursor not sent");
         return;
     }
 
@@ -99,7 +99,7 @@ void loadCurrentCursorData() {
     if (err != kCGErrorSuccess) {
 		free(cursorData);
 		cursorData = NULL;
-        rfbLog("Error obtaining cursor data - cursor not sent\n");
+        rfbLog("Error obtaining cursor data - cursor not sent");
         return;
     }
 

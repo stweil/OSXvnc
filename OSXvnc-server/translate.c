@@ -154,7 +154,7 @@ rfbTranslateNone(char *table, rfbPixelFormat *in, rfbPixelFormat *out,
  */
 
 Bool rfbSetTranslateFunction(rfbClientPtr cl) {
-    rfbLog("Pixel format for client %s:\n",cl->host);
+    rfbLog("Pixel format for client %s:",cl->host);
     PrintPixelFormat(&cl->format);
     //cl->format = rfbServerFormat;
     cl->translateFn = rfbTranslateNone;
@@ -172,7 +172,7 @@ Bool rfbSetTranslateFunctionUsingFormat(rfbClientPtr cl, rfbPixelFormat inFormat
         (inFormat.bitsPerPixel != 16) &&
         (inFormat.bitsPerPixel != 32))
     {
-        rfbLog("%s: server bits per pixel not 8, 16 or 32\n",
+        rfbLog("%s: server bits per pixel not 8, 16 or 32",
                 "rfbSetTranslateFunction");
         rfbCloseClient(cl);
         return FALSE;
@@ -182,7 +182,7 @@ Bool rfbSetTranslateFunctionUsingFormat(rfbClientPtr cl, rfbPixelFormat inFormat
         (cl->format.bitsPerPixel != 16) &&
         (cl->format.bitsPerPixel != 32))
     {
-        rfbLog("%s: client bits per pixel not 8, 16 or 32\n",
+        rfbLog("%s: client bits per pixel not 8, 16 or 32",
                 "rfbSetTranslateFunction");
         rfbCloseClient(cl);
         return FALSE;
@@ -208,7 +208,7 @@ Bool rfbSetTranslateFunctionUsingFormat(rfbClientPtr cl, rfbPixelFormat inFormat
          * truecolour as well
          */
 
-        rfbLog("setting the client's color map to BGR233\n");
+        rfbLog("setting the client's color map to BGR233");
 
         if (!rfbSetClientColourMapBGR233(cl))
             return FALSE;
@@ -222,7 +222,7 @@ Bool rfbSetTranslateFunctionUsingFormat(rfbClientPtr cl, rfbPixelFormat inFormat
 
         /* client & server the same */
 
-        //rfbLog("no translation needed\n");
+        //rfbLog("no translation needed");
         cl->translateFn = rfbTranslateNone;
 		cl->translateLookupTable = NULL;
         return TRUE;
@@ -233,7 +233,7 @@ Bool rfbSetTranslateFunctionUsingFormat(rfbClientPtr cl, rfbPixelFormat inFormat
 
         /* we can use a single lookup table for <= 16 bpp */
 
-        //rfbLog("single lookup table translation, function [%d][%d]\n", inFormat.bitsPerPixel / 16, cl->format.bitsPerPixel / 16);
+        //rfbLog("single lookup table translation, function [%d][%d]", inFormat.bitsPerPixel / 16, cl->format.bitsPerPixel / 16);
 
         cl->translateFn = rfbTranslateWithSingleTableFns
                               [inFormat.bitsPerPixel / 16]
@@ -245,7 +245,7 @@ Bool rfbSetTranslateFunctionUsingFormat(rfbClientPtr cl, rfbPixelFormat inFormat
 
     }
     else {
-        //rfbLog("three tables for R, G, B\n");
+        //rfbLog("three tables for R, G, B");
 
         /* otherwise we use three separate tables for red, green and blue */
 
@@ -279,7 +279,7 @@ rfbSetClientColourMapBGR233(cl)
     int r, g, b;
 
     if (cl->format.bitsPerPixel != 8) {
-        rfbLog("%s: client not 8 bits per pixel\n",
+        rfbLog("%s: client not 8 bits per pixel",
                 "rfbSetClientColourMapBGR233");
         rfbCloseClient(cl);
         return FALSE;
@@ -317,18 +317,18 @@ rfbSetClientColourMapBGR233(cl)
 
 void PrintPixelFormat(rfbPixelFormat *pf) {
     if (pf->bitsPerPixel == 1) {
-        rfbLog("  1 bpp, %s sig bit in each byte is leftmost on the screen.\n",
+        rfbLog("  1 bpp, %s sig bit in each byte is leftmost on the screen.",
                (pf->bigEndian ? "most" : "least"));
     } else {
-        rfbLog("  %d bpp, depth %d%s\n",pf->bitsPerPixel,pf->depth,
+        rfbLog("  %d bpp, depth %d%s", pf->bitsPerPixel, pf->depth,
                ((pf->bitsPerPixel == 8) ? ""
                 : (pf->bigEndian ? ", big endian" : ", little endian")));
         if (pf->trueColour) {
-            rfbLog("  true colour: max r %d g %d b %d, shift r %d g %d b %d\n",
+            rfbLog("  true colour: max r %d g %d b %d, shift r %d g %d b %d",
                    pf->redMax, pf->greenMax, pf->blueMax,
                    pf->redShift, pf->greenShift, pf->blueShift);
         } else {
-            rfbLog("  uses a colour map (not true colour).\n");
+            rfbLog("  uses a colour map (not true colour).");
         }
     }
 }

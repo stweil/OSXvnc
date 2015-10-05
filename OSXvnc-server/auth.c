@@ -137,7 +137,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
 			if (WriteExact(cl, buf, len) < 0) {
 				rfbLogPerror("rfbAuthNewClient: write");
 			}
-			rfbLog("rfbAuthNewClient: Authentication failed from %s (Too Many Failures)\n", cl->host);
+			rfbLog("rfbAuthNewClient: authentication failed from %s (too many failures)", cl->host);
 			rfbCloseClient(cl);
 			return;
 		}
@@ -195,7 +195,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
 			if (WriteExact(cl, buf, len) < 0) {
 				rfbLogPerror("rfbAuthNewClient: write");
 			}
-			rfbLog("rfbAuthNewClient: Authentication failed from %s (Too Many Failures)\n", cl->host);
+			rfbLog("rfbAuthNewClient: authentication failed from %s (too many failures)", cl->host);
 			rfbCloseClient(cl);
 			return;
 		}
@@ -262,7 +262,7 @@ void rfbProcessAuthVersion(rfbClientPtr cl) {
         }
         case rfbNoAuth: {
 			if (!cl->reverseConnection && rfbAuthPasswdFile) {
-				rfbLog("rfbProcessAuthVersion: Invalid Authorization Type from %s\n", cl->host);
+				rfbLog("rfbProcessAuthVersion: invalid authorization type from %s", cl->host);
 				rfbSecurityResultMessage(cl, rfbVncAuthFailed, "Invalid Security Type");
 				rfbCloseClient(cl);
 				return;
@@ -277,7 +277,7 @@ void rfbProcessAuthVersion(rfbClientPtr cl) {
             break;
         }
         default:
-			rfbLog("rfbProcessAuthVersion: Invalid Authorization Type from %s\n", cl->host);
+			rfbLog("rfbProcessAuthVersion: invalid authorization type from %s", cl->host);
 			rfbSecurityResultMessage(cl, rfbVncAuthFailed, "Invalid Security Type");
 			rfbCloseClient(cl);
 			return;
@@ -303,7 +303,7 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
 
     passwd = vncDecryptPasswdFromFile(rfbAuthPasswdFile);
     if (passwd == NULL) {
-        rfbLog("rfbAuthProcessClientMessage: Could not access password from %s\n", rfbAuthPasswdFile);
+        rfbLog("rfbAuthProcessClientMessage: could not access password from %s", rfbAuthPasswdFile);
 		rfbSecurityResultMessage(cl, rfbVncAuthFailed, "Could not access password file");
         rfbCloseClient(cl);
         return;
@@ -319,7 +319,7 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
 
     if (memcmp(cl->authChallenge, response, CHALLENGESIZE) != 0) {
 		incrementFailedAttemptsForClient(cl);
-        rfbLog("rfbAuthProcessClientMessage: Authentication failed from %s (Incorrect Password)\n", cl->host);
+        rfbLog("rfbAuthProcessClientMessage: authentication failed from %s (incorrect password)", cl->host);
 		rfbSecurityResultMessage(cl, rfbVncAuthFailed, "Incorrect Password");
         rfbCloseClient(cl);
         return;

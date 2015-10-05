@@ -100,7 +100,7 @@ rfbSendRectEncodingRRE(cl, x, y, w, h)
         nSubrects = subrectEncode32((CARD32 *)rreBeforeBuf, w, h);
         break;
     default:
-        rfbLog("getBgColour: bpp %d?\n",cl->format.bitsPerPixel);
+        rfbLog("getBgColour: bpp %d?",cl->format.bitsPerPixel);
         exit(1);
     }
 
@@ -296,7 +296,7 @@ getBgColour(data,size,bpp)
     } else if (bpp == 32) {
       return ((CARD32 *)data)[0];
     } else {
-      rfbLog("getBgColour: bpp %d?\n",bpp);
+      rfbLog("getBgColour: bpp %d?",bpp);
       exit(1);
     }
   }
@@ -308,7 +308,7 @@ getBgColour(data,size,bpp)
   for (j=0; j<size; j++) {
     k = (int)(((CARD8 *)data)[j]);
     if (k >= NUMCLRS) {
-      rfbLog("getBgColour: unusual colour = %d\n", k);
+      rfbLog("getBgColour: unusual colour = %d", k);
       exit(1);
     }
     counts[k] += 1;
