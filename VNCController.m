@@ -292,7 +292,7 @@ NSMutableArray *localIPAddresses() {
 			
 			if (controller && !limitToLocalConnections.state) { // Colorize and add tooltip
 				
-				NSURL *testURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%d",anIP,[self runningPortNum]]];
+				NSURL *testURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%d", anIP, self.runningPortNum]];
 				NSData *testData = [NSData dataWithContentsOfURL:testURL];
 				NSString *testString = (testData.length ? [NSString stringWithUTF8String: testData.bytes] : @"" );
 				
@@ -871,7 +871,7 @@ NSMutableArray *localIPAddresses() {
 		[[NSDistributedNotificationCenter defaultCenter] addObserver:self 
 															selector:@selector(activeConnections:) 
 																name:@"VNCConnections"
-															  object:[NSString stringWithFormat:@"OSXvnc%d",[self runningPortNum]]
+															  object:[NSString stringWithFormat:@"OSXvnc%d", self.runningPortNum]
 												  suspensionBehavior:NSNotificationSuspensionBehaviorDeliverImmediately];
 		
 		[controller launch];
@@ -932,7 +932,7 @@ NSMutableArray *localIPAddresses() {
 
 	[[NSDistributedNotificationCenter defaultCenter] removeObserver:self 
 															   name:@"VNCConnections"
-															 object:[NSString stringWithFormat:@"OSXvnc%d",[self runningPortNum]]];
+															 object:[NSString stringWithFormat:@"OSXvnc%d", self.runningPortNum]];
 	
 	[[NSNotificationCenter defaultCenter] removeObserver: self
 													name: NSTaskDidTerminateNotification
@@ -952,7 +952,7 @@ NSMutableArray *localIPAddresses() {
     if (userStopped)
         [statusMessageField setStringValue:LocalizedString(@"The server is stopped.")];
     else if (controller.terminationStatus==250) {
-		NSMutableString *messageString = [NSMutableString stringWithFormat: LocalizedString(@"Vine Server can't listen on the specified port (%d)."), [self runningPortNum]];
+		NSMutableString *messageString = [NSMutableString stringWithFormat: LocalizedString(@"Vine Server can't listen on the specified port (%d)."), self.runningPortNum];
 		[messageString appendString:@"\n"];
 		if (systemServerIsConfigured)
 			[messageString appendString:LocalizedString(@"Probably because the VNC server is already running as a Startup Item.")];
@@ -1368,7 +1368,7 @@ NSMutableArray *localIPAddresses() {
 	}
 	
 	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"VNCConnectHost"
-																   object:[NSString stringWithFormat:@"OSXvnc%d",[self runningPortNum]]
+																   object:[NSString stringWithFormat:@"OSXvnc%d", self.runningPortNum]
 																 userInfo:argumentsDict
 													   deliverImmediately:YES];
 
