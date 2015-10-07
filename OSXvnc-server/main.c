@@ -594,6 +594,7 @@ char *rfbGetFramebuffer(void) {
             }else{
                 CGImageRef imageRef = CGDisplayCreateImage(mainDisplayID);
             }
+            CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
             CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
             frameBufferBytesPerRow = CGImageGetBytesPerRow(imageRef);
             frameBufferBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
@@ -1015,7 +1016,7 @@ static void processArguments(int argc, char *argv[]) {
         }
     }
 
-    if (!rfbAuthPasswdFile && !allowNoAuth && reverseHost[0] == '\0') {
+    if (!rfbAuthPasswdFile && !allowNoAuth && reverseHost[0] == '\0' && !didSupplyPass) {
         rfbLog("ERROR: No authentication specified, use -rfbauth passwordfile OR -rfbnoauth");
         exit (255);
     }

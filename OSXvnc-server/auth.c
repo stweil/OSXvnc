@@ -157,14 +157,15 @@ void rfbAuthNewClient(rfbClientPtr cl) {
 			buf[len++] = rfbUltra;
 			cl->state = RFB_AUTH_VERSION;
 		}
-		else if (!cl->reverseConnection && rfbAuthPasswdFile) {
+        else if ((!cl->reverseConnection && rfbAuthPasswdFile) || suppliedPass) {
             buf[len++] = rfbVncAuth;
             cl->state = RFB_AUTH_VERSION;
         }
-        else if ((!cl->reverseConnection && rfbAuthPasswdFile) || suppliedPass) {
+        else if (cl->reverseConnection || allowNoAuth) {
             buf[len++] = rfbNoAuth;
             cl->state = RFB_AUTH_VERSION; //RFB_INITIALISATION;
         }
+
 		buf[0] = (len-1); // Record How Many Auth Types in the first byte
 
 		if (len == 1) { // if we disable no-auth, for example
@@ -335,7 +336,7 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
         passwd[i] = '\0';
     }
     if(!suppliedPass)
-        free(passwd
+        free(passwd);
 
     if (memcmp(cl->authChallenge, response, CHALLENGESIZE) != 0) {
 		incrementFailedAttemptsForClient(cl);
