@@ -72,6 +72,12 @@ BOOL unregisterWhenNoConnections = FALSE;
 BOOL nonBlocking = FALSE;
 BOOL logEnable = TRUE;
 
+Bool hasGone = FALSE;
+BOOL didSupplyPass = FALSE;
+float displayScale;
+int realWidth,realHeight;
+
+
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
 // Bool rfbLocalBuffer = FALSE;
 
@@ -105,6 +111,7 @@ CGDisplayErr displayErr;
 
 // Server Data
 rfbserver thisServer;
+
 
 VNCServer *vncServerObject = nil;
 
@@ -563,13 +570,34 @@ char *rfbGetFramebuffer(void) {
     if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6)) {
         if (!frameBufferData) {
             CGDirectDisplayID mainDisplayID = CGMainDisplayID();
-            CGImageRef imageRef = CGDisplayCreateImage(mainDisplayID);
-            CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
+            CGImageRef imageRef;
+            //Check to see if Retina Display
+            if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6) & displayScale > 1) {
+                int width = realWidth/displayScale;
+                int height = realHeight/displayScale;
+                CGImageRef image = CGDisplayCreateImage(displayID);
+                CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+                CGContextRef context = CGBitmapContextCreate(NULL, width, height,
+                                                             CGImageGetBitsPerComponent(image),
+                                                             CGImageGetBytesPerRow(image),
+                                                             colorspace,
+                                                             kCGImageAlphaNoneSkipLast);
 
+                CGColorSpaceRelease(colorspace);
+                if(context == NULL){
+                    rfbLog("There was an error getting screen shot");
+                    return nil;
+                }
+                CGContextDrawImage(context, CGRectMake(0, 0, width, height), image);
+                imageRef = CGBitmapContextCreateImage(context);
+                CGContextRelease(context);
+            }else{
+                CGImageRef imageRef = CGDisplayCreateImage(mainDisplayID);
+            }
             CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
             frameBufferBytesPerRow = CGImageGetBytesPerRow(imageRef);
             frameBufferBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
-
+			
             frameBufferData = [(NSData *)dataRef mutableCopy];
             CFRelease(dataRef);
 
@@ -603,7 +631,25 @@ void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
     if (frameBufferData) {
         CGDirectDisplayID mainDisplayID = CGMainDisplayID();
         CGRect rect = CGRectMake (x,y,w,h);
-        CGImageRef imageRef = CGDisplayCreateImageForRect(mainDisplayID, rect);
+        CGImageRef imageRef;
+        //check to see if retina display
+        if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6) & displayScale > 1) {
+            CGImageRef image = CGDisplayCreateImageForRect(mainDisplayID, rect);
+            CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+            CGBitmapInfo bitmapInfo;
+            bitmapInfo = kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst;
+            CGContextRef context = CGBitmapContextCreate(NULL, w, h,8,w*4,colorspace, bitmapInfo );
+            CGColorSpaceRelease(colorspace);
+            if(context == NULL){
+                rfbLog("There was an error with gettin scalled images");
+                return nil;
+            }
+            CGContextDrawImage(context, CGRectMake(0, 0, w, h), image);
+            imageRef = CGBitmapContextCreateImage(context);
+            CGContextRelease(context);
+        }else{
+            imageRef = CGDisplayCreateImageForRect(mainDisplayID, rect);
+        }
         CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
         CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
         int imgBytesPerRow = CGImageGetBytesPerRow(imageRef);
@@ -643,17 +689,58 @@ static bool rfbScreenInit(void) {
         return FALSE;
     }
 
+	//main check for Retina Display
+	if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)]) {
+        NSScreen *myScreen = [NSScreen mainScreen];
+        displayScale = [myScreen backingScaleFactor];
+        if (displayScale > 1){
+            for (NSScreen* screen in [NSScreen screens]){
+                NSRect framePixels = [screen convertRectToBacking:[screen frame]];
+                realWidth = framePixels.size.width;
+                realHeight = framePixels.size.height;
+            }
+            rfbLog("Detected HiDPI Display with scaling factor of %f",displayScale);
+        }
+    }
+	
     rfbScreen.width = CGDisplayPixelsWide(displayID);
     rfbScreen.height = CGDisplayPixelsHigh(displayID);
     rfbScreen.bitsPerPixel = bitsPerPixelForDisplay(displayID);
     rfbScreen.depth = samplesPerPixel * bitsPerSample;
+    
+    //Fix for Yosemite and above
     if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6)) {
-        rfbScreen.paddedWidthInBytes = rfbScreen.width*rfbScreen.bitsPerPixel/8;
+        CGImageRef imageRef;
+        //Check to see if Retina Display
+        if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6) & displayScale > 1) {
+            int width = realWidth/displayScale;
+            int height = realHeight/displayScale;
+            CGImageRef image = CGDisplayCreateImage(displayID);
+            CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
+            CGContextRef context = CGBitmapContextCreate(NULL, width, height,
+                                                         CGImageGetBitsPerComponent(image),
+                                                         CGImageGetBytesPerRow(image),
+                                                         colorspace,
+                                                         kCGImageAlphaNoneSkipLast);
+
+            CGColorSpaceRelease(colorspace);
+            if(context == NULL){
+                rfbLog("There was an error getting screen shot");
+                return nil;
+            }
+            CGContextDrawImage(context, CGRectMake(0, 0, width, height), image);
+            imageRef = CGBitmapContextCreateImage(context);
+            CGContextRelease(context);
+        }else{
+            imageRef = CGDisplayCreateImage(displayID);
+        }
+        rfbScreen.paddedWidthInBytes = CGImageGetBytesPerRow(imageRef);
+        if (imageRef != NULL)
+            CGImageRelease(imageRef);
     }
     else {
         rfbScreen.paddedWidthInBytes = CGDisplayBytesPerRow(displayID);
     }
-
     rfbServerFormat.bitsPerPixel = rfbScreen.bitsPerPixel;
     rfbServerFormat.depth = rfbScreen.depth;
     rfbServerFormat.trueColour = TRUE;
@@ -705,6 +792,7 @@ static void usage(void) {
     fprintf(stderr, "-rfbnoauth             Run the server with NO password protection\n");
     fprintf(stderr, "-rfbauth passwordFile  Use this password file for VNC authentication\n");
     fprintf(stderr, "                       (use 'storepasswd' to create a password file)\n");
+    fprintf(stderr, "-rfbpass               Supply a password directly to the server\n");
     fprintf(stderr, "-maxauthattempts num   Maximum Number of auth tries before disabling access from a host\n");
     fprintf(stderr, "                       (default: 5), zero disables\n");
     fprintf(stderr, "-deferupdate time      Time in ms to defer updates (default %d)\n", rfbDeferUpdateTime);
@@ -825,6 +913,14 @@ static void processArguments(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "-rfbauth") == 0) {  // -rfbauth passwd-file
             if (i + 1 >= argc) usage();
             rfbAuthPasswdFile = argv[++i];
+        } else if (strcmp(argv[i], "-rfbpass") == 0) {  // -rfbauth passwd-file
+            if (i + 1 >= argc) usage();
+            if(!enterSuppliedPassword(argv[++i])){
+                rfbLog("ERROR: The supplied password failed to initialize.  Now exiting!!");
+                exit (255);
+            }else{
+                didSupplyPass=TRUE;
+            }
         } else if (strcmp(argv[i], "-maxauthattempts") == 0) {
             if (i + 1 >= argc) usage();
             rfbMaxLoginAttempts = atoi(argv[++i]);
