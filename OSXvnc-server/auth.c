@@ -36,7 +36,7 @@ NSLock *authClientLock=nil;
 NSMutableDictionary *authClientFailures=nil;
 static char *passwd;
 static char *storedPass;
-static Bool suppliedPass = FALSE;
+static bool suppliedPass;
 
 int rfbMaxLoginAttempts=5;
 char *rfbAuthPasswdFile = NULL;
@@ -237,14 +237,12 @@ void rfbAuthNewClient(rfbClientPtr cl) {
 
 //init password from commandline
 bool enterSuppliedPassword(char *passIn){
-    NSString *newPass = [NSString stringWithUTF8String:passIn];
-    if(newPass.length > 0){
+    NSString *newPass = @(passIn);
+    if (newPass.length > 0) {
         storedPass = passIn;
-        suppliedPass = TRUE;
-        return TRUE;
-    }else{
-        return FALSE;
+        suppliedPass = true;
     }
+    return suppliedPass;
 }
 
 void rfbProcessAuthVersion(rfbClientPtr cl) {
@@ -317,10 +315,10 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
         return;
     }
 
-    if(!suppliedPass){
+    if (!suppliedPass) {
         passwd = vncDecryptPasswdFromFile(rfbAuthPasswdFile);
-    }else{
-        passwd=storedPass;
+    } else {
+        passwd = storedPass;
     }
     if (passwd == NULL) {
         rfbLog("rfbAuthProcessClientMessage: could not access password from %s", rfbAuthPasswdFile);
@@ -335,7 +333,7 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
     for (i = 0; passwd[i] != '\0'; i++) {
         passwd[i] = '\0';
     }
-    if(!suppliedPass)
+    if (!suppliedPass)
         free(passwd);
 
     if (memcmp(cl->authChallenge, response, CHALLENGESIZE) != 0) {
