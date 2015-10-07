@@ -71,10 +71,9 @@ BOOL useIP4 = TRUE;
 BOOL unregisterWhenNoConnections = FALSE;
 BOOL nonBlocking = FALSE;
 BOOL logEnable = TRUE;
-static BOOL didSupplyPass = FALSE;
-static float displayScale;
-static int realWidth,realHeight;
 
+static BOOL didSupplyPass;
+static CGFloat displayScale;
 
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
 // Bool rfbLocalBuffer = FALSE;
@@ -91,8 +90,8 @@ static EventLoopTimerUPP  screensaverTimerUPP;
 static EventLoopTimerRef screensaverTimer;
 Bool rfbDisableScreenSaver = FALSE;
 
-// Display ID
-CGDirectDisplayID displayID = 0;
+// Display ID of main display
+static CGDirectDisplayID displayID;
 
 // Deprecated in 10.6 but required since the new api doesn't work for off-screen sessions
 size_t CGDisplayBytesPerRow ( CGDirectDisplayID display );
@@ -109,7 +108,6 @@ CGDisplayErr displayErr;
 
 // Server Data
 rfbserver thisServer;
-
 
 VNCServer *vncServerObject = nil;
 
@@ -211,17 +209,32 @@ static int bitsPerPixelForDisplay(CGDirectDisplayID dispID) {
     CGDisplayModeRef mode = CGDisplayCopyDisplayMode(dispID);
     CFStringRef pixelEncoding = CGDisplayModeCopyPixelEncoding(mode);
 
-    if (!pixelEncoding) // When off-screen the BPP is not accessible -- 32 is default and works.
+    if (!pixelEncoding) {
+        // When off-screen the BPP is not accessible -- 32 is default and works.
         bitsPerPixel = 32;
-    else if(CFStringCompare(pixelEncoding, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+    } else if (CFStringCompare(pixelEncoding, CFSTR(IO32BitDirectPixels),
+                               kCFCompareCaseInsensitive) == kCFCompareEqualTo) {
         bitsPerPixel = 32;
-    else if(CFStringCompare(pixelEncoding, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+    } else if (CFStringCompare(pixelEncoding, CFSTR(IO16BitDirectPixels),
+                               kCFCompareCaseInsensitive) == kCFCompareEqualTo) {
         bitsPerPixel = 16;
-    else if(CFStringCompare(pixelEncoding, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+    } else if (CFStringCompare(pixelEncoding, CFSTR(IO8BitIndexedPixels),
+                               kCFCompareCaseInsensitive) == kCFCompareEqualTo) {
         bitsPerPixel = 8;
+    }
     [(id)pixelEncoding release];
     CGDisplayModeRelease(mode);
     return bitsPerPixel;
+}
+
+static CGFloat scalingFactor()
+{
+    CGFloat scale = 1.0;
+    NSScreen *myScreen = [NSScreen mainScreen];
+    if ([myScreen respondsToSelector:@selector(backingScaleFactor)]) {
+        scale = myScreen.backingScaleFactor;
+    }
+    return scale;
 }
 
 void rfbCheckForScreenResolutionChange() {
@@ -567,12 +580,11 @@ static int frameBufferBitsPerPixel = 0;
 char *rfbGetFramebuffer(void) {
     if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6)) {
         if (!frameBufferData) {
-            CGDirectDisplayID mainDisplayID = CGMainDisplayID();
             CGImageRef imageRef;
-            //Check to see if Retina Display
-            if (displayScale > 1) {
-                int width = realWidth/displayScale;
-                int height = realHeight/displayScale;
+            if (displayScale > 1.0) {
+                // Retina display.
+                size_t width = rfbScreen.width;
+                size_t height = rfbScreen.height;
                 CGImageRef image = CGDisplayCreateImage(displayID);
                 CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
                 CGContextRef context = CGBitmapContextCreate(NULL, width, height,
@@ -582,14 +594,15 @@ char *rfbGetFramebuffer(void) {
                                                              kCGImageAlphaNoneSkipLast);
 
                 CGColorSpaceRelease(colorspace);
-                if(context == NULL){
+                if (context == NULL) {
                     rfbLog("There was an error getting screen shot");
                     return nil;
                 }
                 CGContextDrawImage(context, CGRectMake(0, 0, width, height), image);
                 imageRef = CGBitmapContextCreateImage(context);
                 CGContextRelease(context);
-            }else{
+            } else {
+                CGDirectDisplayID mainDisplayID = CGMainDisplayID();
                 imageRef = CGDisplayCreateImage(mainDisplayID);
             }
             CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
@@ -630,22 +643,21 @@ void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
         CGDirectDisplayID mainDisplayID = CGMainDisplayID();
         CGRect rect = CGRectMake (x,y,w,h);
         CGImageRef imageRef;
-        //check to see if retina display
-        if (displayScale > 1) {
+        if (displayScale > 1.0) {
+            // Retina display.
             CGImageRef image = CGDisplayCreateImageForRect(mainDisplayID, rect);
             CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-            CGBitmapInfo bitmapInfo;
-            bitmapInfo = kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst;
-            CGContextRef context = CGBitmapContextCreate(NULL, w, h,8,w*4,colorspace, bitmapInfo );
+            CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst;
+            CGContextRef context = CGBitmapContextCreate(NULL, w, h, 8, w * 4,colorspace, bitmapInfo);
             CGColorSpaceRelease(colorspace);
-            if(context == NULL){
-                rfbLog("There was an error with gettin scalled images");
+            if (context == NULL) {
+                rfbLog("There was an error getting scaled images");
                 return nil;
             }
             CGContextDrawImage(context, CGRectMake(0, 0, w, h), image);
             imageRef = CGBitmapContextCreateImage(context);
             CGContextRelease(context);
-        }else{
+        } else {
             imageRef = CGDisplayCreateImageForRect(mainDisplayID, rect);
         }
         CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
@@ -686,18 +698,10 @@ static bool rfbScreenInit(void) {
         return FALSE;
     }
 
-	//main check for Retina Display
-	if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)]) {
-        NSScreen *myScreen = [NSScreen mainScreen];
-        displayScale = [myScreen backingScaleFactor];
-        if (displayScale > 1){
-            for (NSScreen* screen in [NSScreen screens]){
-                NSRect framePixels = [screen convertRectToBacking:[screen frame]];
-                realWidth = framePixels.size.width;
-                realHeight = framePixels.size.height;
-            }
-            rfbLog("Detected HiDPI Display with scaling factor of %f",displayScale);
-        }
+    displayScale = scalingFactor();
+    if (displayScale > 1.0) {
+        // Retina display.
+        rfbLog("Detected HiDPI Display with scaling factor of %f", displayScale);
     }
 
     rfbScreen.width = CGDisplayPixelsWide(displayID);
@@ -707,10 +711,10 @@ static bool rfbScreenInit(void) {
     //Fix for Yosemite and above
     if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6)) {
         CGImageRef imageRef;
-        //Check to see if Retina Display
-        if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6) & displayScale > 1) {
-            int width = realWidth/displayScale;
-            int height = realHeight/displayScale;
+        // Check to see if retina display.
+        if (displayScale > 1.0) {
+            size_t width = rfbScreen.width;
+            size_t height = rfbScreen.height;
             CGImageRef image = CGDisplayCreateImage(displayID);
             CGColorSpaceRef colorspace = CGColorSpaceCreateWithName(kCGColorSpaceGenericRGB);
             CGContextRef context = CGBitmapContextCreate(NULL, width, height,
@@ -720,14 +724,14 @@ static bool rfbScreenInit(void) {
                                                          kCGImageAlphaNoneSkipLast);
 
             CGColorSpaceRelease(colorspace);
-            if(context == NULL){
+            if (context == NULL) {
                 rfbLog("There was an error getting screen shot");
                 return nil;
             }
             CGContextDrawImage(context, CGRectMake(0, 0, width, height), image);
             imageRef = CGBitmapContextCreateImage(context);
             CGContextRelease(context);
-        }else{
+        } else {
             imageRef = CGDisplayCreateImage(displayID);
         }
         rfbScreen.paddedWidthInBytes = CGImageGetBytesPerRow(imageRef);
@@ -911,7 +915,7 @@ static void processArguments(int argc, char *argv[]) {
             rfbAuthPasswdFile = argv[++i];
         } else if (strcmp(argv[i], "-rfbpass") == 0) {  // -rfbauth passwd-file
             if (i + 1 >= argc) usage();
-            if(!enterSuppliedPassword(argv[++i])){
+            if (!enterSuppliedPassword(argv[++i])) {
                 rfbLog("ERROR: The supplied password failed to initialize.  Now exiting!!");
                 exit (255);
             }else{
