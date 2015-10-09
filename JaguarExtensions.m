@@ -88,22 +88,22 @@ rfbserver *theServer;
 }
 
 + (void) rfbUsage {
-    fprintf(stderr,
-            "\nJAGUAR BUNDLE OPTIONS (10.2+):\n"
-            "-keyboardLoading flag  This feature allows OSXvnc to look at the users selected keyboard and map keystrokes using it.\n"
-            "                       Disabling this returns OSXvnc to standard (U.S. Keyboard) which will work better with Dead Keys.\n"
-            "                       (default: no), 10.2+ ONLY\n"
-            "-pressModsForKeys flag If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it.\n"
-            "                       This flag works well if you have different keyboards on the local and remote machines.\n"
-            "                       Only works if -keyboardLoading is on\n"
-            "                       (default: yes), 10.2+ ONLY\n"
-	        "-bonjour flag       Allow OSXvnc to advertise VNC server using Bonjour discovery services.\n"
-			"                       'VNC' will enable the service named VNC (For Eggplant & Chicken 2.02b)\n"
-			"                       'Both' or '2' will enable the services named RFB and VNC\n"
-			"                       (default: RFB:YES VNC:NO), 10.2+ ONLY\n"
-	        "-ipv4                  Listen For Connections on IPv4 ONLY (Default: Off). 10.2+ ONLY\n"
-	        "-ipv6                  Listen For Connections on IPv6 ONLY (Default: Off). 10.2+ ONLY\n"
-			);
+    printf(
+        "\nJAGUAR BUNDLE OPTIONS (10.2+):\n"
+        "-keyboardLoading flag  This feature allows OSXvnc to look at the users selected keyboard and map keystrokes using it.\n"
+        "                       Disabling this returns OSXvnc to standard (U.S. Keyboard) which will work better with Dead Keys.\n"
+        "                       (default: no), 10.2+ ONLY\n"
+        "-pressModsForKeys flag If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it.\n"
+        "                       This flag works well if you have different keyboards on the local and remote machines.\n"
+        "                       Only works if -keyboardLoading is on\n"
+        "                       (default: yes), 10.2+ ONLY\n"
+        "-bonjour flag          Allow OSXvnc to advertise VNC server using Bonjour discovery services.\n"
+        "                       'VNC' will enable the service named VNC (For Eggplant & Chicken 2.02b)\n"
+        "                       'Both' or '2' will enable the services named RFB and VNC\n"
+        "                       (default: RFB:YES VNC:NO), 10.2+ ONLY\n"
+        "-ipv4                  Listen For Connections on IPv4 ONLY (Default: Off). 10.2+ ONLY\n"
+        "-ipv6                  Listen For Connections on IPv6 ONLY (Default: Off). 10.2+ ONLY\n"
+    );
 }
 
 + (void) rfbRunning {
