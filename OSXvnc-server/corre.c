@@ -3,6 +3,8 @@
  *
  * Routines to implement Compact Rise-and-Run-length Encoding (CoRRE).  This
  * code is based on krw's original javatel rfbserver.
+ *
+ * Exported function: rfbSendRectEncodingCoRRE
  */
 
 /*
@@ -49,7 +51,7 @@ static int rreAfterBufLen;
 static int subrectEncode8(CARD8 *data, int w, int h);
 static int subrectEncode16(CARD16 *data, int w, int h);
 static int subrectEncode32(CARD32 *data, int w, int h);
-static CARD32 getBgColour(char *data, int size, int bpp);
+static CARD32 getBgColour(const void *data, size_t size, uint8_t bpp);
 static Bool rfbSendSmallRectEncodingCoRRE(rfbClientPtr cl, int x, int y,
 					  int w, int h);
 
@@ -60,9 +62,7 @@ static Bool rfbSendSmallRectEncodingCoRRE(rfbClientPtr cl, int x, int y,
  */
 
 Bool
-rfbSendRectEncodingCoRRE(cl, x, y, w, h)
-    rfbClientPtr cl;
-    int x, y, w, h;
+rfbSendRectEncodingCoRRE(rfbClientPtr cl, int x, int y, int w, int h)
 {
     if (h > cl->correMaxHeight) {
       return (rfbSendRectEncodingCoRRE(cl, x, y, w, cl->correMaxHeight) &&
@@ -87,9 +87,7 @@ rfbSendRectEncodingCoRRE(cl, x, y, w, h)
  */
 
 static Bool
-rfbSendSmallRectEncodingCoRRE(cl, x, y, w, h)
-    rfbClientPtr cl;
-    int x, y, w, h;
+rfbSendSmallRectEncodingCoRRE(rfbClientPtr cl, int x, int y, int w, int h)
 {
     rfbFramebufferUpdateRectHeader rect;
     rfbRREHeader hdr;
@@ -208,10 +206,7 @@ rfbSendSmallRectEncodingCoRRE(cl, x, y, w, h)
 
 #define DEFINE_SUBRECT_ENCODE(bpp)					      \
 static int								      \
-subrectEncode##bpp(data,w,h)						      \
-    CARD##bpp *data;							      \
-    int w;								      \
-    int h;								      \
+subrectEncode##bpp(CARD##bpp *data, int w, int h)			      \
 {									      \
     CARD##bpp cl;							      \
     rfbCoRRERectangle subrect;						      \
@@ -225,7 +220,7 @@ subrectEncode##bpp(data,w,h)						      \
     int thex,they,thew,theh;						      \
     int numsubs = 0;							      \
     int newLen;								      \
-    CARD##bpp bg = (CARD##bpp)getBgColour((char*)data,w*h,bpp);		      \
+    CARD##bpp bg = (CARD##bpp)getBgColour(data, w * h, bpp);		      \
 									      \
     *((CARD##bpp*)rreAfterBuf) = bg;					      \
 									      \
@@ -308,18 +303,12 @@ DEFINE_SUBRECT_ENCODE(32)
  * getBgColour() gets the most prevalent colour in a byte array.
  */
 static CARD32
-getBgColour(data,size,bpp)
-    char *data;
-    int size;
-    int bpp;
+getBgColour(const void *data, size_t size, uint8_t bpp)
 {
+  static unsigned counts[256];
+  size_t j;
 
-#define NUMCLRS 256
-
-  static int counts[NUMCLRS];
-  int i,j,k;
-
-  int maxcount = 0;
+  unsigned maxcount = 0;
   CARD8 maxclr = 0;
 
   if (bpp != 8) {
@@ -333,17 +322,11 @@ getBgColour(data,size,bpp)
     }
   }
 
-  for (i=0; i<NUMCLRS; i++) {
-    counts[i] = 0;
-  }
+  memset(counts, 0, sizeof(counts));
 
   for (j=0; j<size; j++) {
-    k = (int)(((CARD8 *)data)[j]);
-    if (k >= NUMCLRS) {
-      rfbLog("getBgColour: unusual colour = %d", k);
-      exit(1);
-    }
-    counts[k] += 1;
+    uint8_t k = ((uint8_t *)data)[j];
+    counts[k]++;
     if (counts[k] > maxcount) {
       maxcount = counts[k];
       maxclr = ((CARD8 *)data)[j];
