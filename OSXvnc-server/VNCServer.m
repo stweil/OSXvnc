@@ -118,8 +118,16 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
     int i, j;
     UCKeyboardLayout *uchrHandle = NULL;
     CFStringRef keyboardName;
-    static UInt32 modifierKeyStates[] = {0, shiftKey, optionKey, controlKey, optionKey | shiftKey, optionKey | controlKey, controlKey | shiftKey, optionKey | shiftKey | controlKey};
-    UInt32 modifierKeyState = 0;
+    static const unsigned modifierKeyStates[] = {
+        0,
+        shiftKey,
+        optionKey,
+        controlKey,
+        optionKey | shiftKey,
+        optionKey | controlKey,
+        controlKey | shiftKey,
+        optionKey | shiftKey | controlKey
+    };
     NSArray *keyStates = [[NSUserDefaults standardUserDefaults] arrayForKey:@"KeyStates"];
 
     /* modifiers */
@@ -152,8 +160,8 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
         UniChar unicodeChar[255];
 
         // Iterate Over Each Modifier Keyset
-        for (i=0; i < (sizeof(modifierKeyStates) / sizeof(UInt32)); i++) {
-            modifierKeyState = (modifierKeyStates[i] >> 8) & 0xFF;
+        for (i = 0; i < (sizeof(modifierKeyStates) / sizeof(*modifierKeyStates)); i++) {
+            unsigned modifierKeyState = (modifierKeyStates[i] >> 8) & 0xFF;
             //NSLog(@"Loading Keys For Modifer State: %#04x", modifierKeyState);
             // Iterate Over Each Key Code
             for (keyCode = 0; keyCode < 255; keyCode++) {
@@ -173,11 +181,12 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
 
                     if (resultCode == noErr) {
                         if (actualStringLength > 1) {
-                            NSLog(@"Multiple Characters For %d (%#04x): %S",  keyCode, (unsigned int)modifierKeyState, (const unichar *)unicodeChar);
+                            NSLog(@"Multiple Characters For %d (%#04x): %S",
+                                  keyCode, modifierKeyState, (const unichar *)unicodeChar);
                             //unicodeChar[0] = unicodeChar[actualStringLength-1];
                         }
                         else {
-                            NSLog(@"Loaded %d (%04x)",  keyCode, (unsigned int)modifierKeyState);
+                            //~ NSLog(@"Loaded %d (%04x)", keyCode, modifierKeyState);
                             // We'll use the FIRST keyCode that we find for that UNICODE character
                             if (keyTable[unicodeChar[0]] == 0xFFFF) {
                                 keyTable[unicodeChar[0]] = keyCode;
@@ -186,7 +195,10 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
                         }
                     }
                     else {
-                        NSLog(@"Error Translating %d (%04x): %s - %s",  keyCode, (unsigned int)modifierKeyState, GetMacOSStatusErrorString(resultCode), GetMacOSStatusCommentString(resultCode));
+                        NSLog(@"Error Translating %d (%04x): %s - %s",
+                              keyCode, modifierKeyState,
+                              GetMacOSStatusErrorString(resultCode),
+                              GetMacOSStatusCommentString(resultCode));
                     }
                 }
             }
