@@ -34,9 +34,9 @@
 Bool allowNoAuth = FALSE;
 NSLock *authClientLock=nil;
 NSMutableDictionary *authClientFailures=nil;
-char *passwd;
-char *storedPass;
-Bool suppliedPass = FALSE;
+static char *passwd;
+static char *storedPass;
+static Bool suppliedPass = FALSE;
 
 int rfbMaxLoginAttempts=5;
 char *rfbAuthPasswdFile = NULL;
