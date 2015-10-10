@@ -71,11 +71,9 @@ BOOL useIP4 = TRUE;
 BOOL unregisterWhenNoConnections = FALSE;
 BOOL nonBlocking = FALSE;
 BOOL logEnable = TRUE;
-
-Bool hasGone = FALSE;
-BOOL didSupplyPass = FALSE;
-float displayScale;
-int realWidth,realHeight;
+static BOOL didSupplyPass = FALSE;
+static float displayScale;
+static int realWidth,realHeight;
 
 
 // OSXvnc 0.8 This flag will use a local buffer which will allow us to display the mouse cursor
@@ -572,7 +570,7 @@ char *rfbGetFramebuffer(void) {
             CGDirectDisplayID mainDisplayID = CGMainDisplayID();
             CGImageRef imageRef;
             //Check to see if Retina Display
-            if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6) & displayScale > 1) {
+            if (displayScale > 1) {
                 int width = realWidth/displayScale;
                 int height = realHeight/displayScale;
                 CGImageRef image = CGDisplayCreateImage(displayID);
@@ -592,13 +590,12 @@ char *rfbGetFramebuffer(void) {
                 imageRef = CGBitmapContextCreateImage(context);
                 CGContextRelease(context);
             }else{
-                CGImageRef imageRef = CGDisplayCreateImage(mainDisplayID);
+                imageRef = CGDisplayCreateImage(mainDisplayID);
             }
             CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
             CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
             frameBufferBytesPerRow = CGImageGetBytesPerRow(imageRef);
             frameBufferBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
-
             frameBufferData = [(NSData *)dataRef mutableCopy];
             CFRelease(dataRef);
 
@@ -634,7 +631,7 @@ void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
         CGRect rect = CGRectMake (x,y,w,h);
         CGImageRef imageRef;
         //check to see if retina display
-        if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6) & displayScale > 1) {
+        if (displayScale > 1) {
             CGImageRef image = CGDisplayCreateImageForRect(mainDisplayID, rect);
             CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
             CGBitmapInfo bitmapInfo;
@@ -655,7 +652,6 @@ void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
         CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
         int imgBytesPerRow = CGImageGetBytesPerRow(imageRef);
         int imgBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
-
         if (imgBitsPerPixel != frameBufferBitsPerPixel)
             NSLog(@"BitsPerPixel MISMATCH: frameBuffer %d, rect image %d", frameBufferBitsPerPixel, imgBitsPerPixel);
 
@@ -708,7 +704,6 @@ static bool rfbScreenInit(void) {
     rfbScreen.height = CGDisplayPixelsHigh(displayID);
     rfbScreen.bitsPerPixel = bitsPerPixelForDisplay(displayID);
     rfbScreen.depth = samplesPerPixel * bitsPerSample;
-
     //Fix for Yosemite and above
     if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6)) {
         CGImageRef imageRef;
