@@ -34,6 +34,9 @@
 Bool allowNoAuth = FALSE;
 NSLock *authClientLock=nil;
 NSMutableDictionary *authClientFailures=nil;
+static char *passwd;
+static char *storedPass;
+static Bool suppliedPass = FALSE;
 
 int rfbMaxLoginAttempts=5;
 char *rfbAuthPasswdFile = NULL;
@@ -154,7 +157,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
 			buf[len++] = rfbUltra;
 			cl->state = RFB_AUTH_VERSION;
 		}
-		else if (!cl->reverseConnection && rfbAuthPasswdFile) {
+        else if ((!cl->reverseConnection && rfbAuthPasswdFile) || suppliedPass) {
             buf[len++] = rfbVncAuth;
             cl->state = RFB_AUTH_VERSION;
         }
@@ -162,6 +165,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
             buf[len++] = rfbNoAuth;
             cl->state = RFB_AUTH_VERSION; //RFB_INITIALISATION;
         }
+
 		buf[0] = (len-1); // Record How Many Auth Types in the first byte
 
 		if (len == 1) { // if we disable no-auth, for example
@@ -201,7 +205,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
 		}
 
         // If We have a password file specified - Send Challenge Request
-        if (!cl->reverseConnection && rfbAuthPasswdFile) {
+        if ((!cl->reverseConnection && rfbAuthPasswdFile) || suppliedPass) {
             *(CARD32 *)buf = Swap32IfLE(rfbVncAuth);
             vncRandomBytes(cl->authChallenge);
 			len+=4;
@@ -228,6 +232,18 @@ void rfbAuthNewClient(rfbClientPtr cl) {
             rfbCloseClient(cl);
             return;
         }
+    }
+}
+
+//init password from commandline
+bool enterSuppliedPassword(char *passIn){
+    NSString *newPass = [NSString stringWithUTF8String:passIn];
+    if(newPass.length > 0){
+        storedPass = passIn;
+        suppliedPass = TRUE;
+        return TRUE;
+    }else{
+        return FALSE;
     }
 }
 
@@ -301,7 +317,11 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
         return;
     }
 
-    passwd = vncDecryptPasswdFromFile(rfbAuthPasswdFile);
+    if(!suppliedPass){
+        passwd = vncDecryptPasswdFromFile(rfbAuthPasswdFile);
+    }else{
+        passwd=storedPass;
+    }
     if (passwd == NULL) {
         rfbLog("rfbAuthProcessClientMessage: could not access password from %s", rfbAuthPasswdFile);
 		rfbSecurityResultMessage(cl, rfbVncAuthFailed, "Could not access password file");
@@ -315,7 +335,8 @@ void rfbAuthProcessClientMessage(rfbClientPtr cl) {
     for (i = 0; passwd[i] != '\0'; i++) {
         passwd[i] = '\0';
     }
-    free(passwd);
+    if(!suppliedPass)
+        free(passwd);
 
     if (memcmp(cl->authChallenge, response, CHALLENGESIZE) != 0) {
 		incrementFailedAttemptsForClient(cl);
