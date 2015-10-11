@@ -23,20 +23,20 @@
 	// System Server UI
 	IBOutlet NSMenuItem *systemServerMenu;
 	IBOutlet NSWindow *systemServerWindow;
-	
+
 	IBOutlet NSTextField *systemServerDisplayNameField;
     IBOutlet NSPopUpButton *systemServerDisplayNumberField;
     IBOutlet NSTextField *systemServerPortField;
-	
+
 	IBOutlet NSMatrix *systemServerAuthenticationType;
     IBOutlet NSTextField *systemServerPasswordField;
 	IBOutlet NSButton *systemServerLimitToLocalConnections;
 
     IBOutlet NSButton *disableStartupButton;
 	IBOutlet NSButton *setStartupButton;
-    
+
     IBOutlet NSTextField *startupItemStatusMessageField;
-	
+
 	// Control Panel
 	IBOutlet NSBox *hostNamesBox;
     IBOutlet NSTextField *hostNamesField;
@@ -44,11 +44,11 @@
 	IBOutlet NSMatrix *ipAddressesView;
     IBOutlet NSTextField *displayNumText;
     IBOutlet NSTextField *portNumText;
-	
+
 	IBOutlet NSTextView *statusMessageField;
     IBOutlet NSButton *startServerButton;
     IBOutlet NSButton *stopServerButton;
-	
+
 	// Preferences Interface
 	IBOutlet NSTabView *optionsTabView;
     IBOutlet NSTextField *preferencesMessageTestField;
@@ -57,7 +57,7 @@
     IBOutlet NSTextField *displayNameField;
     IBOutlet NSPopUpButton *displayNumberField;
     IBOutlet NSTextField *portField;
-	
+
 	IBOutlet NSMatrix *authenticationType;
     IBOutlet NSTextField *passwordField;
 
@@ -97,16 +97,16 @@
 	IBOutlet NSTextField *connectHost;
     IBOutlet NSTextField *connectPort;
 	IBOutlet NSTextField *reverseConnectionMessageField;
-	
+
 	// Initial Settings UI
 	IBOutlet NSWindow *initialWindow;
 	IBOutlet NSTextField *initialPasswordText;
 	IBOutlet NSMatrix *initialAuthenticationType;
 	IBOutlet NSButton *initialDoneButton;
-	
+
     //int port;
 	BOOL systemServerIsConfigured;
-	
+
     BOOL alwaysShared;
     BOOL neverShared;
     BOOL userStopped;
@@ -114,22 +114,22 @@
 	BOOL doNotLoadProxy;
 
 	BOOL waitingForHostInfo;
-	
+
     NSTask *controller;
     NSFileHandle *serverOutput;
-    
+
     NSString *passwordFile;
     NSString *logFile;
-    
+
     NSAuthorization *myAuthorization;
-    
+
     NSDate *lastLaunchTime;
 	NSMutableArray *bundleArray;
-	
+
 	NSArray *clientList;
-	
+
 	NSString *hostName;
-	
+
 	NSString *automaticReverseHost;
 	NSString *automaticReversePort;
 }

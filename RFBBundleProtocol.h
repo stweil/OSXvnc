@@ -27,7 +27,7 @@
     /* You can use NSProcessInfo to get access to the startup arguments */
 
 + (void) rfbRunning;
-	/* This method is called after all of the core services are started -- immediately before listening for connects */ 
+	/* This method is called after all of the core services are started -- immediately before listening for connects */
 
 + (void) rfbPoll;
     /* This method is called during each check the VNC system does for screen updates, etc. */

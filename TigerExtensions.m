@@ -63,13 +63,13 @@ int modifierDelay = 0;
 
 rfbserver *theServer;
 
-// This routine waits for the window server to register its per-session 
-// services in our session.  This code was necessary in various pre-release 
-// versions of Mac OS X 10.5, but it is not necessary on the final version. 
+// This routine waits for the window server to register its per-session
+// services in our session.  This code was necessary in various pre-release
+// versions of Mac OS X 10.5, but it is not necessary on the final version.
 static void WaitForWindowServerSession(void) {
     CFDictionaryRef dict;
     int delay = 100000, maxDelay = 5000000;
-	
+
 	dict = CGSessionCopyCurrentDictionary();
 	while (dict == NULL && maxDelay > 0) {
 		usleep(delay);
@@ -85,21 +85,21 @@ static void WaitForWindowServerSession(void) {
 bool isConsoleSession() {
 	BOOL returnValue = FALSE;
 	CFDictionaryRef sessionInfoDict = CGSessionCopyCurrentDictionary();
-		
-	if (sessionInfoDict == NULL) 
+
+	if (sessionInfoDict == NULL)
 		NSLog(@"Unable to get session dictionary.");
 	else {
 		CFBooleanRef userIsActive = CFDictionaryGetValue(sessionInfoDict, kCGSessionOnConsoleKey);
 		returnValue = CFBooleanGetValue(userIsActive);
 		CFRelease(sessionInfoDict);
 	}
-	
-//	if (0) { 
+
+//	if (0) {
 //		// This one succeeds in "off-screen acounts" also
 //		SecuritySessionId mySession;
 //		SessionAttributeBits sessionInfo;
 //		OSStatus error = SessionGetInfo(callerSecuritySession, &mySession, &sessionInfo);
-//		
+//
 //		returnValue = (sessionInfo & sessionHasGraphicAccess);
 //	}
 //	else if (0) {
@@ -107,19 +107,19 @@ bool isConsoleSession() {
 //		// at least for logged in users -- it always returns NO for the login window
 //		CGEventSourceRef testRef = CGEventSourceCreate(kCGEventSourceStatePrivate);
 //		int pollDelay = 0; // No poll at this time, just look once
-//		
+//
 //		while (!testRef && pollDelay) {
 //			usleep(100000);
 //			pollDelay -= 100000;
 //			testRef = CGEventSourceCreate(kCGEventSourceStatePrivate);
 //		}
-//	
+//
 //		if (testRef != NULL) {
 //			returnValue = TRUE;
 //			CFRelease(testRef);
 //		}
 //	}
-	
+
 	return returnValue;
 }
 
@@ -138,7 +138,7 @@ bool isConsoleSession() {
 		@"2", @"EventSource", // Always private event source so we don't consolidate with existing keys (however HID for the EventTap always does anyhow)
 		@"3", @"EventTap", // Default Event Tap (3=HID for Console User and Session For OffScreen Users)
 		@"5000", @"ModifierDelay", // Delay when shifting modifier keys
-		@"NO", @"SystemServer", 
+		@"NO", @"SystemServer",
 		nil]];
 
     theServer = aServer;
@@ -152,7 +152,7 @@ bool isConsoleSession() {
 			[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
 																   selector:@selector(systemServerShouldQuit:)
 																	   name: NSWorkspaceSessionDidResignActiveNotification
-																	 object:nil];			
+																	 object:nil];
 		}
 		// On 10.5 we need to be able to "hold" if we aren't the console session
 		else {
@@ -191,10 +191,10 @@ bool isConsoleSession() {
 	return;
 }
 
-+ (void) rfbRunning {	
++ (void) rfbRunning {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DynamicKeyboard"])
 		dynamicKeyboard = TRUE;
-	
+
 	// Event Source represents which existing event states should be combined with the incoming events
 	switch ([[NSUserDefaults standardUserDefaults] integerForKey:@"EventSource"]) {
 		case 2:
@@ -218,8 +218,8 @@ bool isConsoleSession() {
 			break;
 	}
 	if (!vncSourceRef)
-		NSLog(@"No Event Source -- Using 10.3 API");	
-	
+		NSLog(@"No Event Source -- Using 10.3 API");
+
 	// Event Taps represent at what level of the input manager the events will be interpretted
 	switch ([[NSUserDefaults standardUserDefaults] integerForKey:@"EventTap"]) {
 		case 3: {
@@ -231,7 +231,7 @@ bool isConsoleSession() {
 				NSLog(@"Using Smart Event Tap -- Session for off-screen user");
 				vncTapLocation = kCGSessionEventTap;
 			}
-			
+
 			[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
 																   selector:@selector(userSwitchedIn:)
 																	   name: NSWorkspaceSessionDidBecomeActiveNotification
@@ -239,7 +239,7 @@ bool isConsoleSession() {
 			[[[NSWorkspace sharedWorkspace] notificationCenter] addObserver:self
 																   selector:@selector(userSwitchedOut:)
 																	   name: NSWorkspaceSessionDidResignActiveNotification
-																	 object:nil];			
+																	 object:nil];
 			break;
 		}
 		case 2:
@@ -249,7 +249,7 @@ bool isConsoleSession() {
 		case 1:
 			// At this level will can passed in modifiers
 			// it will ignore physical keyboard state
-			// it will NOT impact physical keyboard state 			
+			// it will NOT impact physical keyboard state
 			NSLog(@"Using Session Event Tap");
 			vncTapLocation = kCGSessionEventTap;
 			break;
@@ -257,7 +257,7 @@ bool isConsoleSession() {
 		default:
 			// At this level will ignore passed in modifiers
 			// it will combine with the physical keyboard state (CapsLock, etc)
-			// it WILL impact physical keyboard state 
+			// it WILL impact physical keyboard state
 			NSLog(@"Using HID Event Tap");
 			vncTapLocation = kCGHIDEventTap;
 			break;
@@ -267,13 +267,13 @@ bool isConsoleSession() {
 + (void) loadUnicodeKeyboard {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"UnicodeKeyboard"] && unicodeInputSource == NULL) {
 		// Need to figure out a way to lookup the Unicode Keyboard before this will work
-		
+
 		// OSStatus result = KLGetKeyboardLayoutWithIdentifier([[NSUserDefaults standardUserDefaults] integerForKey:@"UnicodeKeyboardIdentifier"], &unicodeLayout);
 
 		// Unicode Keyboard Should load keys from definition
 		(*(theServer->pressModsForKeys) = YES);
 		[self loadKeyboard:unicodeInputSource forServer:theServer];
-	}	
+	}
 }
 
 
@@ -284,7 +284,7 @@ bool isConsoleSession() {
 }
 + (void) userSwitchedOut: (NSNotification *) aNotification {
     NSLog(@"User Switched Out, Using Session Tap - %@", [aNotification name]);
-	vncTapLocation = kCGSessionEventTap;	
+	vncTapLocation = kCGSessionEventTap;
 	return;
 }
 
@@ -312,7 +312,7 @@ bool isConsoleSession() {
 + (void) rfbPoll {
 	if (0 && vncTapLocation == kCGHIDEventTap) {
 		CGEventFlags newModifiers = 0;
-		
+
 		if (CGEventSourceKeyState(kCGEventSourceStateHIDSystemState,keyCodeShift))
 			newModifiers |= kCGEventFlagMaskShift;
 		if (CGEventSourceKeyState(kCGEventSourceStateHIDSystemState,keyCodeOption))
@@ -321,10 +321,10 @@ bool isConsoleSession() {
 			newModifiers |= kCGEventFlagMaskControl;
 		if (CGEventSourceKeyState(kCGEventSourceStateHIDSystemState,keyCodeCommand))
 			newModifiers |= kCGEventFlagMaskControl;
-		
+
 		currentModifiers = newModifiers;
 	}
-	
+
     return;
 }
 
@@ -347,7 +347,7 @@ bool isConsoleSession() {
 		keyCodeOption = theServer->keyTable[XK_Meta_L];
 		keyCodeControl = theServer->keyTable[XK_Control_L];
 		keyCodeCommand = theServer->keyTable[XK_Alt_L];
-	}		
+	}
 
 	// If we can't locate the keycode then we will use the special OPTION+4 HEX coding that is available on the Unicode HexInput Keyboard
 	if (keyCode == 0xFFFF) {
@@ -356,26 +356,26 @@ bool isConsoleSession() {
 			unsigned short mask=0xF000;
 			int rightShift;
 			CGEventFlags oldModifiers = currentModifiers;
-			
+
 			// Switch to Unicode Keyboard
 			if (dynamicKeyboard) {
 				currentInputSource = TISCopyCurrentKeyboardInputSource();
 				SyncSetKeyboardLayout(unicodeInputSource);
 			}
-			
+
 			modifiersToSend = kCGEventFlagMaskAlternate | kCGEventFlagMaskNonCoalesced;
-			
+
 			[self setKeyModifiers: modifiersToSend];
 			for (rightShift = 12; rightShift >= 0; rightShift-=4) {
 				short unidigit = (keySym & mask) >> rightShift;
-				
+
 				[self sendKeyEvent:unicodeNumbersToKeyCodes[unidigit] down:1 modifiers:modifiersToSend];
 				[self sendKeyEvent:unicodeNumbersToKeyCodes[unidigit] down:0 modifiers:modifiersToSend];
-				
+
 				mask >>= 4;
 			}
 			[self setKeyModifiers: oldModifiers];
-			
+
 			// Switch to Old Keyboard
 			if (dynamicKeyboard)
 				SyncSetKeyboardLayout(currentInputSource);
@@ -383,11 +383,11 @@ bool isConsoleSession() {
 	}
 	else {
 		BOOL isModifierKey = (XK_Shift_L <= keySym && keySym <= XK_Hyper_R);
-		
+
 		if (isModifierKey) {
 			// Mark the key state for the client, we'll release down keys later
 			cl->modiferKeys[keyCode] = down;
-			
+
 			// Record them in our "currentModifiers"
 			switch (keySym) {
 				case XK_Shift_L:
@@ -396,21 +396,21 @@ bool isConsoleSession() {
 						currentModifiers |= kCGEventFlagMaskShift;
 					else
 						currentModifiers &= ~kCGEventFlagMaskShift;
-					break;	
+					break;
 				case XK_Control_L:
 				case XK_Control_R:
 					if (down)
 						currentModifiers |= kCGEventFlagMaskControl;
 					else
 						currentModifiers &= ~kCGEventFlagMaskControl;
-					break;	
+					break;
 				case XK_Meta_L:
 				case XK_Meta_R:
 					if (down)
 						currentModifiers |= kCGEventFlagMaskAlternate;
 					else
 						currentModifiers &= ~kCGEventFlagMaskAlternate;
-					break;	
+					break;
 				case XK_Alt_L:
 				case XK_Alt_R:
 					if (down)
@@ -418,27 +418,27 @@ bool isConsoleSession() {
 					else
 						currentModifiers &= ~kCGEventFlagMaskCommand;
 					break;
-			}					
-			
+			}
+
 			[self sendKeyEvent:keyCode down:down modifiers:currentModifiers];
 		}
 		else {
 			if (*(theServer->pressModsForKeys)) {
-				if (theServer->keyTableMods[keySym] != 0xFF) {					
+				if (theServer->keyTableMods[keySym] != 0xFF) {
 					// Setup the state of the appropriate keys based on the value in the KeyTableMods
 					CGEventFlags oldModifiers = currentModifiers;
 					CGEventFlags modifiersToSend = kCGEventFlagMaskNonCoalesced;
-					
+
 					if ((theServer->keyTableMods[keySym] << 8) & shiftKey)
 						modifiersToSend |= kCGEventFlagMaskShift;
 					if ((theServer->keyTableMods[keySym] << 8) & optionKey)
 						modifiersToSend |= kCGEventFlagMaskAlternate;
 					if ((theServer->keyTableMods[keySym] << 8) & controlKey)
 						modifiersToSend |= kCGEventFlagMaskControl;
-					
+
 					// Treat command key separately (not as part of the generation string)
 					modifiersToSend |= (currentModifiers & kCGEventFlagMaskCommand);
-					
+
 					[self setKeyModifiers: modifiersToSend];
 					[self sendKeyEvent:keyCode down:down modifiers:modifiersToSend];
 					// Back to current depressed state
@@ -451,12 +451,12 @@ bool isConsoleSession() {
 			}
 			else {
 				CGEventFlags oldModifiers = currentModifiers;
-				CGEventFlags modifiersToSend = kCGEventFlagMaskNonCoalesced | 
+				CGEventFlags modifiersToSend = kCGEventFlagMaskNonCoalesced |
 					(cl->modiferKeys[keyCodeShift] ? kCGEventFlagMaskShift : 0) |
 					(cl->modiferKeys[keyCodeControl] ? kCGEventFlagMaskControl : 0) |
 					(cl->modiferKeys[keyCodeOption] ? kCGEventFlagMaskAlternate : 0) |
 					(cl->modiferKeys[keyCodeCommand] ? kCGEventFlagMaskCommand : 0);
-				
+
 				[self setKeyModifiers: modifiersToSend];
 				[self sendKeyEvent:keyCode down:down modifiers:modifiersToSend];
 				[self setKeyModifiers: oldModifiers];
@@ -470,7 +470,7 @@ bool isConsoleSession() {
 	// Otherwise we will have to explicitly twiddle them at the HID level based on their current state
 	if (vncTapLocation == kCGHIDEventTap || !vncSourceRef) {
 		CGEventRef event = nil;
-		
+
 		// Toggle the state of the appropriate keys
 		if ((currentModifiers & kCGEventFlagMaskCommand) != (modifierFlags & kCGEventFlagMaskCommand)) {
 			[self sendKeyEvent:keyCodeCommand down:((modifierFlags & kCGEventFlagMaskCommand) != 0) modifiers:0];
@@ -484,9 +484,9 @@ bool isConsoleSession() {
 		if ((currentModifiers & kCGEventFlagMaskControl) != (modifierFlags & kCGEventFlagMaskControl)) {
 			[self sendKeyEvent:keyCodeControl down:((modifierFlags & kCGEventFlagMaskControl) != 0) modifiers:0];
 		}
-		
+
 		if (modifierDelay)
-			usleep(modifierDelay);		
+			usleep(modifierDelay);
 	}
 	currentModifiers = modifierFlags;
 }
@@ -494,7 +494,7 @@ bool isConsoleSession() {
 - (BOOL) checkModiferState {
 	CGEventFlags actualFlags = CGEventSourceFlagsState(CGEventSourceGetSourceStateID(vncSourceRef));
 	BOOL match = YES;
-	
+
 	if ((actualFlags & kCGEventFlagMaskCommand) != (currentModifiers & kCGEventFlagMaskCommand) ||
 		(actualFlags & kCGEventFlagMaskShift) != (currentModifiers & kCGEventFlagMaskShift) ||
 		(actualFlags & kCGEventFlagMaskAlternate) != (currentModifiers & kCGEventFlagMaskAlternate) ||
@@ -511,26 +511,26 @@ bool isConsoleSession() {
 	}
 	else {
 		CGEventRef event = CGEventCreateKeyboardEvent(vncSourceRef, keyCode, down);
-		
+
 		// The value of this function escapes me (since you still need to specify the keyCode for it to work
 		// CGEventKeyboardSetUnicodeString (event, 1, (const UniChar *) &keySym);
-		
+
 		// If it's a session tap then we can specify our own modifiers as part of the event
 		if (vncTapLocation != kCGHIDEventTap)
 			CGEventSetFlags(event, modifiersToSend);
-		
+
 		CGEventPost(vncTapLocation, event);
-		
+
 		if (vncTapLocation == kCGHIDEventTap) {
 			int maxWait = 250000; // 1/4 second
-			
+
 			// NEED TO WAIT UNTIL MODIFIER FLAGS REFLECT THE EXPECTED STATE
 			while ([self checkModiferState] == NO && maxWait > 0) {
 				maxWait -= 10000;
 				usleep(10000);
 			}
 		}
-		
+
 		CFRelease(event);
 	}
 }
@@ -549,11 +549,11 @@ void SyncSetKeyboardLayout (TISInputSourceRef inputSource) {
 //									 [NSNumber numberWithBool:down], @"down",
 //									 [NSNumber numberWithLong: modifiersToSend], @"modifierFlags",
 //									 nil];
-//	[self performSelectorOnMainThread:@selector(sendKeyEvent:) withObject:eventDictionary waitUntilDone:YES];	
+//	[self performSelectorOnMainThread:@selector(sendKeyEvent:) withObject:eventDictionary waitUntilDone:YES];
 //	CGKeyCode keyCode = [[eventData objectForKey:@"keyCode"] intValue];
 //	BOOL down = [[eventData objectForKey:@"down"] boolValue];
 //	CGEventFlags localModifierFlags = [[eventData objectForKey:@"modifierFlags"] longValue];
-//}	
+//}
 
 
 @end

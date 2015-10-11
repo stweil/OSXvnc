@@ -44,39 +44,39 @@
     UCKeyboardLayout *uchrHandle = NULL;
     CFStringRef keyboardName;
     static UInt32 modifierKeyStates[] = {0, shiftKey, optionKey, controlKey, optionKey | shiftKey, optionKey | controlKey, controlKey | shiftKey, optionKey | shiftKey | controlKey};
-	UInt32 modifierKeyState = 0;	
+	UInt32 modifierKeyState = 0;
 	NSArray *keyStates = [[NSUserDefaults standardUserDefaults] arrayForKey:@"KeyStates"];
-	
+
     /* modifiers */
     //cmdKey                        = 1 << cmdKeyBit,
     //shiftKey                      = 1 << shiftKeyBit,
     //alphaLock                     = 1 << alphaLockBit,
     //optionKey                     = 1 << optionKeyBit,
     //controlKey                    = 1 << controlKeyBit,
-    
+
     // KLGetKeyboardLayoutProperty is 10.2 only how do I access these resources in early versions?
     if (inputSource) {
         keyboardName = (CFStringRef) TISGetInputSourceProperty(inputSource, kTISPropertyLocalizedName);
         NSLog(@"Keyboard detected: %@ - loading keys", keyboardName);
 		uchrHandle = (CFDataRef) TISGetInputSourceProperty(inputSource, kTISPropertyUnicodeKeyLayoutData);
     }
-	
+
     // Initialize them all to 0xFFFF
     memset(theServer->keyTable, 0xFF, keyTableSize * sizeof(CGKeyCode));
     memset(theServer->keyTableMods, 0xFF, keyTableSize * sizeof(unsigned char));
-	
+
     if (uchrHandle) {
         // Ok - we could get the LIST of Modifier Key States out of the Keyboard Layout
         // some of them are duplicates so we need to compare them, then we'll iterate through them in reverse order
         // UCKeyModifiersToTableNum = ; EventRecord
         // This layout gets a little harry
-		
+
         UInt16 keyCode;
         UInt32 keyboardType = LMGetKbdType();
         UInt32 deadKeyState = 0;
         UniCharCount actualStringLength;
         UniChar unicodeChar[255];
-		
+
         // Iterate Over Each Modifier Keyset
         for (i=0; i < (sizeof(modifierKeyStates) / sizeof(UInt32)); i++) {
             modifierKeyState = (modifierKeyStates[i] >> 8) & 0xFF;
@@ -95,7 +95,7 @@
 														  255, // Only 1 key allowed due to VNC behavior
 														  &actualStringLength,
 														  unicodeChar);
-					
+
 					if (resultCode == noErr) {
 						if (actualStringLength > 1) {
 							NSLog(@"Multiple Characters For %d (%#04x): %S",  keyCode, modifierKeyState, unicodeChar);
@@ -123,7 +123,7 @@
         for (i = 0; i < (sizeof(USKeyCodes) / sizeof(int)); i += 2)
             theServer->keyTable[(unsigned short)USKeyCodes[i]] = (CGKeyCode) USKeyCodes[i+1];
     }
-	
+
     // This is the old SpecialKeyCodes keyboard mapping
     // Map the above key table into a static array so we can just look them up directly
     NSLog(@"Loading %d XKeysym special keys", (sizeof(SpecialKeyCodes) / sizeof(int))/2);

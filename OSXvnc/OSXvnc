@@ -1,9 +1,9 @@
-#!/bin/sh 
+#!/bin/sh
 . /etc/rc.common
 
 #
 # OSXvnc
-# 
+#
 # The OSXvnc application will OVERWRITE this file if you ask it to Configure the Startup Item
 #
 
@@ -22,7 +22,7 @@ VNCLOG="/Library/Logs/VineServer.log"
 # Added missing backslashes to the Awk command when stopping OSXvnc-keepalive
 #
 # 1.5
-# Switched VNCPath to /Library/StartupItems/OSXvnc by default, we now copy in the executable 
+# Switched VNCPath to /Library/StartupItems/OSXvnc by default, we now copy in the executable
 # Added -f option to log move so it won't hang when started up (when run as authenticated/non-root user)
 # Set the kill operations to use the -KILL flag, seems to help on 10.1.5
 #

@@ -44,7 +44,7 @@ static BOOL listenerFinished = FALSE;
 rfbserver *theServer;
 
 + (void) loadGUI {
-	//	ProcessSerialNumber psn = { 0, kCurrentProcess }; 
+	//	ProcessSerialNumber psn = { 0, kCurrentProcess };
 	//	OSStatus returnCode = TransformProcessType(& psn, kProcessTransformToForegroundApplication);
 	//	returnCode = SetFrontProcess(& psn );
 	//	if( returnCode != 0) {
@@ -62,11 +62,11 @@ rfbserver *theServer;
 		nil]];
 
     theServer = aServer;
-	
-	keyboardLoading = [[NSUserDefaults standardUserDefaults] boolForKey:@"keyboardLoading"];	
+
+	keyboardLoading = [[NSUserDefaults standardUserDefaults] boolForKey:@"keyboardLoading"];
     if (keyboardLoading) {
 		OSErr result;
-		
+
         NSLog(@"Keyboard Loading - Enabled");
 
         *(theServer->pressModsForKeys) = [[NSUserDefaults standardUserDefaults] boolForKey:@"pressModsForKeys"];
@@ -81,7 +81,7 @@ rfbserver *theServer;
 		else
 			NSLog(@"Error (%u) unabled to load current keyboard layout", result);
     }
-	
+
     if ([[[NSProcessInfo processInfo] arguments] indexOfObject:@"-ipv4"] != NSNotFound) {
 		useIP6 = FALSE;
 	}
@@ -106,13 +106,13 @@ rfbserver *theServer;
 			);
 }
 
-+ (void) rfbRunning {	
++ (void) rfbRunning {
 	[JaguarExtensions registerRendezvous];
 	if (useIP6) {
 		[NSThread detachNewThreadSelector:@selector(setupIPv6:) toTarget:self withObject:nil];
 		// Wait for the IP6 to bind, if it binds later it confuses the IPv4 binding into allowing others on the port
 		while (!listenerFinished)
-			usleep(1000); 
+			usleep(1000);
 	}
 }
 
@@ -121,7 +121,7 @@ rfbserver *theServer;
 	int value=1;  // Need to pass a ptr to this
 	struct sockaddr_in6 sin6, peer6;
 	unsigned int len6=sizeof(sin6);
-	
+
 	bzero(&sin6, sizeof(sin6));
 	sin6.sin6_len = sizeof(sin6);
 	sin6.sin6_family = AF_INET6;
@@ -130,7 +130,7 @@ rfbserver *theServer;
 		sin6.sin6_addr = in6addr_loopback;
 	else
 		sin6.sin6_addr = in6addr_any;
-	
+
 	if ((listen_fd6 = socket(PF_INET6, SOCK_STREAM, 0)) < 0) {
 		NSLog(@"IPv6: Unable to open socket");
 	}
@@ -151,23 +151,23 @@ rfbserver *theServer;
 	else {
 		NSLog(@"Started listener thread on IPv6 port %d", theServer->rfbPort);
 		listenerFinished = TRUE;
-		
+
 	    while ((client_fd = accept(listen_fd6, (struct sockaddr *) &peer6, &len6)) !=-1) {
 			NSAutoreleasePool *pool=[[NSAutoreleasePool alloc] init];
-			
+
 			[[NSNotificationCenter defaultCenter] postNotification:
 				[NSNotification notificationWithName:@"NewRFBClient" object:[NSNumber numberWithInt:client_fd]]];
-			
+
 			// We have to trigger a signal so the event loop will pickup (if no clients are connected)
 			pthread_cond_signal(&(theServer->listenerGotNewClient));
-			
+
 			[pool release];
 		}
-		
+
 		NSLog(@"IPv6: Accept failed %d", errno);
 	}
 	listenerFinished = TRUE;
-	
+
 	return;
 }
 
@@ -176,17 +176,17 @@ rfbserver *theServer;
 	BOOL loadRendezvousRFB = YES;
 	int argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-rendezvous"];
 	RendezvousDelegate *rendezvousDelegate = [[RendezvousDelegate alloc] init];
-	
+
     if (argumentIndex == NSNotFound) {
 		argumentIndex = [[[NSProcessInfo processInfo] arguments] indexOfObject:@"-bonjour"];
 	}
-	
+
     if (argumentIndex != NSNotFound) {
         NSString *value = nil;
-        
+
         if ([[[NSProcessInfo processInfo] arguments] count] > argumentIndex + 1)
             value = [[[NSProcessInfo processInfo] arguments] objectAtIndex:argumentIndex+1];
-        
+
         if ([value hasPrefix:@"n"] || [value hasPrefix:@"N"] || [value hasPrefix:@"0"]) {
             loadRendezvousVNC = NO; loadRendezvousRFB = NO;
 		}
@@ -194,20 +194,20 @@ rfbserver *theServer;
 			loadRendezvousVNC = NO; loadRendezvousRFB = YES;
 		}
 		else if ([value hasPrefix:@"b"] || [value hasPrefix:@"B"] || [value hasPrefix:@"2"]) {
-			loadRendezvousVNC = YES; loadRendezvousRFB = YES; 
+			loadRendezvousVNC = YES; loadRendezvousRFB = YES;
 		}
 		else if ([value hasPrefix:@"vnc"]) {
 			loadRendezvousVNC = YES; loadRendezvousRFB = NO;
 		}
     }
-	
+
 	// Register For Rendezvous
     if (loadRendezvousRFB) {
 		rfbService = [[NSNetService alloc] initWithDomain:@""
-												   type:@"_rfb._tcp." 
+												   type:@"_rfb._tcp."
 												   name:[NSString stringWithCString:theServer->desktopName]
 												   port:(int) theServer->rfbPort];
-		[rfbService setDelegate:rendezvousDelegate];		
+		[rfbService setDelegate:rendezvousDelegate];
 		[rfbService publish];
 	}
 //	else
@@ -215,11 +215,11 @@ rfbserver *theServer;
 
 	if (loadRendezvousVNC) {
 		vncService = [[NSNetService alloc] initWithDomain:@""
-												  type:@"_vnc._tcp." 
+												  type:@"_vnc._tcp."
 												  name:[NSString stringWithCString:theServer->desktopName]
 												  port:(int) theServer->rfbPort];
-		[vncService setDelegate:rendezvousDelegate];		
-		
+		[vncService setDelegate:rendezvousDelegate];
+
 		[vncService publish];
 	}
 //	else
@@ -230,7 +230,7 @@ rfbserver *theServer;
     // Check if keyboardLayoutRef has changed
     if (keyboardLoading) {
         KeyboardLayoutRef currentKeyboardLayoutRef;
-		
+
         if (KLGetCurrentKeyboardLayout(&currentKeyboardLayoutRef) == noErr) {
             if (currentKeyboardLayoutRef != loadedKeyboardRef) {
                 loadedKeyboardRef = currentKeyboardLayoutRef;
@@ -262,12 +262,12 @@ rfbserver *theServer;
 
 // Sent if publication fails
 - (void)netService:(NSNetService *)netService didNotPublish:(NSDictionary *)errorDict {
-    NSLog(@"An error occurred with service %@.%@.%@, error code = %@",		  
+    NSLog(@"An error occurred with service %@.%@.%@, error code = %@",
 		  [netService name], [netService type], [netService domain], [errorDict objectForKey:NSNetServicesErrorCode]);
 }
 
 // Sent when the service stops
-- (void)netServiceDidStop:(NSNetService *)netService {	
+- (void)netServiceDidStop:(NSNetService *)netService {
 	NSLog(@"Disabling Bonjour Service - %@", [netService name]);
     // You may want to do something here, such as updating a user interfac
 }
