@@ -11,6 +11,13 @@ Vine was developed at Redstone Software which was acquired by TestPlant.
 
 This is a modified private copy of the original software.
 
+News
+----
+
+2015-10-10
+
+Vine VNC server now also works with high resolution (retina) displays
+(thanks to Tom Sealy who wrote the new code).
 
 Links
 -----
