@@ -18,7 +18,7 @@ bool APISocket::CClientSocket::StartSend()
 {
 	bool res = StartRoutine();
 	int ret = Send();
-	
+
 	return res && (ret == 0);
 }
 

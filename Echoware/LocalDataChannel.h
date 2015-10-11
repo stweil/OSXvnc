@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 #include "datachannelsocket.h"
 
@@ -21,14 +21,14 @@ public:
 
 	//notification : there are data to read
 	//[in] len : length of data
-	//[in] buff: data 
+	//[in] buff: data
 	virtual void OnReceive(char* buff, int len);
 
 	//notification : can send data
 	//[in] len : length of data
-	//[in] buff: data 
+	//[in] buff: data
 	virtual void OnSend(char* buff, int& len);
-	
+
 	bool StartSend();
 protected:
 	bool m_bRFB;

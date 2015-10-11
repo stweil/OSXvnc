@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 #include "ProxyConnection.h"
 #include <list>
@@ -71,7 +71,7 @@ protected:
 	CCritSection m_critSection;
 
 	CProxyConnect m_proxyConnect;
-	
+
 	bool shouldQuit;
 	bool hasQuit;
 	CDllProxyInfo *proxyError;

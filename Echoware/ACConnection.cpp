@@ -18,7 +18,7 @@ CACConnection::CACConnection(CProxyConnection* pProxyConnection) : CClientSocket
 {
 	m_pProxyConnection = pProxyConnection;
 
-	m_nEncryptionLevel = 1;		
+	m_nEncryptionLevel = 1;
 
 	m_bConnected = false;
 	m_bStopConnecting = false;
@@ -32,7 +32,7 @@ CACConnection::CACConnection(CProxyConnection* pProxyConnection) : CClientSocket
 }
 
 CACConnection::~CACConnection(void)
-{	
+{
 	StopSend(THREAD_STOP_TIMEOUT);
 
 	Close();
@@ -56,7 +56,7 @@ bool CACConnection::Connect(const char* szIP, unsigned int nPort)
 
 	if (!res)
 		res = g_globals.m_proxiesManager.ConnectViaProxy(this, szIP, nPort);
-	
+
 	return res;
 }
 
@@ -76,7 +76,7 @@ int CACConnection::Connect()
 		m_pProxyConnection->GetProxyInfo()->SetStatus(STATUS_CONNECTED, true);
 		return PROXY_ALREADY_CONNECTED;
 	}
-	
+
 	//create the socket
 	Create();
 
@@ -98,7 +98,7 @@ int CACConnection::Connect()
 	pProxyInfo->SetStatus(STATUS_DISCONNECTED_FROM_PROXY, false);
 
 	g_globals.m_logger.WriteFormated("\tCACConnection: Try connect %s:%s %s", pProxyInfo->GetIP(), pProxyInfo->GetPort(), pProxyInfo->GetMyID());
-	
+
 	//connect
 	bool a = Connect(pProxyInfo->GetIP(), atoi(pProxyInfo->GetPort()));
 	if (a)
@@ -107,7 +107,7 @@ int CACConnection::Connect()
 		unsigned int conn_timeout = (unsigned int)pProxyInfo->GetConnectTimeout() * 1000;
 		m_pReadBuffer->Empty();
 		m_pSendBuffer->Empty();
-	
+
 		m_dwConnectingStatus = STATUS_CONNECTING;
 		m_bConnected = true;
 
@@ -200,7 +200,7 @@ int CACConnection::Connect()
 		nRet = NO_PROXY_SERVER_FOUND_TO_CONNECT;
 		g_globals.m_logger.WriteFormated("\t\tCACConnection: not connected error: %d", CClientSocket::GetLastError());
 	}
-	
+
 	g_globals.m_logger.Write("\tCACConnection: End Try connect");
 
 	m_critSection.Unlock();
@@ -250,7 +250,7 @@ void CACConnection::OnReceive(char* buff, int len)
 	m_pReadBuffer->Write(buff, len);
 
 	char szProxyEcho[sizeof(PROXY_ECHO)];
-	if (m_pReadBuffer->Peak(szProxyEcho, sizeof(PROXY_ECHO))!=sizeof(PROXY_ECHO))		
+	if (m_pReadBuffer->Peak(szProxyEcho, sizeof(PROXY_ECHO))!=sizeof(PROXY_ECHO))
 	{
 		if (!strcmp(szProxyEcho, PROXY_ECHO))
 		{
@@ -264,7 +264,7 @@ void CACConnection::OnReceive(char* buff, int len)
 	if (m_pReadBuffer->Peak(&lenMsg, sizeof(DWORD))!=sizeof(DWORD))
 		return;
 	lenMsg=OSSwapLittleToHostInt32(lenMsg);
-	
+
 	char* msg=new char[lenMsg];
 	if (m_pReadBuffer->Peak(msg, lenMsg)!=lenMsg)
 	{
@@ -274,24 +274,24 @@ void CACConnection::OnReceive(char* buff, int len)
 
 	m_pReadBuffer->Drop(lenMsg);
 
-	NetPacketHeader netPacketHeader;	
+	NetPacketHeader netPacketHeader;
 	memcpy(&netPacketHeader, msg+sizeof(DWORD), sizeof(NetPacketHeader));
 	netPacketHeader.len = OSSwapLittleToHostInt32(netPacketHeader.len);
-	
+
 	CProxyMsg* pProxyMsg=(CProxyMsg*)(msg+sizeof(DWORD)+sizeof(NetPacketHeader));
 	pProxyMsg->messageid = OSSwapLittleToHostInt32(pProxyMsg->messageid);
-	pProxyMsg->datalength = OSSwapLittleToHostInt32(pProxyMsg->datalength);	
-	
+	pProxyMsg->datalength = OSSwapLittleToHostInt32(pProxyMsg->datalength);
+
 	char* pData=0;
 
 	if (pProxyMsg->datalength)
-		pData=((char*)pProxyMsg)+sizeof(CProxyMsg);		
+		pData=((char*)pProxyMsg)+sizeof(CProxyMsg);
 
 	if (pProxyMsg->messageid==MSG_PROXY_CONNECTED)
 	{
 		g_globals.m_logger.Write("CACConnection: Receive MSG_PROXY_CONNECTED");
 
-		m_pProxyConnection->GetProxyInfo()->SetStatus(STATUS_DISCONNECTED_FROM_PROXY, false);		
+		m_pProxyConnection->GetProxyInfo()->SetStatus(STATUS_DISCONNECTED_FROM_PROXY, false);
 
 		m_rsaKeys.Generate();
 		SendMessage(MSG_PROXY_PUBLICKEY, (char*)m_rsaKeys.m_pPublicKeyLE, m_rsaKeys.GetPublicKeyLength());
@@ -300,7 +300,7 @@ void CACConnection::OnReceive(char* buff, int len)
 	{
 		g_globals.m_logger.Write("CACConnection: Receive MSG_PROXY_PUBLICKEY");
 
-		m_pProxyConnection->GetProxyInfo()->SetStatus(STATUS_AUTHENTICATING, true);	
+		m_pProxyConnection->GetProxyInfo()->SetStatus(STATUS_AUTHENTICATING, true);
 
 		m_dwConnectingStatus=STATUS_AUTHENTICATING;
 
@@ -312,7 +312,7 @@ void CACConnection::OnReceive(char* buff, int len)
 		m_bConnected=false;
 
 		m_pProxyConnection->GetProxyInfo()->SetStatus(STATUS_AUTHENTICATION_FAILED, true);
-		m_pProxyConnection->GetProxyInfo()->SetStatus(STATUS_AUTHENTICATING, false);		
+		m_pProxyConnection->GetProxyInfo()->SetStatus(STATUS_AUTHENTICATING, false);
 
 		g_globals.m_logger.Write("CACConnection: Receive MSG_PROXY_HANDSHAKEFAILED");
 
@@ -320,7 +320,7 @@ void CACConnection::OnReceive(char* buff, int len)
 	}
 	else if (pProxyMsg->messageid==MSG_PROXY_HANDSHAKECONFIRM)
 	{
-		m_pProxyConnection->GetProxyInfo()->SetStatus(STATUS_DISCONNECTED_FROM_PROXY, false);		
+		m_pProxyConnection->GetProxyInfo()->SetStatus(STATUS_DISCONNECTED_FROM_PROXY, false);
 
 		char szServerName[ID_STRING_SIZE];
 		strcpy(szServerName, pData);
@@ -335,12 +335,12 @@ void CACConnection::OnReceive(char* buff, int len)
 		memset(szPublicIP, 0, ID_STRING_SIZE);
 		memset(szUserID, 0, ID_STRING_SIZE);
 		int nReceivedData = strlen(szServerName) + 1;
-		if (nReceivedData < pProxyMsg->datalength) 
+		if (nReceivedData < pProxyMsg->datalength)
 		{
 			strcpy(szPublicIP, pData + nReceivedData);
 			nReceivedData += strlen(szPublicIP) + 1;
 		}
-		if (nReceivedData < pProxyMsg->datalength) 
+		if (nReceivedData < pProxyMsg->datalength)
 		{
 			memcpy(szUserID, pData + nReceivedData, 255);
 		}
@@ -383,7 +383,7 @@ void CACConnection::OnReceive(char* buff, int len)
 		g_globals.m_logger.Write("CACConnection: Receive MSG_PROXY_DUPLICATE_LOGIN");
 	}
 	else if (pProxyMsg->messageid==MSG_PROXY_PARTNERFOUND)
-	{	
+	{
 		m_dwConnectingStatus=MSG_PROXY_PARTNERFOUND;
 		g_globals.m_logger.Write("CACConnection: Receive MSG_PROXY_PARTNERFOUND");
 	}
@@ -395,7 +395,7 @@ void CACConnection::OnReceive(char* buff, int len)
 	else if (pProxyMsg->messageid==MSG_CHANNEL_CODE)
 	{
 		/* initiator receives from echoserver */
-		
+
 		m_dwConnectingStatus=MSG_CHANNEL_CODE;
 		g_globals.m_logger.WriteFormated("CACConnection: Receive MSG_CHANNEL_CODE %s", pData);
 	}
@@ -404,10 +404,10 @@ void CACConnection::OnReceive(char* buff, int len)
 		/* initiator receives from echoserver (initiatorchannelcode/dhpart2) */
 
 		m_dwConnectingStatus=MSG_PEER_KEY;
-		
+
 		memcpy(m_szChannelCode, pData, CHANNEL_CODE_SIZE);
 		m_szChannelCode[CHANNEL_CODE_SIZE]=0;
-		
+
 #warning the RSA key? is that char or int data?
 		memcpy(m_szPeerPublicKey, pData+CHANNEL_CODE_SIZE, RSA_PUBLIC_KEY*sizeof(unsigned int));
 		m_szPeerPublicKey[RSA_PUBLIC_KEY*sizeof(unsigned int)]=0;
@@ -429,15 +429,15 @@ void CACConnection::OnReceive(char* buff, int len)
 		m_szPeerID[ID_STRING_SIZE]=0;
 #warning the RSA key? is that char or int data?
 		memcpy(m_szPeerPublicKey, pData+ID_STRING_SIZE+CHANNEL_CODE_SIZE, RSA_PUBLIC_KEY*sizeof(unsigned int));
-		m_szPeerPublicKey[RSA_PUBLIC_KEY*sizeof(unsigned int)]=0;		
+		m_szPeerPublicKey[RSA_PUBLIC_KEY*sizeof(unsigned int)]=0;
 
 		char *pBuff = NULL;
 		DWORD dwTotalLength = 0;
 		DWORD dwTemp = 0;
 
-		/* responder sends MSG_PEER_KEY to echoserver 
+		/* responder sends MSG_PEER_KEY to echoserver
 			(initiatorId,dhpart2,respchannelcode) */
-				
+
 		dwTotalLength += CHANNEL_CODE_SIZE;//sizeof(m_szChannelCode);
 		dwTotalLength += ID_STRING_SIZE;//sizeof(m_szPeerID);
 		dwTotalLength += m_rsaKeys.GetPublicKeyLength();
@@ -448,17 +448,17 @@ void CACConnection::OnReceive(char* buff, int len)
 		dwTemp = ID_STRING_SIZE;//sizeof(m_szPeerID);
 		memcpy(pBuff + dwTemp,m_szChannelCode, sizeof(m_szChannelCode));
 		dwTemp += CHANNEL_CODE_SIZE;//sizeof(m_szChannelCode);
-			
+
 		/* set DHpart2 to all zero if no encryption */
 		if (m_nEncryptionLevel==1)
-			memcpy(pBuff+dwTemp, (char*)m_rsaKeys.m_pPublicKeyLE, m_rsaKeys.GetPublicKeyLength());			
+			memcpy(pBuff+dwTemp, (char*)m_rsaKeys.m_pPublicKeyLE, m_rsaKeys.GetPublicKeyLength());
 		else
-			memset(pBuff+dwTemp, 0, m_rsaKeys.GetPublicKeyLength());	
-		
-		
+			memset(pBuff+dwTemp, 0, m_rsaKeys.GetPublicKeyLength());
+
+
 		g_globals.m_logger.WriteFormated("CACConnection: Receive MSG_CONNECT_TO_PEER 2, channel code=%s", m_szChannelCode);
-		
-		SendMessage(MSG_PEER_KEY,pBuff,dwTotalLength);	
+
+		SendMessage(MSG_PEER_KEY,pBuff,dwTotalLength);
 
 		g_globals.m_logger.WriteFormated("CACConnection: Receive MSG_CONNECT_TO_PEER 3, channel code=%s", m_szChannelCode);
 
@@ -467,7 +467,7 @@ void CACConnection::OnReceive(char* buff, int len)
 		m_pProxyConnection->OnRemotePartnerConnect(m_szChannelCode, m_szPeerID, m_szPeerPublicKey);
 
 		g_globals.m_logger.WriteFormated("CACConnection: Receive MSG_CONNECT_TO_PEER end, channel code=%s", m_szChannelCode);
-	}	
+	}
 	else if (pProxyMsg->messageid==MSG_ISALIVE)
 	{
 		g_globals.m_logger.Write("CACConnection: Receive MSG_ISALIVE");
@@ -515,8 +515,8 @@ void CACConnection::SendMessage(DWORD message, char *data, unsigned int datalen)
 	CProxyMsg msg(message);
 
 	NetPacketHeader header;
-	
-	header.len = msg.MakeMessage(&header, lpBuf, data, datalen);//create the message	
+
+	header.len = msg.MakeMessage(&header, lpBuf, data, datalen);//create the message
 
 	DWORD dwToSend=OSSwapHostToLittleInt32(header.len+sizeof(DWORD));
 	m_pSendBuffer->Write(&dwToSend, sizeof(DWORD));
@@ -531,7 +531,7 @@ void CACConnection::SendMessage(DWORD message, char *data, unsigned int datalen)
 void CACConnection::SendEncryptedPass(char * pData,DWORD dwDataLength)
 {
 	char pEncPass[1024];
-	
+
 	m_rsaKeys.EncryptPassword(pData, dwDataLength, m_pProxyConnection->GetProxyInfo()->GetPassword(), pEncPass);
 
 	char szEmail[ID_STRING_SIZE];
@@ -543,7 +543,7 @@ void CACConnection::SendEncryptedPass(char * pData,DWORD dwDataLength)
 	memcpy(szTotalData, pEncPass,1024);
 	memcpy(szTotalData + 1024, szEmail, ID_STRING_SIZE);
 
-	SendMessage(MSG_PROXY_PASSWORD, szTotalData, nTotalPkgSize);	
+	SendMessage(MSG_PROXY_PASSWORD, szTotalData, nTotalPkgSize);
 }
 
 //calback function, notify that there was an error on read or send data to echoserver on this channel
@@ -580,7 +580,7 @@ bool CACConnection::FindPartner(const char* szPartener)
 		return false;
 
 	m_dwConnectingStatus=0;
-	SendMessage(MSG_PROXY_FIND_PARTNER, (char*)sz, (unsigned int)ID_STRING_SIZE);	
+	SendMessage(MSG_PROXY_FIND_PARTNER, (char*)sz, (unsigned int)ID_STRING_SIZE);
 
 	g_globals.m_logger.WriteFormated("CACConnection: FindPartner wait %d seconds", m_pProxyConnection->GetProxyInfo()->GetConnectTimeout());
 
@@ -591,7 +591,7 @@ bool CACConnection::FindPartner(const char* szPartener)
 
 		if (GetTickCount()-dwStartTime>(unsigned int)m_pProxyConnection->GetProxyInfo()->GetConnectTimeout()*1000)
 			break;
-	}	
+	}
 
 	g_globals.m_logger.Write("CACConnection: FindPartner wait end");
 
@@ -619,18 +619,18 @@ bool CACConnection::ConnectToPeer(const char* szPartener, char* szChannelCode, c
 	memset(pBuff, 0, dwTotalLength);
 	g_globals.GetFormattedID(pBuff, ID_STRING_SIZE, szPartener);
 	dwTemp = ID_STRING_SIZE;//(DWORD)strlen(szPartener)+1;
-		
+
 	/* set DHpart1 to all zero if no encryption */
 	if (m_nEncryptionLevel==1)
 		memcpy(pBuff+dwTemp, m_rsaKeys.GetPublicKey(), m_rsaKeys.GetPublicKeyLength());
 	else
-		memset(pBuff+dwTemp, 0, m_rsaKeys.GetPublicKeyLength());	
+		memset(pBuff+dwTemp, 0, m_rsaKeys.GetPublicKeyLength());
 
 	m_dwConnectingStatus=0;
 
 	m_szPeerPublicKey[0]=m_szChannelCode[0]=0;
 
-	SendMessage(MSG_CONNECT_TO_PEER, pBuff, dwTotalLength);														
+	SendMessage(MSG_CONNECT_TO_PEER, pBuff, dwTotalLength);
 
 	delete [] pBuff;
 
@@ -648,7 +648,7 @@ bool CACConnection::ConnectToPeer(const char* szPartener, char* szChannelCode, c
 		strcpy(szChannelCode, m_szChannelCode);
 		memcpy(szPeerPublicKey, m_szPeerPublicKey, RSA_PUBLIC_KEY*sizeof(unsigned int));
 	}
-	
+
 	if (m_dwConnectingStatus==MSG_PEER_KEY)
 		g_globals.m_logger.WriteFormated("CACConnection: Success connect to peer %s, channel code ", szPartener, szChannelCode);
 	else

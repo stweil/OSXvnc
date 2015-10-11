@@ -38,7 +38,7 @@ CServerListSynchronize::~CServerListSynchronize()
 	m_dwManageThread_Remove = 0;
 	m_hManageThread_Update = 0;
 	m_dwManageThread_Update = 0;
-	
+
 	echo = nil;
 }
 
@@ -52,13 +52,13 @@ void CServerListSynchronize::Init()
 		m_dwManageThread_Remove = 0;
 		m_hManageThread_Update = 0;
 		m_dwManageThread_Update = 0;
-		
+
 		echo = nil;
 
 		m_fTerminated_Connect = false;
 		m_fTerminated_Remove = false;
 		m_fTerminated_Update = false;
-		
+
 		m_fTerminated = false;
 
 		m_fHasQuit_Connect = false;
@@ -81,7 +81,7 @@ void CServerListSynchronize::Start(EchoController *echo)
 	m_fHasQuit_Connect = false;
 	m_fHasQuit_Remove = false;
 	m_fHasQuit_Update = false;
-	
+
 	this->echo = echo;
 
 	m_hManageThread_Connect = CreateThread(0, 0, ManageThreadProc_Connect, this, 0, &m_dwManageThread_Connect);
@@ -125,7 +125,7 @@ unsigned long CServerListSynchronize::ManageThreadProc_Connect(void* lpParameter
 	while (true)
 	{
 		sls->m_critSection.Lock();
-		
+
 		if (sls->m_fTerminated_Connect)
 		{
 			sls->m_critSection.Unlock();
@@ -144,7 +144,7 @@ unsigned long CServerListSynchronize::ManageThreadProc_Connect(void* lpParameter
 					ind++;
 					continue;
 				}
-				
+
 				IDllProxyInfo *echoProxyInfo = pMyProxyInfo->getDllProxyInfo();
 
 				switch(pMyProxyInfo->getStatus())
@@ -152,7 +152,7 @@ unsigned long CServerListSynchronize::ManageThreadProc_Connect(void* lpParameter
 					case CMyDllProxyInfo::Connecting:
 					{
 						NSLog(@"Connecting...");
-						
+
 						int ind = [sls->echo->echoTableView selectedRow];
 						[sls->echo reloadData];
 						[sls->echo selectRow: ind];
@@ -247,7 +247,7 @@ unsigned long CServerListSynchronize::ManageThreadProc_Connect(void* lpParameter
 						ind = [sls->echo->echoTableView selectedRow];
 						[sls->echo reloadData];
 						[sls->echo selectRow: ind];
-						
+
 						NSLog(@"Reconnected...");
 					}
 					break;
@@ -255,11 +255,11 @@ unsigned long CServerListSynchronize::ManageThreadProc_Connect(void* lpParameter
 				ind++;
 			}
 		}
-		
+
 		sls->m_critSection.Unlock();
 		Sleep(1000000);
 	}
-	
+
 	sls->m_fHasQuit_Connect = true;
 	return 0;
 }
@@ -271,7 +271,7 @@ unsigned long CServerListSynchronize::ManageThreadProc_Remove(void* lpParameter)
 	while (true)
 	{
 		sls->m_critSectionRemove.Lock();
-		
+
 		if (sls->m_fTerminated_Remove)
 		{
 			sls->m_critSectionRemove.Unlock();
@@ -317,11 +317,11 @@ unsigned long CServerListSynchronize::ManageThreadProc_Remove(void* lpParameter)
 				}
 			}
 		}
-		
+
 		sls->m_critSectionRemove.Unlock();
 		Sleep(1000000);
 	}
-	
+
 	sls->m_fHasQuit_Remove = true;
 	return 0;
 }
@@ -333,7 +333,7 @@ unsigned long CServerListSynchronize::ManageThreadProc_Update(void* lpParameter)
 	while (true)
 	{
 		sls->m_critSection.Lock();
-		
+
 		if (sls->m_fTerminated_Update)
 		{
 			sls->m_critSection.Unlock();
@@ -350,9 +350,9 @@ unsigned long CServerListSynchronize::ManageThreadProc_Update(void* lpParameter)
 				CMyDllProxyInfo *pMyProxyInfo = [sls->echo getDllProxyInfo: count];
 				if (pMyProxyInfo == NULL)
 					continue;
-				
+
 				IDllProxyInfo *echoProxyInfo = pMyProxyInfo->getDllProxyInfo();
-				
+
 				bool status_changed = pMyProxyInfo->isStatusChanged(echoProxyInfo->GetStatus());
 				if (!statusChanged && status_changed)
 				{

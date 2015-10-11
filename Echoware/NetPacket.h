@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 enum
 {
@@ -42,7 +42,7 @@ enum {PACKET_MESSAGE=1,PACKET_OTHER=2};
 struct NetPacketHeader
 {
 	char id[6];//EF packet and version identifier
-	char type; //type of packet (usually message)	
+	char type; //type of packet (usually message)
 	long len;
 	NetPacketHeader()
 	{
@@ -76,22 +76,22 @@ public:
 		int s1 = sizeof(pheader->id);
 		int s2 = sizeof(pheader->type);
 		int s3 = sizeof(pheader->len);
-		
+
 		int s4 = sizeof(this->messageid);
 		int s5 = sizeof(this->datalength);
 		int s6 = sizeof(this->usertype);
-		
+
 		int len = s1 + s2 + s3 + s4 + s5 + s6;
-		
+
 		destbuffer = new char[len];
-		
+
 		pheader->len = len;
 		memcpy(destbuffer, pheader->id, s1);
 		memcpy(destbuffer + s1, &pheader->type, s2);
-		
+
 		DWORD tmp = OSSwapHostToLittleInt32(pheader->len);
 		memcpy(destbuffer + s1 + s2, &tmp, s3);
-		
+
 		this->datalength=datalength;
 		tmp = OSSwapHostToLittleInt32(this->messageid);
 		memcpy(destbuffer + s1 + s2 + s3, &tmp, s4);
@@ -108,36 +108,36 @@ public:
 		int mysize=sizeof(CProxyMsg);
 		destbuffer=new char[headersize+mysize+datalength];
 		memset(destbuffer, 0, headersize+mysize+datalength);
-		
+
 		pheader->len=OSSwapHostToLittleInt32(headersize+mysize+datalength);
-		
+
 		memcpy(destbuffer, &pheader->id, sizeof(pheader->id));
-		
+
 		WORD tmp1 = pheader->type;
 		memcpy(destbuffer + sizeof(pheader->id), &tmp1, sizeof(tmp1));
-		
+
 		DWORD tmp2 = pheader->len;
 		memcpy(destbuffer + sizeof(pheader->id) + sizeof(tmp1), &tmp2, sizeof(tmp2));
-		
+
 //		memcpy(destbuffer,pheader,headersize); //copy packet header
 		pheader->len=headersize+mysize+datalength;
 
 		// Swap to LE
 		this->messageid=OSSwapHostToLittleInt32(messageid);
 		this->datalength=OSSwapHostToLittleInt32(datalength);
-		
+
 		DWORD tmp = this->messageid;
 		memcpy(destbuffer + headersize, &tmp, sizeof(tmp));
-		
+
 		tmp = this->usertype;
 		tmp = OSSwapHostToLittleInt32(tmp);
 		memcpy(destbuffer + headersize + sizeof(tmp), &tmp, sizeof(tmp));
-		
+
 		tmp = this->datalength;
 		memcpy(destbuffer + headersize + sizeof(tmp) + sizeof(tmp), &tmp, sizeof(tmp));
 
 		//memcpy(destbuffer+headersize,this,mysize); //copy message descriptor
-		
+
 		// Reverse
 		this->messageid=OSSwapLittleToHostInt32(messageid);
 		this->datalength=datalength;

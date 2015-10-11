@@ -15,13 +15,13 @@ APISocket::CServerSocket::~CServerSocket(void)
 }
 
 bool APISocket::CServerSocket::Create()
-{	
+{
 	if (!CSocket::Create(m_nPort))
 		return false;
 
 	if (!(m_nPort=Bind(m_nPort)))
 		return false;
-		
+
 	return true;
 }
 
@@ -36,7 +36,7 @@ unsigned int APISocket::CServerSocket::GetListenPort()
 }
 
 bool APISocket::CServerSocket::StartAccept()
-{	
+{
 	if (m_hAcceptThread)
 		return true;
 
@@ -44,7 +44,7 @@ bool APISocket::CServerSocket::StartAccept()
 	hasQuit = 0;
 	if (!(m_hAcceptThread=CreateThread(0, 0, AcceptThreadProc, this, 0, &m_dwAcceptThread)))
 		return false;
-	
+
 	return true;
 }
 
@@ -57,7 +57,7 @@ bool APISocket::CServerSocket::StopAccept(unsigned long dwWaitTimeout)
 }
 
 void APISocket::CServerSocket::OnNewClient(int sock)
-{	
+{
 }
 
 void APISocket::CServerSocket::OnLeaveClient(CSocket* pClient)
@@ -66,7 +66,7 @@ void APISocket::CServerSocket::OnLeaveClient(CSocket* pClient)
 
 unsigned long __stdcall APISocket::CServerSocket::AcceptThreadProc(void* lpParameter)
 {
-	CServerSocket* pServerSock=	(CServerSocket*) lpParameter;	
+	CServerSocket* pServerSock=	(CServerSocket*) lpParameter;
 
 	int sock;
 
@@ -82,8 +82,8 @@ unsigned long __stdcall APISocket::CServerSocket::AcceptThreadProc(void* lpParam
 		{
 			if (pServerSock->shouldQuit)
 				break;
-			
-			pServerSock->OnError(pServerSock->GetLastError());	
+
+			pServerSock->OnError(pServerSock->GetLastError());
 			Sleep(10000);
 		}
 		else if (rc==1)

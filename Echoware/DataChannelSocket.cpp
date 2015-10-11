@@ -18,7 +18,7 @@ CDataChannelSocket::~CDataChannelSocket(void)
 {
 	StopSend(THREAD_STOP_TIMEOUT);
 
-	Close();	
+	Close();
 
 	delete m_pRecvBuffer;
 	m_pRecvBuffer=0;

@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 #include "rsa/HNumber.h"
 
@@ -21,14 +21,14 @@ public:
 	void Generate();
 
 	const char* GetPublicKey() const;
-	const char* GetPrivateKey() const;	
+	const char* GetPrivateKey() const;
 
 	int GetPublicKeyLength() const;
-	int GetPrivateKeyLength() const;	
+	int GetPrivateKeyLength() const;
 
 	void EncryptPassword(char* pData, DWORD dwDataLength, const char* strPass, char* output);
-	
-	void GenerateSessionKey(char* szPeerPublicKey, char* szSessionKey);	
+
+	void GenerateSessionKey(char* szPeerPublicKey, char* szSessionKey);
 
 	char m_pPublicKeyLE[RSA_PUBLIC_KEY * size_of];
 
@@ -37,7 +37,7 @@ protected:
 	void GenerateRandomPrivateKey(char* pKey);
 	//Generate the public key for the private key
 	void GeneratePublicKey();
-	
+
 	//"Right to Left Binary Algorithm" from http://en.wikipedia.org/wiki/Modular_exponentiation
 	//r=(b^e)(mod m)
 	void ModPower(HugeNumber& b, HugeNumber& e, HugeNumber& m, HugeNumber& r);

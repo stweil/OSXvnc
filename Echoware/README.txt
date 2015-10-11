@@ -5,7 +5,7 @@
 
 INTRODUCTION
 ------------
-EchoWare is an OSX bundle that enables both client-server as 
+EchoWare is an OSX bundle that enables both client-server as
 well as peer-to-peer applications to communicate with each other
 via a "relay server" (aka, an "echoServer"). All communication
 between echoWare and the echoserver appears to be outgoing TCP
@@ -26,11 +26,11 @@ for use in the OpenSSL Toolkit. (http://www.openssl.org/)
 
 LICENSE
 -------
-EchoWare is Copyright (C) 2004-2007 Echogent Systems, Inc. 
-All rights reserved. 
+EchoWare is Copyright (C) 2004-2007 Echogent Systems, Inc.
+All rights reserved.
 
-EchoWare is available for use under the open-source "Sleepycat" 
-license. Details can be found in the LICENSE file. In general, 
+EchoWare is available for use under the open-source "Sleepycat"
+license. Details can be found in the LICENSE file. In general,
 the Sleepycat license allows the binary to be freely included in
 any other open-source application. Any application wishing to
 remain closed-source must purchase a separate license from

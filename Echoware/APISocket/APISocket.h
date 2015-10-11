@@ -8,7 +8,7 @@
 #undef FD_SETSIZE
 #define FD_SETSIZE 1024
 
-#define __stdcall 
+#define __stdcall
 #define MAX_BUFFER	(64*1024)
 
 #import <CoreFoundation/CoreFoundation.h>
@@ -23,7 +23,7 @@ class CSocket
 {
 public:
 
-	CSocket(int sock=0);	
+	CSocket(int sock=0);
 
 	CSocket(const CSocket& other);
 
@@ -116,7 +116,7 @@ public:
 	int ReadableByteCount();
 
 	int getSocket();
-	
+
 	bool StartAsync();
 	bool StopAsync();
 
@@ -165,21 +165,21 @@ public:
 	//stop send data
 	//[in] dwTimeout : milliseconds for waitting to stop
 	bool StopSend(unsigned long dwWaitTimeout);
-	
+
 	virtual void OnTimer();
 
 protected:
-	
+
 	bool StartRoutine();
-	
+
 	bool StopRoutine(unsigned long dwWaitTimeout);
 
 	//routine thread handle
 	void* m_hRoutineThread;
-	
+
 	//routine thread id
 	unsigned long m_dwRoutineThread;
-	
+
 	//some routine thread proc
 	static unsigned long __stdcall RoutineThreadProc(void* lpParameter);
 
@@ -193,7 +193,7 @@ class CServerSocket : public CSocket
 public:
 	CServerSocket(unsigned int nPort=0);
 	virtual ~CServerSocket(void);
-	
+
 	//return : true or false
 	virtual bool Create();
 
@@ -214,7 +214,7 @@ public:
 	virtual void OnLeaveClient(CSocket* pClient);
 
 	unsigned int GetListenPort();
-protected:	
+protected:
 	//listen port
 	unsigned int m_nPort;
 
@@ -226,7 +226,7 @@ protected:
 
 	//accept thread proc
 	static unsigned long __stdcall AcceptThreadProc(void* lpParameter);
-	
+
 	bool shouldQuit;
 	bool hasQuit;
 };

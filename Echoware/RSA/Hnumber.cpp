@@ -501,7 +501,7 @@ static void Convert(char *b_string, HugeNumber &w)
 
 	// Ydalit razdeliteli
 	n=strlen(b_string);
-	b=new char[n+1];	// Videlit pamiat dlia stroki po chisly simvolov + 1 byte for 
+	b=new char[n+1];	// Videlit pamiat dlia stroki po chisly simvolov + 1 byte for
 							// priznaka konza stroki
 	// !!! Predidyshij operator bil zapisan s oshibkoj i vigladel tak: b=new char[n];
 	// Odnako v Borland vsio rabotalo i oshibka vsplila tolko v VC++

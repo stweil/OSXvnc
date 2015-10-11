@@ -7,10 +7,10 @@
 #include "rsa/operator.h"
 
 #define DFLT_GENERATOR	    "2"
-#define DFLT_MODULUS "7212610147295474909544523785043492409969382148186765460082500085393519556525921455588705423020751421"  
+#define DFLT_MODULUS "7212610147295474909544523785043492409969382148186765460082500085393519556525921455588705423020751421"
 
 CRSAKeys::CRSAKeys()
-{	
+{
 }
 
 CRSAKeys::~CRSAKeys()
@@ -42,9 +42,9 @@ void CRSAKeys::GenerateRandomPrivateKey(char* pKey)
 	unsigned long temp[5] ;
 	memset(temp, 0x00, 16);
 	unsigned long randomNo;
-	
+
 	memset(pKey, 0x00, RSA_PRIVATE_KEY + 1);
-	for(int index = 0; index < 5; index++) 
+	for(int index = 0; index < 5; index++)
 	{
 		srand( (unsigned)time( NULL ) + index);
 		randomNo = rand() * rand();
@@ -55,7 +55,7 @@ void CRSAKeys::GenerateRandomPrivateKey(char* pKey)
 }
 
 void CRSAKeys::GeneratePublicKey()
-{	
+{
 	//code for Public key generation
 	HugeNumber Y,x,n,f;
 	x=HugeNumber(DFLT_GENERATOR);
@@ -65,8 +65,8 @@ void CRSAKeys::GeneratePublicKey()
 	ModPower(x,n,f,Y);
 
 	memset(m_pPublicKey, 0, RSA_PUBLIC_KEY * size_of);
-	memcpy(m_pPublicKey, Y.digit, RSA_PUBLIC_KEY * size_of); // copy the huge number digit buffer to char *	
-	
+	memcpy(m_pPublicKey, Y.digit, RSA_PUBLIC_KEY * size_of); // copy the huge number digit buffer to char *
+
 	memset(m_pPublicKeyLE, 0, RSA_PUBLIC_KEY * size_of);
 	// Mac OS X must swap these for a big endian machine
 	if (1)
@@ -90,12 +90,12 @@ void CRSAKeys::GenerateSessionKey(char* szPeerPublicKey, char* szSessionKey)
 	}
 //	memcpy(h1.digit, szPeerPublicKey, RSA_PUBLIC_KEY * size_of);
 	memset(szSessionKey, 0, 1024);
-	
+
 	f=HugeNumber(DFLT_MODULUS);
 	n=HugeNumber(m_pPrivateKey);
 	//::ModPower(Y,h1,n,f);
 	ModPower(h1,n,f,Y);
-	szSessionKey=Y.ToHexStr(szSessionKey,1024 );	
+	szSessionKey=Y.ToHexStr(szSessionKey,1024 );
 }
 
 void CRSAKeys::Generate()
@@ -117,18 +117,18 @@ void CRSAKeys::EncryptPassword(char* pData, DWORD dwDataLength, const char* strP
 		}
 	}
 	else
-		memcpy(h1.digit, pData, dwDataLength);	
+		memcpy(h1.digit, pData, dwDataLength);
 
 	char* pSessionKey = new char[1024];
 	memset(pSessionKey, 0, 1024);
-	
+
 	f=HugeNumber(DFLT_MODULUS);
 	//::ModPower(Y,h1,n,f);
-	
+
 	n=HugeNumber(m_pPrivateKey);
 	ModPower(h1,n,f,Y);
 	pSessionKey = Y.ToHexStr(pSessionKey, 1024);
-		
+
 	//const char* data = strPass;
 	char* data = new char[dwDataLength];
 	memset(data, 0, dwDataLength);
@@ -140,11 +140,11 @@ void CRSAKeys::EncryptPassword(char* pData, DWORD dwDataLength, const char* strP
 	{
 		dwData[i] = OSSwapLittleToHostInt32(dwData[i]);
 	}
-		
+
 	CBlowFish blowfish;
 	blowfish.Initialize((BYTE*)pSessionKey, strlen(pSessionKey));
 	blowfish.Encode((BYTE*)data, (BYTE*)output, dwDataLength);
-	
+
 	//SS: added change to big endian
 	word *publicKeyPointer = (word*)output;
 	for (int i = 0; i < dwDataLength / size_of; i++)

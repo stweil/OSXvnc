@@ -24,13 +24,13 @@ class CDirService
 		CDirService();
 		virtual ~CDirService();
 
-		NSDictionary* attributeDataForNodeOfType(const char* type, 
-												 const char* value, 
-												 const char* attr1, 
-												 const char* attr2, 
-												 const char* attr3, 
-												 const char* attr4, 
-												 const char* attr5, 
+		NSDictionary* attributeDataForNodeOfType(const char* type,
+												 const char* value,
+												 const char* attr1,
+												 const char* attr2,
+												 const char* attr3,
+												 const char* attr4,
+												 const char* attr5,
 												 const char* attr6);
 
 		bool authenticateUser(const char* username, const char* password);

@@ -7,11 +7,11 @@ CDllProxyInfo::CDllProxyInfo()
 	,m_strIP("")
 	,m_strPort("")
 	,m_strPass("")
-	,m_strMyID("")	
-	,m_dwStatus(0)	
+	,m_strMyID("")
+	,m_dwStatus(0)
 	,m_strIPPort("")
 	,m_bReconnectProxy(false)
-{	
+{
 	m_nConnectTimeOut=m_nReceiveTimeOut=m_nSendTimeOut=30;
 }
 
@@ -126,7 +126,7 @@ const char* CDllProxyInfo::GetPassword() const
 	return m_strPass.c_str();
 }
 
-//Retrieves the status of the Proxy, connected or not, the status of any "in-process" 
+//Retrieves the status of the Proxy, connected or not, the status of any "in-process"
 //connection attempts, and all active data connections with those proxies.
 int CDllProxyInfo::GetStatus() const
 {

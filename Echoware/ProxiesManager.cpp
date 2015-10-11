@@ -10,7 +10,7 @@ CProxiesManager::CProxiesManager(void)
 
 	m_bLocalProxy=false;
 	m_pLocalProxy=0;
-	
+
 	m_hReconectProxiesThread=CreateThread(0, 0, ReconectProxiesThreadProc, this, 0, &m_dwReconectProxiesThread);
 }
 
@@ -26,7 +26,7 @@ void CProxiesManager::AddProxy(CDllProxyInfo* pProxyInfo)
 	m_critSection.Lock();
 
 	CProxyConnection* pProxy=new CProxyConnection(pProxyInfo);
-	
+
 	m_listProxies.push_back(pProxy);
 
 	m_critSection.Unlock();
@@ -35,7 +35,7 @@ void CProxiesManager::AddProxy(CDllProxyInfo* pProxyInfo)
 //remove a proxy from the proxies list
 void CProxiesManager::RemoveProxy(CDllProxyInfo* pProxyInfo)
 {
-	m_critSection.Lock();	
+	m_critSection.Lock();
 
 	for(std::list<CProxyConnection*>::iterator it=m_listProxies.begin(); it!=m_listProxies.end(); it++)
 		if (((CProxyConnection*)*it)->GetProxyInfo()==pProxyInfo)
@@ -48,7 +48,7 @@ void CProxiesManager::RemoveProxy(CDllProxyInfo* pProxyInfo)
 			itend++;
 			m_listProxies.erase(it, itend);
 			break;
-		}		
+		}
 
 	m_critSection.Unlock();
 }
@@ -73,7 +73,7 @@ void CProxiesManager::RemoveAllProxies()
 int CProxiesManager::ConnectProxy(CDllProxyInfo* pProxyInfo)
 {
 	int nRet=1;
-	
+
 	m_critSection.Lock();
 
 	CProxyConnection* pProxyConnection=(CProxyConnection*)FindProxy(pProxyInfo);
@@ -119,7 +119,7 @@ bool CProxiesManager::DisconnectAllProxies()
 
 	m_critSection.Lock();
 
-	for(std::list<CProxyConnection*>::iterator it=m_listProxies.begin(); it!=m_listProxies.end(); it++)		
+	for(std::list<CProxyConnection*>::iterator it=m_listProxies.begin(); it!=m_listProxies.end(); it++)
 	{
 		bRet= bRet && ((CProxyConnection*)*it)->Disconnect();
 	}
@@ -133,7 +133,7 @@ bool CProxiesManager::DisconnectAllProxies()
 void CProxiesManager::SetEncryptionLevel(int level, CDllProxyInfo* pProxyInfo)
 {
 	m_critSection.Lock();
-	
+
 	CProxyConnection* pProxyConnection=(CProxyConnection*)FindProxy(pProxyInfo);
 
 	if (pProxyConnection)
@@ -165,9 +165,9 @@ void CProxiesManager::AutoConnect()
 {
 	m_critSection.Lock();
 
-	for(std::list<CProxyConnection*>::iterator it=m_listProxies.begin(); it!=m_listProxies.end(); it++)		
+	for(std::list<CProxyConnection*>::iterator it=m_listProxies.begin(); it!=m_listProxies.end(); it++)
 	{
-		((CProxyConnection*)*it)->Connect();		
+		((CProxyConnection*)*it)->Connect();
 	}
 
 	m_critSection.Unlock();
@@ -184,7 +184,7 @@ int CProxiesManager::EstablishNewDataChannel(CDllProxyInfo* pProxyInfo , char* I
 
 	if (pProxyConnection)
 		nRet=pProxyConnection->EstablishNewDataChannel(IDOfPartner);
-	
+
 	m_critSection.Unlock();
 
 	return nRet;
@@ -194,9 +194,9 @@ int CProxiesManager::EstablishNewDataChannel(CDllProxyInfo* pProxyInfo , char* I
 const CProxyConnection* CProxiesManager::FindProxy(CDllProxyInfo* pProxyInfo)
 {
 	for(std::list<CProxyConnection*>::iterator it=m_listProxies.begin(); it!=m_listProxies.end(); it++)
-		if (((CProxyConnection*)*it)->GetProxyInfo()==pProxyInfo)		
+		if (((CProxyConnection*)*it)->GetProxyInfo()==pProxyInfo)
 			return (CProxyConnection*)*it;
-			
+
 	return 0;
 }
 
@@ -204,14 +204,14 @@ const CProxyConnection* CProxiesManager::FindProxy(CDllProxyInfo* pProxyInfo)
 bool CProxiesManager::ConnectViaProxy(APISocket::CSocket* pSock, const char* szIp, unsigned int nPort)
 {
 	if (m_bLocalProxy)
-		return m_proxyConnect.ConnectViaProxy(*pSock, szIp, nPort, (char*)m_pLocalProxy->GetIP(), 
+		return m_proxyConnect.ConnectViaProxy(*pSock, szIp, nPort, (char*)m_pLocalProxy->GetIP(),
 			atoi(m_pLocalProxy->GetPort()), (char*)m_pLocalProxy->GetName(), (char*)m_pLocalProxy->GetPassword())>0;
 
 	std::string strProxyIP;
 	unsigned int nProxyPort;
 
 	if (GetIEProxySettings(strProxyIP, nProxyPort))
-		return m_proxyConnect.ConnectViaProxy(*pSock, szIp, nPort, (char*)strProxyIP.c_str(), 
+		return m_proxyConnect.ConnectViaProxy(*pSock, szIp, nPort, (char*)strProxyIP.c_str(),
 			nProxyPort, "", "")>0;
 
 	return false;

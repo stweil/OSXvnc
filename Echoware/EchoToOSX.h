@@ -35,7 +35,7 @@
 #define Sleep          usleep
 
 // Nothing
-#define FAR   
+#define FAR
 
 #define UINT unsigned int
 
@@ -83,14 +83,14 @@ void *CreateThread(int, int, long unsigned int (*)(void *), void *, int, long un
 
 bool ShutdownThread(void *, unsigned long, bool *, bool *);
 
-bool PostThreadMessage(unsigned long , int, void *, int);	
+bool PostThreadMessage(unsigned long , int, void *, int);
 bool PeekMessage(void *, int,int,int, int);
 
 //#define STILL_ACTIVE 1
 //#define WAIT_TIMEOUT 18
 
 #define HANDLE void **
-	
+
 #ifndef ECHOWARE_API
 #ifdef ECHOWARE_EXPORTS
 #define ECHOWARE_API __attribute__ ((dllexport))

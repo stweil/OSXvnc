@@ -29,14 +29,14 @@ bool CEchoSrvDataChannel::Connect(const char* szIP, unsigned int nPort)
 
 //connects tis data channel to echoServer and authenticating this connection
 int CEchoSrvDataChannel::Connect(const char* szServer, unsigned int nPort, const char* szChannelCode, const char* szMyID)
-{	
+{
 	if (!Connect(szServer, nPort))
 		return -1;
 
 	char *pBuff = NULL;
 	DWORD dwTotalLength = 0;
 	DWORD dwTemp = 0;
-	
+
 	dwTotalLength = ID_STRING_SIZE;
 	dwTotalLength += CHANNEL_CODE_SIZE;//(DWORD)strlen(szChannelCode)+1;
 	pBuff = new char[dwTotalLength];
@@ -48,7 +48,7 @@ int CEchoSrvDataChannel::Connect(const char* szServer, unsigned int nPort, const
 
 	if(pBuff)
 		delete pBuff;
-		
+
 	m_dwOffLoadingTime = GetTickCount();
 
 	return 0;
@@ -63,9 +63,9 @@ void CEchoSrvDataChannel::SendMessage(DWORD message, char *data, unsigned int da
 	CProxyMsg msg(message );
 
 	NetPacketHeader header;
-	
-	header.len = msg.MakeMessage(&header, lpBuf, data, datalen); //create the message	
-		
+
+	header.len = msg.MakeMessage(&header, lpBuf, data, datalen); //create the message
+
 	DWORD dwToSend = OSSwapHostToLittleInt32(header.len + sizeof(DWORD));
 	m_pSendBuffer->Write(&dwToSend, sizeof(DWORD));
 	m_pSendBuffer->Write(lpBuf, header.len);
@@ -114,7 +114,7 @@ void CEchoSrvDataChannel::OnTimer()
 		m_pDataChannel->ConnectLocalServer();
 		ResetOffLoadingTimer();
 	}
-	
+
 	if (m_fStartRetry && m_bOffLoadingDataChannel && GetTickCount() - m_dwRetryTime >= RECONNECTION_TO_OFFLOAD_TIMER_VALUE)
 	{
 		g_globals.m_logger.WriteFormated("CEchoSrvDataChannel::OnTimer Start retrying the localdatachannel");

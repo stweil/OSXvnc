@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 class CDataChannel;
 class CDllProxyInfo;
@@ -32,16 +32,16 @@ public:
 	//sets the encryption level for this proxy connection
 	void SetEncriptionLevel(int nLevel);
 	//gets the encryption level for this proxy connection
-	int GetEncriptionLevel();	
+	int GetEncriptionLevel();
 
 	const CDllProxyInfo* GetProxyInfo() const {return m_pProxyInfo;}
 
 	// Thread communication flags
 	bool shouldQuit;
 	bool hasQuit;
-	
+
 	bool removeAllChannels;
-	CDataChannel *removeChannel; 
+	CDataChannel *removeChannel;
 	CDataChannel *localConnectDC;
 	pthread_cond_t m_ManageThreadCond;
 	pthread_mutex_t m_ManageThreadMutex;
@@ -58,9 +58,9 @@ protected:
 	int m_nEncriptionLevel;
 
 	CDllProxyInfo* m_pProxyInfo;
-	
+
 protected:
-	void* m_hManageThread;	
+	void* m_hManageThread;
 	unsigned long m_dwManageThread;
 
 	//thread proc for manage data channel notifications

@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 #include "APISocket.h"
 #include "CritSection.h"
@@ -13,7 +13,7 @@ class CProxyConnection;
 class CBuffer;
 
 /*
-Authetication channel class 
+Authentication channel class
 It is used for client authentication and identification on the echoServer
 */
 
@@ -29,11 +29,11 @@ public:
 
 	//disconnect from echoServer
 	bool Disconnect();
-	
+
 	void StopConnect();
 
 	//sets the encryption level
-	void SetEncryptionLevel(int level);	
+	void SetEncryptionLevel(int level);
 
 	//find partner on echoServer
 	bool FindPartner(const char* szPartener);
@@ -54,13 +54,13 @@ protected:
 	void OnReceive(char* buff, int len);
 	void OnSend(char* buff, int& len);
 	virtual void OnError(int error);
-	
+
 	virtual void OnTimer();
 
 	//construct message to send to echoServer
 	void SendMessage(DWORD message, char *data, unsigned int datalen);
 	//construct mesage MSG_PROXY_PASSWORD
-	void SendEncryptedPass(char * pData,DWORD dwDataLength);	
+	void SendEncryptedPass(char * pData,DWORD dwDataLength);
 
 	//connect to szIP:nPort
 	bool Connect(const char* szIP, unsigned int nPort);

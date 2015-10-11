@@ -22,22 +22,22 @@ DWORD GetTickCount()
 	return (DWORD) ((startTime.tv_sec * 1000) + (startTime.tv_usec / 1000));
 }
 
-void *CreateThread(int securityFlags, 
-				   int stackSize, 
-				   long unsigned int (*start_routine)(void *), 
-				   void *arg, 
-				   int creationFlags, 
+void *CreateThread(int securityFlags,
+				   int stackSize,
+				   long unsigned int (*start_routine)(void *),
+				   void *arg,
+				   int creationFlags,
 				   long unsigned int *lpThreadId)
 {
 	pthread_t newThread;
-	int threadID = pthread_create(&newThread, 
+	int threadID = pthread_create(&newThread,
 								  NULL,
-								  (void *(*)(void *))start_routine, 
+								  (void *(*)(void *))start_routine,
 								  arg);
 	*lpThreadId = threadID;
-	
+
 	pthread_detach(newThread);
-	
+
 	return newThread;
 }
 
@@ -48,35 +48,35 @@ bool PostThreadMessage(unsigned long , int, void *, int)
 
 bool PeekMessage(void *, int,int,int, int)
 {
-	
+
 }
 
 bool ShutdownThread(void *shutdownThread, unsigned long waitTimeout, bool *shouldQuit, bool *hasQuit)
 {
 	if (shutdownThread)
-	{	
+	{
 		if (!(*hasQuit))
 		{
 			*shouldQuit = 1;
-			
+
 			{
 				DWORD startTime = GetTickCount();
-				
+
 				while (!(*hasQuit) && (GetTickCount() - startTime < waitTimeout))
 				{
 					Sleep(250000);
 				}
 			}
-		
+
 			if (!(*hasQuit))
 			{
 				if (shutdownThread)
-					pthread_cancel((pthread_t) shutdownThread);	
+					pthread_cancel((pthread_t) shutdownThread);
 				return false;
 			}
 		}
 	}
-	
+
 	return true;
 }
 

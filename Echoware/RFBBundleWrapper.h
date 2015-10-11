@@ -29,7 +29,7 @@ class CRFBBundleWrapper
 		bool UserDefaultsChecking();
 		int doInstall();
 		void startRunLoop();
-		
+
 		static CRFBBundleWrapper* GetInstance();
 		static void FreeInstance();
 		static unsigned long RunLoopThreadProc(void* lpParameter);

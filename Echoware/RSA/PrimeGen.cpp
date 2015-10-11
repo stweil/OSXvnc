@@ -186,7 +186,7 @@ void MakePrime(int intS, HugeNumber &n)
 			// Vipolnit osnovnoj test na prostoty
          for (j=0;j<5;j++)
          {
-			HNintA=intA;	
+			HNintA=intA;
 			 i=Test1(HNintA, n, nm1, degree); counter++;
             if (i==0)
             {

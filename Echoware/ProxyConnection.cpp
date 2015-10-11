@@ -53,7 +53,7 @@ bool CProxyConnection::Disconnect()
 	m_critSection.Lock();
 
 	m_pDataChannels->RemoveAllDataChannels();
-	bRet=m_pACConnection->Disconnect();	
+	bRet=m_pACConnection->Disconnect();
 
 	m_critSection.Unlock();
 
@@ -62,7 +62,7 @@ bool CProxyConnection::Disconnect()
 
 void CProxyConnection::StopConnecting()
 {
-	m_pACConnection->StopConnect();	
+	m_pACConnection->StopConnect();
 }
 
 void CProxyConnection::SetEncryptionLevel(int level)
@@ -89,7 +89,7 @@ int CProxyConnection::EstablishNewDataChannel(char* IDOfPartner)
 	g_globals.m_logger.Write("CProxyConnection: Success find partner");
 
 	g_globals.m_logger.WriteFormated("CProxyConnection: Connect to peer %s", IDOfPartner);
-	
+
 	char szChannelCode[12];
 	char szPeerPublicKey[RSA_PUBLIC_KEY*sizeof(unsigned int)+1];
 
@@ -101,16 +101,16 @@ int CProxyConnection::EstablishNewDataChannel(char* IDOfPartner)
 
 	g_globals.m_logger.WriteFormated("CProxyConnection: Success connect to peer %s", IDOfPartner);
 
-	bool bEncDec=false;	
+	bool bEncDec=false;
 	if (m_nEncryptionLevel && strcmp(szPeerPublicKey, "")!=0)
 		bEncDec=true;
 	//****
-	//bEncDec=false;	
+	//bEncDec=false;
 	//*****
-	
+
 	char szSessionKey[1024];
 
-	CDataChannel* pDataChannel=new CDataChannel(m_pDataChannels, szChannelCode, 
+	CDataChannel* pDataChannel=new CDataChannel(m_pDataChannels, szChannelCode,
 								m_pACConnection->GenerateSessionKey(szSessionKey, szPeerPublicKey), bEncDec);
 	m_pDataChannels->AddDataChannel(pDataChannel);
 
@@ -122,7 +122,7 @@ int CProxyConnection::EstablishNewDataChannel(char* IDOfPartner)
 }
 
 void CProxyConnection::OnError(int error)
-{	
+{
 	g_globals.m_proxiesManager.ProxyError(m_pProxyInfo);
 }
 
@@ -130,23 +130,23 @@ void CProxyConnection::OnRemotePartnerConnect(char* szDataChannelCode, char* IDO
 {
 	g_globals.m_logger.Write("=>OnRemotePartnerConnect");
 
-	bool bEncDec=false;	
+	bool bEncDec=false;
 	if (m_nEncryptionLevel && strcmp(szPeerPublicKey, "") != 0)
-		bEncDec=true;	
+		bEncDec=true;
 	//*****
 	//bEncDec=false;
 	//*****
 
 	char szSessionKey[1024];
-	CDataChannel* pDataChannel=new CDataChannel(m_pDataChannels, szDataChannelCode, 
+	CDataChannel* pDataChannel=new CDataChannel(m_pDataChannels, szDataChannelCode,
 					m_pACConnection->GenerateSessionKey(szSessionKey, szPeerPublicKey), bEncDec);
-	
+
 
 	m_pDataChannels->AddDataChannel(pDataChannel);
 
 	if (pDataChannel->ConnectEchoServer())
 	{
-		g_globals.m_logger.Write("OnRemotePartnerConnect success");				
+		g_globals.m_logger.Write("OnRemotePartnerConnect success");
 	}
 	else
 	{

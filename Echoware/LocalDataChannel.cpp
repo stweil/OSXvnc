@@ -15,16 +15,16 @@ CLocalDataChannel::~CLocalDataChannel(void)
 	g_globals.m_logger.WriteFormated("~CLocalDataChannel: send buff=%d, rec buff=%d", m_pSendBuffer->Size(), m_pRecvBuffer->Size());
 }
 
-void crypt_data(const unsigned char *in, unsigned char *out, int length, const AES_KEY *key, const int enc) 
+void crypt_data(const unsigned char *in, unsigned char *out, int length, const AES_KEY *key, const int enc)
 {
 	unsigned long len = length;
 	unsigned char tmp[AES_BLOCK_SIZE];
 
-	while (len >= AES_BLOCK_SIZE) 
+	while (len >= AES_BLOCK_SIZE)
 	{
 		memset(tmp,0,AES_BLOCK_SIZE);
 		memcpy(tmp,in,AES_BLOCK_SIZE);
-		
+
 		if (AES_ENCRYPT == enc)
 		{
 			AES_encrypt(tmp, out, key);
@@ -39,7 +39,7 @@ void crypt_data(const unsigned char *in, unsigned char *out, int length, const A
 		out += AES_BLOCK_SIZE;
 	}
 
-	if (len) 
+	if (len)
 	{
 		memset(tmp,0,AES_BLOCK_SIZE);
 		memcpy(tmp,in,AES_BLOCK_SIZE);
@@ -52,16 +52,16 @@ void crypt_data(const unsigned char *in, unsigned char *out, int length, const A
 			AES_decrypt(tmp, tmp, key);
 		}
 		memcpy(out, tmp, AES_BLOCK_SIZE);
-	}			
+	}
 }
 
 //send data to local server
 //it is a notify message from CClientSocket
 void CLocalDataChannel::OnSend(char* buff, int& len)
-{		
+{
 	if (!m_pDataChannel->m_bEncryptDecrypt)
 	{
-		CDataChannelSocket::OnSend(buff, len);		
+		CDataChannelSocket::OnSend(buff, len);
 	}
 	else
 	{
@@ -96,15 +96,15 @@ void CLocalDataChannel::OnSend(char* buff, int& len)
 		//g_globals.m_logger.WriteFormated("CLocalDataChannel: Send on data channel %p, sock=%d ip=%s: len=%d", m_pDataChannel, m_sock, "127.0.0.1", nMsgLength);
 
 		m_pSendBuffer->Drop(nLength+17);
-			
+
 		char* p=new char[nLength];
 		memcpy(p, buff+17, nLength);
 
-		//m_pDataChannel->m_aes.Decrypt((unsigned char*)p, nLength, (unsigned char*)buff);	
+		//m_pDataChannel->m_aes.Decrypt((unsigned char*)p, nLength, (unsigned char*)buff);
 		/*CAES aes;
 		aes.SetEncryptKey(m_pDataChannel->m_aes.m_userEncKey, 128);
 		aes.SetDecryptKey(m_pDataChannel->m_aes.m_userDecKey, 128);
-		
+
 		aes.Decrypt((unsigned char*)p, nLength, (unsigned char*)buff);	*/
 
 		AES_KEY aesKey;
@@ -115,9 +115,9 @@ void CLocalDataChannel::OnSend(char* buff, int& len)
 					   &aesKey,
 					   AES_DECRYPT );
 
-		delete []p;				
+		delete []p;
 
-		len=nMsgLength;			
+		len=nMsgLength;
 	}
 }
 
@@ -148,7 +148,7 @@ void CLocalDataChannel::OnReceive(char* buff, int len)
 }
 
 bool CLocalDataChannel::StartSend()
-{	
+{
 	int ret = Send();
 	return (ret == 0);
 }

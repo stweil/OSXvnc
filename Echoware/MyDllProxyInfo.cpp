@@ -94,7 +94,7 @@ char* CMyDllProxyInfo::getStatusString()
 			case Removing:
 				return "Removing...";
 		}
-		
+
 		int status = (int)m_pDllProxyInfo->GetStatus();
 
 		if (status & STATUS_SEARCHING_FOR_PARTNER)

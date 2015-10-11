@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 #include "DataChannelSocket.h"
 
@@ -18,22 +18,22 @@ public:
 	virtual ~CEchoSrvDataChannel(void);
 
 	//connect to echoServer
-	int Connect(const char* szServer, unsigned int nPort, const char* szChannelCode, const char* szMyID);	
+	int Connect(const char* szServer, unsigned int nPort, const char* szChannelCode, const char* szMyID);
 
 	//notification : there are data to read
 	//[in] len : length of data
-	//[in] buff: data 
+	//[in] buff: data
 	virtual void OnReceive(char* buff, int len);
 
 	//notification : can send data
 	//[in] len : length of data
-	//[in] buff: data 
+	//[in] buff: data
 	virtual void OnSend(char* buff, int& len);
-	
+
 	virtual void OnError(int error);
-	
+
 	virtual void OnTimer();
-	
+
 	void SetOffLoadingDataChannel(bool value) { m_bOffLoadingDataChannel = value; }
 	void ResetOffLoadingTimer();
 	void ResetRetryTimer();
@@ -46,9 +46,9 @@ protected:
 	void SendMessage(DWORD message, char *data, unsigned int datalen);
 	//connect the socket
 	bool Connect(const char* szIP, unsigned int nPort);
-	
+
 protected:
-	
+
 	DWORD m_dwOffLoadingTime;
 	DWORD m_dwRetryTime;
 };

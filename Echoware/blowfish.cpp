@@ -81,7 +81,7 @@ void CBlowFish::Initialize (BYTE key[], int keybytes)
 	// first fill arrays from data tables
 	for (i = 0 ; i < 18 ; i++)
 		PArray [i] = (bf_P[i]);
-			
+
 	for (i = 0 ; i < 4 ; i++)
 	{
 	 	for (j = 0 ; j < 256 ; j++)
@@ -96,7 +96,7 @@ void CBlowFish::Initialize (BYTE key[], int keybytes)
 		temp.w.byte0 = key[j];
 		temp.w.byte1 = key[(j+1) % keybytes] ;
 		temp.w.byte2 = key[(j+2) % keybytes] ;
-		temp.w.byte3 = key[(j+3) % keybytes] ;		
+		temp.w.byte3 = key[(j+3) % keybytes] ;
 		data = temp.dword ;
 		PArray [i] ^= data ;
 

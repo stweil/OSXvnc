@@ -62,7 +62,7 @@ static void LoginLogoutProxyCallBackFunction(SCDynamicStoreRef store, CFArrayRef
 
     consoleUserName = SCDynamicStoreCopyConsoleUser(store, &consoleUserUID, &consoleUserGID);
 
-    if (consoleUserName != NULL) //Now if the username is non-null then we know that someone just logged in.  
+    if (consoleUserName != NULL) //Now if the username is non-null then we know that someone just logged in.
 								 //In this case call the login notification function.
     {
 		if (loginFunctionToCall)
@@ -364,35 +364,35 @@ bool CRFBBundleWrapper::canWriteToFile(NSString *path)
 void CRFBBundleWrapper::loadProxyFields(NSUserDefaults* suDefaults)
 {
 	static id proxyStringsDictionary = nil;
-	
+
 	NSString *proxyAddrString = [suDefaults stringForKey:@"EchoProxyAddr"];
 	NSString *proxyPortString = [suDefaults stringForKey:@"EchoProxyPort"];
 	NSString *proxyUserString = [suDefaults stringForKey:@"EchoProxyUser"];
 	NSString *proxyPassString = [suDefaults stringForKey:@"EchoProxyPass"];
-	
+
 	// Load to EchoWare
 	if ([proxyAddrString length] && [proxyPortString intValue])
 	{
 		[proxyStringsDictionary release];
 		proxyStringsDictionary = [[NSMutableDictionary alloc] init];
-		
+
 		[proxyStringsDictionary setObject:[proxyAddrString nullTerminatedData] forKey:@"EchoProxyAddr"];
 		[proxyStringsDictionary setObject:[proxyPortString nullTerminatedData] forKey:@"EchoProxyPort"];
-		
+
 		if (proxyUserString)
 			[proxyStringsDictionary setObject:[proxyUserString nullTerminatedData] forKey:@"EchoProxyUser"];
 		else
 			[proxyStringsDictionary setObject:[@"" nullTerminatedData] forKey:@"EchoProxyUser"];
-			
+
 		if (proxyPassString)
 			[proxyStringsDictionary setObject:[proxyPassString nullTerminatedData] forKey:@"EchoProxyPass"];
 		else
 			[proxyStringsDictionary setObject:[@"" nullTerminatedData] forKey:@"EchoProxyPass"];
-		
-		SetLocalProxyInfo((char *) [[proxyStringsDictionary objectForKey:@"EchoProxyAddr"] bytes], 
-						  (char *) [[proxyStringsDictionary objectForKey:@"EchoProxyPort"] bytes], 
-						  (char *) [[proxyStringsDictionary objectForKey:@"EchoProxyUser"] bytes], 
-						  (char *) [[proxyStringsDictionary objectForKey:@"EchoProxyPass"] bytes]);	
+
+		SetLocalProxyInfo((char *) [[proxyStringsDictionary objectForKey:@"EchoProxyAddr"] bytes],
+						  (char *) [[proxyStringsDictionary objectForKey:@"EchoProxyPort"] bytes],
+						  (char *) [[proxyStringsDictionary objectForKey:@"EchoProxyUser"] bytes],
+						  (char *) [[proxyStringsDictionary objectForKey:@"EchoProxyPass"] bytes]);
 	}
 }
 
@@ -418,25 +418,25 @@ void CRFBBundleWrapper::loadServerList(NSUserDefaults* suDefaults)
 		}
 		else
 			proxyInfo->SetPort("1328");
-	
+
 		if ([echoDict objectForKey:@"User"])
 		{
 			[echoDict setObject:[[[echoDict objectForKey:@"User"] nullTerminatedData] retain] forKey:@"User_cStringData"];
 			proxyInfo->SetMyID((char *)[[echoDict objectForKey:@"User_cStringData"] bytes]);
 		}
-		
+
 		if ([echoDict objectForKey:@"Pass"])
 		{
 			[echoDict setObject:[[[echoDict objectForKey:@"Pass"] nullTerminatedData] retain] forKey:@"Pass_cStringData"];
 			proxyInfo->SetPassword((const char *)[[echoDict objectForKey:@"Pass_cStringData"] bytes]);
 		}
-		
+
 		g_globals.m_logger.Write("");
 		g_globals.m_logger.WriteFormated("IP: %s", proxyInfo->GetIpPort());
 		g_globals.m_logger.WriteFormated("User: %s", proxyInfo->GetMyID());
-		
+
 		SetEncryptionLevel(1, proxyInfo);
-		
+
 		proxyInfo->SetReconnectProxy(false);
 		int connectResult = ConnectProxy(proxyInfo);
 		switch (connectResult)
@@ -489,7 +489,7 @@ void CRFBBundleWrapper::loadLoggingOptions(NSUserDefaults* suDefaults)
 	}
 	NSLog(logFile);
 	//
-	
+
 	//converto from NSString to char*
 	int len_logFile = [logFile length];
 	char pLogFile[len_logFile + 1];
@@ -520,9 +520,9 @@ bool CRFBBundleWrapper::UserDefaultsChecking()
 	uid_t old_uid = geteuid();
 	[NSUserDefaults resetStandardUserDefaults];
 	seteuid(user.uid());
-	
+
 	NSUserDefaults *suDefaults = user.userDefaults(@"OSXvnc");
-	
+
 	loadLoggingOptions(suDefaults);
 
 	g_globals.m_logger.Write("Load echo servers.");

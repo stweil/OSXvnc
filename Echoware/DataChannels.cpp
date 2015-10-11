@@ -17,7 +17,7 @@ CDataChannels::CDataChannels(CDllProxyInfo* pProxyInfo)
 	m_pProxyInfo=pProxyInfo;
 	removeChannel = 0;
 	localConnectDC = 0;
-	removeAllChannels = false; 
+	removeAllChannels = false;
 
 	shouldQuit = 0;
 	hasQuit = 0;
@@ -30,7 +30,7 @@ CDataChannels::~CDataChannels(void)
 	pthread_cond_signal(&m_ManageThreadCond);
 	ShutdownThread(m_hManageThread, THREAD_STOP_TIMEOUT, &shouldQuit, &hasQuit);
 	m_hManageThread=0;
-	m_dwManageThread=0;	
+	m_dwManageThread=0;
 }
 
 //adds a data channel to the list
@@ -38,10 +38,10 @@ void CDataChannels::AddDataChannel(CDataChannel* pDataChannel)
 {
 	g_globals.m_logger.WriteFormated("CDataChannels: Enter Add data channel %p", pDataChannel);
 
-	m_critSection.Lock();	
+	m_critSection.Lock();
 
 	m_lstDataChannels.push_back(pDataChannel);
-	pDataChannel->SetEncriptionLevel(m_nEncriptionLevel);	
+	pDataChannel->SetEncriptionLevel(m_nEncriptionLevel);
 
 	m_critSection.Unlock();
 
@@ -50,23 +50,23 @@ void CDataChannels::AddDataChannel(CDataChannel* pDataChannel)
 
 void CDataChannels::InternalRemoveDataChannel(CDataChannel* pDataChannel)
 {
-	g_globals.m_logger.WriteFormated("CDataChannels: Enter Remove data channel %p", pDataChannel); 
+	g_globals.m_logger.WriteFormated("CDataChannels: Enter Remove data channel %p", pDataChannel);
 
-	m_critSection.Lock();	
+	m_critSection.Lock();
 
 	size_t size=m_lstDataChannels.size();
 
-	m_lstDataChannels.remove(pDataChannel);		
+	m_lstDataChannels.remove(pDataChannel);
 
 	if (m_lstDataChannels.size()<size)
 	{
 		delete pDataChannel;
-		pDataChannel=0;	
+		pDataChannel=0;
 	}
-	
+
 	m_critSection.Unlock();
 
-	g_globals.m_logger.WriteFormated("CDataChannels: Exit Remove data channel %p, count=%d", pDataChannel, m_lstDataChannels.size()); 
+	g_globals.m_logger.WriteFormated("CDataChannels: Exit Remove data channel %p, count=%d", pDataChannel, m_lstDataChannels.size());
 }
 
 void CDataChannels::InternalRemoveAllDataChannels()
@@ -87,7 +87,7 @@ void CDataChannels::InternalRemoveAllDataChannels()
 
 	m_lstDataChannels.clear();
 
-	g_globals.m_logger.Write("CDataChannels: Remove all data channel"); 
+	g_globals.m_logger.Write("CDataChannels: Remove all data channel");
 
 	m_critSection.Unlock();
 }
@@ -123,8 +123,8 @@ void CDataChannels::SetEncriptionLevel(int nLevel)
 
 	m_nEncriptionLevel=nLevel;
 
-	for(std::list<CDataChannel*>::iterator it=m_lstDataChannels.begin(); it!=m_lstDataChannels.end(); it++)	
-		((CDataChannel*)*it)->SetEncriptionLevel(nLevel);	
+	for(std::list<CDataChannel*>::iterator it=m_lstDataChannels.begin(); it!=m_lstDataChannels.end(); it++)
+		((CDataChannel*)*it)->SetEncriptionLevel(nLevel);
 
 	m_critSection.Unlock();
 }
@@ -148,14 +148,14 @@ void CDataChannels::LocalConnectDataChannel(CDataChannel* pDataChannel)
 
 void CDataChannels::InternalLocalConnectDataChannel(CDataChannel* pDataChannel)
 {
-	//g_globals.m_logger.WriteFormated("CDataChannels: Enter InternalLocalConnectDataChannel data channel %p", pDataChannel); 
+	//g_globals.m_logger.WriteFormated("CDataChannels: Enter InternalLocalConnectDataChannel data channel %p", pDataChannel);
 
-	m_critSection.Lock();	
+	m_critSection.Lock();
 
 	for (std::list<CDataChannel*>::iterator it=m_lstDataChannels.begin(); it!=m_lstDataChannels.end(); it++)
 	{
 		if (*it==pDataChannel)
-		{			
+		{
 			if (!pDataChannel->ConnectLocalServer(g_globals.GetPortForOffLoadingData()))
 			{
 				RemoveDataChannel(pDataChannel);
@@ -163,10 +163,10 @@ void CDataChannels::InternalLocalConnectDataChannel(CDataChannel* pDataChannel)
 			break;
 		}
 	}
-	
+
 	m_critSection.Unlock();
 
-	//g_globals.m_logger.WriteFormated("CDataChannels: Exit InternalLocalConnectDataChannel data channel %p", pDataChannel); 
+	//g_globals.m_logger.WriteFormated("CDataChannels: Exit InternalLocalConnectDataChannel data channel %p", pDataChannel);
 }
 
 #include "InterfaceDllProxyInfo.h"
@@ -178,13 +178,13 @@ unsigned long __stdcall CDataChannels::ManageThreadProc(void* lpParameter)
 	while (true)
 	{
 		pthread_cond_wait(&pDataChannels->m_ManageThreadCond, &pDataChannels->m_ManageThreadMutex);
-		
+
 		if (pDataChannels->shouldQuit)
 		{
 			pthread_mutex_unlock(&pDataChannels->m_ManageThreadMutex);
 			break;
 		}
-			
+
 		if (pDataChannels->removeChannel)
 		{
 			pDataChannels->InternalRemoveDataChannel(pDataChannels->removeChannel);
@@ -202,7 +202,7 @@ unsigned long __stdcall CDataChannels::ManageThreadProc(void* lpParameter)
 		}
 		pthread_mutex_unlock(&pDataChannels->m_ManageThreadMutex);
 	}
-	
+
 	pDataChannels->hasQuit=true;
 	pthread_cond_destroy(&pDataChannels->m_ManageThreadCond);
 	pthread_mutex_destroy(&pDataChannels->m_ManageThreadMutex);

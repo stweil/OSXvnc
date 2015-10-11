@@ -26,10 +26,10 @@ class CMyDllProxyInfo;
 	IBOutlet NSTextFieldCell *echoServerField_edit;
 	IBOutlet NSTextFieldCell *usernameField_edit;
 	IBOutlet NSTextFieldCell *passwordField_edit;
-	
+
 	IBOutlet NSButton *advancedSettingsButton;
 	IBOutlet NSWindow *advancedSettingsWindow;
-	
+
 	IBOutlet NSButton *proxyAuthenticationCheckbox;
     IBOutlet NSTextField *proxyAddress;
     IBOutlet NSTextField *proxyPort;
@@ -47,7 +47,7 @@ class CMyDllProxyInfo;
 	@public NSMutableArray *echoServers;
 	@public NSMutableArray *echoInfoProxys;
 	@public NSMutableArray *echoInfoProxysToRemove;
-	
+
 	int m_nEditIndex;
 	CServerListSynchronize *m_ServerList;
 	CCritSection *m_critSection;

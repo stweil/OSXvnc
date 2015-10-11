@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 #include "EchoToOSX.h"
 
@@ -15,10 +15,10 @@ public:
 	virtual ~CCritSection(void);
 
 	void Lock();
-	
+
 	void Unlock();
 
-protected:		
+protected:
 		pthread_mutex_t m_critSection;
 	//CRITICAL_SECTION m_critSection;
 };

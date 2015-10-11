@@ -29,7 +29,7 @@ int read_byte(APISocket::CSocket sock)
 	unsigned char c;
 	int nLen=1;
 	if(sock.Receive((char*)&c, nLen) == 0 && nLen==1)
-	{		
+	{
 		return c;
 	}
 	return -1;
@@ -156,24 +156,24 @@ int TCPConnectWithTimeout(int sock, const struct sockaddr FAR *name, int namelen
 {
 	int retval = SOCK_OK;
     unsigned long blockArg;
-	
+
     blockArg = 1;
     if (ioctlsocket(sock, FIONBIO, &blockArg)==0)
 	{
 		connect(sock, name, namelen);
-		if (!SockReadyToWrite(sock, timeout_secs)) 
-		{		
+		if (!SockReadyToWrite(sock, timeout_secs))
+		{
 			WSASetLastError(WSAETIMEDOUT);
 			retval = SOCK_CONNECT_TIMEOUT;
-		} 
-		else 
+		}
+		else
 		{
 			blockArg = 0;
 			ioctlsocket(sock, FIONBIO, &blockArg);
 			retval = SOCK_OK;
 		}
 	}
-	else 
+	else
 	{
 		retval = SOCK_ERROR;
 	}
@@ -183,15 +183,15 @@ int TCPConnectWithTimeout(int sock, const struct sockaddr FAR *name, int namelen
 */
 
 
-int CProxyConnect::ConnectViaSocks5Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp, 
+int CProxyConnect::ConnectViaSocks5Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp,
 			unsigned int proxyPort, char* username, char* password)
-{	
+{
 
 	int ret=sock.Connect(proxyIp, proxyPort);
 
 	if (ret!=0)
 		return LOCAL_PROXY_CONNECT_FAIL;
-	
+
 
 	int i;
 	char buf[512];
@@ -206,15 +206,15 @@ int CProxyConnect::ConnectViaSocks5Proxy(APISocket::CSocket sock, const char* de
 		buf[2] = 0x00;
 
 	int nLen=3;
-	sock.Send(buf, nLen);	
+	sock.Send(buf, nLen);
 
-	if(read_byte(sock) != 0x05 || read_byte(sock) != buf[2]) 
-	{		
+	if(read_byte(sock) != 0x05 || read_byte(sock) != buf[2])
+	{
 		sock.Close();
 		return LOCAL_PROXY_RESP_FAIL;
-	}	
+	}
 
-	if(username && password) 
+	if(username && password)
 	{
 		unsigned char tmplen;
 
@@ -230,10 +230,10 @@ int CProxyConnect::ConnectViaSocks5Proxy(APISocket::CSocket sock, const char* de
 		memcpy(buf + 3 + len, password, tmplen);
 
 		int nLen=(3 + len + tmplen);
-		sock.Send( buf, nLen);		
+		sock.Send( buf, nLen);
 
-		if(read_byte(sock) != 0x01 || read_byte(sock) != 0x00) 
-		{			
+		if(read_byte(sock) != 0x01 || read_byte(sock) != 0x00)
+		{
 			sock.Close();
 			return LOCAL_PROXY_AUTH_FAIL;
 		}
@@ -256,42 +256,42 @@ int CProxyConnect::ConnectViaSocks5Proxy(APISocket::CSocket sock, const char* de
 	memcpy(buf+8, (char*)&port, 2);
 
 	nLen=10;
-	sock.Send(buf, nLen);	
+	sock.Send(buf, nLen);
 
-	if(read_byte(sock) != 0x05 || read_byte(sock) != 0x00) 
-	{		
+	if(read_byte(sock) != 0x05 || read_byte(sock) != 0x00)
+	{
 		sock.Close();
 		return LOCAL_PROXY_RESP_FAIL;
 	}
 
 	read_byte(sock);
 	atyp = read_byte(sock);
-	if(atyp == 0x01) 
+	if(atyp == 0x01)
 	{
 		for(i = 0; i < 4; i++)
 			read_byte(sock);
-	} 
-	else if(atyp == 0x03) 
+	}
+	else if(atyp == 0x03)
 	{
 		len = read_byte(sock);
 		for(i = 0; i < len; i++)
 			read_byte(sock);
-	} 
-	else 
-	{		
+	}
+	else
+	{
 		sock.Close();
 		return LOCAL_PROXY_RESP_FAIL;
 	}
 
 	for(i = 0; i < 2; i++)
 		read_byte(sock);
-	
+
 	return 1;
 }
 
 
 
-int CProxyConnect::ConnectViaSocks4Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp, 
+int CProxyConnect::ConnectViaSocks4Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp,
 			unsigned int proxyPort, char* username, char* password)
 {
 	if (sock.Connect(proxyIp, proxyPort)!=0)
@@ -305,7 +305,7 @@ int CProxyConnect::ConnectViaSocks4Proxy(APISocket::CSocket sock, const char* de
 
 	buf[0] = SOCKS_V4;
 	buf[1] = SOCKS_CONNECT;
-	
+
 	unsigned short port = htons(destPort);
 	memcpy(buf+2, (char*)&port, 2);
 
@@ -327,32 +327,32 @@ int CProxyConnect::ConnectViaSocks4Proxy(APISocket::CSocket sock, const char* de
 	}
 
 	int n=len;
-	sock.Send(buf, n);	
+	sock.Send(buf, n);
 
 	unsigned char vn_byte = read_byte(sock);
 
-	if (vn_byte != 0x00) 
-	{		
+	if (vn_byte != 0x00)
+	{
 		sock.Close();
 		return LOCAL_PROXY_RESP_FAIL;
 	}
 
 	unsigned char cd_byte = read_byte(sock);
-	if(cd_byte != 90) 
-	{		
+	if(cd_byte != 90)
+	{
 		sock.Close();
 		return LOCAL_PROXY_AUTH_FAIL;
 	}
-	
+
 	return 1;
 }
 
 
 #define MAXLEN 512
 
-int CProxyConnect::ConnectViaHttpProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp, 
+int CProxyConnect::ConnectViaHttpProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp,
 			unsigned int proxyPort, char* username, char* password)
-{	
+{
 	//char logstr[512];
 	char buf[MAX_LINE_SIZE];
 	char proxyAuth[MAX_LINE_SIZE];
@@ -362,7 +362,7 @@ int CProxyConnect::ConnectViaHttpProxy(APISocket::CSocket sock, const char* dest
 	char authstring[MAX_LINE_SIZE];
 	char* pAuthstring=NULL;
 
-	memset(buf, 0 , sizeof(buf));	
+	memset(buf, 0 , sizeof(buf));
 
 	if (sock.Connect(proxyIp, proxyPort)!=0)
 	{
@@ -376,9 +376,9 @@ int CProxyConnect::ConnectViaHttpProxy(APISocket::CSocket sock, const char* dest
 		unsigned char user[MAX_NAME_LEN];
 		char tempusername[MAXLEN];
 
-		// 
+		//
 		// Username = "domain\user" in this case
-		// 
+		//
 		strcpy((char*)tempusername, (char*)username);
 
 		if (strstr(tempusername, "\\") !=NULL)
@@ -404,16 +404,16 @@ int CProxyConnect::ConnectViaHttpProxy(APISocket::CSocket sock, const char* dest
 
 		int retnum= DoNTLMv2
 					(
-						sock.getSocket(), 
-						destIp, 
+						sock.getSocket(),
+						destIp,
 						destPort,
 						(unsigned char*)host,
 						(unsigned char*)domain,
 						(unsigned char*)user,
 						(unsigned char*)password
 					);
-		if (retnum <0)	
-		{			
+		if (retnum <0)
+		{
 			sock.Close();
 			return retnum;
 		}
@@ -433,8 +433,8 @@ int CProxyConnect::ConnectViaHttpProxy(APISocket::CSocket sock, const char* dest
 			sprintf(proxyAuth, "%s:%s", username, password);
 
 			memset(authstring, 0, MAX_LINE_SIZE);
-			
-			base64((unsigned char*)authstring, (unsigned char*)proxyAuth, strlen(proxyAuth));		
+
+			base64((unsigned char*)authstring, (unsigned char*)proxyAuth, strlen(proxyAuth));
 			sprintf(buf, "CONNECT %s:%hu HTTP/1.0\r\nProxy-Authorization: Basic %s\r\nUser-Agent: echoWare\r\n\r\n", destIp, destPort, authstring);
 		}
 		else
@@ -448,25 +448,25 @@ int CProxyConnect::ConnectViaHttpProxy(APISocket::CSocket sock, const char* dest
 		int len=strlen(buf);
 
 		numWrite = len;
-		
+
 		if (sock.Send(buf, numWrite)!=0)
-		{			
+		{
 			goto CloseError;
 		}
-		
+
 		//
 		// Receive response from Proxy
 		//
 		memset(buf, 0 , sizeof(buf));
 		bufPtr = buf;
-		
+
 		numRead=MAX_LINE_SIZE;
 		if (sock.Receive(bufPtr, numRead)!=0 || numRead==0)
-		{			
+		{
 			sock.Close();
 			return LOCAL_PROXY_RESP_FAIL;
 		}
-		
+
 		//
 		// Check for an OK response
 		//
@@ -475,7 +475,7 @@ int CProxyConnect::ConnectViaHttpProxy(APISocket::CSocket sock, const char* dest
 			return 1;
 		}
 		else
-		{			
+		{
 			sock.Close();
 			return LOCAL_PROXY_AUTH_FAIL;
 		}
@@ -491,19 +491,19 @@ int CProxyConnect::ConnectViaHttpProxy(APISocket::CSocket sock, const char* dest
 //
 // Return -1=error, 0=non-proxy, 1=sock4, 2=sock5, 3=http/https
 //
-int CProxyConnect::TestSocks4Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp, 
+int CProxyConnect::TestSocks4Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp,
 			unsigned int proxyPort, char* username,  char* password)
-{		
+{
 	sock.SetTimeouts(m_nConnectTimeout_secs*1000, m_nSendTimeout_secs*1000, m_nReceiveTimeout_secs*1000, sock.GetAcceptTimeout());
 	if (sock.Connect(proxyIp, proxyPort)!=0)
 		return LOCAL_PROXY_CONNECT_FAIL;
 
-	
+
 
 	char buf[512];
 	buf[0] = SOCKS_V4;
 	buf[1] = SOCKS_CONNECT;
-	
+
 	unsigned short port = htons(destPort);
 	memcpy(buf+2, (char*)&port, 2);
 
@@ -517,23 +517,23 @@ int CProxyConnect::TestSocks4Proxy(APISocket::CSocket sock, const char* destIp, 
 	int len=9;
 
 	if (sock.Send(buf, len) !=0)
-	{		
+	{
 		sock.Close();
 		return NONE_TYPE;
-	}	
+	}
 
 	unsigned char vn_byte = read_byte(sock);
-	
-	if (vn_byte != 0x00) 
-	{		
+
+	if (vn_byte != 0x00)
+	{
 		sock.Close();
 	}
 	else
 	{
 		unsigned char cd_byte = read_byte(sock);
-		
-		if(cd_byte == 90 || cd_byte == 91 || cd_byte == 92 || cd_byte == 93) 
-		{			
+
+		if(cd_byte == 90 || cd_byte == 91 || cd_byte == 92 || cd_byte == 93)
+		{
 			sock.Close();
 			return PROXY_TYPE_SOCKS4;
 		}
@@ -544,10 +544,10 @@ int CProxyConnect::TestSocks4Proxy(APISocket::CSocket sock, const char* destIp, 
 
 
 
-int CProxyConnect::TestSocks5Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp, 
+int CProxyConnect::TestSocks5Proxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp,
 			unsigned int proxyPort, char* username,  char* password)
 {
-	char buf[512];	
+	char buf[512];
 
 	sock.SetTimeouts(m_nConnectTimeout_secs*1000, m_nSendTimeout_secs*1000, m_nReceiveTimeout_secs*1000, sock.GetAcceptTimeout());
 	if (sock.Connect(proxyIp, proxyPort)!=0)
@@ -560,28 +560,28 @@ int CProxyConnect::TestSocks5Proxy(APISocket::CSocket sock, const char* destIp, 
 	if(username && password)
 		buf[2] = 0x02;
 	else
-		buf[2] = 0x00;	
+		buf[2] = 0x00;
 
 	int len=3;
 	if (sock.Send(buf, len) !=0)
-	{		
+	{
 		sock.Close();
 		return NONE_TYPE;
-	}	
+	}
 
 	int ver = read_byte(sock);
 	int method = read_byte(sock);
 
 	if ((ver == 0x05 && method == buf[2]) ||
 	    (ver == 0x05 && method == 0x00))
-	    
+
 	{
 		sock.Close();
 		return PROXY_TYPE_SOCKS5;
 	}
 	else
 	{
-		
+
 		sock.Close();
 	}
 
@@ -591,12 +591,12 @@ int CProxyConnect::TestSocks5Proxy(APISocket::CSocket sock, const char* destIp, 
 
 #include "../globals.h"
 
-int CProxyConnect::TestHttpProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp, 
+int CProxyConnect::TestHttpProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp,
 			unsigned int proxyPort, char* username,  char* password)
-{	
+{
 	char buf[512];
-	char authstring[MAX_LINE_SIZE];	
-	
+	char authstring[MAX_LINE_SIZE];
+
 	sock.SetTimeouts(m_nConnectTimeout_secs*1000, m_nSendTimeout_secs*1000, m_nReceiveTimeout_secs*1000, sock.GetAcceptTimeout());
 	if (sock.Connect(proxyIp, proxyPort)!=0)
 	{
@@ -618,8 +618,8 @@ int CProxyConnect::TestHttpProxy(APISocket::CSocket sock, const char* destIp, un
 		sprintf(proxyAuth, "%s:%s", username, password);
 
 		memset(authstring, 0, MAX_LINE_SIZE);
-	
-		base64((unsigned char*)authstring, (unsigned char*)proxyAuth, strlen(proxyAuth));		
+
+		base64((unsigned char*)authstring, (unsigned char*)proxyAuth, strlen(proxyAuth));
 		sprintf(buf, "CONNECT %s:%hu HTTP/1.0\r\nProxy-Authorization: Basic %s\r\nUser-Agent: echoWare\r\n\r\n", destIp, destPort, authstring);
     }
     else
@@ -627,15 +627,15 @@ int CProxyConnect::TestHttpProxy(APISocket::CSocket sock, const char* destIp, un
 		sprintf(buf, "CONNECT %s:%hu HTTP/1.0\r\nUser-Agent: echoWare\r\n\r\n", destIp, destPort);
     }
 
-	numWrite=strlen(buf);	
+	numWrite=strlen(buf);
 	if (sock.Send(buf, numWrite)!=0)
-    {		
+    {
 		sock.Close();
 		return NONE_TYPE;
     }
 
 	sprintf(logstr, "Sent to the server buf=%s", buf);
-	
+
 
 	//
 	// Receive response from Proxy
@@ -644,81 +644,81 @@ int CProxyConnect::TestHttpProxy(APISocket::CSocket sock, const char* destIp, un
 	bufPtr = buf;
 
 	numRead=MAX_LINE_SIZE;
-	
+
 	if (sock.Receive(bufPtr, numRead)!=0)
 	{
-		
+
 		sock.Close();
 	}
 	else
 	{
-		
+
 		if (strncmp(buf, "HTTP/1.0 200", 12)==0 || strncmp(buf, "HTTP/1.1 200", 12)==0)
 		{
-			
+
 			sock.Close();
 			return PROXY_TYPE_HTTP;
 		}
 		else
 		{
-			
+
 			sock.Close();
 		}
 	}
-	
+
 	return NONE_TYPE;
 }
 
 
 
-int CProxyConnect::DetectProxyType(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp, 
+int CProxyConnect::DetectProxyType(APISocket::CSocket sock, const char* destIp, unsigned int destPort,  char* proxyIp,
 			unsigned int proxyPort, char* username,  char* password)
 {
 	int ret, ret1, ret2, ret3;
 
-	
+
 
 	ret = NONE_TYPE;
-	m_proxyType = NONE_TYPE;	
+	m_proxyType = NONE_TYPE;
 
 	if (strcmp(proxyIp, "")==0)
-	{		
+	{
 		goto Done;
 	}
 
 	if (strcmp(username, "")!=0)
-		ret1 = TestSocks5Proxy(sock, destIp, destPort, proxyIp, proxyPort, username, password); 
+		ret1 = TestSocks5Proxy(sock, destIp, destPort, proxyIp, proxyPort, username, password);
 	else
-		ret1 = TestSocks5Proxy(sock, destIp, destPort, proxyIp, proxyPort, NULL, NULL); 
+		ret1 = TestSocks5Proxy(sock, destIp, destPort, proxyIp, proxyPort, NULL, NULL);
 
 	if (ret1 == PROXY_TYPE_SOCKS5)
 	{
-		
+
 		m_proxyType = PROXY_TYPE_SOCKS5;
 		ret = ret1;
 		goto Done;
 	}
 	else if (ret1 == LOCAL_PROXY_CONNECT_FAIL)
-	{		
+	{
 		ret =  LOCAL_PROXY_CONNECT_FAIL;
 		goto Done;
-	}	
+	}
 
 	if (strcmp(username, "")!=0)
-		ret2 = TestSocks4Proxy(sock, destIp, destPort, proxyIp, proxyPort, username, password); 
+		ret2 = TestSocks4Proxy(sock, destIp, destPort, proxyIp, proxyPort, username, password);
 	else
-		ret2 = TestSocks4Proxy(sock, destIp, destPort, proxyIp, proxyPort, NULL, NULL); 
+		ret2 = TestSocks4Proxy(sock, destIp, destPort, proxyIp, proxyPort, NULL, NULL);
 
 	if (ret2 == PROXY_TYPE_SOCKS4)
 	{
-		
+
 		m_proxyType = PROXY_TYPE_SOCKS4;
 		ret = ret2;
 		goto Done;
 	}
 	else if (ret2 == LOCAL_PROXY_CONNECT_FAIL)
 	{
-		
+
 		ret =  LOCAL_PROXY_CONNECT_FAIL;
 		goto Done;
 	}
@@ -727,29 +727,29 @@ int CProxyConnect::DetectProxyType(APISocket::CSocket sock, const char* destIp, 
 
 	if (ret3 == LOCAL_PROXY_CONNECT_FAIL)
 	{
-		
+
 		ret =  LOCAL_PROXY_CONNECT_FAIL;
 		goto Done;
 	}
 	else if (ret3 >0)
 	{
-		
+
 		m_httpProxyAuthType = ret3;
 		m_proxyType = PROXY_TYPE_HTTP;
 		ret = PROXY_TYPE_HTTP;
 	}
 	else
 	{
-		
+
 	}
 
 Done:
-	
+
 	return ret;
 }
 
 
-int CProxyConnect::ConnectViaProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp, 
+int CProxyConnect::ConnectViaProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp,
 			unsigned int proxyPort, char* username, char* password)
 {
 	try
@@ -760,10 +760,10 @@ int CProxyConnect::ConnectViaProxy(APISocket::CSocket sock, const char* destIp, 
 			(
 				sock,
 				destIp,
-				destPort, 
+				destPort,
 				proxyIp,
 				proxyPort,
-				username, 
+				username,
 				password
 			);
 
@@ -778,10 +778,10 @@ int CProxyConnect::ConnectViaProxy(APISocket::CSocket sock, const char* destIp, 
 					(
 						sock,
 						destIp,
-						destPort, 
-						proxyIp, 
+						destPort,
+						proxyIp,
 						proxyPort,
-						username, 
+						username,
 						password
 					);
 			else
@@ -789,10 +789,10 @@ int CProxyConnect::ConnectViaProxy(APISocket::CSocket sock, const char* destIp, 
 					(
 						sock,
 						destIp,
-						destPort, 
-						proxyIp, 
+						destPort,
+						proxyIp,
 						proxyPort,
-						NULL, 
+						NULL,
 						NULL
 					);
 
@@ -804,10 +804,10 @@ int CProxyConnect::ConnectViaProxy(APISocket::CSocket sock, const char* destIp, 
 					(
 						sock,
 						destIp,
-						destPort, 
-						proxyIp, 
+						destPort,
+						proxyIp,
 						proxyPort,
-						username, 
+						username,
 						password
 					);
 			else
@@ -815,10 +815,10 @@ int CProxyConnect::ConnectViaProxy(APISocket::CSocket sock, const char* destIp, 
 					(
 						sock,
 						destIp,
-						destPort, 
-						proxyIp, 
+						destPort,
+						proxyIp,
 						proxyPort,
-						NULL, 
+						NULL,
 						NULL
 					);
 		}
@@ -842,10 +842,10 @@ TryAgain:
 							(
 								sock,
 								destIp,
-								destPort, 
-								proxyIp, 
+								destPort,
+								proxyIp,
 								proxyPort,
-								username, 
+								username,
 								password
 							);
 			else
@@ -853,32 +853,32 @@ TryAgain:
 							(
 								sock,
 								destIp,
-								destPort, 
-								proxyIp, 
+								destPort,
+								proxyIp,
 								proxyPort,
-								NULL, 
+								NULL,
 								NULL
 							);
 
 			if (retnum <=0)
 			{
-				if (m_httpProxyAuthType==HTTP_AUTH_BASIC_NTLM && 
+				if (m_httpProxyAuthType==HTTP_AUTH_BASIC_NTLM &&
 					m_temphttpProxyAuthType==HTTP_AUTH_BASIC)
 				{
 					m_temphttpProxyAuthType=HTTP_AUTH_NTLM;
-					
+
 					goto TryAgain;
 				}
-				else if (m_httpProxyAuthType==HTTP_AUTH_NTLM_BASIC && 
+				else if (m_httpProxyAuthType==HTTP_AUTH_NTLM_BASIC &&
 					m_temphttpProxyAuthType==HTTP_AUTH_NTLM)
 				{
 					m_temphttpProxyAuthType=HTTP_AUTH_BASIC;
-					
+
 					goto TryAgain;
 				}
 
 			}
-			
+
 			return retnum;
 		}
 	}
@@ -906,25 +906,25 @@ CProxyConnect::~CProxyConnect()
 
 
 
-int CProxyConnect::AnalyzeHttpProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp, 
+int CProxyConnect::AnalyzeHttpProxy(APISocket::CSocket sock, const char* destIp, unsigned int destPort, char* proxyIp,
 			unsigned int proxyPort, char* username, char* password)
 {
 	char buf[MAX_BUFFER_SIZE];
 	/*int fd;
 	struct sockaddr_in destAddr;
-	
+
 	fd = socket(AF_INET, SOCK_STREAM, 0);
 	if(fd == -1)
 		return -1;
 
 	memset(&destAddr, 0, sizeof(destAddr));
-    destAddr.sin_family = AF_INET;   
+    destAddr.sin_family = AF_INET;
     destAddr.sin_addr.s_addr = inet_addr(proxyIp);
-	destAddr.sin_port = htons(proxyPort); 
+	destAddr.sin_port = htons(proxyPort);
 
-	if (TCPConnectWithTimeout(fd, (struct sockaddr*)&destAddr,sizeof(destAddr), connectTimeout_secs)!=SOCK_OK) 
+	if (TCPConnectWithTimeout(fd, (struct sockaddr*)&destAddr,sizeof(destAddr), connectTimeout_secs)!=SOCK_OK)
 	{
-		
+
 		closesocket(fd);
 		return LOCAL_PROXY_CONNECT_FAIL;;
 	}	*/
@@ -935,21 +935,21 @@ int CProxyConnect::AnalyzeHttpProxy(APISocket::CSocket sock, const char* destIp,
 
 	char logstr[4096];
 	char*bufPtr=NULL;
-	int numRead, numWrite;	
+	int numRead, numWrite;
 	memset(buf, 0 , sizeof(buf));
 
 	sprintf(buf, "CONNECT %s:%hu HTTP/1.0\r\nUser-Agent: echoWare\r\n\r\n", destIp, destPort);
-    
+
 	numWrite=strlen(buf);
-	 
+
 	if (sock.Send(buf, numWrite)!=0)
-    {		
+    {
 		sock.Close();
 		return -1;
     }
 
-	sprintf(logstr, "Dll : AnalyzeHttpProxy: Sent buf(Actual:%d/Sent:%d)=%s", strlen(buf), numWrite, buf);	
-	
+	sprintf(logstr, "Dll : AnalyzeHttpProxy: Sent buf(Actual:%d/Sent:%d)=%s", strlen(buf), numWrite, buf);
+
 
 	//
 	// Receive response from Proxy
@@ -965,7 +965,7 @@ int CProxyConnect::AnalyzeHttpProxy(APISocket::CSocket sock, const char* destIp,
 	}
 	else
 	{
-		
+
 		if ((strncmp(buf, "HTTP/1.1 407", strlen("HTTP/1.1 407"))==0) ||
 			(strncmp(buf, "HTTP/1.0 407", strlen("HTTP/1.0 407"))==0))
 		{
@@ -1006,7 +1006,7 @@ int CProxyConnect::AnalyzeHttpProxy(APISocket::CSocket sock, const char* destIp,
 			{
 				//something different
 			}
-		}	
+		}
 		else if (strncmp(buf, "HTTP/1.0 200", 12)==0 || strncmp(buf, "HTTP/1.1 200", 12)==0)
 		{
 			sock.Close();

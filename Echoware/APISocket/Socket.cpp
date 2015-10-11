@@ -52,7 +52,7 @@ APISocket::CSocket::CSocket(const CSocket& other)
 APISocket::CSocket::~CSocket()
 {
 	StopAsync();
-	
+
 	Close();
 	m_sock = 0;
 }
@@ -103,13 +103,13 @@ bool APISocket::CSocket::Create(unsigned int nPort /*=0*/)
 	if (!sock)
 		sock = socket(AF_INET, SOCK_STREAM, 0);
 
-	if (!(sock < 0)) 
+	if (!(sock < 0))
 	{
 		m_sock = sock;
 		SetSockOption(true);
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -124,7 +124,7 @@ unsigned int APISocket::CSocket::Bind(unsigned int nPort/*=0*/, bool bLocal/*=tr
 		self.sin_addr.s_addr = htonl(INADDR_ANY);
 	else
 		self.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-	
+
 	if (bind(m_sock, (struct sockaddr *)&self, sizeof(self)) != 0)
 		return 0;
 
@@ -143,7 +143,7 @@ int APISocket::CSocket::Accept(int& sock)
 {
 	struct sockaddr_in client_addr;
 	int addrlen=sizeof(client_addr);
-  	
+
 	sock = 0;
 
 	if (!m_bBlockMode)
@@ -152,13 +152,13 @@ int APISocket::CSocket::Accept(int& sock)
 		if ((rc = WaitNonBlockCompletion(m_nAcceptTimeout, 0)) != 0)
 			return rc;
 	}
-	
+
 	sock = accept(m_sock,(struct sockaddr  *)&client_addr,(socklen_t *) &addrlen);
-	
+
 	if (sock == INVALID_SOCKET)
 		return -1;
 
-    return 0;    
+    return 0;
 }
 
 int APISocket::CSocket::Connect(const char* szServer, unsigned int nPort)
@@ -299,19 +299,19 @@ int APISocket::CSocket::WaitNonBlockCompletion(int nTimeout, int nType)
 
 	FD_ZERO(&fd);
 	FD_SET(m_sock, &fd);
-	
+
 	int rc=0;
 
 	if (nType==0)
 		rc = select(m_sock+1, &fd, NULL, NULL, &time);
 	else if (nType==1)
 		rc = select(m_sock+1, NULL, &fd, NULL, &time);
-	
+
 	if (rc==-1)
 		return -1;// error
 	else if (rc==0)
 		return 1;//timeout
-		
+
 	if (FD_ISSET(m_sock, &fd))
 		return 0;
 	else
@@ -357,8 +357,8 @@ bool APISocket::CSocket::GetRemoteIP(char* szRemoteIP)
 
 	if (getpeername( m_sock, (struct sockaddr*)&self, &len ))
 		return false;
-	
-	sprintf(szRemoteIP, "%s", inet_ntoa(self.sin_addr));	
+
+	sprintf(szRemoteIP, "%s", inet_ntoa(self.sin_addr));
 
 	return true;
 }
@@ -421,7 +421,7 @@ void APISocket::CSocket::OnRead()
 		delete [] buff;
 		return;
 	}
-	
+
 	OnReceive(buff, len_readed);
 	delete[] buff;
 }
@@ -440,7 +440,7 @@ int APISocket::CSocket::ReadableByteCount()
 		else
 			bytesAvailable = 0;
 	}
-	
+
 	return bytesAvailable;
 }
 

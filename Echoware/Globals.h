@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 #define CHANNEL_CODE_SIZE	11
 #define ID_STRING_SIZE		255
@@ -38,7 +38,7 @@ public:
 
 	bool InitSockets(unsigned char nHighVersion, unsigned char nLowVersion);
 	bool ReleaseSockets();
-	
+
 	//format the MyID to the CONNECT_TO_PEER message format
 	//[out szBuffer]	result of formating
 	//[in len]			input length of the szBuffer
@@ -54,11 +54,11 @@ public:
 	//proxies list manager
 	CProxiesManager m_proxiesManager;
 
-protected:		
+protected:
 	bool m_bIsDllInitialized;
-	int m_nPortForOffLoadingData;	
+	int m_nPortForOffLoadingData;
 
-	CCritSection m_critSection;	
+	CCritSection m_critSection;
 };
 
 extern CGlobals g_globals;
@@ -108,14 +108,14 @@ public:
 	}
 
 	unsigned int Read(void* buff, unsigned int read_size)
-	{	
+	{
 		//g_globals.m_logger.WriteFormated("=>CBuffer: Read max=%d", read_size);
 		m_critSection.Lock();
 
 		//g_globals.m_logger.WriteFormated("read_size=%d m_nWritePos=%d", read_size, m_nWritePosition);
 
-		if (read_size>m_nWritePosition)		
-			read_size=m_nWritePosition;		
+		if (read_size>m_nWritePosition)
+			read_size=m_nWritePosition;
 
 		memcpy(buff, m_buff, read_size);
 		memmove(m_buff, m_buff+read_size, m_nWritePosition-read_size);
@@ -131,12 +131,12 @@ public:
 
 	unsigned int Peak(void* buff, unsigned int read_size)
 	{
-		m_critSection.Lock();		
+		m_critSection.Lock();
 
-		if (read_size>m_nWritePosition)		
-			read_size=m_nWritePosition;		
+		if (read_size>m_nWritePosition)
+			read_size=m_nWritePosition;
 
-		memcpy(buff, m_buff, read_size);				
+		memcpy(buff, m_buff, read_size);
 
 		m_critSection.Unlock();
 

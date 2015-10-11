@@ -22,7 +22,7 @@ CUser::CUser(NSString *username)
 CUser::CUser(NSString *username, NSString *password)
 {
 	CDirService dirService;
-	
+
 	if (dirService.authenticateUser([username cStringUsingEncoding:NSUTF8StringEncoding],
 									[password cStringUsingEncoding:NSUTF8StringEncoding]))
 	{
@@ -51,7 +51,7 @@ NSUserDefaults* CUser::userDefaults(NSString *domain)
 //	[NSUserDefaults resetStandardUserDefaults];
 //	seteuid(tmp_uid);
 //	old_uid = -1;
-	
+
 	return suDefaults;
 }
 
@@ -73,18 +73,18 @@ void CUser::initWithUsername(NSString* username, CDirService* dirService)
 																  NULL,
 																  NULL,
 																  NULL);
-		m_name     = [[[userInfo objectForKey:[NSString stringWithCString:kDSNAttrRecordName encoding:NSUTF8StringEncoding]] objectAtIndex:0] retain];		
+		m_name     = [[[userInfo objectForKey:[NSString stringWithCString:kDSNAttrRecordName encoding:NSUTF8StringEncoding]] objectAtIndex:0] retain];
 		m_realName = [[[userInfo objectForKey:[NSString stringWithCString:kDS1AttrDistinguishedName encoding:NSUTF8StringEncoding]] objectAtIndex:0] retain];
-		m_uid      = [[[userInfo objectForKey:[NSString stringWithCString:kDS1AttrUniqueID encoding:NSUTF8StringEncoding]] objectAtIndex:0] intValue];	
-		m_gid      = [[[userInfo objectForKey:[NSString stringWithCString:kDS1AttrPrimaryGroupID encoding:NSUTF8StringEncoding]] objectAtIndex:0] intValue];			
-		
-		NSArray* adminMembers = [adminInfo objectForKey:[NSString stringWithCString:kDSNAttrGroupMembership encoding:NSUTF8StringEncoding]];		
+		m_uid      = [[[userInfo objectForKey:[NSString stringWithCString:kDS1AttrUniqueID encoding:NSUTF8StringEncoding]] objectAtIndex:0] intValue];
+		m_gid      = [[[userInfo objectForKey:[NSString stringWithCString:kDS1AttrPrimaryGroupID encoding:NSUTF8StringEncoding]] objectAtIndex:0] intValue];
+
+		NSArray* adminMembers = [adminInfo objectForKey:[NSString stringWithCString:kDSNAttrGroupMembership encoding:NSUTF8StringEncoding]];
 		m_admin = [adminMembers containsObject:m_realName] || [adminMembers containsObject:m_name];
-		
+
 		if (m_name != nil)
-		{	
+		{
 			m_groups = NULL;
-			
+
 			int groupsTemp[256];
 			int groupsize = 256;
 			getgrouplist([m_name cStringUsingEncoding:NSUTF8StringEncoding], m_gid, groupsTemp, &groupsize);

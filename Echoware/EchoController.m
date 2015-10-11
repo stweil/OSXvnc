@@ -77,7 +77,7 @@ static EchoController *sharedEchoController;
 - init
 {
 	self = [super init];
-	
+
 	if (self)
 	{
 		echoInfoProxys = [[NSMutableArray alloc] init];
@@ -102,24 +102,24 @@ static EchoController *sharedEchoController;
 	if (m_ServerList)
 		m_ServerList->Terminate();
 	NSLog(@"Terminating Threads done...");
-	
+
 	NSLog(@"Disconnecting All Connections...");
 	bool disconnected = DisconnectAllProxies();
 	NSLog(@"Disconnecting All Connections done... %d", disconnected);
 	if (m_ServerList)
 		delete m_ServerList;
 	m_ServerList = NULL;
-	
+
 	if (m_critSection)
 		delete m_critSection;
 	m_critSection = NULL;
-	
+
 	[echoInfoProxys removeAllObjects];
 	[echoInfoProxysToRemove removeAllObjects];
-	
+
 	[echoInfoProxys release];
 	[echoInfoProxysToRemove release];
-	
+
 	[echoServers removeAllObjects];
 	[echoServers release];
 
@@ -129,7 +129,7 @@ static EchoController *sharedEchoController;
 - (void) loadGUI: sender
 {
 	NSEnumerator *viewEnum = [[[[[NSApp delegate] window] contentView] subviews] objectEnumerator];
-	
+
 	while (mainTabView = [viewEnum nextObject])
 		if ([mainTabView isKindOfClass:[NSTabView class]])
 			break;
@@ -140,7 +140,7 @@ static EchoController *sharedEchoController;
 			NSLog(@"EchoServer Gui loaded");
 		else
 			NSLog(@"EchoServer Gui loading Error %d", errno);
-			
+
 		NSRect rect = [[mainTabView window] frame];
 		rect.size.width += 80;
 		[[mainTabView window] setFrame: rect display: YES];
@@ -169,7 +169,7 @@ static EchoController *sharedEchoController;
 	if (InitializeProxyDll())
 	{
 		NSTabViewItem *newTab = [[NSTabViewItem alloc] initWithIdentifier:@"Echo"];
-		
+
 		//SetLoggingOptions(TRUE, "/tmp/EchoServer.log");
 		//YS: choose log file, where we can write
 		NSArray *logFiles = [NSArray arrayWithObjects:
@@ -192,39 +192,39 @@ static EchoController *sharedEchoController;
 			}
 		}
 		//
-		
+
 		//converto from NSString to char*
 		int len_logFile = [logFile length];
 		char pLogFile[len_logFile + 1];
 		strncpy(pLogFile, [logFile cString], len_logFile);
 		pLogFile[len_logFile] = '\0';
 		//
-		
+
 		bool enableLog = [[NSUserDefaults standardUserDefaults] boolForKey:@"EnableLogging"];
 		[enableLoggingCheckbox setState: enableLog];
 		SetLoggingOptions(enableLog, pLogFile);
-		
+
 		SetPortForOffLoadingData((int) [[NSApp delegate] runningPortNum]);
 
 		[disableEchoCheckbox setState: [[NSUserDefaults standardUserDefaults] boolForKey:@"EchoDisabled"]];
 		[self disableEcho:self];
 		//YS: 21.12.2006 due to remove "128 bit encryption" button
 		//[useAESCheckbox setState: [[NSUserDefaults standardUserDefaults] boolForKey:@"EchoAESEncryption"]];
-		
+
 		[self loadProxyFields];
-		
+
 		[newTab setLabel:@"echoServer"];
 		[mainTabView addTabViewItem:newTab];
 		[newTab setView:echoServersView];
-		
+
 		NSString *first = [NSString stringWithCString: GetDllVersion()];
 		NSString *second = [NSString stringWithFormat: @"EchoWare version %@", first];
 		[versionTextField setStringValue: second];
 		NSLog(second);
-		
+
 		[self loadServerList];
 		[self saveData];
-		
+
 		[echoTableView setTarget:self];
 		[echoTableView setDoubleAction:@selector(editServer:)];
 	}
@@ -234,12 +234,12 @@ static EchoController *sharedEchoController;
 {
 	// The EchoDLL expects us to manage memory on these strings that are passed in so we'll make some NSData objects
 	static id proxyStringsDictionary = nil;
-	
+
 	NSString *proxyAddrString = [[NSUserDefaults standardUserDefaults] stringForKey:@"EchoProxyAddr"];
 	NSString *proxyPortString = [[NSUserDefaults standardUserDefaults] stringForKey:@"EchoProxyPort"];
 	NSString *proxyUserString = [[NSUserDefaults standardUserDefaults] stringForKey:@"EchoProxyUser"];
 	NSString *proxyPassString = [[NSUserDefaults standardUserDefaults] stringForKey:@"EchoProxyPass"];
-	
+
 	/* Load To GUI */
 	if (proxyAddrString)
 		[proxyAddress setStringValue: proxyAddrString];
@@ -261,38 +261,38 @@ static EchoController *sharedEchoController;
 		proxyUserString = @"";
 		proxyPassString = @"";
 	}
-	
+
 	[self requireProxyAuthentication:self];
-	
+
 	// Load to EchoWare
 	if ([proxyAddrString length] && [proxyPortString intValue])
 	{
 		[proxyStringsDictionary release];
 		proxyStringsDictionary = [[NSMutableDictionary alloc] init];
-		
+
 		[proxyStringsDictionary setObject:[proxyAddrString nullTerminatedData] forKey:@"EchoProxyAddr"];
 		[proxyStringsDictionary setObject:[proxyPortString nullTerminatedData] forKey:@"EchoProxyPort"];
 		if (proxyUserString)
 			[proxyStringsDictionary setObject:[proxyUserString nullTerminatedData] forKey:@"EchoProxyUser"];
 		else
 			[proxyStringsDictionary setObject:[@"" nullTerminatedData] forKey:@"EchoProxyUser"];
-			
+
 		if (proxyPassString)
 			[proxyStringsDictionary setObject:[proxyPassString nullTerminatedData] forKey:@"EchoProxyPass"];
 		else
 			[proxyStringsDictionary setObject:[@"" nullTerminatedData] forKey:@"EchoProxyPass"];
-		
-		SetLocalProxyInfo((char *) [[proxyStringsDictionary objectForKey:@"EchoProxyAddr"] bytes], 
-						  (char *) [[proxyStringsDictionary objectForKey:@"EchoProxyPort"] bytes], 
-						  (char *) [[proxyStringsDictionary objectForKey:@"EchoProxyUser"] bytes], 
-						  (char *) [[proxyStringsDictionary objectForKey:@"EchoProxyPass"] bytes]);	
+
+		SetLocalProxyInfo((char *) [[proxyStringsDictionary objectForKey:@"EchoProxyAddr"] bytes],
+						  (char *) [[proxyStringsDictionary objectForKey:@"EchoProxyPort"] bytes],
+						  (char *) [[proxyStringsDictionary objectForKey:@"EchoProxyUser"] bytes],
+						  (char *) [[proxyStringsDictionary objectForKey:@"EchoProxyPass"] bytes]);
 	}
 }
 
 - (void) createEchoServerFromDictionary: (NSMutableDictionary *) echoDict
 {
 	IDllProxyInfo* proxyInfo = (IDllProxyInfo*)CreateProxyInfoClassObject();
-	
+
 	[echoDict setObject:[[[echoDict objectForKey:@"IPAddress"] nullTerminatedData] retain] forKey:@"IPAddress_cStringData"];
 	proxyInfo->SetIP((const char *)[[echoDict objectForKey:@"IPAddress_cStringData"] bytes]);
 
@@ -303,7 +303,7 @@ static EchoController *sharedEchoController;
 	}
 	else
 		proxyInfo->SetPort("1328");
-	
+
 	if ([echoDict objectForKey:@"User"])
 	{
 		[echoDict setObject:[[[echoDict objectForKey:@"User"] nullTerminatedData] retain] forKey:@"User_cStringData"];
@@ -314,14 +314,14 @@ static EchoController *sharedEchoController;
 		[echoDict setObject:[[[echoDict objectForKey:@"Pass"] nullTerminatedData] retain] forKey:@"Pass_cStringData"];
 		proxyInfo->SetPassword((const char *)[[echoDict objectForKey:@"Pass_cStringData"] bytes]);
 	}
-		
+
 	//YS: 21.12.2006 due to remove "128 bit encryption" button
 	//old code: SetEncryptionLevel([useAESCheckbox state], proxyInfo);
 	SetEncryptionLevel(1, proxyInfo);//nnn
-	
+
 	CMyDllProxyInfo *pMyProxyInfo = new CMyDllProxyInfo(proxyInfo);
 	pMyProxyInfo->setStatus(CMyDllProxyInfo::Connecting);
-	
+
 	[self addInfo: pMyProxyInfo];
 	[echoTableView displayRect:[echoTableView rectOfRow:[echoInfoProxys count]]];
 	[echoTableView setNeedsDisplay:YES];
@@ -333,10 +333,10 @@ static EchoController *sharedEchoController;
 	NSUserDefaults *uDef = [NSUserDefaults standardUserDefaults];
 	NSEnumerator *echoEnum = [[uDef objectForKey:@"EchoServers"] objectEnumerator];
 	NSMutableDictionary *anEchoServer = nil;
-	
+
 	[echoServers release];
 	echoServers = [[NSMutableArray alloc] init];
-	
+
 	while (anEchoServer = [[[echoEnum nextObject] mutableCopy] autorelease])
 	{
 		[echoServers addObject: anEchoServer];
@@ -367,15 +367,15 @@ static EchoController *sharedEchoController;
 	NSString *username_default = [self GetComputerName];
 	if (username_default == NULL)
 		username_default = @"VineServerDemo";
-		
+
 	[echoServerField setStringValue: server_default];
 	[usernameField setStringValue: username_default];
 	[passwordField setStringValue: password_default];
-}	
+}
 	[NSApp beginSheet:addServerWindow
-	   modalForWindow:[echoServersView window] 
-		modalDelegate:self 
-	   didEndSelector:NULL 
+	   modalForWindow:[echoServersView window]
+		modalDelegate:self
+	   didEndSelector:NULL
 		  contextInfo:NULL];
 }
 
@@ -388,11 +388,11 @@ static EchoController *sharedEchoController;
 - (IBAction)completeAddServer:(id)sender
 {
 	NSMutableDictionary *newEchoServer = [[NSMutableDictionary alloc] init];
-	
+
 	[addServerWindow makeFirstResponder:[addServerWindow nextResponder]];
-	
+
 	NSArray *serverAndPort = [[echoServerField stringValue] componentsSeparatedByString:@":"];
-	
+
 	if ([[serverAndPort objectAtIndex:0] length])
 	{
 		[newEchoServer setObject:[serverAndPort objectAtIndex:0] forKey:@"IPAddress"];
@@ -409,7 +409,7 @@ static EchoController *sharedEchoController;
 
 		[echoServers addObject:newEchoServer];
 	}
-	
+
 	[NSApp endSheet:addServerWindow returnCode:NSAlertDefaultReturn];
 	[addServerWindow orderOut:self];
 
@@ -445,9 +445,9 @@ static EchoController *sharedEchoController;
 - (IBAction)advancedSettings:(id)sender
 {
 	[NSApp beginSheet:advancedSettingsWindow
-	  modalForWindow:[echoServersView window] 
-	   modalDelegate:self 
-	  didEndSelector:NULL 
+	  modalForWindow:[echoServersView window]
+	   modalDelegate:self
+	  didEndSelector:NULL
 		 contextInfo:NULL];
 }
 
@@ -462,7 +462,7 @@ static EchoController *sharedEchoController;
 {
 	[[NSUserDefaults standardUserDefaults] setObject:[proxyAddress stringValue] forKey:@"EchoProxyAddr"];
 	[[NSUserDefaults standardUserDefaults] setInteger:[proxyPort intValue]  forKey:@"EchoProxyPort"];
-	
+
 	if ([proxyAuthenticationCheckbox state])
 	{
 		[[NSUserDefaults standardUserDefaults] setObject:[proxyUsername stringValue] forKey:@"EchoProxyUser"];
@@ -476,7 +476,7 @@ static EchoController *sharedEchoController;
 
 	[[NSUserDefaults standardUserDefaults] synchronize];
 	[self loadProxyFields];
-	
+
 	[NSApp endSheet:advancedSettingsWindow returnCode:NSAlertDefaultReturn];
 	[advancedSettingsWindow orderOut:self];
 }
@@ -484,7 +484,7 @@ static EchoController *sharedEchoController;
 - (IBAction)requireProxyAuthentication:(id)sender
 {
 	BOOL enabled = [proxyAuthenticationCheckbox state];
-	
+
 	[proxyUsername setEnabled:enabled];
 	[proxyPassword setEnabled:enabled];
 	[proxyUsernameLabel setTextColor:(enabled ? [NSColor blackColor] : [NSColor grayColor])];
@@ -494,15 +494,15 @@ static EchoController *sharedEchoController;
 - (IBAction)disableEcho:(id)sender
 {
 	BOOL disabled = [disableEchoCheckbox state];
-	
+
 	[addButton setEnabled:!disabled];
 	[advancedSettingsButton setEnabled:!disabled];
 	[echoTableView setEnabled:!disabled];
 	[removeButton setEnabled:!disabled];
-	
+
 	//YS: 21.12.2006 due to remove "128 bit encryption" button
 	//[useAESCheckbox setEnabled:!disabled];
-	
+
 	[[NSUserDefaults standardUserDefaults] setBool:disabled forKey:@"EchoDisabled"];
 	[[NSUserDefaults standardUserDefaults] synchronize];
 }
@@ -510,7 +510,7 @@ static EchoController *sharedEchoController;
 - (IBAction)enableLogging:(id)sender
 {
 	bool enabled = [enableLoggingCheckbox state];
-	
+
 	EnableLogging(enabled);
 
 	[[NSUserDefaults standardUserDefaults] setBool: enabled forKey: @"EnableLogging"];
@@ -521,14 +521,14 @@ static EchoController *sharedEchoController;
 {
 	id proxyEnum = [echoInfoProxys objectEnumerator];
 	NSValue *aProxyValue = nil;
-	
+
 	while (aProxyValue = [proxyEnum nextObject])
 	{
 		//YS: 21.12.2006 due to remove "128 bit encryption" button
 		//old code: SetEncryptionLevel([useAESCheckbox state], [aProxyValue pointerValue]);
 		SetEncryptionLevel(1, [aProxyValue pointerValue]);
 	}
-	
+
 	//YS: 21.12.2006 due to remove "128 bit encryption" button
 	//[[NSUserDefaults standardUserDefaults] setBool:[useAESCheckbox state] forKey:@"EchoAESEncryption"];
 	//[[NSUserDefaults standardUserDefaults] synchronize];
@@ -547,7 +547,7 @@ static EchoController *sharedEchoController;
 		 || pMyProxyInfo->getStatus() == CMyDllProxyInfo::Connecting
 		 || pMyProxyInfo->getStatus() == CMyDllProxyInfo::Reconnecting)
 		 	return;
-			
+
 		int nLen = strlen(echoProxyInfo->GetMyID());
 		char* sTmp = new char[nLen + 1];
 		memset(sTmp, 0, nLen + 1);
@@ -559,15 +559,15 @@ static EchoController *sharedEchoController;
 		delete sTmp;
 		NSString *password =[NSString stringWithCString: echoProxyInfo->GetPassword()];
 		NSString *server = [NSString stringWithCString: echoProxyInfo->GetIpPort()];
-		
+
 		[echoServerField_edit setStringValue: server];
 		[usernameField_edit setStringValue: username];
 		[passwordField_edit setStringValue: password];
-		
+
 		[NSApp beginSheet:editServerWindow
-			modalForWindow:[echoServersView window] 
-			modalDelegate:self 
-			didEndSelector:NULL 
+			modalForWindow:[echoServersView window]
+			modalDelegate:self
+			didEndSelector:NULL
 			contextInfo:NULL];
 	}
 }
@@ -595,7 +595,7 @@ static EchoController *sharedEchoController;
 		NSString *password = [passwordField_edit stringValue];
 
 		int len_username = [username length];
-		int len_password = [password length]; 
+		int len_password = [password length];
 		char pUsername[len_username + 1];
 		char pPassword[len_password + 1];
 		strncpy(pUsername, [username cString], len_username);
@@ -666,7 +666,7 @@ static EchoController *sharedEchoController;
 - (void) saveData
 {
 	m_critSection->Lock();
-	
+
 	NSUserDefaults *suDefaults = [NSUserDefaults standardUserDefaults];
 	[suDefaults setObject:echoServers forKey:@"EchoServers"];
 	[suDefaults synchronize];
@@ -695,7 +695,7 @@ static EchoController *sharedEchoController;
 			if ([echoServer objectForKey:@"Port"])
 				res = [NSString stringWithFormat:@"%@:%@", [echoServer objectForKey:@"IPAddress"], [echoServer objectForKey:@"Port"]];
 			else
-				res = [NSString stringWithFormat:@"%@", [echoServer objectForKey:@"IPAddress"]];	
+				res = [NSString stringWithFormat:@"%@", [echoServer objectForKey:@"IPAddress"]];
 		}
 		else if ([col isEqualToString:@"Status"])
 		{
@@ -713,7 +713,7 @@ static EchoController *sharedEchoController;
 			res = [NSString stringWithCString:sTmp encoding:NSUTF8StringEncoding];
 			delete sTmp;
 		}
-	} 
+	}
 	return res;
 }
 @end

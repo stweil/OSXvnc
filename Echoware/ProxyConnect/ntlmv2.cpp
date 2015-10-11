@@ -1,36 +1,36 @@
 ////////////////////////////////////////////////////////////////////////////
 // EchoWare is Copyright (C) 2004,2005 Echogent Systems, Inc. All rights reserved.
 
-// Redistribution and use in source and binary forms, with or without 
+// Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
 
-//  * Redistributions of source code must retain the above copyright notice, 
+//  * Redistributions of source code must retain the above copyright notice,
 //    this list of conditions and the following disclaimer.
- 
-//  * Redistributions in binary form must reproduce the above copyright notice, 
-//    this list of conditions and the following disclaimer in the documentation 
-//    and/or other materials provided with the distribution.
-// 
-//  * Redistributions in any form must be accompanied by information on how 
-//    to obtain complete source code for the echoware software and any 
-//    accompanying software that uses the echoware software. The source code 
-//    must either be included in the distribution or be available for no more 
-//    than the cost of distribution plus a nominal fee, and must be freely 
-//    redistributable under reasonable conditions. For an executable file, 
-//   complete source code means the source code for all modules it contains. 
-//    It does not include source code for modules or files that typically 
-//    accompany the major components of the operating system on which the 
-//    executable file runs. 
 
-// THIS SOFTWARE IS PROVIDED BY ECHOGENT SYSTEMS, INC. ``AS IS'' AND ANY EXPRESS 
-//OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES 
-//OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT, 
-//ARE DISCLAIMED. IN NO EVENT SHALL ECHOGENT SYSTEMS, INC. BE LIABLE FOR ANY 
-//DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
-//(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; 
-//LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND 
-//ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT 
-//(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
+//  * Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+//
+//  * Redistributions in any form must be accompanied by information on how
+//    to obtain complete source code for the echoware software and any
+//    accompanying software that uses the echoware software. The source code
+//    must either be included in the distribution or be available for no more
+//    than the cost of distribution plus a nominal fee, and must be freely
+//    redistributable under reasonable conditions. For an executable file,
+//   complete source code means the source code for all modules it contains.
+//    It does not include source code for modules or files that typically
+//    accompany the major components of the operating system on which the
+//    executable file runs.
+
+// THIS SOFTWARE IS PROVIDED BY ECHOGENT SYSTEMS, INC. ``AS IS'' AND ANY EXPRESS
+//OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+//OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT,
+//ARE DISCLAIMED. IN NO EVENT SHALL ECHOGENT SYSTEMS, INC. BE LIABLE FOR ANY
+//DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+//(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+//LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+//ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+//(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 //THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 //
 //For more information: echoware@echogent.com
@@ -174,7 +174,7 @@ static const char base64val[] = {
 
 void base64(unsigned char *out, const unsigned char *in, int len)
 {
-  while (len >= 3) 
+  while (len >= 3)
   {
     *out++ = base64digits[in[0] >> 2];
     *out++ = base64digits[((in[0] << 4) & 0x30) | (in[1] >> 4)];
@@ -184,7 +184,7 @@ void base64(unsigned char *out, const unsigned char *in, int len)
     in += 3;
  }
 
-  if (len > 0) 
+  if (len > 0)
   {
     unsigned char fragment;
 
@@ -207,7 +207,7 @@ int unbase64(char *out, const char *in, int maxlen)
 		in += 2;
     if (*in == '\r')
 		return(0);
-    do 
+    do
 	{
 		digit1 = in[0];
 		if (DECODE64(digit1) == BAD)
@@ -240,7 +240,7 @@ int unbase64(char *out, const char *in, int maxlen)
 			*out++ = ((DECODE64(digit3) << 6) & 0xc0) | DECODE64(digit4);
 			}
 		}
-    } 
+    }
 	while (*in && *in != '\r' && digit4 != '=');
     return (len);
 }
@@ -252,7 +252,7 @@ int unbase64(char *out, const char *in, int maxlen)
 #define MAXSIZE 65536
 #define	SIZE1	8
 
-typedef struct 
+typedef struct
 {
 	unsigned short	length;
 	unsigned short	space;
@@ -260,23 +260,23 @@ typedef struct
 } securitybuffer;
 
 
-typedef struct 
+typedef struct
 {
-	unsigned char	digest[SIZE1];			//8 bytes 	
-	unsigned char	serverchallenge[SIZE1];		//8 bytes 
+	unsigned char	digest[SIZE1];			//8 bytes
+	unsigned char	serverchallenge[SIZE1];		//8 bytes
 
 	unsigned long	signature;				//4 bytes
 	unsigned long	reserved;				//4 bytes
-	unsigned long 	timestamp;				//4 bytes 
+	unsigned long 	timestamp;				//4 bytes
 	unsigned char	clientchallenge[SIZE1];	//8 bytes
 	unsigned long	unknown;				//4 bytes
-	//unsigned long	data;					//data	
-	unsigned char	data[1];				//data	
+	//unsigned long	data;					//data
+	unsigned char	data[1];				//data
 } ntlmv2_blob;
 
 
 
-typedef struct 
+typedef struct
 {
 	unsigned char	signature[SIZE1];		//8 bytes
 	unsigned long	messagetype;			//4 bytes
@@ -286,7 +286,7 @@ typedef struct
 } ntlmv2_type1;
 
 
-typedef struct 
+typedef struct
 {
 	unsigned char	signature[SIZE1];		//8 bytes
 	unsigned long	messagetype;			//4 bytes
@@ -294,13 +294,13 @@ typedef struct
 	unsigned long	flags;					//4 bytes
 	unsigned char	challenge[SIZE1];		//8 bytes
 	unsigned long	context1;				//4 bytes
-	unsigned long	context2;				//4 bytes	
+	unsigned long	context2;				//4 bytes
 	securitybuffer	targetinfo;				//8 bytes
 	unsigned char	data[1];				//data
 } ntlmv2_type2;
 
 
-typedef struct 
+typedef struct
 {
 	unsigned char	signature[SIZE1];
 	unsigned long	messagetype;
@@ -356,7 +356,7 @@ int ntlmv2_prepare_type3();
 
 
 
-int ntlmv2_build_type1() 
+int ntlmv2_build_type1()
 {
 	ntlmv2_type1 type1;
 	memset(&type1, 0, sizeof(type1));
@@ -382,7 +382,7 @@ int ntlmv2_build_type1()
 
 
 
-int ntlmv2_parse_type2(unsigned char *buf) 
+int ntlmv2_parse_type2(unsigned char *buf)
 {
 	int len;
 	char response[4096];
@@ -391,7 +391,7 @@ int ntlmv2_parse_type2(unsigned char *buf)
 	if ((strncmp((char*)buf, "HTTP/1.1 407", strlen("HTTP/1.1 407"))==0) ||
 		(strncmp((char*)buf, "HTTP/1.0 407", strlen("HTTP/1.0 407"))==0))
 	{
-		
+
 	}
 	else
 	{
@@ -405,7 +405,7 @@ int ntlmv2_parse_type2(unsigned char *buf)
 
 	char* ptr = strstr((char*)buf, "Proxy-Authenticate: NTLM ");
 	ptr += strlen("Proxy-Authenticate: NTLM ");
-	
+
 	//
 	// Get 64 chars response and decode it
 	//
@@ -413,29 +413,29 @@ int ntlmv2_parse_type2(unsigned char *buf)
 	memcpy(response, ptr, 64);
 
 	len = unbase64((char*)ntlmv2_type2_buffer, (char*)response, MSG_BUF_SIZE);
-	if (len <= 0) 
-	{		
+	if (len <= 0)
+	{
 		return -1;
 	}
 
 	type2 = (ntlmv2_type2*)ntlmv2_type2_buffer;
 
-	if (strcmp((char*)type2->signature, "NTLMSSP") != 0) 
-	{	
+	if (strcmp((char*)type2->signature, "NTLMSSP") != 0)
+	{
 		return -1;
 	}
 
-	if (type2->messagetype != NTLM_MSG_TYPE_2) 
-	{		
+	if (type2->messagetype != NTLM_MSG_TYPE_2)
+	{
 		return -1;
 	}
 
-	
+
 /*
-	if (!(type2->flags & NTLM_NEG_NTLM && type2->flags & NTLM_NEG_NTLM2)) 
+	if (!(type2->flags & NTLM_NEG_NTLM && type2->flags & NTLM_NEG_NTLM2))
 	{
 		if(theApp.bEnablelogging)
-			LogVPNProxy("Dll : ntlmv2_parse_type2: not support NEG_NTLM/NEG_NTLM2, return -1");		
+			LogVPNProxy("Dll : ntlmv2_parse_type2: not support NEG_NTLM/NEG_NTLM2, return -1");
 		return -1;
 	}
 */
@@ -454,9 +454,9 @@ int ntlmv2_parse_type2(unsigned char *buf)
 	// Get the Challenge (8 bytes)
 	//
 	memcpy(challenge, type2->challenge, 8);
-	
+
 	//
-	// Target Information 
+	// Target Information
 	//
 	type2_targetinfo = &ntlmv2_type2_buffer[type2->targetinfo.offset];
 	type2_targetinfo_len = type2->targetinfo.length;
@@ -466,33 +466,33 @@ int ntlmv2_parse_type2(unsigned char *buf)
 
 
 
-int ntlmv2_prepare_type3() 
+int ntlmv2_prepare_type3()
 {
 	int i, j;
 	int passlen = 0;
 	int userdomainlen=0;
 	unsigned char passdigest[16];
-	unsigned char userdomaindigest[16];	
+	unsigned char userdomaindigest[16];
 	unsigned char respdigest[16];
 	unsigned char lmv2data[16];
 	unsigned char *userdomain;
 	ntlmv2_blob *blob_ptr;
 	MD4_CTX passcontext;
-	
+
 	//
 	// The NTLM password hash is obtained.
 	// this is the MD4 digest of the Unicode mixed-case password
 	//
 	memset(unicodepassword, 0, NAME_BUF_LEN*2);
-	for (i = 0; i < strlen(gpassword); i++) 
+	for (i = 0; i < strlen(gpassword); i++)
 	{
-		if (unicodeFlag) 
+		if (unicodeFlag)
 		{
 			unicodepassword[i*2] = gpassword[i];
 			passlen++;
 			passlen++;
-		} 
-		else 
+		}
+		else
 		{
 			unicodepassword[i] = gpassword[i];
 			passlen++;
@@ -504,45 +504,45 @@ int ntlmv2_prepare_type3()
 	MD4Final(passdigest, &passcontext);
 
 	//
-	// The Unicode uppercase username is concatenated with the Unicode uppercase 
-	// authentication target (domain or server name). 
-	// The HMAC-MD5 message authentication code algorithm is applied to this value 
-	// using the 16-byte NTLM hash as the key. 
-	// This results in a 16-byte value - the NTLMv2 hash. 
+	// The Unicode uppercase username is concatenated with the Unicode uppercase
+	// authentication target (domain or server name).
+	// The HMAC-MD5 message authentication code algorithm is applied to this value
+	// using the 16-byte NTLM hash as the key.
+	// This results in a 16-byte value - the NTLMv2 hash.
 	//
 	userdomainlen = (strlen(gusername) + strlen(gdomain)) *2;
 	userdomain = (unsigned char*)malloc(userdomainlen);
-	if (!userdomain) 
+	if (!userdomain)
 	{
 		return -1;
 	}
 
 	memset(userdomain, 0, userdomainlen);
 	userdomainlen = 0;
-	for (i = 0; i < strlen(gusername); i++) 
+	for (i = 0; i < strlen(gusername); i++)
 	{
-		if (unicodeFlag) 
+		if (unicodeFlag)
 		{
 			userdomain[i*2] = toupper(gusername[i]);
 			userdomainlen++;
 			userdomainlen++;
-		} 
-		else 
+		}
+		else
 		{
 			userdomain[i] = toupper(gusername[i]);
 			userdomainlen++;
 		}
 	}
 
-	for (j = 0; j < strlen(gdomain); j++) 
+	for (j = 0; j < strlen(gdomain); j++)
 	{
-		if (unicodeFlag) 
+		if (unicodeFlag)
 		{
 			userdomain[i*2 + j*2] = toupper(gdomain[j]);
 			userdomainlen++;
 			userdomainlen++;
-		} 
-		else 
+		}
+		else
 		{
 			userdomain[i + j] = toupper(gdomain[j]);
 			userdomainlen++;
@@ -561,7 +561,7 @@ int ntlmv2_prepare_type3()
 	//
 	bloblen = sizeof(ntlmv2_blob) + type2_targetinfo_len;
 	blob = (unsigned char *)malloc(bloblen);
-	if (!blob) 
+	if (!blob)
 	{
 		return -1;
 	}
@@ -571,7 +571,7 @@ int ntlmv2_prepare_type3()
 	blob_ptr = (ntlmv2_blob*)blob;
 
 	//
-	// The challenge from the Type 2 message is concatenated with the blob. 
+	// The challenge from the Type 2 message is concatenated with the blob.
 	//
 	memcpy(blob_ptr->serverchallenge, challenge, 8);
 
@@ -586,10 +586,10 @@ int ntlmv2_prepare_type3()
 	blob_ptr->signature = 0x00000101;
 
 	//
-	// The HMAC-MD5 message authentication code algorithm is applied to 
-	// this value using the 16-byte NTLMv2 hash (userdomaindigest) as the key. 
-	// This results in a 16-byte output value. 
-	// This value is concatenated with the blob to form the NTLMv2 response. 
+	// The HMAC-MD5 message authentication code algorithm is applied to
+	// this value using the 16-byte NTLMv2 hash (userdomaindigest) as the key.
+	// This results in a 16-byte output value.
+	// This value is concatenated with the blob to form the NTLMv2 response.
 	//
 
 	//
@@ -604,19 +604,19 @@ int ntlmv2_prepare_type3()
 	//
 	memcpy(lmv2data, blob_ptr->serverchallenge, 8);
 	memcpy(lmv2data+8, blob_ptr->clientchallenge, 8);
-			
+
 	//
 	// Apply HMAC-MD5
 	//
 	hmac_md5(lmv2data, 16, userdomaindigest, 16, lmv2digest);
-	
+
 	return 0;
 }
 
 
 
-int ntlmv2_build_type3() 
-{	
+int ntlmv2_build_type3()
+{
 	int totalLen=0;
 	int size=1, index=0;
 	ntlmv2_type3 *type3;
@@ -627,11 +627,11 @@ int ntlmv2_build_type3()
 
 	totalLen = sizeof(ntlmv2_type3) + (16 + bloblen + size*(strlen(gdomain) + strlen(gusername) + strlen(gworkstation)));
 	type3 = (ntlmv2_type3 *)malloc(totalLen);
-	if (!type3) 
+	if (!type3)
 	{
 		return -1;
 	}
-	
+
 	memset(type3, 0, totalLen);
 	ptr = (unsigned char*)type3;
 
@@ -712,10 +712,10 @@ int ntlmv2_build_type3()
 
 int ConnectViaHttpProxy
 (
-	const char* destIp, 
-	UINT	destPort, 
-	char*	proxyIp, 
-	UINT proxyPort, 
+	const char* destIp,
+	UINT	destPort,
+	char*	proxyIp,
+	UINT proxyPort,
 	char* username,
 	char* password
 );
@@ -737,7 +737,7 @@ int ConnectViaHttpProxy
 int DoNTLMv2
 (
 	int fd,
-	const char* destIp, 
+	const char* destIp,
 	UINT	destPort,
 	unsigned char host[MAX_NAME_LEN],
 	unsigned char domain[MAX_NAME_LEN],
@@ -760,14 +760,14 @@ int DoNTLMv2
 	strcpy((char*)gusername, (char*)user);
 	strcpy((char*)gpassword, (char*)password);
 
-	
+
 
 	//
 	// Build msg1
 	//
 	if (ntlmv2_build_type1()<0)
 	{
-		
+
 		//closesocket(fd);
 		return -1;
 	}
@@ -779,7 +779,7 @@ int DoNTLMv2
 	//
 	sprintf(buf, "CONNECT %s:%hu HTTP/1.0\r\nProxy-Authorization: NTLM %s\r\n", destIp, destPort, ntlmv2_type1_buffer);
 	sprintf( buf, "%sProxy-Connection: Keep-Alive\r\n\r\n", buf );
-	
+
 	numWrite = send(fd, buf, strlen(buf), 0);
 	if (numWrite <=0)
     {
@@ -800,7 +800,7 @@ int DoNTLMv2
 	}
 	else
 	{
-		
+
 	}
 
 	//
@@ -825,7 +825,7 @@ int DoNTLMv2
 
 	//
 	// Send msg3
-	//	
+	//
 	numWrite = send(fd, buf, strlen(buf), 0);
 	if (numWrite <=0)
     {

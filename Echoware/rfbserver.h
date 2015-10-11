@@ -29,7 +29,7 @@
 
 typedef struct rfbserver {
 	int vncServer;
-	
+
 	char *desktopName;
 	int rfbPort;
 	int rfbLocalhostOnly;

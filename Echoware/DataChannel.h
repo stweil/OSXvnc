@@ -3,7 +3,7 @@
 
 #if _MSC_VER > 1000
 #pragma once
-#endif 
+#endif
 
 class CDataChannels;
 class CLocalDataChannel;
@@ -14,7 +14,7 @@ class CLocalDCTimer;
 #include "LocalListener.h"
 #include "AES.h"
 
-//class for pair Local connection<->echoServer connection 
+//class for pair Local connection<->echoServer connection
 class CDataChannel
 {
 public:
@@ -44,7 +44,7 @@ public:
 
 	//a local connection
 	void OnLocalDataChannel(unsigned int sock, bool bOffLoadingDataChannel=false);
-	
+
 	const char* GetSessionKey(){return m_szSessionKey;}
 	CLocalDataChannel* m_pLocalDataChannel;
 
@@ -53,18 +53,18 @@ protected:
 	CDataChannels* m_pDataChannels;
 
 	CLocalListener m_localListener;
-	
+
 	CEchoSrvDataChannel* m_pEchoServerDataChannel;
 
-	char* m_szChannelCode;	
+	char* m_szChannelCode;
 	char* m_szSessionKey;
-	
+
 public:
 	CAES m_aes;
-	bool m_bEncryptDecrypt;	
+	bool m_bEncryptDecrypt;
 
-	CCritSection m_crtLocalDCSection;	
-	bool m_bLocalDC;	
+	CCritSection m_crtLocalDCSection;
+	bool m_bLocalDC;
 };
 
 

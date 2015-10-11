@@ -22,7 +22,7 @@ class CUser
 		int m_uid;
 		bool m_admin;
 		int* m_groups;
-		
+
 		void initWithUsername(NSString* username, CDirService* dirService);
 	public:
 		CUser(NSString *username);
@@ -35,9 +35,9 @@ class CUser
 		int uid() { return m_uid; }
 		bool admin() { return m_admin; }
 		int* groups() { return m_groups; }
-		
+
 		NSUserDefaults *userDefaults(NSString *domain);
-		
+
 		static CFStringRef CopyCurrentConsoleUsername();
 		static NSString* CurrentConsoleUsername();
 		static bool ConsoleUserIsLoggedIn();

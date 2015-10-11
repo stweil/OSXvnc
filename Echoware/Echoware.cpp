@@ -6,15 +6,15 @@
 #include "Globals.h"
 #include "DllProxyInfo.h"
 
-//BOOL APIENTRY DllMain( HANDLE hModule, 
+//BOOL APIENTRY DllMain( HANDLE hModule,
 BOOL DllMain( HANDLE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved ) {
-//#define DLL_PROCESS_ATTACH 0	
+//#define DLL_PROCESS_ATTACH 0
 //#define DLL_THREAD_ATTACH  1
 //#define DLL_THREAD_DETACH  2
 //#define	DLL_PROCESS_DETACH 3
 //	switch (ul_reason_for_call)
 //	{
-//	case DLL_PROCESS_ATTACH:		
+//	case DLL_PROCESS_ATTACH:
 //		break;
 //	case DLL_THREAD_ATTACH:
 //		break;
@@ -86,7 +86,7 @@ extern "C" ECHOWARE_API void* CreateProxyInfoClassObject()
 	}
 
 	CDllProxyInfo* pProxyInfo=new CDllProxyInfo;
-	g_globals.m_proxiesManager.AddProxy(pProxyInfo);	
+	g_globals.m_proxiesManager.AddProxy(pProxyInfo);
 
 	return (IDllProxyInfo*)pProxyInfo;
 }
@@ -168,7 +168,7 @@ extern "C" ECHOWARE_API int EstablishNewDataChannel(void* pProxyInfo , char* IDO
 	return g_globals.m_proxiesManager.EstablishNewDataChannel((CDllProxyInfo*)pProxyInfo, IDOfPartner);
 }
 
-extern "C" ECHOWARE_API void SetEncryptionLevel(int level, void* pProxyInfo) 
+extern "C" ECHOWARE_API void SetEncryptionLevel(int level, void* pProxyInfo)
 {
 	if (!g_globals.GetDllInitialized())
 	{
