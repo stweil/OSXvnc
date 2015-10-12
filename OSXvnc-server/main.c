@@ -602,8 +602,7 @@ char *rfbGetFramebuffer(void) {
                 imageRef = CGBitmapContextCreateImage(context);
                 CGContextRelease(context);
             } else {
-                CGDirectDisplayID mainDisplayID = CGMainDisplayID();
-                imageRef = CGDisplayCreateImage(mainDisplayID);
+                imageRef = CGDisplayCreateImage(displayID);
             }
             CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
             CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
@@ -621,12 +620,12 @@ char *rfbGetFramebuffer(void) {
         int maxWait =   5000000;
         int retryWait =  500000;
 
-        char *returnValue = (char *) CGDisplayBaseAddress(CGMainDisplayID());
+        char *returnValue = (char *)CGDisplayBaseAddress(displayID);
         while (!returnValue && maxWait > 0) {
             NSLog(@"Unable to obtain base address");
             usleep(retryWait); // Buffer goes away while screen is "switching", it'll be back
             maxWait -= retryWait;
-            returnValue = (char *) CGDisplayBaseAddress(CGMainDisplayID());
+            returnValue = (char *)CGDisplayBaseAddress(displayID);
         }
         if (!returnValue) {
             NSLog(@"Unable to obtain base address -- Giving up");
@@ -640,12 +639,11 @@ char *rfbGetFramebuffer(void) {
 // Called to get record updates of the requested region into our framebuffer
 void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
     if (frameBufferData) {
-        CGDirectDisplayID mainDisplayID = CGMainDisplayID();
         CGRect rect = CGRectMake (x,y,w,h);
         CGImageRef imageRef;
         if (displayScale > 1.0) {
             // Retina display.
-            CGImageRef image = CGDisplayCreateImageForRect(mainDisplayID, rect);
+            CGImageRef image = CGDisplayCreateImageForRect(displayID, rect);
             CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
             CGBitmapInfo bitmapInfo = kCGBitmapByteOrder32Little | kCGImageAlphaNoneSkipFirst;
             CGContextRef context = CGBitmapContextCreate(NULL, w, h, 8, w * 4,colorspace, bitmapInfo);
@@ -658,7 +656,7 @@ void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
             imageRef = CGBitmapContextCreateImage(context);
             CGContextRelease(context);
         } else {
-            imageRef = CGDisplayCreateImageForRect(mainDisplayID, rect);
+            imageRef = CGDisplayCreateImageForRect(displayID, rect);
         }
         CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
         CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
@@ -691,7 +689,10 @@ static bool rfbScreenInit(void) {
     [frameBufferData release]; // release previous screen buffer, if any
     frameBufferData = nil;
 
-    displayID = CGMainDisplayID();
+    if (displayID == 0) {
+        // The display was not selected up to now, so choose the main display.
+        displayID = CGMainDisplayID();
+    }
 
     if (samplesPerPixel != 3) {
         rfbLog("screen format not supported");
@@ -832,20 +833,22 @@ static void usage(void) {
     printf("-littleEndian          Force Little-Endian mode (INTEL)\n");
     printf("                       (default: detect)\n");
 
-    /* This isn't ready to go yet
+    printf("-display DisplayID     displayID to indicate which display to serve\n");
     {
         CGDisplayCount displayCount;
         CGDirectDisplayID activeDisplays[100];
-        int index = 0;
-
-        printf("-display DisplayID     displayID to indicate which display to serve\n");
+        int index;
 
         CGGetActiveDisplayList(100, activeDisplays, &displayCount);
 
-        for (index=0; index < displayCount; index++)
-            printf("\t\t%d = (%ld,%ld)\n", index, CGDisplayPixelsWide(activeDisplays[index]), CGDisplayPixelsHigh(activeDisplays[index]));
+        for (index = 0; index < displayCount; index++) {
+            printf("                       %d = (%zu, %zu)\n",
+                   index,
+                   CGDisplayPixelsWide(activeDisplays[index]),
+                   CGDisplayPixelsHigh(activeDisplays[index]));
+        }
     }
-    */
+
     printf("-localhost             Only allow connections from the same machine, literally localhost (127.0.0.1)\n");
     printf("                       If you use SSH and want to stop non-SSH connections from any other hosts \n");
     printf("                       (default: no, allow remote connections)\n");
