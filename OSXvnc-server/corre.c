@@ -3,13 +3,10 @@
  *
  * Routines to implement Compact Rise-and-Run-length Encoding (CoRRE).  This
  * code is based on krw's original javatel rfbserver.
- *
- * Exported function: rfbSendRectEncodingCoRRE
  */
 
 /*
  *  Copyright (C) 2002 RealVNC Ltd.
- *  Copyright (C) 1999 AT&T Laboratories Cambridge.  All Rights Reserved.
  *  OSXvnc Copyright (C) 2001 Dan McGuirk <mcguirk@incompleteness.net>.
  *  Original Xvnc code Copyright (C) 1999 AT&T Laboratories Cambridge.
  *  All Rights Reserved.
@@ -48,9 +45,9 @@ static int rreAfterBufSize = 0;
 static char *rreAfterBuf = NULL;
 static int rreAfterBufLen;
 
-static int subrectEncode8(uint8_t *data, int w, int h);
-static int subrectEncode16(uint16_t *data, int w, int h);
-static int subrectEncode32(uint32_t *data, int w, int h);
+static int subrectEncode8(rfbClientPtr cl, uint8_t *data, int w, int h);
+static int subrectEncode16(rfbClientPtr cl, uint16_t *data, int w, int h);
+static int subrectEncode32(rfbClientPtr cl, uint32_t *data, int w, int h);
 static uint32_t getBgColour(const void *data, size_t size, uint8_t bpp);
 static Bool rfbSendSmallRectEncodingCoRRE(rfbClientPtr cl, int x, int y,
 					  int w, int h);
@@ -121,14 +118,14 @@ rfbSendSmallRectEncodingCoRRE(rfbClientPtr cl, int x, int y, int w, int h)
 
     switch (cl->format.bitsPerPixel) {
     case 8:
-	nSubrects = subrectEncode8((uint8_t *)rreBeforeBuf, w, h);
-	break;
+        nSubrects = subrectEncode8(cl, (uint8_t *)rreBeforeBuf, w, h);
+        break;
     case 16:
-	nSubrects = subrectEncode16((uint16_t *)rreBeforeBuf, w, h);
-	break;
+        nSubrects = subrectEncode16(cl, (uint16_t *)rreBeforeBuf, w, h);
+        break;
     case 32:
-	nSubrects = subrectEncode32((uint32_t *)rreBeforeBuf, w, h);
-	break;
+        nSubrects = subrectEncode32(cl, (uint32_t *)rreBeforeBuf, w, h);
+        break;
     default:
 	rfbLog("getBgColour: bpp %d?", cl->format.bitsPerPixel);
 	exit(1);
@@ -206,7 +203,7 @@ rfbSendSmallRectEncodingCoRRE(rfbClientPtr cl, int x, int y, int w, int h)
 
 #define DEFINE_SUBRECT_ENCODE(bpp)					      \
 static int								      \
-subrectEncode##bpp(uint##bpp##_t *data, int w, int h)			      \
+subrectEncode##bpp(rfbClientPtr _cl, uint##bpp##_t *data, int w, int h)	      \
 {									      \
     uint##bpp##_t cl;							      \
     rfbCoRRERectangle subrect;						      \
