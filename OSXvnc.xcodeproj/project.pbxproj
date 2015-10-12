@@ -232,7 +232,6 @@
 		ABEE28F804C8745B00A80117 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		ABF191B704E447A400A80117 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		ABFC222B0AF08CBA00BCE727 /* VineServer.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = VineServer.icns; sourceTree = "<group>"; };
-		F538E00C02F9812901A80186 /* .cvsignore */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = .cvsignore; sourceTree = "<group>"; };
 		F538E01002F9812901A80186 /* auth.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 30; path = auth.c; sourceTree = "<group>"; };
 		F538E01302F9812901A80186 /* corre.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = corre.c; sourceTree = "<group>"; };
 		F538E01402F9812901A80186 /* cutpaste.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 30; path = cutpaste.c; sourceTree = "<group>"; };
@@ -586,7 +585,6 @@
 		F538E00B02F9812901A80186 /* OSXvnc-server */ = {
 			isa = PBXGroup;
 			children = (
-				F538E00C02F9812901A80186 /* .cvsignore */,
 				F538E10F02F9812C01A80186 /* Makefile */,
 				F58DDDE7056A861001A8015E /* VNCServer.h */,
 				F58DDDE8056A861001A8015E /* VNCServer.m */,
