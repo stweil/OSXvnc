@@ -790,21 +790,21 @@ static void usage(void) {
 
     printf("-rfbport port          TCP port for RFB protocol (0=autodetect first open port 5900-5909)\n");
     printf("-rfbwait time          Maximum time in ms to wait for RFB client\n");
-    printf("-rfbnoauth             Run the server with NO password protection\n");
+    printf("-rfbnoauth             Run the server without password protection\n");
     printf("-rfbauth passwordFile  Use this password file for VNC authentication\n");
     printf("                       (use 'storepasswd' to create a password file)\n");
     printf("-rfbpass               Supply a password directly to the server\n");
-    printf("-maxauthattempts num   Maximum Number of auth tries before disabling access from a host\n");
+    printf("-maxauthattempts num   Maximum number of auth tries before disabling access from a host\n");
     printf("                       (default: 5), zero disables\n");
     printf("-deferupdate time      Time in ms to defer updates (default %d)\n", rfbDeferUpdateTime);
-    printf("-desktop name          VNC desktop name (default \"MacOS X\")\n");
+    printf("-desktop name          VNC desktop name (default: host name)\n");
     printf("-alwaysshared          Always treat new clients as shared\n");
     printf("-nevershared           Never treat new clients as shared\n");
     printf("-dontdisconnect        Don't disconnect existing clients when a new non-shared\n");
     printf("                       connection comes in (refuse new connection instead)\n");
     printf("-nodimming             Never allow the display to dim\n");
     printf("                       (default: display can dim, input undims)\n");
-    printf("-maxdepth bits         Maximum allowed bit depth for connecting clients (32,16,8).\n");
+    printf("-maxdepth bits         Maximum allowed bit depth for connecting clients (32, 16, 8).\n");
     printf("                       (default: bit depth of display)\n");
 #if 0
     printf("-reversemods           reverse the interpretation of control\n");
@@ -815,22 +815,23 @@ static void usage(void) {
     printf("-disableScreenSaver    Disable screen saver while users are connected\n");
     printf("                       (default: no, allow screen saver to engage)\n");
     printf("-swapButtons           Swap mouse buttons 2 & 3\n");
-    printf("                       (default: YES)\n");
+    printf("                       (default: yes)\n");
     printf("-dontswapButtons       Disable swap mouse buttons 2 & 3\n");
-    printf("                       (default: NO)\n");
+    printf("                       (default: no)\n");
     printf("-disableRemoteEvents   Ignore remote keyboard, pointer, and clipboard event\n");
     printf("                       (default: no, process them)\n");
     printf("-disableRichClipboards Don't share rich clipboard events\n");
     printf("                       (default: no, process them)\n");
-    printf("-connectHost host      Host Name or IP of listening client to establishing a reverse conneect\n");
-    printf("-connectPort port      TCP port of listening client to establishing a reverse conneect\n");
+    printf("-connectHost host      Host name or IP of listening client to establishing a reverse connect\n");
+    printf("-connectPort port      TCP port of listening client to establishing a reverse connect\n");
     printf("                       (default: 5500)\n");
     printf("-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n");
     printf("-protocol protocol     Force a particular protocol version (eg 3.3)\n");
-    printf("                       (default:" rfbProtocolVersionFormat ")", rfbProtocolMajorVersion, rfbProtocolMinorVersion);
-    printf("-bigEndian             Force Big-Endian mode (PPC)\n");
+    printf("                       (default:" rfbProtocolVersionFormat ")\n",
+           rfbProtocolMajorVersion, rfbProtocolMinorVersion);
+    printf("-bigEndian             Force big-endian mode (PPC)\n");
     printf("                       (default: detect)\n");
-    printf("-littleEndian          Force Little-Endian mode (INTEL)\n");
+    printf("-littleEndian          Force little-endian mode (INTEL)\n");
     printf("                       (default: detect)\n");
 
     printf("-display DisplayID     displayID to indicate which display to serve\n");
@@ -849,10 +850,13 @@ static void usage(void) {
         }
     }
 
-    printf("-localhost             Only allow connections from the same machine, literally localhost (127.0.0.1)\n");
+    printf("-localhost             Only allow connections from the same machine, "
+           "literally localhost (127.0.0.1)\n");
     printf("                       If you use SSH and want to stop non-SSH connections from any other hosts \n");
     printf("                       (default: no, allow remote connections)\n");
-    printf("-restartonuserswitch flag  For Use on Panther 10.3 systems, this will cause the server to restart when a fast user switch occurs");
+    printf("-restartonuserswitch flag\n"
+           "                       For Use on Panther 10.3 systems, this will cause the\n"
+           "                       server to restart when a fast user switch occurs\n");
     printf("                       (default: no)\n");
     printf("-disableLog            Don't log anything in console\n");
     [[VNCServer sharedServer] rfbUsage];
@@ -906,7 +910,8 @@ static void processArguments(int argc, char *argv[]) {
             while (protocol > 0 && protocol < 1)
                 protocol *= 10;
             rfbProtocolMinorVersion = MIN(rfbProtocolMinorVersion, rint(protocol));
-            rfbLog("Forcing: " rfbProtocolVersionFormat,rfbProtocolMajorVersion, rfbProtocolMinorVersion);
+            rfbLog("Forcing: " rfbProtocolVersionFormat,
+                   rfbProtocolMajorVersion, rfbProtocolMinorVersion);
         } else if (strcmp(argv[i], "-rfbwait") == 0) {  // -rfbwait ms
             if (i + 1 >= argc) usage();
             rfbMaxClientWait = atoi(argv[++i]);
@@ -1208,7 +1213,7 @@ int main(int argc, char *argv[]) {
     initPasteboard();
 
     // Register for User Switch Notification
-    // This works on pre-Panther systems since the Notification just wont get called
+    // This works on pre-Panther systems since the notification just won't get called.
     if (restartOnUserSwitch) {
         [[NSWorkspace sharedWorkspace].notificationCenter addObserver:vncServerObject
                                                                selector:@selector(userSwitched:)

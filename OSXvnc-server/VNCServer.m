@@ -500,10 +500,10 @@ bool isConsoleSession() {
 }
 
 - (void) rfbUsage {
-    fprintf(stderr,
+    printf(
             "-keyboardLoading flag  This feature allows OSXvnc to look at the users selected keyboard\n"
             "                       and map keystrokes using it. Disabling this returns OSXvnc to\n"
-            "                       standard (U.S. Keyboard) which will work better with Dead Keys.\n"
+            "                       standard (U.S. Keyboard) which will work better with dead keys.\n"
             "                       (default: no)\n"
             "-pressModsForKeys flag If OSXvnc finds the key you want it will temporarily toggle the modifier keys to produce it.\n"
             "                       This flag works well if you have different keyboards on the local and remote machines.\n"
@@ -515,7 +515,7 @@ bool isConsoleSession() {
             "                       (default: RFB:YES VNC:NO)\n"
             "-ipv4                  Listen for connections on IPv4 only (default: off)\n"
             "-ipv6                  Listen for connections on IPv6 only (default: off)\n"
-            );
+    );
 }
 
 - (void) rfbPoll {
