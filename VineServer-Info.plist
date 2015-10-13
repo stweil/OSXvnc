@@ -2,36 +2,38 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleDevelopmentRegion</key>
-	<string>English</string>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
-	<key>CFBundleGetInfoString</key>
-	<string>__PRODUCT_VERSION__ - (C) 2013 TestPlant, Inc., (C) __YEAR__ Stefan Weil </string>
-	<key>CFBundleIconFile</key>
-	<string>VineServer.icns</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
-	<key>CFBundleInfoDictionaryVersion</key>
-	<string>6.0</string>
+	<key>CFBundleSignature</key>
+	<string>vncS</string>
 	<key>CFBundleName</key>
 	<string>Vine Server</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
-	<key>CFBundleShortVersion</key>
-	<string>__PRODUCT_VERSION__</string>
-	<key>CFBundleShortVersionString</key>
-	<string>__PRODUCT_VERSION__</string>
-	<key>CFBundleSignature</key>
-	<string>vncS</string>
 	<key>CFBundleVersion</key>
 	<string>__BUILD_VERSION__</string>
-	<key>NSHelpFile</key>
-	<string>Vine Server.pdf</string>
+	<key>CFBundleShortVersionString</key>
+	<string>__PRODUCT_VERSION__</string>
+	<key>CFBundleShortVersion</key>
+	<string>__PRODUCT_VERSION__</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>© 2013 TestPlant, Inc., © __YEAR__ Stefan Weil</string>
+	<key>CFBundleGetInfoString</key>
+	<string>__PRODUCT_VERSION__ - (C) 2013 TestPlant, Inc., (C) __YEAR__ Stefan Weil </string>
+	<key>NSHighResolutionCapable</key>
+	<true/>
+	<key>CFBundleIconFile</key>
+	<string>VineServer.icns</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
+	<key>NSHelpFile</key>
+	<string>Vine Server.pdf</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
 	<key>ReverseHost</key>
