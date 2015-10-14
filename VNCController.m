@@ -358,11 +358,10 @@ NSMutableArray *localIPAddresses() {
 		if ([anIP hasPrefix:@"127.0.0.1"] || // localhost entries
 			[anIP rangeOfString:@"::"].location != NSNotFound) {
 			;//[commonIPAddresses removeObject:anIP];
-		}
-		else {
+		} else {
 			NSRange endOfIP = [anIP rangeOfString:@"\t"];
 			NSAttributedString *ipString = ipAddress;
-			NSAttributedString *noteString = [NSMutableString string];
+			NSAttributedString *noteString = nil;
 			NSString *tooltipString = @"";
 
 			if (endOfIP.location != NSNotFound && [ipAddress isKindOfClass:[NSAttributedString class]]) {
