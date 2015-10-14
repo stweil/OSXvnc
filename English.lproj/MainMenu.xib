@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="14F27" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="8191" systemVersion="15A284" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none">
     <dependencies>
         <deployment identifier="macosx"/>
         <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="8191"/>
@@ -13,7 +13,7 @@
             </connections>
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
-        <customObject id="-3"/>
+        <customObject id="-3" customClass="NSObject"/>
         <customObject id="1507" customClass="NSApplication"/>
         <window title="Vine Server Preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" deferred="NO" oneShot="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="Preferences" animationBehavior="default" id="1508">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
@@ -28,18 +28,20 @@
                     <tabView id="1510">
                         <rect key="frame" x="-10" y="30" width="452" height="312"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
                             <tabViewItem label="Connection" identifier="" id="1511">
                                 <view key="view" id="1512">
                                     <rect key="frame" x="10" y="33" width="432" height="266"/>
-                                    <autoresizingMask key="autoresizingMask"/>
+                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                     <subviews>
                                         <textField verticalHuggingPriority="750" id="1513">
                                             <rect key="frame" x="17" y="195" width="125" height="19"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <string key="toolTip">Display Number for VNC Server
 Note: This number+5900 is the port that will be used</string>
+                                            <animations/>
                                             <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Display Number:" id="1514">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -51,6 +53,7 @@ Note: This number+5900 is the port that will be used</string>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                             <string key="toolTip">Display Number for VNC Server
 Note: This number+5900 is the port that will be used</string>
+                                            <animations/>
                                             <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Port:" id="1999">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -62,9 +65,10 @@ Note: This number+5900 is the port that will be used</string>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                             <string key="toolTip">Display Number for VNC Server
 Note: This number+5900 is the port that will be used</string>
+                                            <animations/>
                                             <popUpButtonCell key="cell" type="push" title="Auto" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="1518" id="1516">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                                <font key="font" metaFont="system"/>
+                                                <font key="font" metaFont="menu"/>
                                                 <menu key="menu" title="OtherViews" id="1517">
                                                     <items>
                                                         <menuItem title="Auto" state="on" id="1518"/>
@@ -92,6 +96,7 @@ Note: This number+5900 is the port that will be used</string>
                                             <string key="toolTip">Port Number that VNC will use to  communicate.
 Note: Same as Display Number+5900
 Note: Same as Display Number+5900</string>
+                                            <animations/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" drawsBackground="YES" id="1531">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -104,6 +109,7 @@ Note: Same as Display Number+5900</string>
                                         <textField toolTip="Name that the VNC viewer will see for this server." verticalHuggingPriority="750" id="1534">
                                             <rect key="frame" x="38" y="223" width="104" height="20"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
                                             <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Display Name:" id="1535">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -113,6 +119,7 @@ Note: Same as Display Number+5900</string>
                                         <textField toolTip="Name that the VNC viewer will see for this server." verticalHuggingPriority="750" id="1536">
                                             <rect key="frame" x="147" y="224" width="245" height="22"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                            <animations/>
                                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" title="Mac OS X" drawsBackground="YES" id="1537">
                                                 <font key="font" metaFont="system"/>
                                                 <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -134,6 +141,7 @@ Note: Same as Display Number+5900</string>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                         <string key="toolTip">Password required to connect with VNC Clients
 Note: Password length is not preserved</string>
+                                                        <animations/>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" drawsBackground="YES" id="1540">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -147,6 +155,7 @@ Note: Password length is not preserved</string>
                                                     <matrix verticalHuggingPriority="750" allowsEmptySelection="NO" autosizesCells="NO" id="1541">
                                                         <rect key="frame" x="27" y="53" width="134" height="38"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         <size key="cellSize" width="134" height="18"/>
                                                         <size key="intercellSpacing" width="4" height="2"/>
@@ -173,6 +182,7 @@ Note: Password length is not preserved</string>
                                                     <button id="1545">
                                                         <rect key="frame" x="27" y="9" width="379" height="18"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                        <animations/>
                                                         <buttonCell key="cell" type="check" title="Require Remote Login (SSH)" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="1546">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -182,11 +192,14 @@ Note: Password length is not preserved</string>
                                                         </connections>
                                                     </button>
                                                 </subviews>
+                                                <animations/>
                                             </view>
+                                            <animations/>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </box>
                                     </subviews>
+                                    <animations/>
                                 </view>
                                 <connections>
                                     <outlet property="initialFirstResponder" destination="1536" id="1846"/>
@@ -208,6 +221,7 @@ Note: Password length is not preserved</string>
                                                     <button id="1576">
                                                         <rect key="frame" x="12" y="8" width="208" height="18"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                                        <animations/>
                                                         <buttonCell key="cell" type="check" title="Swap Mouse Buttons 2 and 3" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="1577">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -217,7 +231,9 @@ Note: Password length is not preserved</string>
                                                         </connections>
                                                     </button>
                                                 </subviews>
+                                                <animations/>
                                             </view>
+                                            <animations/>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </box>
@@ -233,6 +249,7 @@ Note: Password length is not preserved</string>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <string key="toolTip">Enable this if you want to allow the machine to sleep.
 Sleeping machines can not be reached by VNC.</string>
+                                                        <animations/>
                                                         <buttonCell key="cell" type="check" title="Allow machine to sleep" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="1580">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -246,6 +263,7 @@ Sleeping machines can not be reached by VNC.</string>
                                                         <autoresizingMask key="autoresizingMask"/>
                                                         <string key="toolTip">Enable this to prevent the screen from dimming while clients are connected.
 Any Input will un-dim the screen.</string>
+                                                        <animations/>
                                                         <buttonCell key="cell" type="check" title="Allow display dimming" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="1582">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -257,6 +275,7 @@ Any Input will un-dim the screen.</string>
                                                     <button toolTip="Enable this to allow the screen saver to turn on when clients are connected." id="1583">
                                                         <rect key="frame" x="12" y="11" width="200" height="18"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                         <buttonCell key="cell" type="check" title="Allow screen saver to start" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="1584">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -266,7 +285,9 @@ Any Input will un-dim the screen.</string>
                                                         </connections>
                                                     </button>
                                                 </subviews>
+                                                <animations/>
                                             </view>
+                                            <animations/>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </box>
@@ -280,9 +301,10 @@ Any Input will un-dim the screen.</string>
                                                     <popUpButton toolTip="The keyboard layout that Vine Server uses to interpret keystrokes from a VNC viewer." verticalHuggingPriority="750" id="1586">
                                                         <rect key="frame" x="156" y="9" width="219" height="26"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                         <popUpButtonCell key="cell" type="push" title="U.S." bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="1591" id="1587">
                                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                            <font key="font" metaFont="system"/>
+                                                            <font key="font" metaFont="menu"/>
                                                             <menu key="menu" title="OtherViews" id="1588">
                                                                 <items>
                                                                     <menuItem title="U.S." state="on" id="1591"/>
@@ -298,6 +320,7 @@ Any Input will un-dim the screen.</string>
                                                     <textField verticalHuggingPriority="750" id="1592">
                                                         <rect key="frame" x="13" y="15" width="114" height="17"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Keyboard Layout:" id="1593">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -305,11 +328,14 @@ Any Input will un-dim the screen.</string>
                                                         </textFieldCell>
                                                     </textField>
                                                 </subviews>
+                                                <animations/>
                                             </view>
+                                            <animations/>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </box>
                                     </subviews>
+                                    <animations/>
                                 </view>
                             </tabViewItem>
                             <tabViewItem label="Sharing" identifier="" id="1547">
@@ -327,6 +353,7 @@ Any Input will un-dim the screen.</string>
                                                     <matrix verticalHuggingPriority="750" allowsEmptySelection="NO" autosizesCells="NO" id="1550">
                                                         <rect key="frame" x="14" y="34" width="350" height="59"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         <size key="cellSize" width="350" height="18"/>
                                                         <size key="intercellSpacing" width="4" height="2"/>
@@ -357,6 +384,7 @@ Any Input will un-dim the screen.</string>
                                                     <button toolTip="Checking this box means the new client is denied access.  Unchecking it means the existing client is disconnected." id="1555">
                                                         <rect key="frame" x="29" y="12" width="353" height="18"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                         <buttonCell key="cell" type="check" title="Keep existing viewer if a new viewer tries to connect" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="1556">
                                                             <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                             <font key="font" metaFont="system"/>
@@ -366,7 +394,9 @@ Any Input will un-dim the screen.</string>
                                                         </connections>
                                                     </button>
                                                 </subviews>
+                                                <animations/>
                                             </view>
+                                            <animations/>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                             <font key="titleFont" metaFont="system"/>
@@ -374,6 +404,7 @@ Any Input will un-dim the screen.</string>
                                         <button id="1557">
                                             <rect key="frame" x="23" y="230" width="378" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
                                             <buttonCell key="cell" type="check" title="Disable remote control of keyboard and mouse" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="1558">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -385,6 +416,7 @@ Any Input will un-dim the screen.</string>
                                         <button id="1559">
                                             <rect key="frame" x="23" y="190" width="278" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
                                             <buttonCell key="cell" type="check" title="Advertise server via Bonjour" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="1560">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -396,12 +428,14 @@ Any Input will un-dim the screen.</string>
                                         <button id="1561">
                                             <rect key="frame" x="23" y="210" width="333" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
                                             <buttonCell key="cell" type="check" title="Disable rich clipboard support (Vine Viewer Only)" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="1562">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
                                             </buttonCell>
                                         </button>
                                     </subviews>
+                                    <animations/>
                                 </view>
                             </tabViewItem>
                             <tabViewItem label="Startup" identifier="" id="1563">
@@ -412,6 +446,7 @@ Any Input will un-dim the screen.</string>
                                         <button id="1565">
                                             <rect key="frame" x="18" y="230" width="383" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
                                             <buttonCell key="cell" type="check" title="Start server when Vine Server application is launched" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="1566">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -423,6 +458,7 @@ Any Input will un-dim the screen.</string>
                                         <button id="1567">
                                             <rect key="frame" x="18" y="190" width="383" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
                                             <buttonCell key="cell" type="check" title="Restart server if it stops unexpectedly" bezelStyle="regularSquare" imagePosition="left" alignment="left" state="on" inset="2" id="1568">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -431,6 +467,7 @@ Any Input will un-dim the screen.</string>
                                         <button id="1569">
                                             <rect key="frame" x="18" y="210" width="389" height="18"/>
                                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                            <animations/>
                                             <buttonCell key="cell" type="check" title="Stop server on a fast user switch" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="1570">
                                                 <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -442,6 +479,7 @@ Any Input will un-dim the screen.</string>
                                         <button verticalHuggingPriority="750" id="1571">
                                             <rect key="frame" x="14" y="104" width="196" height="32"/>
                                             <autoresizingMask key="autoresizingMask"/>
+                                            <animations/>
                                             <buttonCell key="cell" type="push" title="System Server..." bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="1572">
                                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                 <font key="font" metaFont="system"/>
@@ -451,6 +489,7 @@ Any Input will un-dim the screen.</string>
                                             </connections>
                                         </button>
                                     </subviews>
+                                    <animations/>
                                 </view>
                             </tabViewItem>
                             <tabViewItem label="Advanced" identifier="" id="1594">
@@ -468,9 +507,10 @@ Any Input will un-dim the screen.</string>
                                                     <popUpButton toolTip="The OS level at which Vine Server interprets keyboard input from a VNC viewer." verticalHuggingPriority="750" id="1597">
                                                         <rect key="frame" x="166" y="35" width="219" height="26"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                         <popUpButtonCell key="cell" type="push" title="Smart Event Management" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" tag="3" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="1600" id="1598">
                                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                            <font key="font" metaFont="system"/>
+                                                            <font key="font" metaFont="menu"/>
                                                             <menu key="menu" title="OtherViews" id="1599">
                                                                 <items>
                                                                     <menuItem title="Smart Event Management" state="on" tag="3" id="1600"/>
@@ -486,6 +526,7 @@ Any Input will un-dim the screen.</string>
                                                     <textField verticalHuggingPriority="750" id="1603">
                                                         <rect key="frame" x="16" y="41" width="121" height="17"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Keyboard Events:" id="1604">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -495,9 +536,10 @@ Any Input will un-dim the screen.</string>
                                                     <popUpButton toolTip="The OS level at which Vine Server interprets keyboard input from a VNC viewer." verticalHuggingPriority="750" id="1605">
                                                         <rect key="frame" x="166" y="9" width="219" height="26"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                         <popUpButtonCell key="cell" type="push" title="HID Event Source" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="1610" id="1606">
                                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                            <font key="font" metaFont="system"/>
+                                                            <font key="font" metaFont="menu"/>
                                                             <menu key="menu" title="OtherViews" id="1607">
                                                                 <items>
                                                                     <menuItem title="Private Event Source" tag="2" id="1608"/>
@@ -514,6 +556,7 @@ Any Input will un-dim the screen.</string>
                                                     <textField verticalHuggingPriority="750" id="1612">
                                                         <rect key="frame" x="16" y="15" width="121" height="17"/>
                                                         <autoresizingMask key="autoresizingMask"/>
+                                                        <animations/>
                                                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Event Source:" id="1613">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -521,7 +564,9 @@ Any Input will un-dim the screen.</string>
                                                         </textFieldCell>
                                                     </textField>
                                                 </subviews>
+                                                <animations/>
                                             </view>
+                                            <animations/>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </box>
@@ -535,9 +580,10 @@ Any Input will un-dim the screen.</string>
                                                     <popUpButton toolTip="Select to force the server to use an older protocol." verticalHuggingPriority="750" id="1615">
                                                         <rect key="frame" x="15" y="10" width="130" height="26"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                                                        <animations/>
                                                         <popUpButtonCell key="cell" type="push" title="Default (3.8)" bezelStyle="rounded" alignment="left" lineBreakMode="truncatingTail" state="on" borderStyle="borderAndBezel" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="1619" id="1616">
                                                             <behavior key="behavior" lightByBackground="YES" lightByGray="YES"/>
-                                                            <font key="font" metaFont="system"/>
+                                                            <font key="font" metaFont="menu"/>
                                                             <menu key="menu" title="OtherViews" id="1617">
                                                                 <items>
                                                                     <menuItem title="Default (3.8)" state="on" id="1619"/>
@@ -551,7 +597,9 @@ Any Input will un-dim the screen.</string>
                                                         </connections>
                                                     </popUpButton>
                                                 </subviews>
+                                                <animations/>
                                             </view>
+                                            <animations/>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </box>
@@ -565,6 +613,7 @@ Any Input will un-dim the screen.</string>
                                                     <textField verticalHuggingPriority="750" id="1622">
                                                         <rect key="frame" x="22" y="23" width="358" height="22"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                                                        <animations/>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" drawsBackground="YES" id="1623">
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -575,11 +624,14 @@ Any Input will un-dim the screen.</string>
                                                         </connections>
                                                     </textField>
                                                 </subviews>
+                                                <animations/>
                                             </view>
+                                            <animations/>
                                             <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                             <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                         </box>
                                     </subviews>
+                                    <animations/>
                                 </view>
                             </tabViewItem>
                         </tabViewItems>
@@ -587,6 +639,7 @@ Any Input will un-dim the screen.</string>
                     <textField verticalHuggingPriority="750" id="1624">
                         <rect key="frame" x="17" y="15" width="400" height="17"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Preference Message" id="1625">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -594,6 +647,7 @@ Any Input will un-dim the screen.</string>
                         </textFieldCell>
                     </textField>
                 </subviews>
+                <animations/>
             </view>
             <connections>
                 <outlet property="delegate" destination="1668" id="1785"/>
@@ -887,6 +941,7 @@ DQ
                     <button verticalHuggingPriority="750" id="1681">
                         <rect key="frame" x="11" y="12" width="128" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="push" title="Stop Server" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" inset="2" id="1682">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -905,10 +960,11 @@ DQ
                                 <textView editable="NO" importsGraphics="NO" richText="NO" findStyle="panel" usesRuler="YES" usesFontPanel="YES" verticallyResizable="YES" spellingCorrection="YES" smartInsertDelete="YES" id="1706">
                                     <rect key="frame" x="0.0" y="0.0" width="369" height="60"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <animations/>
                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
                                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                     <size key="minSize" width="369" height="60"/>
-                                    <size key="maxSize" width="369" height="10000000"/>
+                                    <size key="maxSize" width="371" height="10000000"/>
                                     <attributedString key="textStorage">
                                         <fragment content="The server is not running">
                                             <attributes>
@@ -920,18 +976,22 @@ DQ
                                     </attributedString>
                                     <color key="insertionPointColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                     <size key="minSize" width="369" height="60"/>
-                                    <size key="maxSize" width="369" height="10000000"/>
+                                    <size key="maxSize" width="371" height="10000000"/>
                                 </textView>
                             </subviews>
+                            <animations/>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         </clipView>
+                        <animations/>
                         <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" horizontal="YES" id="1707">
                             <rect key="frame" x="-100" y="-100" width="87" height="18"/>
                             <autoresizingMask key="autoresizingMask"/>
+                            <animations/>
                         </scroller>
                         <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="1708">
                             <rect key="frame" x="355" y="1" width="15" height="60"/>
                             <autoresizingMask key="autoresizingMask"/>
+                            <animations/>
                         </scroller>
                     </scrollView>
                     <box title="IP Address" id="1686">
@@ -951,6 +1011,7 @@ DQ
                                             <matrix verticalHuggingPriority="750" mode="track" selectionByRect="NO" allowsEmptySelection="NO" autosizesCells="NO" id="1690">
                                                 <rect key="frame" x="0.0" y="0.0" width="358" height="34"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                                <animations/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                 <size key="cellSize" width="169" height="17"/>
                                                 <size key="intercellSpacing" width="10" height="0.0"/>
@@ -987,18 +1048,24 @@ DQ
                                                 </cells>
                                             </matrix>
                                         </subviews>
+                                        <animations/>
                                     </clipView>
+                                    <animations/>
                                     <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="1" controlSize="small" horizontal="YES" id="1689">
                                         <rect key="frame" x="-100" y="-100" width="314" height="15"/>
                                         <autoresizingMask key="autoresizingMask"/>
+                                        <animations/>
                                     </scroller>
                                     <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" doubleValue="0.64705884456634521" controlSize="small" horizontal="NO" id="1688">
                                         <rect key="frame" x="-22" y="0.0" width="11" height="54"/>
                                         <autoresizingMask key="autoresizingMask"/>
+                                        <animations/>
                                     </scroller>
                                 </scrollView>
                             </subviews>
+                            <animations/>
                         </view>
+                        <animations/>
                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </box>
@@ -1012,6 +1079,7 @@ DQ
                                 <textField toolTip="Host Name that can be used to refer to this machine" verticalHuggingPriority="750" id="1684">
                                     <rect key="frame" x="11" y="11" width="349" height="48"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                    <animations/>
                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" sendsActionOnEndEditing="YES" alignment="left" id="1685">
                                         <font key="font" metaFont="cellTitle"/>
                                         <string key="title">Host Name1
@@ -1022,7 +1090,9 @@ Host Name3</string>
                                     </textFieldCell>
                                 </textField>
                             </subviews>
+                            <animations/>
                         </view>
+                        <animations/>
                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </box>
@@ -1036,6 +1106,7 @@ Host Name3</string>
                                 <textField verticalHuggingPriority="750" id="1697">
                                     <rect key="frame" x="284" y="8" width="37" height="17"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES"/>
+                                    <animations/>
                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Port:" id="1698">
                                         <font key="font" metaFont="cellTitle"/>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1045,6 +1116,7 @@ Host Name3</string>
                                 <textField verticalHuggingPriority="750" id="1699">
                                     <rect key="frame" x="323" y="8" width="37" height="17"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMinX="YES"/>
+                                    <animations/>
                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="5900" id="1700">
                                         <font key="font" metaFont="cellTitle"/>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1054,6 +1126,7 @@ Host Name3</string>
                                 <textField verticalHuggingPriority="750" id="1701">
                                     <rect key="frame" x="10" y="8" width="110" height="17"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
+                                    <animations/>
                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Display Number:" id="1702">
                                         <font key="font" metaFont="cellTitle"/>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1063,6 +1136,7 @@ Host Name3</string>
                                 <textField verticalHuggingPriority="750" id="1703">
                                     <rect key="frame" x="125" y="8" width="37" height="17"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES"/>
+                                    <animations/>
                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="0" id="1704">
                                         <font key="font" metaFont="cellTitle"/>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1070,13 +1144,16 @@ Host Name3</string>
                                     </textFieldCell>
                                 </textField>
                             </subviews>
+                            <animations/>
                         </view>
+                        <animations/>
                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     </box>
                     <button verticalHuggingPriority="750" id="1679">
                         <rect key="frame" x="266" y="12" width="128" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="push" title="Start Server" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="1680">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -1089,6 +1166,7 @@ DQ
                         </connections>
                     </button>
                 </subviews>
+                <animations/>
             </view>
             <connections>
                 <outlet property="delegate" destination="1668" id="1847"/>
@@ -1114,6 +1192,7 @@ DQ
                                 <textField toolTip="IP/Machine Name of listening VNC viewer" verticalHuggingPriority="750" id="1714">
                                     <rect key="frame" x="189" y="35" width="189" height="22"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                                    <animations/>
                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" state="on" borderStyle="bezel" alignment="left" drawsBackground="YES" id="1715">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1126,6 +1205,7 @@ DQ
                                 <textField verticalHuggingPriority="750" id="1716">
                                     <rect key="frame" x="14" y="36" width="170" height="18"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <animations/>
                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Viewer Host Name or IP:" id="1717">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1135,6 +1215,7 @@ DQ
                                 <textField toolTip="Port Number to connect listening VNC viewer" verticalHuggingPriority="750" id="1718">
                                     <rect key="frame" x="189" y="8" width="74" height="22"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES"/>
+                                    <animations/>
                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" state="on" borderStyle="bezel" alignment="left" drawsBackground="YES" id="1719">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1149,6 +1230,7 @@ DQ
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <string key="toolTip">Display Number for VNC Server
 Note: This number+5900 is the port that will be used</string>
+                                    <animations/>
                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Port:" id="2003">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1156,7 +1238,9 @@ Note: This number+5900 is the port that will be used</string>
                                     </textFieldCell>
                                 </textField>
                             </subviews>
+                            <animations/>
                         </view>
+                        <animations/>
                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <font key="titleFont" metaFont="smallSystemBold"/>
@@ -1164,6 +1248,7 @@ Note: This number+5900 is the port that will be used</string>
                     <button toolTip="Add a listening VNC viewer." verticalHuggingPriority="750" id="1711">
                         <rect key="frame" x="314" y="12" width="101" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="push" title="Connect" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="1712">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -1178,6 +1263,7 @@ DQ
                     <button toolTip="Add a listening VNC viewer." verticalHuggingPriority="750" id="1722">
                         <rect key="frame" x="213" y="12" width="101" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="1723">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -1192,6 +1278,7 @@ Gw
                     <textField verticalHuggingPriority="750" id="1724">
                         <rect key="frame" x="14" y="16" width="197" height="29"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Reverse Connection Message" id="1725">
                             <font key="font" metaFont="smallSystem"/>
                             <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -1199,6 +1286,7 @@ Gw
                         </textFieldCell>
                     </textField>
                 </subviews>
+                <animations/>
             </view>
         </window>
         <window title="System Server" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" frameAutosaveName="System Server" animationBehavior="default" id="1726">
@@ -1214,6 +1302,7 @@ Gw
                     <textField verticalHuggingPriority="750" id="1730">
                         <rect key="frame" x="20" y="73" width="376" height="85"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                        <animations/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="left" id="1731">
                             <font key="font" metaFont="smallSystem"/>
                             <string key="title">The System Server will start when the machine boots and display the console screen independent of users' desktop servers.  Specify connection preferences for the system server above.  Other preferences are shared with desktop servers.
@@ -1235,6 +1324,7 @@ Clipboard sharing is unavailable prior to Mac OS X 10.5</string>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <string key="toolTip">Display Number for VNC Server
 Note: This number+5900 is the port that will be used</string>
+                                    <animations/>
                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Display Number:" id="1738">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1246,9 +1336,10 @@ Note: This number+5900 is the port that will be used</string>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                     <string key="toolTip">Display Number for VNC Server
 Note: This number+5900 is the port that will be used</string>
+                                    <animations/>
                                     <popUpButtonCell key="cell" type="push" title="Auto" bezelStyle="rounded" alignment="left" lineBreakMode="clipping" state="on" borderStyle="borderAndBezel" inset="2" arrowPosition="arrowAtCenter" preferredEdge="maxY" selectedItem="1745" id="1740">
                                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                        <font key="font" metaFont="system"/>
+                                        <font key="font" metaFont="menu"/>
                                         <menu key="menu" title="OtherViews" id="1741">
                                             <items>
                                                 <menuItem title="Auto" state="on" id="1745"/>
@@ -1276,6 +1367,7 @@ Note: This number+5900 is the port that will be used</string>
                                     <string key="toolTip">Port Number that VNC will use to  communicate.
 Note: Same as Display Number+5900
 Note: Same as Display Number+5900</string>
+                                    <animations/>
                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" drawsBackground="YES" id="1755">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1288,6 +1380,7 @@ Note: Same as Display Number+5900</string>
                                 <textField toolTip="Name that the VNC viewer will see for this server." verticalHuggingPriority="750" id="1758">
                                     <rect key="frame" x="24" y="168" width="104" height="20"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <animations/>
                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Display Name:" id="1759">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1297,6 +1390,7 @@ Note: Same as Display Number+5900</string>
                                 <textField toolTip="Name that the VNC viewer will see for this server." verticalHuggingPriority="750" id="1760">
                                     <rect key="frame" x="133" y="169" width="245" height="22"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
+                                    <animations/>
                                     <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" title="Mac OS X" drawsBackground="YES" id="1761">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1318,6 +1412,7 @@ Note: Same as Display Number+5900</string>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                 <string key="toolTip">Password required to connect with VNC Client.
 Note: Size is not preserved</string>
+                                                <animations/>
                                                 <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" drawsBackground="YES" id="1764">
                                                     <font key="font" metaFont="system"/>
                                                     <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1331,6 +1426,7 @@ Note: Size is not preserved</string>
                                             <matrix verticalHuggingPriority="750" allowsEmptySelection="NO" autosizesCells="NO" id="1765">
                                                 <rect key="frame" x="27" y="53" width="116" height="38"/>
                                                 <autoresizingMask key="autoresizingMask"/>
+                                                <animations/>
                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                 <size key="cellSize" width="116" height="18"/>
                                                 <size key="intercellSpacing" width="4" height="2"/>
@@ -1357,6 +1453,7 @@ Note: Size is not preserved</string>
                                             <button id="1769">
                                                 <rect key="frame" x="27" y="9" width="379" height="18"/>
                                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                <animations/>
                                                 <buttonCell key="cell" type="check" title="Require Remote Login (SSH)" bezelStyle="regularSquare" imagePosition="left" alignment="left" inset="2" id="1770">
                                                     <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
                                                     <font key="font" metaFont="system"/>
@@ -1366,7 +1463,9 @@ Note: Size is not preserved</string>
                                                 </connections>
                                             </button>
                                         </subviews>
+                                        <animations/>
                                     </view>
+                                    <animations/>
                                     <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                                     <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                 </box>
@@ -1375,6 +1474,7 @@ Note: Size is not preserved</string>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <string key="toolTip">Display Number for VNC Server
 Note: This number+5900 is the port that will be used</string>
+                                    <animations/>
                                     <textFieldCell key="cell" sendsActionOnEndEditing="YES" alignment="right" title="Port:" id="2001">
                                         <font key="font" metaFont="system"/>
                                         <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1382,7 +1482,9 @@ Note: This number+5900 is the port that will be used</string>
                                     </textFieldCell>
                                 </textField>
                             </subviews>
+                            <animations/>
                         </view>
+                        <animations/>
                         <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
                         <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                         <font key="titleFont" metaFont="system"/>
@@ -1390,6 +1492,7 @@ Note: This number+5900 is the port that will be used</string>
                     <textField verticalHuggingPriority="750" id="1732">
                         <rect key="frame" x="20" y="52" width="368" height="17"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <animations/>
                         <textFieldCell key="cell" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="left" title="System Server Text" id="1733">
                             <font key="font" metaFont="systemBold"/>
                             <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
@@ -1399,6 +1502,7 @@ Note: This number+5900 is the port that will be used</string>
                     <button verticalHuggingPriority="750" id="1734">
                         <rect key="frame" x="17" y="12" width="160" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="push" title="Stop System Server" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="1735">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -1410,6 +1514,7 @@ Note: This number+5900 is the port that will be used</string>
                     <button verticalHuggingPriority="750" id="1728">
                         <rect key="frame" x="249" y="12" width="167" height="32"/>
                         <autoresizingMask key="autoresizingMask" flexibleMinX="YES" flexibleMaxY="YES"/>
+                        <animations/>
                         <buttonCell key="cell" type="push" title="Start System Server" bezelStyle="rounded" alignment="center" borderStyle="border" inset="2" id="1729">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -1419,6 +1524,7 @@ Note: This number+5900 is the port that will be used</string>
                         </connections>
                     </button>
                 </subviews>
+                <animations/>
             </view>
         </window>
         <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" visibleAtLaunch="NO" animationBehavior="default" id="1771">
@@ -1436,6 +1542,7 @@ Note: This number+5900 is the port that will be used</string>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                         <string key="toolTip">Password required to connect with VNC Client.
 Note: Password length is not preserved</string>
+                        <animations/>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" alignment="left" drawsBackground="YES" id="1774">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -1449,6 +1556,7 @@ Note: Password length is not preserved</string>
                     <matrix verticalHuggingPriority="750" allowsEmptySelection="NO" autosizesCells="NO" id="1775">
                         <rect key="frame" x="84" y="62" width="134" height="38"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
                         <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                         <size key="cellSize" width="134" height="18"/>
                         <size key="intercellSpacing" width="4" height="2"/>
@@ -1475,6 +1583,7 @@ Note: Password length is not preserved</string>
                     <textField verticalHuggingPriority="750" id="1779">
                         <rect key="frame" x="17" y="111" width="357" height="40"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
                         <textFieldCell key="cell" sendsActionOnEndEditing="YES" title="Before accepting connections from VNC clients you must select an authentication type:" id="1780">
                             <font key="font" metaFont="system"/>
                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
@@ -1484,6 +1593,7 @@ Note: Password length is not preserved</string>
                     <button verticalHuggingPriority="750" id="1781">
                         <rect key="frame" x="286" y="12" width="82" height="32"/>
                         <autoresizingMask key="autoresizingMask"/>
+                        <animations/>
                         <buttonCell key="cell" type="push" title="Done" bezelStyle="rounded" alignment="center" enabled="NO" borderStyle="border" inset="2" id="1782">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -1496,6 +1606,7 @@ DQ
                         </connections>
                     </button>
                 </subviews>
+                <animations/>
             </view>
         </window>
     </objects>
