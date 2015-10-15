@@ -46,7 +46,7 @@ rfbScreenInfo rfbScreen;
 int rfbProtocolMajorVersion = 3;
 int rfbProtocolMinorVersion = 8;
 
-char desktopName[256] = "";
+char desktopName[256];
 
 BOOL keepRunning = TRUE;
 
@@ -822,8 +822,8 @@ static void usage(void) {
     printf("                       (default: no, process them)\n");
     printf("-disableRichClipboards Don't share rich clipboard events\n");
     printf("                       (default: no, process them)\n");
-    printf("-connectHost host      Host name or IP of listening client to establishing a reverse connect\n");
-    printf("-connectPort port      TCP port of listening client to establishing a reverse connect\n");
+    printf("-connectHost host      Host name or IP of listening client to establish a reverse connect\n");
+    printf("-connectPort port      TCP port of listening client to establish a reverse connect\n");
     printf("                       (default: 5500)\n");
     printf("-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n");
     printf("-protocol protocol     Force a particular protocol version (eg 3.3)\n");
@@ -852,10 +852,10 @@ static void usage(void) {
 
     printf("-localhost             Only allow connections from the same machine, "
            "literally localhost (127.0.0.1)\n");
-    printf("                       If you use SSH and want to stop non-SSH connections from any other hosts \n");
+    printf("                       If you use SSH and want to stop non-SSH connections from any other hosts\n");
     printf("                       (default: no, allow remote connections)\n");
     printf("-restartonuserswitch flag\n"
-           "                       For Use on Panther 10.3 systems, this will cause the\n"
+           "                       For use on Panther 10.3 systems, this will cause the\n"
            "                       server to restart when a fast user switch occurs\n");
     printf("                       (default: no)\n");
     printf("-disableLog            Don't log anything in console\n");
@@ -1199,8 +1199,8 @@ int main(int argc, char *argv[]) {
 
     loadDynamicBundles(TRUE);
 
-    // If no Desktop Name Provided Try to Get it
-    if (strlen(desktopName) == 0) {
+    // If no desktop name is provided try to get it.
+    if (desktopName[0] == '\0') {
         gethostname(desktopName, 256);
     }
 
