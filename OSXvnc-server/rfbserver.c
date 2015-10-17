@@ -353,7 +353,7 @@ rfbClientPtr rfbNewClient(int sock) {
     cl->client_zlibAfterBuf = NULL;
     cl->client_zlibAfterBufLen = 0;
 
-    sprintf(pv,rfbProtocolVersionFormat,rfbProtocolMajorVersion, rfbProtocolMinorVersion);
+    sprintf(pv, rfbProtocolVersionFormat, rfbProtocolMajorVersion, rfbProtocolMinorVersion);
 
     if (WriteExact(cl, pv, sz_rfbProtocolVersionMsg) < 0) {
         rfbLogPerror("rfbNewClient: write");
@@ -479,7 +479,7 @@ void rfbProcessClientProtocolVersion(rfbClientPtr cl) {
     }
 
     pv[sz_rfbProtocolVersionMsg] = 0;
-    if (sscanf(pv,rfbProtocolVersionFormat,&cl->major,&cl->minor) != 2) {
+    if (sscanf(pv, rfbProtocolVersionFormat, &cl->major, &cl->minor) != 2) {
 		if (strncmp(pv,"GET",3)) // Don't log if it was a browser
 			rfbLog("rfbProcessClientProtocolVersion: not a valid RFB client");
         rfbCloseClient(cl);

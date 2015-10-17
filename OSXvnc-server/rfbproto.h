@@ -151,7 +151,7 @@ typedef struct {
  * decode the version string respectively.
  */
 
-#define rfbProtocolVersionFormat "RFB %03d.%03d\n"
+#define rfbProtocolVersionFormat "RFB %03d.%03d"
 // Want to allow this to be specified
 //#define rfbProtocolMajorVersion 3
 //#define rfbProtocolMinorVersion 8
