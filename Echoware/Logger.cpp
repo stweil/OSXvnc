@@ -86,7 +86,7 @@ void CLogger::Write(const char* szText)
 				tmp_time[len_time - 1] = '\0';
 
 #ifdef _CONSOLE_
-			fprintf(stdout, "[%s] echoServer : %s \n", tmp_time, szText);
+			fprintf(stdout, "[%s] echoServer : %s\n", tmp_time, szText);
 #else
 			fprintf(f, "[%s] echoServer : %s\n", tmp_time, szText);
 

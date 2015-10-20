@@ -206,7 +206,7 @@ miPrintRegion(rgn)
     ErrorF("extents: %d %d %d %d\n",
            rgn->extents.x1, rgn->extents.y1, rgn->extents.x2, rgn->extents.y2);
     for (i = 0; i < num; i++)
-      ErrorF("%d %d %d %d \n",
+      ErrorF("%d %d %d %d\n",
              rects[i].x1, rects[i].y1, rects[i].x2, rects[i].y2);
     ErrorF("\n");
     return(num);
