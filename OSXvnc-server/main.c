@@ -786,55 +786,58 @@ static bool rfbScreenInit(void) {
 }
 
 static void usage(void) {
-    printf("\nAvailable options:\n\n");
+    printf(
+        "\nAvailable options:\n\n"
 
-    printf("-rfbport port          TCP port for RFB protocol (0=autodetect first open port 5900-5909)\n");
-    printf("-rfbwait time          Maximum time in ms to wait for RFB client\n");
-    printf("-rfbnoauth             Run the server without password protection\n");
-    printf("-rfbauth passwordFile  Use this password file for VNC authentication\n");
-    printf("                       (use 'storepasswd' to create a password file)\n");
-    printf("-rfbpass               Supply a password directly to the server\n");
-    printf("-maxauthattempts num   Maximum number of auth tries before disabling access from a host\n");
-    printf("                       (default: 5), zero disables\n");
-    printf("-deferupdate time      Time in ms to defer updates (default %d)\n", rfbDeferUpdateTime);
-    printf("-desktop name          VNC desktop name (default: host name)\n");
-    printf("-alwaysshared          Always treat new clients as shared\n");
-    printf("-nevershared           Never treat new clients as shared\n");
-    printf("-dontdisconnect        Don't disconnect existing clients when a new non-shared\n");
-    printf("                       connection comes in (refuse new connection instead)\n");
-    printf("-nodimming             Never allow the display to dim\n");
-    printf("                       (default: display can dim, input undims)\n");
-    printf("-maxdepth bits         Maximum allowed bit depth for connecting clients (32, 16, 8).\n");
-    printf("                       (default: bit depth of display)\n");
+        "-rfbport port          TCP port for RFB protocol (0=autodetect first open port 5900-5909)\n"
+        "-rfbwait time          Maximum time in ms to wait for RFB client\n"
+        "-rfbnoauth             Run the server without password protection\n"
+        "-rfbauth passwordFile  Use this password file for VNC authentication\n"
+        "                       (use 'storepasswd' to create a password file)\n"
+        "-rfbpass               Supply a password directly to the server\n"
+        "-maxauthattempts num   Maximum number of auth tries before disabling access from a host\n"
+        "                       (default: 5), zero disables\n"
+        "-deferupdate time      Time in ms to defer updates (default %d)\n"
+        "-desktop name          VNC desktop name (default: host name)\n"
+        "-alwaysshared          Always treat new clients as shared\n"
+        "-nevershared           Never treat new clients as shared\n"
+        "-dontdisconnect        Don't disconnect existing clients when a new non-shared\n"
+        "                       connection comes in (refuse new connection instead)\n"
+        "-nodimming             Never allow the display to dim\n"
+        "                       (default: display can dim, input undims)\n"
+        "-maxdepth bits         Maximum allowed bit depth for connecting clients (32, 16, 8).\n"
+        "                       (default: bit depth of display)\n"
 #if 0
-    printf("-reversemods           reverse the interpretation of control\n");
-    printf("                       and command (for windows clients)\n");
+        "-reversemods           reverse the interpretation of control\n"
+        "                       and command (for windows clients)\n"
 #endif
-    printf("-allowsleep            Allow machine to sleep\n");
-    printf("                       (default: sleep is disabled)\n");
-    printf("-disableScreenSaver    Disable screen saver while users are connected\n");
-    printf("                       (default: no, allow screen saver to engage)\n");
-    printf("-swapButtons           Swap mouse buttons 2 & 3\n");
-    printf("                       (default: yes)\n");
-    printf("-dontswapButtons       Disable swap mouse buttons 2 & 3\n");
-    printf("                       (default: no)\n");
-    printf("-disableRemoteEvents   Ignore remote keyboard, pointer, and clipboard event\n");
-    printf("                       (default: no, process them)\n");
-    printf("-disableRichClipboards Don't share rich clipboard events\n");
-    printf("                       (default: no, process them)\n");
-    printf("-connectHost host      Host name or IP of listening client to establish a reverse connect\n");
-    printf("-connectPort port      TCP port of listening client to establish a reverse connect\n");
-    printf("                       (default: 5500)\n");
-    printf("-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n");
-    printf("-protocol protocol     Force a particular protocol version (eg 3.3)\n");
-    printf("                       (default:" rfbProtocolVersionFormat ")\n",
-           rfbProtocolMajorVersion, rfbProtocolMinorVersion);
-    printf("-bigEndian             Force big-endian mode (PPC)\n");
-    printf("                       (default: detect)\n");
-    printf("-littleEndian          Force little-endian mode (INTEL)\n");
-    printf("                       (default: detect)\n");
+        "-allowsleep            Allow machine to sleep\n"
+        "                       (default: sleep is disabled)\n"
+        "-disableScreenSaver    Disable screen saver while users are connected\n"
+        "                       (default: no, allow screen saver to engage)\n"
+        "-swapButtons           Swap mouse buttons 2 & 3\n"
+        "                       (default: yes)\n"
+        "-dontswapButtons       Disable swap mouse buttons 2 & 3\n"
+        "                       (default: no)\n"
+        "-disableRemoteEvents   Ignore remote keyboard, pointer, and clipboard event\n"
+        "                       (default: no, process them)\n"
+        "-disableRichClipboards Don't share rich clipboard events\n"
+        "                       (default: no, process them)\n"
+        "-connectHost host      Host name or IP of listening client to establish a reverse connect\n"
+        "-connectPort port      TCP port of listening client to establish a reverse connect\n"
+        "                       (default: 5500)\n"
+        "-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n"
+        "-protocol protocol     Force a particular protocol version (eg 3.3)\n"
+        "                       (default:" rfbProtocolVersionFormat ")\n"
+        "-bigEndian             Force big-endian mode (PPC)\n"
+        "                       (default: detect)\n"
+        "-littleEndian          Force little-endian mode (INTEL)\n"
+        "                       (default: detect)\n"
 
-    printf("-display DisplayID     displayID to indicate which display to serve\n");
+        "-display DisplayID     displayID to indicate which display to serve\n",
+        rfbDeferUpdateTime,
+        rfbProtocolMajorVersion, rfbProtocolMinorVersion
+    );
     {
         CGDisplayCount displayCount;
         CGDirectDisplayID activeDisplays[100];
@@ -850,15 +853,17 @@ static void usage(void) {
         }
     }
 
-    printf("-localhost             Only allow connections from the same machine, "
-           "literally localhost (127.0.0.1)\n");
-    printf("                       If you use SSH and want to stop non-SSH connections from any other hosts\n");
-    printf("                       (default: no, allow remote connections)\n");
-    printf("-restartonuserswitch flag\n"
-           "                       For use on Panther 10.3 systems, this will cause the\n"
-           "                       server to restart when a fast user switch occurs\n");
-    printf("                       (default: no)\n");
-    printf("-disableLog            Don't log anything in console\n");
+    printf(
+        "-localhost             Only allow connections from the same machine, "
+        "                       literally localhost (127.0.0.1)\n"
+        "                       If you use SSH and want to stop non-SSH connections from any other hosts\n"
+        "                       (default: no, allow remote connections)\n"
+        "-restartonuserswitch flag\n"
+        "                       For use on Panther 10.3 systems, this will cause the\n"
+        "                       server to restart when a fast user switch occurs\n"
+        "                       (default: no)\n"
+        "-disableLog            Don't log anything in console\n"
+    );
     [[VNCServer sharedServer] rfbUsage];
     printf("\n");
 
