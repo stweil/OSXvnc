@@ -518,7 +518,7 @@ NSMutableArray *localIPAddresses() {
 	[clientList autorelease];
 	clientList = [connectionList copy];
 
-	int activeConnectionsCount = clientList.count;
+	NSUInteger activeConnectionsCount = clientList.count;
 
 	if (!passwordField.stringValue.length)
 		[statusMessage appendFormat:@"%@(%@)", LocalizedString(@"Server Running"), LocalizedString(@"No Authentication")];
@@ -535,7 +535,7 @@ NSMutableArray *localIPAddresses() {
 		[statusMessage appendString: [clientList[0] valueForKey:@"clientIP"]];
 	}
 	else if (activeConnectionsCount > 1) {
-		[statusMessage appendFormat: @"%d ", activeConnectionsCount];
+		[statusMessage appendFormat: @"%lu ", (unsigned long)activeConnectionsCount];
 		[statusMessage appendString: LocalizedString(@"Clients Connected: ")];
 		[statusMessage appendString: [[clientList valueForKey:@"clientIP"] componentsJoinedByString:@", "]];
 	}
@@ -545,7 +545,7 @@ NSMutableArray *localIPAddresses() {
 		if (activeConnectionsCount == 0)
 			[[NSApp performSelector:@selector(dockTile)] performSelector:@selector(setBadgeLabel:) withObject:@""];
 		else
-			[[NSApp performSelector:@selector(dockTile)] performSelector:@selector(setBadgeLabel:) withObject:[NSString stringWithFormat:@"%d", activeConnectionsCount]];
+			[[NSApp performSelector:@selector(dockTile)] performSelector:@selector(setBadgeLabel:) withObject:[NSString stringWithFormat:@"%lu", (unsigned long)activeConnectionsCount]];
 	}
 }
 
@@ -645,7 +645,7 @@ NSMutableArray *localIPAddresses() {
 }
 
 - (void) loadAuthenticationUI {
-	int authType = [[NSUserDefaults standardUserDefaults] integerForKey:@"AuthenticationType"];
+	NSUInteger authType = [[NSUserDefaults standardUserDefaults] integerForKey:@"AuthenticationType"];
 
 	if ([[NSUserDefaults standardUserDefaults] dataForKey:@"vncauth"].length) {
         [passwordField setStringValue:PasswordProxy];
@@ -1160,7 +1160,7 @@ NSMutableArray *localIPAddresses() {
 		[initialDoneButton setEnabled: TRUE];
 	}
 	else if (sender == initialAuthenticationType) {
-		int newAuth = [initialAuthenticationType.selectedCell tag];
+		long newAuth = [initialAuthenticationType.selectedCell tag];
 		if (newAuth == 1) {
 			initialPasswordText.stringValue = @"";
 			[initialDoneButton setEnabled: FALSE];
@@ -1180,7 +1180,7 @@ NSMutableArray *localIPAddresses() {
 
 - (IBAction) setInitialAuthentication: sender {
 	NSString *passwordString = initialPasswordText.stringValue;
-	int newAuth = [initialAuthenticationType.selectedCell tag];
+	long newAuth = [initialAuthenticationType.selectedCell tag];
 
 	// VNC Password
 	if (newAuth == 1) {
@@ -1222,7 +1222,7 @@ NSMutableArray *localIPAddresses() {
 }
 
 - (void) changeSharing: sender {
-    int selected = [sharingMatrix.selectedCell tag];
+    long selected = [sharingMatrix.selectedCell tag];
     if (selected == 1) {
         // Always shared.
         alwaysShared = TRUE;
@@ -1247,7 +1247,7 @@ NSMutableArray *localIPAddresses() {
 }
 
 - (IBAction) changeAuthenticationType: sender {
-	int newAuth = [authenticationType.selectedCell tag];
+	long newAuth = [authenticationType.selectedCell tag];
 
 	if (newAuth != [[NSUserDefaults standardUserDefaults] integerForKey:@"AuthenticationType"]) {
 		// VNC Password
@@ -1312,7 +1312,7 @@ NSMutableArray *localIPAddresses() {
 
 - (IBAction) changeSystemServerAuthentication: sender {
 	NSString *passwordString = systemServerPasswordField.stringValue;
-	int sysServerAuthType = [systemServerAuthenticationType.selectedCell tag];
+	long sysServerAuthType = [systemServerAuthenticationType.selectedCell tag];
 
 	if (sender == systemServerPasswordField && passwordString.length && ![passwordString isEqualToString:PasswordProxy]) {
 		char *encPassword = vncEncryptPasswd(passwordString.UTF8String);
@@ -1600,13 +1600,15 @@ NSMutableArray *localIPAddresses() {
 		// For 10.4 and above we need to execute through the System Starter for it to follow the console properly
 		// Doesn't work
 		// SystemStarter needs to actually be run as root (and calling sudo requests a password again, so this doesn't work
-		if (0 && floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_3)) {
+#if 0
+		if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_3)) {
 			[myAuthorization executeCommand:@"/usr/bin/su"
 								   withArgs:@[@"-l", @"root", @"-c", @"/sbin/SystemStarter", @"-d", @"start", @"VNC"]];
 		}
-		else
-			[myAuthorization executeCommand:@"/Library/StartupItems/OSXvnc/OSXvnc"
+#else
+        [myAuthorization executeCommand:@"/Library/StartupItems/OSXvnc/OSXvnc"
 								   withArgs:@[@"restart"]];
+#endif
     }
     else {
         [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Write out Temporary Script File")];
