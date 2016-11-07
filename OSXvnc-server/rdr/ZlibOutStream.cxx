@@ -55,7 +55,7 @@ void ZlibOutStream::setUnderlying(OutStream* os)
   underlying = os;
 }
 
-int ZlibOutStream::length()
+size_t ZlibOutStream::length()
 {
   return offset + ptr - start;
 }
@@ -63,7 +63,7 @@ int ZlibOutStream::length()
 void ZlibOutStream::flush()
 {
   zs->next_in = start;
-  zs->avail_in = ptr - start;
+  zs->avail_in = unsigned(ptr - start);
 
 //    fprintf(stderr,"zos flush: avail_in %d\n",zs->avail_in);
 
@@ -72,7 +72,7 @@ void ZlibOutStream::flush()
     do {
       underlying->check(1);
       zs->next_out = underlying->getptr();
-      zs->avail_out = underlying->getend() - underlying->getptr();
+      zs->avail_out = unsigned(underlying->getend() - underlying->getptr());
 
 //        fprintf(stderr,"zos flush: calling deflate, avail_in %d, avail_out %d\n",
 //                zs->avail_in,zs->avail_out);
@@ -90,7 +90,7 @@ void ZlibOutStream::flush()
   ptr = start;
 }
 
-int ZlibOutStream::overrun(int itemSize, int nItems)
+size_t ZlibOutStream::overrun(int itemSize, size_t nItems)
 {
 //    fprintf(stderr,"ZlibOutStream overrun\n");
 
@@ -99,12 +99,12 @@ int ZlibOutStream::overrun(int itemSize, int nItems)
 
   while (end - ptr < itemSize) {
     zs->next_in = start;
-    zs->avail_in = ptr - start;
+    zs->avail_in = unsigned(ptr - start);
 
     do {
       underlying->check(1);
       zs->next_out = underlying->getptr();
-      zs->avail_out = underlying->getend() - underlying->getptr();
+      zs->avail_out = unsigned(underlying->getend() - underlying->getptr());
 
 //        fprintf(stderr,"zos overrun: calling deflate, avail_in %d, avail_out %d\n",
 //                zs->avail_in,zs->avail_out);

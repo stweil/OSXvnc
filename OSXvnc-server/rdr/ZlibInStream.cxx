@@ -55,7 +55,7 @@ void ZlibInStream::setUnderlying(InStream* is, int bytesIn_)
   ptr = end = start;
 }
 
-int ZlibInStream::pos()
+size_t ZlibInStream::pos()
 {
   return offset + ptr - start;
 }
@@ -72,7 +72,7 @@ void ZlibInStream::reset()
   underlying = 0;
 }
 
-int ZlibInStream::overrun(int itemSize, int nItems)
+size_t ZlibInStream::overrun(int itemSize, size_t nItems)
 {
   if (itemSize > bufSize)
     throw Exception("ZlibInStream overrun: max itemSize exceeded");
@@ -102,11 +102,11 @@ int ZlibInStream::overrun(int itemSize, int nItems)
 void ZlibInStream::decompress()
 {
   zs->next_out = (U8*)end;
-  zs->avail_out = start + bufSize - end;
+  zs->avail_out = unsigned(start + bufSize - end);
 
   underlying->check(1);
   zs->next_in = (U8*)underlying->getptr();
-  zs->avail_in = underlying->getend() - underlying->getptr();
+  zs->avail_in = unsigned(underlying->getend() - underlying->getptr());
   if ((int)zs->avail_in > bytesIn)
     zs->avail_in = bytesIn;
 

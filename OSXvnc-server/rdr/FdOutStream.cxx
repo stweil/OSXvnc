@@ -56,7 +56,7 @@ FdOutStream::~FdOutStream()
 }
 
 
-void FdOutStream::writeBytes(const void* data, int length)
+void FdOutStream::writeBytes(const void* data, size_t length)
 {
   if (length < MIN_BULK_SIZE) {
     OutStream::writeBytes(data, length);
@@ -68,7 +68,7 @@ void FdOutStream::writeBytes(const void* data, int length)
   flush();
 
   while (length > 0) {
-    int n = write(fd, dataPtr, length);
+    ssize_t n = write(fd, dataPtr, length);
 
     if (n < 0) throw SystemException("write",errno);
 
@@ -78,7 +78,7 @@ void FdOutStream::writeBytes(const void* data, int length)
   }
 }
 
-int FdOutStream::length()
+size_t FdOutStream::length()
 {
   return offset + ptr - start;
 }
@@ -87,7 +87,7 @@ void FdOutStream::flush()
 {
   U8* sentUpTo = start;
   while (sentUpTo < ptr) {
-    int n = write(fd, (const void*) sentUpTo, ptr - sentUpTo);
+    ssize_t n = write(fd, (const void*) sentUpTo, ptr - sentUpTo);
 
     if (n < 0) throw SystemException("write",errno);
 
@@ -99,7 +99,7 @@ void FdOutStream::flush()
 }
 
 
-int FdOutStream::overrun(int itemSize, int nItems)
+size_t FdOutStream::overrun(int itemSize, size_t nItems)
 {
   if (itemSize > bufSize)
     throw Exception("FdOutStream overrun: max itemSize exceeded");

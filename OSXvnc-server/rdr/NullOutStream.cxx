@@ -35,17 +35,17 @@ NullOutStream::~NullOutStream()
   delete [] start;
 }
 
-int NullOutStream::length()
+size_t NullOutStream::length()
 {
   return offset + ptr - start;
 }
 
-void NullOutStream::writeBytes(const void* data, int length)
+void NullOutStream::writeBytes(const void* data, size_t length)
 {
   offset += length;
 }
 
-int NullOutStream::overrun(int itemSize, int nItems)
+size_t NullOutStream::overrun(int itemSize, size_t nItems)
 {
   if (itemSize > bufferSize)
     throw Exception("NullOutStream overrun: max itemSize exceeded");

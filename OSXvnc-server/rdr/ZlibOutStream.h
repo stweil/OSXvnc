@@ -39,11 +39,11 @@ namespace rdr {
 
     void setUnderlying(OutStream* os);
     void flush();
-    int length();
+    size_t length();
 
   private:
 
-    int overrun(int itemSize, int nItems);
+    size_t overrun(int itemSize, size_t nItems);
 
     OutStream* underlying;
     int bufSize;

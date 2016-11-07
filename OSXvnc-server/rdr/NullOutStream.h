@@ -28,11 +28,11 @@ namespace rdr {
   public:
     NullOutStream();
     virtual ~NullOutStream();
-    int length();
-    void writeBytes(const void* data, int length);
+    size_t length();
+    void writeBytes(const void* data, size_t length);
 
   private:
-    int overrun(int itemSize, int nItems);
+    size_t overrun(int itemSize, size_t nItems);
     int offset;
     U8* start;
   };

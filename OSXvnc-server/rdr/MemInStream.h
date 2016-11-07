@@ -33,12 +33,12 @@ namespace rdr {
       end = start + len;
     }
 
-    int pos() { return ptr - start; }
+    size_t pos() { return ptr - start; }
     void reposition(int pos) { ptr = start + pos; }
 
   private:
 
-    int overrun(int itemSize, int nItems) { throw EndOfStream(); }
+    size_t overrun(int itemSize, size_t nItems) { throw EndOfStream(); }
     const U8* start;
   };
 

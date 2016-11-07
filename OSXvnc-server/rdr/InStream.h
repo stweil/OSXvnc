@@ -39,7 +39,7 @@ namespace rdr {
     // itemSize bytes.  Returns the number of items in the buffer (up to a
     // maximum of nItems).
 
-    inline int check(int itemSize, int nItems=1)
+    inline size_t check(size_t itemSize, size_t nItems = 1)
     {
       if (ptr + itemSize * nItems > end) {
         if (ptr + itemSize > end)
@@ -74,9 +74,9 @@ namespace rdr {
 
     static U32 maxStringLength;
 
-    inline void skip(int bytes) {
+    inline void skip(size_t bytes) {
       while (bytes > 0) {
-        int n = check(1, bytes);
+        size_t n = check(1, bytes);
         ptr += n;
         bytes -= n;
       }
@@ -88,7 +88,7 @@ namespace rdr {
       U8* dataPtr = (U8*)data;
       U8* dataEnd = dataPtr + length;
       while (dataPtr < dataEnd) {
-        int n = check(1, dataEnd - dataPtr);
+        size_t n = check(1, dataEnd - dataPtr);
         memcpy(dataPtr, ptr, n);
         ptr += n;
         dataPtr += n;
@@ -112,7 +112,7 @@ namespace rdr {
 
     // pos() returns the position in the stream.
 
-    virtual int pos() = 0;
+    virtual size_t pos() = 0;
 
     // getptr(), getend() and setptr() are "dirty" methods which allow you to
     // manipulate the buffer directly.  This is useful for a stream which is a
@@ -129,7 +129,7 @@ namespace rdr {
     // the number of items in the buffer (up to a maximum of nItems).  itemSize
     // is supposed to be "small" (a few bytes).
 
-    virtual int overrun(int itemSize, int nItems) = 0;
+    virtual size_t overrun(int itemSize, size_t nItems) = 0;
 
   protected:
 

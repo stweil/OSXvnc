@@ -37,9 +37,9 @@ namespace rdr {
     virtual ~FdInStream();
 
     int getFd() { return fd; }
-    int pos();
+    size_t pos();
     void readBytes(void* data, int length);
-    int bytesInBuf() { return end - ptr; }
+    size_t bytesInBuf() { return end - ptr; }
 
     void startTiming();
     void stopTiming();
@@ -47,11 +47,11 @@ namespace rdr {
     unsigned int timeWaited() { return timeWaitedIn100us; }
 
   protected:
-    int overrun(int itemSize, int nItems);
+    size_t overrun(int itemSize, size_t nItems);
 
   private:
     int checkReadable(int fd, int timeout);
-    int readWithTimeoutOrCallback(void* buf, int len);
+    ssize_t readWithTimeoutOrCallback(void* buf, size_t len);
 
     int fd;
     int timeout;
