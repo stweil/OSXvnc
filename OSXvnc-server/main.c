@@ -650,7 +650,7 @@ void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
             CGColorSpaceRelease(colorspace);
             if (context == NULL) {
                 rfbLog("There was an error getting scaled images");
-                return nil;
+                return;
             }
             CGContextDrawImage(context, CGRectMake(0, 0, w, h), image);
             imageRef = CGBitmapContextCreateImage(context);
