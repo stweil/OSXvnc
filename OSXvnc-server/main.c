@@ -573,9 +573,9 @@ void connectReverseClient(char *hostName, int portNum) {
     }
 }
 
-static NSMutableData *frameBufferData = nil;
-static int frameBufferBytesPerRow = 0;
-static int frameBufferBitsPerPixel = 0;
+static NSMutableData *frameBufferData;
+static size_t frameBufferBytesPerRow;
+static size_t frameBufferBitsPerPixel;
 
 char *rfbGetFramebuffer(void) {
     if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_6)) {
@@ -660,10 +660,10 @@ void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
         }
         CGDataProviderRef dataProvider = CGImageGetDataProvider (imageRef);
         CFDataRef dataRef = CGDataProviderCopyData(dataProvider);
-        int imgBytesPerRow = CGImageGetBytesPerRow(imageRef);
-        int imgBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
+        size_t imgBytesPerRow = CGImageGetBytesPerRow(imageRef);
+        size_t imgBitsPerPixel = CGImageGetBitsPerPixel(imageRef);
         if (imgBitsPerPixel != frameBufferBitsPerPixel)
-            NSLog(@"BitsPerPixel MISMATCH: frameBuffer %d, rect image %d", frameBufferBitsPerPixel, imgBitsPerPixel);
+            NSLog(@"BitsPerPixel MISMATCH: frameBuffer %zu, rect image %zu", frameBufferBitsPerPixel, imgBitsPerPixel);
 
         char *dest = (char *)frameBufferData.mutableBytes + frameBufferBytesPerRow * y + x * (frameBufferBitsPerPixel/8);
         const char *source = ((NSData *)dataRef).bytes;
@@ -1310,6 +1310,7 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+#if 0
     else while (1) {
         // So this looks like it should fix it but I get no response on the CGWaitForScreenRefreshRect....
         // It doesn't seem to get called at all when not running an event loop
@@ -1320,7 +1321,8 @@ int main(int argc, char *argv[]) {
         result = CGWaitForScreenRefreshRects( &rectArray, &rectCount );
         refreshCallback(rectCount, rectArray, NULL);
         CGReleaseScreenRefreshRects( rectArray );
-    };
+    }
+#endif
 
     [tempPool release];
 
