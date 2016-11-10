@@ -232,25 +232,6 @@ void SyncSetKeyboardLayout (TISInputSourceRef inputSource) {
     }
 }
 
-// This routine waits for the window server to register its per-session
-// services in our session.  This code was necessary in various pre-release
-// versions of Mac OS X 10.5, but it is not necessary on the final version.
-static void WaitForWindowServerSession(void) {
-    CFDictionaryRef dict;
-    int delay = 100000, maxDelay = 5000000;
-
-    dict = CGSessionCopyCurrentDictionary();
-    while (dict == NULL && maxDelay > 0) {
-        usleep(delay);
-        maxDelay -= delay;
-        dict = CGSessionCopyCurrentDictionary();
-    }
-    if (maxDelay <= 0)
-        NSLog(@"No CG session Available, max delay reached");
-    if (dict != NULL)
-        CFRelease(dict);
-}
-
 bool isConsoleSession() {
     BOOL returnValue = FALSE;
     CFDictionaryRef sessionInfoDict = CGSessionCopyCurrentDictionary();
@@ -529,6 +510,7 @@ bool isConsoleSession() {
         }
     }
 
+#if 0
     if (0 && vncTapLocation == kCGHIDEventTap) {
         CGEventFlags newModifiers = 0;
 
@@ -543,7 +525,7 @@ bool isConsoleSession() {
 
         currentModifiers = newModifiers;
     }
-
+#endif
 
     return;
 }
@@ -860,7 +842,7 @@ bool isConsoleSession() {
     NSAutoreleasePool *tempPool = [[NSAutoreleasePool alloc] init];
     BOOL loadRendezvousVNC = NO;
     BOOL loadRendezvousRFB = YES;
-    int argumentIndex = [[NSProcessInfo processInfo].arguments indexOfObject:@"-rendezvous"];
+    NSUInteger argumentIndex = [[NSProcessInfo processInfo].arguments indexOfObject:@"-rendezvous"];
     RendezvousDelegate *rendezvousDelegate = [[RendezvousDelegate alloc] init];
 
     if (argumentIndex == NSNotFound) {
