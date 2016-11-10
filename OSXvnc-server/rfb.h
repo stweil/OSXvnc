@@ -406,8 +406,8 @@ extern void rfbShutdown();
 extern int rfbMaxClientWait;
 
 extern void rfbCloseClient(rfbClientPtr cl);
-extern int ReadExact(rfbClientPtr cl, char *buf, int len);
-extern int WriteExact(rfbClientPtr cl, char *buf, int len);
+extern int ReadExact(rfbClientPtr cl, void *buf, size_t len);
+extern int WriteExact(rfbClientPtr cl, const void *buf, size_t len);
 
 /* cutpaste.c */
 

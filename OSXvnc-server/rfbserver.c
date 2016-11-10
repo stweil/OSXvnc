@@ -515,7 +515,7 @@ void rfbProcessClientProtocolVersion(rfbClientPtr cl) {
 
 void rfbClientConnFailed(rfbClientPtr cl, char *reason) {
     char *buf;
-    int len = strlen(reason);
+    size_t len = strlen(reason);
 
     buf = (char *)xalloc(8 + len);
     ((CARD32 *)buf)[0] = Swap32IfLE(rfbConnFailed);
@@ -538,7 +538,8 @@ void rfbProcessClientInitMessage(rfbClientPtr cl) {
     rfbClientInitMsg ci;
     char buf[256];
     rfbServerInitMsg *si = (rfbServerInitMsg *)buf;
-    int len, n;
+    int n;
+    size_t len;
     rfbClientIteratorPtr iterator;
     rfbClientPtr otherCl;
 

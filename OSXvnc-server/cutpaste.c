@@ -154,7 +154,7 @@ static BOOL debugPB = NO;
 	NSPasteboard *thePasteboard = [NSPasteboard pasteboardWithName:pasteboardName];
 	if (debugPB)
 		NSLog(@"Registering Types With Pasteboard");
-	int newChangeCount = [thePasteboard declareTypes:[availableTypes arrayByAddingObject:VineRemoteProxy] owner:self];
+	NSInteger newChangeCount = [thePasteboard declareTypes:[availableTypes arrayByAddingObject:VineRemoteProxy] owner:self];
 	// Don't send it back to the same client via rich clipboards
 	pthread_mutex_lock(&clientPointer->updateMutex);
 	((NSMutableDictionary *)clientPointer->richClipboardChangeCounts)[pasteboardName] = @(newChangeCount);
@@ -536,7 +536,7 @@ void rfbCheckForPasteboardChange() {
 		NSPasteboard *thePasteboard = [NSPasteboard pasteboardWithName:pasteboardName];
 
 		// Record the change count first in case another event comes in while we are pulling the Types
-		int pasteboardsChangeCount = thePasteboard.changeCount;
+		NSInteger pasteboardsChangeCount = thePasteboard.changeCount;
 
 		[pasteboardVariablesLock lock];
 		if ([pbInfoArray[0] intValue] != pasteboardsChangeCount) {

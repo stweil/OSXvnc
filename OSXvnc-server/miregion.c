@@ -548,9 +548,7 @@ miAppendNonO (pReg, r, rEnd, y1, y2)
     register int        y2;
 {
     register BoxPtr     pNextRect;
-    register int        newRects;
-
-    newRects = rEnd - r;
+    ssize_t newRects = rEnd - r;
 
     assert(y1 < y2);
     assert(newRects != 0);

@@ -34,7 +34,7 @@
 Bool allowNoAuth = FALSE;
 NSLock *authClientLock=nil;
 NSMutableDictionary *authClientFailures=nil;
-static char *passwd;
+
 static char *storedPass;
 static bool suppliedPass;
 
@@ -99,7 +99,7 @@ void rfbSecurityResultMessage(rfbClientPtr cl, int result, char *errorString) {
 		len+=4;
 
 		if ((cl->major == 3) && (cl->minor >= 8)) { // Return Error String
-			int errorLength = strlen(errorString);
+			size_t errorLength = strlen(errorString);
 			*(CARD32 *)&buf[len] = Swap32IfLE(errorLength);
 			len+=4;
 
@@ -131,7 +131,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
 			len+=1;
 
 			char *errorString = "Too Many Security Failures";
-			int errorLength = strlen(errorString);
+			size_t errorLength = strlen(errorString);
 			*(CARD32 *)&buf[len] = Swap32IfLE(errorLength);
 			len+=4;
 
@@ -170,7 +170,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
 
 		if (len == 1) { // if we disable no-auth, for example
 			char *errorString = "No Supported Security Types";
-			int errorLength = strlen(errorString);
+			size_t errorLength = strlen(errorString);
 			*(CARD32 *)&buf[len] = Swap32IfLE(errorLength);
 			len+=4;
 
@@ -190,7 +190,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
 			len+=4;
 
 			char *errorString = "Too Many Security Failures";
-			int errorLength = strlen(errorString);
+			size_t errorLength = strlen(errorString);
 			*(CARD32 *)&buf[len] = Swap32IfLE(errorLength);
 			len+=4;
 
