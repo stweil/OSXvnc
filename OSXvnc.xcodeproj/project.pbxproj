@@ -1280,7 +1280,7 @@
 		ABA30D3E15BEE7310001BAE5 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Developer ID Application: TestPlant Inc.";
+				CODE_SIGN_IDENTITY = "";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				PRODUCT_NAME = "Vine Server Package";
@@ -1291,7 +1291,7 @@
 		ABA30D3F15BEE7310001BAE5 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Developer ID Application: TestPlant Inc.";
+				CODE_SIGN_IDENTITY = "";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PRODUCT_NAME = "Vine Server Package";
@@ -1354,6 +1354,7 @@
 					libjpeg,
 				);
 				PRODUCT_NAME = "OSXvnc-server";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Development;
 		};
@@ -1370,6 +1371,7 @@
 				);
 				MACH_O_TYPE = mh_execute;
 				PRODUCT_NAME = "OSXvnc-server";
+				PROVISIONING_PROFILE = "";
 				STRIP_INSTALLED_PRODUCT = NO;
 			};
 			name = Deployment;
@@ -1378,6 +1380,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = storepasswd;
+				PROVISIONING_PROFILE = "";
 			};
 			name = Development;
 		};
@@ -1385,6 +1388,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				PRODUCT_NAME = storepasswd;
+				PROVISIONING_PROFILE = "";
 			};
 			name = Deployment;
 		};
@@ -1394,8 +1398,9 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				INFOPLIST_FILE = "VineServer-Info.plist";
 				INSTALL_PATH = "/Vine Server/";
-				PRODUCT_BUNDLE_IDENTIFIER = com.redstonesoftware.VineServer;
+				PRODUCT_BUNDLE_IDENTIFIER = de.weilnetz.VineServer;
 				PRODUCT_NAME = "Vine Server";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Development;
@@ -1409,8 +1414,9 @@
 				DSTROOT = /tmp;
 				INFOPLIST_FILE = "VineServer-Info.plist";
 				INSTALL_PATH = "/Vine Server/";
-				PRODUCT_BUNDLE_IDENTIFIER = com.redstonesoftware.VineServer;
+				PRODUCT_BUNDLE_IDENTIFIER = de.weilnetz.VineServer;
 				PRODUCT_NAME = "Vine Server";
+				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Deployment;
@@ -1428,6 +1434,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "";
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1458,7 +1465,7 @@
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				CODE_SIGN_IDENTITY = "Developer ID Application: TestPlant Inc.";
+				CODE_SIGN_IDENTITY = "";
 				DEPLOYMENT_POSTPROCESSING = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_NO_COMMON_BLOCKS = YES;
