@@ -72,7 +72,7 @@ void ZlibInStream::reset()
   underlying = 0;
 }
 
-size_t ZlibInStream::overrun(int itemSize, size_t nItems)
+size_t ZlibInStream::overrun(size_t itemSize, size_t nItems)
 {
   if (itemSize > bufSize)
     throw Exception("ZlibInStream overrun: max itemSize exceeded");

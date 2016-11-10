@@ -47,7 +47,7 @@ namespace rdr {
     unsigned int timeWaited() { return timeWaitedIn100us; }
 
   protected:
-    size_t overrun(int itemSize, size_t nItems);
+    size_t overrun(size_t itemSize, size_t nItems);
 
   private:
     int checkReadable(int fd, int timeout);

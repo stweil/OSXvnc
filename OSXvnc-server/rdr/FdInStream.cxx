@@ -99,7 +99,7 @@ void FdInStream::readBytes(void* data, int length)
 }
 
 
-size_t FdInStream::overrun(int itemSize, size_t nItems)
+size_t FdInStream::overrun(size_t itemSize, size_t nItems)
 {
   if (itemSize > bufSize)
     throw Exception("FdInStream overrun: max itemSize exceeded");

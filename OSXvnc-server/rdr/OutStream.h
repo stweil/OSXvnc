@@ -139,7 +139,7 @@ namespace rdr {
     // the number of items which fit (up to a maximum of nItems).  itemSize is
     // supposed to be "small" (a few bytes).
 
-    virtual size_t overrun(int itemSize, size_t nItems) = 0;
+    virtual size_t overrun(size_t itemSize, size_t nItems) = 0;
 
   protected:
 

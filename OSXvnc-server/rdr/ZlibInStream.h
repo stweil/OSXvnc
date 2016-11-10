@@ -43,7 +43,7 @@ namespace rdr {
 
   private:
 
-    size_t overrun(int itemSize, size_t nItems);
+    size_t overrun(size_t itemSize, size_t nItems);
     void decompress();
 
     InStream* underlying;

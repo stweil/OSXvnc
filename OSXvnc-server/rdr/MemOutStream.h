@@ -59,8 +59,8 @@ namespace rdr {
     // overrun() either doubles the buffer or adds enough space for nItems of
     // size itemSize bytes.
 
-    size_t overrun(int itemSize, size_t nItems) {
-      int len = ptr - start + itemSize * nItems;
+    size_t overrun(size_t itemSize, size_t nItems) {
+      ssize_t len = ptr - start + itemSize * nItems;
       if (len < (end - start) * 2)
         len = (end - start) * 2;
 

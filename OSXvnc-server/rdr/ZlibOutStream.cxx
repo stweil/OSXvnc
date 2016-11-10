@@ -90,7 +90,7 @@ void ZlibOutStream::flush()
   ptr = start;
 }
 
-size_t ZlibOutStream::overrun(int itemSize, size_t nItems)
+size_t ZlibOutStream::overrun(size_t itemSize, size_t nItems)
 {
 //    fprintf(stderr,"ZlibOutStream overrun\n");
 

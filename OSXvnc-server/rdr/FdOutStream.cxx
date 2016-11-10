@@ -99,7 +99,7 @@ void FdOutStream::flush()
 }
 
 
-size_t FdOutStream::overrun(int itemSize, size_t nItems)
+size_t FdOutStream::overrun(size_t itemSize, size_t nItems)
 {
   if (itemSize > bufSize)
     throw Exception("FdOutStream overrun: max itemSize exceeded");

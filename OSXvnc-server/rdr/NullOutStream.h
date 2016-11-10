@@ -32,7 +32,7 @@ namespace rdr {
     void writeBytes(const void* data, size_t length);
 
   private:
-    size_t overrun(int itemSize, size_t nItems);
+    size_t overrun(size_t itemSize, size_t nItems);
     int offset;
     U8* start;
   };
