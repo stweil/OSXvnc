@@ -29,6 +29,7 @@ Other Git clones of the CVS code:
 * https://github.com/aaronbrethorst/OSXVnc
 * https://github.com/browserstack/OSXVNC
 * https://github.com/eventials/OSXVnc
+* https://github.com/wingify/vnc
 
 Documentation and downloads at TestPlant.com:
 * http://www2.testplant.com/support/downloads/vine/
