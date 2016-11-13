@@ -34,3 +34,6 @@ Other Git clones of the CVS code:
 Documentation and downloads at TestPlant.com:
 * http://www2.testplant.com/support/downloads/vine/
 * http://docs.testplant.com/?q=content/installing-vnc-server
+
+RFB Standard:
+* https://tools.ietf.org/html/rfc6143
