@@ -1,6 +1,6 @@
 {
-"Host Name" = "Host Name";
-"Host Names" = "Host Namen";
+"Host Name" = "Host-Name";
+"Host Names" = "Host-Namen";
 "IP Address" = "IP-Adresse";
 "IP Addresses" = "IP-Adressen";
 "Screen Resolution changed - Server Reinitialized" = "Bildschirmauflösung geändert - Server-Reinitialisierung";
@@ -9,13 +9,13 @@
 "Start Server" = "Server starten";
 "Restart Server" = "Server-Neustart";
 "The server is stopped." = "Der Server wurde angehalten.";
-"Probably because the OSXvnc server is already running as a Startup Item." = "Eventuell läuft der Vine-Server bereits als Startobjekt.";
+"Probably because the OSXvnc server is already running as a Startup Item." = "Eventuell läuft der OSXvnc-Server bereits als Startobjekt.";
 "Probably because another VNC is already using this port." = "Eventuell benutzt ein anderer VNC-Server bereits diesen Port.";
-"The server has stopped running. See Log (%d)\n" = "Der Server wurde beendet. Siehe Log (%d)\n";
+"The server has stopped running. See Log (%d)\n" = "Der Server wurde beendet. Siehe Protokoll (%d)\n";
 "The server has stopped running." = "Der Server wurde beendet.";
 "Need a valid Port or Display Number" = "Benötigt eine gültige Port- oder Displaynummer";
 "Problem - Unable to store password to %@" = "Problem - Das Passwort kann nicht in %@ gespeichert werden";
-"Option Change Requires a Restart" = "Einstellungsänderungen benötigen einen Neustart";
+"Option Change Requires a Restart" = "Einstellungsänderung erfordert einen Neustart";
 "Error: No Authorization" = "Fehler: Fehlende Authorisierung";
 "Error: Unable to setup StartupItems folder" = "Fehler: Kann den StartupItems-Ordner nicht ändern";
 "Error: Unable to copy OSXvnc folder" = "Fehler: Kann den OSXvnc-Ordner nicht kopieren";
@@ -29,4 +29,3 @@
 "Please specify a Connect Host to establish a connection" = "Bitte einen Zielhost angeben, um eine Verbindung aufbauen zu können";
 "Connection invitation sent to Connect Host" = "Verbindungsanforderung an den Zielhost gesendet";
 }
-
