@@ -55,6 +55,10 @@ struct rfbClientIterator {
 static pthread_mutex_t rfbClientListMutex;
 static struct rfbClientIterator rfbClientIteratorInstance;
 
+static void CopyScalingRect(rfbClientPtr cl,
+                            uint32_t* x, uint32_t* y, uint32_t* w, uint32_t* h,
+                            bool bDoScaling);
+
 void
 rfbClientListInit(void)
 {
@@ -996,7 +1000,7 @@ void rfbProcessClientNormalMessage(rfbClientPtr cl) {
 
 Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
     int i;
-    int nUpdateRegionRects = 0;
+    uint32_t nUpdateRegionRects = 0;
     Bool sendRichCursorEncoding = FALSE;
     Bool sendCursorPositionEncoding = FALSE;
 
@@ -1089,10 +1093,10 @@ Bool rfbSendFramebufferUpdate(rfbClientPtr cl, RegionRec updateRegion) {
 	cl->screenBuffer = rfbGetFramebuffer();
 
     for (i = 0; i < REGION_NUM_RECTS(&updateRegion); i++) {
-        int x = REGION_RECTS(&updateRegion)[i].x1;
-        int y = REGION_RECTS(&updateRegion)[i].y1;
-        int w = REGION_RECTS(&updateRegion)[i].x2 - x;
-        int h = REGION_RECTS(&updateRegion)[i].y2 - y;
+        uint32_t x = REGION_RECTS(&updateRegion)[i].x1;
+        uint32_t y = REGION_RECTS(&updateRegion)[i].y1;
+        uint32_t w = REGION_RECTS(&updateRegion)[i].x2 - x;
+        uint32_t h = REGION_RECTS(&updateRegion)[i].y2 - y;
 
 		rfbGetFramebufferUpdateInRect(x,y,w,h);
 
@@ -1306,7 +1310,7 @@ Bool rfbSendUpdateBuf(rfbClientPtr cl) {
  * rfbSendServerCutText sends a ServerCutText message to all the clients.
  */
 
-void rfbSendServerCutText(rfbClientPtr cl, char *str, int len) {
+void rfbSendServerCutText(rfbClientPtr cl, char *str, size_t len) {
     rfbServerCutTextMsg sct;
 
     sct.type = rfbServerCutText;
@@ -1351,17 +1355,20 @@ void rfbSendServerCutText(rfbClientPtr cl, char *str, int len) {
  */
 
 /* SERVER SCALING EXTENSIONS */
-void CopyScalingRect( rfbClientPtr cl, int* x, int* y, int* w, int* h, Bool bDoScaling ){
-    unsigned long cx, cy, cw, ch;
-    unsigned long rx, ry, rw, rh;
+static void CopyScalingRect(rfbClientPtr cl,
+                            uint32_t* x, uint32_t* y, uint32_t* w, uint32_t* h,
+                            bool bDoScaling)
+{
+    uint32_t cx, cy, cw, ch;
+    uint32_t rx, ry, rw, rh;
     unsigned char* srcptr;
     unsigned char* dstptr;
     unsigned char* tmpptr;
     unsigned long pixel_value=0, red, green, blue;
     unsigned long xx, yy, u, v;
     const unsigned long bytesPerPixel = rfbScreen.bitsPerPixel/8;
-    const unsigned long csh = (rfbScreen.height+cl->scalingFactor-1)/ cl->scalingFactor;
-    const unsigned long csw = (rfbScreen.width +cl->scalingFactor-1)/ cl->scalingFactor;
+    const uint32_t csh = (rfbScreen.height+cl->scalingFactor-1)/ cl->scalingFactor;
+    const uint32_t csw = (rfbScreen.width +cl->scalingFactor-1)/ cl->scalingFactor;
 
     cy = (*y) / cl->scalingFactor;
     ch = (*h+cl->scalingFactor-1) / cl->scalingFactor+1;
