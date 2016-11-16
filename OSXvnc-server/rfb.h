@@ -367,10 +367,10 @@ typedef struct rfbClientRec {
 
 /* main.c */
 
-extern int rfbProtocolMajorVersion;
-extern int rfbProtocolMinorVersion;
+extern unsigned rfbProtocolMajorVersion;
+extern unsigned rfbProtocolMinorVersion;
 
-extern int rfbPort;
+extern unsigned rfbPort;
 
 extern char *rfbGetFramebuffer();
 extern void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h);

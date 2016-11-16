@@ -43,15 +43,15 @@
 static ScreenRec hackScreen;
 rfbScreenInfo rfbScreen;
 
-int rfbProtocolMajorVersion = 3;
-int rfbProtocolMinorVersion = 8;
+unsigned rfbProtocolMajorVersion = 3;
+unsigned rfbProtocolMinorVersion = 8;
 
 char desktopName[256];
 
 BOOL keepRunning = TRUE;
 
 BOOL littleEndian = FALSE;
-int  rfbPort = 0; //5900;
+unsigned rfbPort = 0; //5900;
 int  rfbMaxBitDepth = 0;
 Bool rfbAlwaysShared = FALSE;
 Bool rfbNeverShared = FALSE;
@@ -827,8 +827,8 @@ static void usage(void) {
         "-connectPort port      TCP port of listening client to establish a reverse connect\n"
         "                       (default: 5500)\n"
         "-noupdates             Prevent registering for screen updates, for use with x2vnc or win2vnc\n"
-        "-protocol protocol     Force a particular protocol version (eg 3.3)\n"
-        "                       (default:" rfbProtocolVersionFormat ")\n"
+        "-protocol protocol     Force a particular RFB protocol version (eg 3.3)\n"
+        "                       (default: %u.%u)\n"
         "-bigEndian             Force big-endian mode (PPC)\n"
         "                       (default: detect)\n"
         "-littleEndian          Force little-endian mode (INTEL)\n"
@@ -854,7 +854,7 @@ static void usage(void) {
     }
 
     printf(
-        "-localhost             Only allow connections from the same machine, "
+        "-localhost             Only allow connections from the same machine,\n"
         "                       literally localhost (127.0.0.1)\n"
         "                       If you use SSH and want to stop non-SSH connections from any other hosts\n"
         "                       (default: no, allow remote connections)\n"
@@ -915,7 +915,7 @@ static void processArguments(int argc, char *argv[]) {
             while (protocol > 0 && protocol < 1)
                 protocol *= 10;
             rfbProtocolMinorVersion = MIN(rfbProtocolMinorVersion, rint(protocol));
-            rfbLog("Forcing: " rfbProtocolVersionFormat,
+            rfbLog("Forcing: %u.%u",
                    rfbProtocolMajorVersion, rfbProtocolMinorVersion);
         } else if (strcmp(argv[i], "-rfbwait") == 0) {  // -rfbwait ms
             if (i + 1 >= argc) usage();
