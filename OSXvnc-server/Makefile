@@ -1,10 +1,12 @@
+# Makefile for OSXvnc-server
+
 CC=cc
 CXX=cc
 CFLAGS=-O3 -Wall -Wextra -g
-CXXFLAGS=-g -Wall
-INCLUDES=-I. -Ilibvncauth -Iinclude -Iinclude/X11 -Iinclude/Xserver -Ilibjpeg
+CXXFLAGS=-O3 -Wall -Wextra -g
+INCLUDES=-Ilibvncauth -Iinclude -Iinclude/X11 -Iinclude/Xserver -I/opt/libjpeg-turbo/include
 VNCAUTHLIB=-Llibvncauth -lvncauth
-SUPPORTLIB=-lz -Llibjpeg -ljpeg
+SUPPORTLIB=-lz -lturbojpeg
 RDRLIB=-Lrdr -lrdr
 EXTRALIBS=-lstdc++
 
