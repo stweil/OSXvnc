@@ -45,7 +45,7 @@
     int i;
     OSStatus myStatus;
 	char outputString[1024];
-	int startTime=time(NULL);
+	time_t startTime = time(NULL);
 
     char **copyArguments = malloc(sizeof(char *) * (argumentArray.count + 1));
 
