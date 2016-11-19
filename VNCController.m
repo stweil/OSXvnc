@@ -670,15 +670,15 @@ NSMutableArray *localIPAddresses() {
 	systemServerLimitToLocalConnections.state = [[NSUserDefaults standardUserDefaults] boolForKey:@"localhostOnlySystemServer"];
 }
 
-- (void) loadUIForPort: (int) port {
+- (void) loadUIForPort: (NSInteger) port {
 	if (port) {
         if (port < 5900 || port > 5909)
             [displayNumberField selectItemWithTitle:@"--"];
         else
-            [displayNumberField selectItemWithTitle:[NSString stringWithFormat:@"%d", port-5900]];
-        portField.intValue = port;
+            [displayNumberField selectItemWithTitle:[NSString stringWithFormat:@"%d", (int)(port - 5900)]];
+        portField.intValue = (int)port;
 		displayNumText.stringValue = displayNumberField.title;
-		portNumText.intValue = port;
+		portNumText.intValue = (int)port;
     }
 	else {
 		[displayNumberField selectItemWithTitle:@"Auto"];
@@ -687,23 +687,23 @@ NSMutableArray *localIPAddresses() {
 		if (port) {
 			if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
 				portField.stringValue = @"";
-				[portField.cell performSelector:@selector(setPlaceholderString:) withObject:[NSString stringWithFormat:@"%d",port]];
+				[portField.cell performSelector:@selector(setPlaceholderString:) withObject:[NSString stringWithFormat:@"%d",(int)port]];
 			}
 			else
-				portField.intValue = port;
-			displayNumText.intValue = port-5900;
-			portNumText.intValue = port;
+				portField.intValue = (int)port;
+			displayNumText.intValue = (int)(port - 5900);
+			portNumText.intValue = (int)port;
 		}
 	}
 }
 
-- (void) loadUIForSystemServerPort: (int) port {
+- (void) loadUIForSystemServerPort: (NSInteger) port {
 	if (port) {
         if (port < 5900 || port > 5909)
             [systemServerDisplayNumberField selectItemWithTitle:@"--"];
         else
-            [systemServerDisplayNumberField selectItemWithTitle:[NSString stringWithFormat:@"%d", port-5900]];
-        systemServerPortField.intValue = port;
+            [systemServerDisplayNumberField selectItemWithTitle:[NSString stringWithFormat:@"%d", (int)(port - 5900)]];
+        systemServerPortField.intValue = (int)port;
     }
 	else {
 		[systemServerDisplayNumberField selectItemWithTitle:@"Auto"];
@@ -712,10 +712,10 @@ NSMutableArray *localIPAddresses() {
 		if (port) {
 			if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
 				systemServerPortField.stringValue = @"";
-				[systemServerPortField.cell performSelector:@selector(setPlaceholderString:) withObject:[NSString stringWithFormat:@"%d",port]];
+				[systemServerPortField.cell performSelector:@selector(setPlaceholderString:) withObject:[NSString stringWithFormat:@"%d",(int)port]];
 			}
 			else
-				systemServerPortField.intValue = port;
+				systemServerPortField.intValue = (int)port;
 		}
 	}
 }

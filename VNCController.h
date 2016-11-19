@@ -142,7 +142,7 @@
 - (void) awakeFromNib;
 
 - (void) loadUIForSystemServer;
-- (void) loadUIForPort: (int) port;
+- (void) loadUIForPort: (NSInteger) port;
 
 - (void) loadUserDefaults: sender;
 - (void) saveUserDefaults: sender;
