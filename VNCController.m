@@ -764,7 +764,7 @@ NSMutableArray *localIPAddresses() {
 	else
 		[[NSUserDefaults standardUserDefaults] setInteger:portField.intValue forKey:@"portNumber"];
 
-	[[NSUserDefaults standardUserDefaults] setInteger:[authenticationType.selectedCell tag] forKey:@"AuthenticationType"];
+	[[NSUserDefaults standardUserDefaults] setInteger:(authenticationType.selectedCell).tag forKey:@"AuthenticationType"];
 
 	// System Server
 	{
@@ -776,13 +776,13 @@ NSMutableArray *localIPAddresses() {
 		else
 			[[NSUserDefaults standardUserDefaults] setInteger:systemServerPortField.intValue forKey:@"portNumberSystemServer"];
 
-		[[NSUserDefaults standardUserDefaults] setInteger:[systemServerAuthenticationType.selectedCell tag] forKey:@"AuthenticationTypeSystemServer"];
+		[[NSUserDefaults standardUserDefaults] setInteger:(systemServerAuthenticationType.selectedCell).tag forKey:@"AuthenticationTypeSystemServer"];
 		[[NSUserDefaults standardUserDefaults] setBool:systemServerLimitToLocalConnections.state forKey:@"localhostOnlySystemServer"];
 	}
 
     [[NSUserDefaults standardUserDefaults] setBool:swapMouseButtonsCheckbox.state forKey:@"swapButtons"];
 
-    [[NSUserDefaults standardUserDefaults] setInteger:[sharingMatrix.selectedCell tag] forKey:@"sharingMode"];
+    [[NSUserDefaults standardUserDefaults] setInteger:(sharingMatrix.selectedCell).tag forKey:@"sharingMode"];
     [[NSUserDefaults standardUserDefaults] setBool:dontDisconnectCheckbox.state forKey:@"dontDisconnectClients"];
     [[NSUserDefaults standardUserDefaults] setBool:disableRemoteEventsCheckbox.state forKey:@"disableRemoteEvents"];
     [[NSUserDefaults standardUserDefaults] setBool:disableRichClipboardCheckbox.state forKey:@"disableRichClipboard"];
@@ -1000,7 +1000,7 @@ NSMutableArray *localIPAddresses() {
 			[argv addObject:systemServerDisplayNameField.stringValue];
 		}
 
-		switch ([systemServerAuthenticationType.selectedCell tag]) {
+		switch ((systemServerAuthenticationType.selectedCell).tag) {
 			case 2:
 				[argv addObject:@"-rfbnoauth"];
 				break;
@@ -1037,7 +1037,7 @@ NSMutableArray *localIPAddresses() {
 
 		[argv addObject:@"-donotloadproxy"];
 
-		switch ([authenticationType.selectedCell tag]) {
+		switch ((authenticationType.selectedCell).tag) {
 			case 2:
 				[argv addObject:@"-rfbnoauth"];
 				break;
@@ -1160,7 +1160,7 @@ NSMutableArray *localIPAddresses() {
 		[initialDoneButton setEnabled: TRUE];
 	}
 	else if (sender == initialAuthenticationType) {
-		long newAuth = [initialAuthenticationType.selectedCell tag];
+		long newAuth = (initialAuthenticationType.selectedCell).tag;
 		if (newAuth == 1) {
 			initialPasswordText.stringValue = @"";
 			[initialDoneButton setEnabled: FALSE];
@@ -1180,7 +1180,7 @@ NSMutableArray *localIPAddresses() {
 
 - (IBAction) setInitialAuthentication: sender {
 	NSString *passwordString = initialPasswordText.stringValue;
-	long newAuth = [initialAuthenticationType.selectedCell tag];
+	long newAuth = (initialAuthenticationType.selectedCell).tag;
 
 	// VNC Password
 	if (newAuth == 1) {
@@ -1192,7 +1192,7 @@ NSMutableArray *localIPAddresses() {
 		[[NSUserDefaults standardUserDefaults] removeObjectForKey:@"vncauth"];
 		passwordField.stringValue = @"";
 	}
-	[[NSUserDefaults standardUserDefaults] setInteger:[initialAuthenticationType.selectedCell tag] forKey:@"AuthenticationType"];
+	[[NSUserDefaults standardUserDefaults] setInteger:(initialAuthenticationType.selectedCell).tag forKey:@"AuthenticationType"];
 
 	[self loadAuthenticationUI];
 
@@ -1222,7 +1222,7 @@ NSMutableArray *localIPAddresses() {
 }
 
 - (void) changeSharing: sender {
-    long selected = [sharingMatrix.selectedCell tag];
+    long selected = (sharingMatrix.selectedCell).tag;
     if (selected == 1) {
         // Always shared.
         alwaysShared = TRUE;
@@ -1247,7 +1247,7 @@ NSMutableArray *localIPAddresses() {
 }
 
 - (IBAction) changeAuthenticationType: sender {
-	long newAuth = [authenticationType.selectedCell tag];
+	long newAuth = (authenticationType.selectedCell).tag;
 
 	if (newAuth != [[NSUserDefaults standardUserDefaults] integerForKey:@"AuthenticationType"]) {
 		// VNC Password
@@ -1312,7 +1312,7 @@ NSMutableArray *localIPAddresses() {
 
 - (IBAction) changeSystemServerAuthentication: sender {
 	NSString *passwordString = systemServerPasswordField.stringValue;
-	long sysServerAuthType = [systemServerAuthenticationType.selectedCell tag];
+	long sysServerAuthType = (systemServerAuthenticationType.selectedCell).tag;
 
 	if (sender == systemServerPasswordField && passwordString.length && ![passwordString isEqualToString:PasswordProxy]) {
 		char *encPassword = vncEncryptPasswd(passwordString.UTF8String);
