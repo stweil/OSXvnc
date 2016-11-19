@@ -323,7 +323,7 @@ NSMutableDictionary *pasteboards = nil;
 unsigned long long maxTransferSize = 0x10000000;
 
 // Each Pasteboard has an array with item 0 = the ChangeCount and item 1 = the AvailableTypes Array
-int generalPBLastChangeCount=-1;
+static int generalPBLastChangeCount=-1;
 NSStringEncoding pasteboardStringEncoding = NSWindowsCP1252StringEncoding; // RFBProto 003.008
 
 void initPasteboard() {
@@ -516,7 +516,7 @@ void rfbCheckForPasteboardChange() {
 		if ([[NSPasteboard generalPasteboard] availableTypeFromArray:@[NSStringPboardType]]) {
 			[pasteboardVariablesLock lock];
 			// Record first in case another event comes in after notifying clients
-			generalPBLastChangeCount = [NSPasteboard generalPasteboard].changeCount;
+			generalPBLastChangeCount = (int)[NSPasteboard generalPasteboard].changeCount;
 			[pasteboardString release];
 			pasteboardString = [[[NSPasteboard generalPasteboard] stringForType:NSStringPboardType] copy];
 			[pasteboardVariablesLock unlock];
