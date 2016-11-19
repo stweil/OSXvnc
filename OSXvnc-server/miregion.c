@@ -2098,7 +2098,7 @@ miPointInRegion(pReg, x, y, box)
     BoxPtr box;     /* "return" value */
 {
     register BoxPtr pbox, pboxEnd;
-    int numRects;
+    long numRects;
 
     good(pReg);
     numRects = REGION_NUM_RECTS(pReg);
