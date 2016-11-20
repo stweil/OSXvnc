@@ -165,7 +165,8 @@ NSMutableArray *localIPAddresses() {
 	successColor = [[NSColor colorWithDeviceRed:0.0 green:0.4 blue:0.0 alpha:1.0] retain];
 	failureColor = [[NSColor colorWithDeviceRed:0.6 green:0.0 blue:0.0 alpha:1.0] retain];
 
-    [[NSUserDefaults standardUserDefaults] registerDefaults: @{@"PasswordFile": @"",
+    [[NSUserDefaults standardUserDefaults] registerDefaults: @{
+        @"PasswordFile": @"",
         @"LogFile": @"",
 		@"desktopName": [NSString stringWithFormat:@"%@ (%@)", hostName, NSUserName()],
 
@@ -195,10 +196,13 @@ NSMutableArray *localIPAddresses() {
 		@"localhostOnly": @"NO",
 		@"localhostOnlySystemServer": @"NO",
 
-		@"startupItemLocation": @"/Library/StartupItems/OSXvnc",
-		@"launchdItemLocation": @"/Library/LaunchAgents/com.redstonesoftware.VineServer.plist",
+#if defined(WITH_EXTERNAL_IP)
+        @"externalIPURL": @"http://automation.whatismyip.com/n09230945.asp",
+#endif
 
-		@"externalIPURL": @"http://automation.whatismyip.com/n09230945.asp"}];
+		@"startupItemLocation": @"/Library/StartupItems/OSXvnc",
+		@"launchdItemLocation": @"/Library/LaunchAgents/com.redstonesoftware.VineServer.plist"
+    }];
 
     alwaysShared = FALSE;
     neverShared = FALSE;
@@ -263,20 +267,28 @@ NSMutableArray *localIPAddresses() {
 		NSMutableArray *commonIPAddresses = [currentHost.addresses mutableCopy];
 		NSMutableArray *displayIPAddresses = [NSMutableArray array];
 
+#if defined(WITH_EXTERNAL_IP)
 		NSURL *externalIP = [NSURL URLWithString:[[NSUserDefaults standardUserDefaults] stringForKey:@"externalIPURL"]];
 		NSData *externalIPData = [NSData dataWithContentsOfURL:externalIP];
 		NSString *externalIPString = (externalIPData.length ? [NSString stringWithUTF8String: externalIPData.bytes] : @"" );
+#endif
 
 		NSEnumerator *ipEnum = nil;
 		NSString *anIP = nil;
 		BOOL anyConnections = TRUE; // Sadly it looks like the local IP's bypass the firewall anyhow
 
+#if defined(WITH_EXTERNAL_IP)
 		if (externalIPString.length && [commonIPAddresses indexOfObject:externalIPString] == NSNotFound)
 			[commonIPAddresses insertObject:externalIPString atIndex:0];
+#endif
 
 		ipEnum = [commonIPAddresses objectEnumerator];
 		while (anIP = [ipEnum nextObject]) {
+#if defined(WITH_EXTERNAL_IP)
 			BOOL isExternal = [externalIPString isEqualToString:anIP];
+#else
+            bool isExternal = false;
+#endif
 			NSMutableAttributedString *ipString = [[[NSMutableAttributedString alloc] initWithString: anIP] autorelease];
 
 			if ([anIP hasPrefix:@"127.0.0.1"] || // localhost entries
@@ -285,8 +297,7 @@ NSMutableArray *localIPAddresses() {
 			}
 			if (isExternal) {
 				[ipString replaceCharactersInRange:NSMakeRange(ipString.length,0) withString:@"\tExternal"];
-			}
-			else {
+			} else {
 				[ipString replaceCharactersInRange:NSMakeRange(ipString.length,0) withString:@"\tInternal"];
 			}
 
