@@ -14,6 +14,10 @@ This is a modified private copy of the original software.
 News
 ----
 
+2016-11-20
+
+Builds now require https://sourceforge.net/projects/libjpeg-turbo/.
+
 2015-10-10
 
 Vine VNC server now also works with high resolution (retina) displays
