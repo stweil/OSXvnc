@@ -687,11 +687,10 @@ NSMutableArray *localIPAddresses() {
             [displayNumberField selectItemWithTitle:@"--"];
         else
             [displayNumberField selectItemWithTitle:[NSString stringWithFormat:@"%d", (int)(port - 5900)]];
-        portField.intValue = (int)port;
+        portField.stringValue = [NSString stringWithFormat:@"%u", (unsigned)port];
 		displayNumText.stringValue = displayNumberField.title;
-		portNumText.intValue = (int)port;
-    }
-	else {
+        portNumText.stringValue = [NSString stringWithFormat:@"%u", (unsigned)port];
+    } else {
 		[displayNumberField selectItemWithTitle:@"Auto"];
 		port = [self scanForOpenPort:5900];
 
@@ -699,11 +698,11 @@ NSMutableArray *localIPAddresses() {
 			if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
 				portField.stringValue = @"";
 				[portField.cell performSelector:@selector(setPlaceholderString:) withObject:[NSString stringWithFormat:@"%d",(int)port]];
-			}
-			else
-				portField.intValue = (int)port;
+            } else {
+				portField.stringValue = [NSString stringWithFormat:@"%u", (unsigned)port];
+            }
 			displayNumText.intValue = (int)(port - 5900);
-			portNumText.intValue = (int)port;
+            portNumText.stringValue = [NSString stringWithFormat:@"%u", (unsigned)port];
 		}
 	}
 }
@@ -714,7 +713,7 @@ NSMutableArray *localIPAddresses() {
             [systemServerDisplayNumberField selectItemWithTitle:@"--"];
         else
             [systemServerDisplayNumberField selectItemWithTitle:[NSString stringWithFormat:@"%d", (int)(port - 5900)]];
-        systemServerPortField.intValue = (int)port;
+        systemServerPortField.stringValue = [NSString stringWithFormat:@"%u", (unsigned)port];
     }
 	else {
 		[systemServerDisplayNumberField selectItemWithTitle:@"Auto"];
@@ -724,9 +723,9 @@ NSMutableArray *localIPAddresses() {
 			if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
 				systemServerPortField.stringValue = @"";
 				[systemServerPortField.cell performSelector:@selector(setPlaceholderString:) withObject:[NSString stringWithFormat:@"%d",(int)port]];
-			}
-			else
-				systemServerPortField.intValue = (int)port;
+            } else {
+				systemServerPortField.stringValue = [NSString stringWithFormat:@"%u", (unsigned)port];
+            }
 		}
 	}
 }
