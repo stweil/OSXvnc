@@ -534,7 +534,6 @@
 				AB25D82908686B520065843D /* Sources */,
 				AB25D82F08686B520065843D /* Frameworks */,
 				AB25D83208686B520065843D /* CopyFiles */,
-				AB25D83508686B520065843D /* Link CLI files */,
 				AB139E5C0CEA05C200EE873A /* Record our Version */,
 			);
 			buildRules = (
@@ -664,16 +663,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "#Write our current AGV version number into the Info.plist\ntypeset CURRENT_PRODUCT_VERSION=`cat Version.txt`\ntypeset CURRENT_BUILD_VERSION=`date +%y%m%d%H%M`\ntypeset CURRENT_YEAR=`date +%Y`\necho Version: $CURRENT_PRODUCT_VERSION Build Number: $CURRENT_BUILD_VERSION\npushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION/Contents\"\nsed -i \"\" s/__PRODUCT_VERSION__/$CURRENT_PRODUCT_VERSION/ ./Info.plist\nsed -i \"\" s/__BUILD_VERSION__/$CURRENT_BUILD_VERSION/ ./Info.plist\nsed -i \"\" s/__YEAR__/$CURRENT_YEAR/ ./Info.plist\npopd\n";
-		};
-		AB25D83508686B520065843D /* Link CLI files */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			name = "Link CLI files";
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Set up links for the OSXvnc-server process and the storepasswd process\npushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.app/\";\n/bin/ln -fs Contents/Resources/OSXvnc-server .;\n/bin/ln -fs Contents/Resources/storepasswd .;\ncd Contents/MacOS;\n/bin/ln -fs ../Resources/OSXvnc-server .;\n/bin/ln -fs ../Resources/storepasswd .;\npopd";
 		};
 		ABA30D3C15BEE7310001BAE5 /* Build DMG */ = {
 			isa = PBXShellScriptBuildPhase;
