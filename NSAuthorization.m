@@ -50,7 +50,7 @@
     char **copyArguments = malloc(sizeof(char *) * (argumentArray.count + 1));
 
     for (i = 0; i < argumentArray.count; i++) {
-        copyArguments[i] = (char *) [argumentArray[i] lossyCString];
+        copyArguments[i] = (char *)[argumentArray[i] UTF8String];
     }
     copyArguments[i] = NULL;
 
