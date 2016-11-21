@@ -177,7 +177,7 @@ NSMutableArray *localIPAddresses() {
 		@"allowRendezvous": @"YES",
 		@"dontDisconnectClients": @"NO",
 
-		@"startServerOnLaunch": @"YES",
+		@"startServerOnLaunch": @"NO",
 		@"terminateOnFastUserSwitch": @"NO",
 		@"serverKeepAlive": @"YES",
 
