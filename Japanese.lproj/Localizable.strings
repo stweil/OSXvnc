@@ -17,11 +17,7 @@
 "Problem - Unable to store password to %@" = "パスワードを '%@' へ保存できません。";
 "Option Change Requires a Restart" = "設定変更には再起動が必要です。";
 //"Error: No Authorization" = "エラー：認証が必要です。";
-//"Error: Unable to setup StartupItems folder" = "エラー： StartupItems フォルダを作成できません。";
-//"Error: Unable to copy OSXvnc folder" = "エラー： OSXvnc フォルダをコピーできません。";
-//"Error: Unable To Read in OSXvnc script File" = "エラー： OSXvnc スクリプトファイルを読み込めません。";
 //"Error: Unable To Setup Password File" = "エラー：パスワードファイルを設定できません。";
-//"Error: Unable To Replace OSXvnc Script File" = "エラー： OSXvnc スクリプトファイルを置き換えられません。";
 //"Error: Unable To Write out Temporary Script File" = "エラー：一時スクリプトファイルを書き込めません。";
 "Startup Item Configured (Started)" = "起動項目として設定されました。（開始）";
 "Startup Item Disabled (Stopped)" = "起動項目を無効にしました。（停止）";

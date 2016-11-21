@@ -39,15 +39,6 @@
 
 #define LocalizedString(X)      [[NSBundle mainBundle] localizedStringForKey:(X) value:nil table:nil]
 
-
-// So we can still build on Panther and below
-#ifndef NSAppKitVersionNumber10_3
-#define NSAppKitVersionNumber10_3 743
-#endif
-#ifndef NSAppKitVersionNumber10_4
-#define NSAppKitVersionNumber10_4 824
-#endif
-
 @interface NSString (VNCExtensions)
 @property (NS_NONATOMIC_IOSONLY, readonly, copy) NSString *string;
 @end
@@ -461,12 +452,8 @@ NSMutableArray *localIPAddresses() {
 	[self determinePasswordLocation];
 	[self determineLogLocation];
 
-	if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
-		connectPort.stringValue = @"";
-		[connectPort.cell performSelector:@selector(setPlaceholderString:) withObject:@"5500"];
-	}
-	else
-		connectPort.intValue = 5500;
+    connectPort.stringValue = @"";
+    [connectPort.cell performSelector:@selector(setPlaceholderString:) withObject:@"5500"];
 
 	// Copy over old preferences found in OSXvnc
 	NSDictionary *oldPrefs = [[NSUserDefaults standardUserDefaults] persistentDomainForName:@"OSXvnc"];
@@ -552,12 +539,14 @@ NSMutableArray *localIPAddresses() {
 	}
 	[statusMessageField setStringValue: statusMessage];
 
-	if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_4)) {
-		if (activeConnectionsCount == 0)
-			[[NSApp performSelector:@selector(dockTile)] performSelector:@selector(setBadgeLabel:) withObject:@""];
-		else
-			[[NSApp performSelector:@selector(dockTile)] performSelector:@selector(setBadgeLabel:) withObject:[NSString stringWithFormat:@"%lu", (unsigned long)activeConnectionsCount]];
-	}
+    if (activeConnectionsCount == 0) {
+        [[NSApp performSelector:@selector(dockTile)]
+         performSelector:@selector(setBadgeLabel:) withObject:@""];
+    } else {
+        [[NSApp performSelector:@selector(dockTile)]
+         performSelector:@selector(setBadgeLabel:) withObject:[NSString stringWithFormat:@"%lu",
+                                                               (unsigned long)activeConnectionsCount]];
+    }
 }
 
 - (void)activeConnections: (NSNotification *) aNotification {
@@ -695,12 +684,9 @@ NSMutableArray *localIPAddresses() {
 		port = [self scanForOpenPort:5900];
 
 		if (port) {
-			if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
-				portField.stringValue = @"";
-				[portField.cell performSelector:@selector(setPlaceholderString:) withObject:[NSString stringWithFormat:@"%d",(int)port]];
-            } else {
-				portField.stringValue = [NSString stringWithFormat:@"%u", (unsigned)port];
-            }
+            portField.stringValue = @"";
+            [portField.cell performSelector:@selector(setPlaceholderString:)
+                                 withObject:[NSString stringWithFormat:@"%u", (unsigned)port]];
 			displayNumText.intValue = (int)(port - 5900);
             portNumText.stringValue = [NSString stringWithFormat:@"%u", (unsigned)port];
 		}
@@ -720,12 +706,10 @@ NSMutableArray *localIPAddresses() {
 		port = [self scanForOpenPort:5900];
 
 		if (port) {
-			if (NSAppKitVersionNumber >= NSAppKitVersionNumber10_3) {
-				systemServerPortField.stringValue = @"";
-				[systemServerPortField.cell performSelector:@selector(setPlaceholderString:) withObject:[NSString stringWithFormat:@"%d",(int)port]];
-            } else {
-				systemServerPortField.stringValue = [NSString stringWithFormat:@"%u", (unsigned)port];
-            }
+            systemServerPortField.stringValue = @"";
+            [systemServerPortField.cell performSelector:@selector(setPlaceholderString:)
+                                             withObject:[NSString stringWithFormat:@"%u",
+                                                         (unsigned)port]];
 		}
 	}
 }
@@ -1431,10 +1415,7 @@ NSMutableArray *localIPAddresses() {
 }
 
 - (IBAction) openFirewall:(id) sender {
-	if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_4))
-		[[NSWorkspace sharedWorkspace] openFile: @"/System/Library/PreferencePanes/Security.prefPane"];
-	else
-		[[NSWorkspace sharedWorkspace] openFile: @"/System/Library/PreferencePanes/SharingPref.prefPane"];
+    [[NSWorkspace sharedWorkspace] openFile: @"/System/Library/PreferencePanes/Security.prefPane"];
 }
 
 - (IBAction) openLog:(id) sender {
@@ -1467,164 +1448,6 @@ NSMutableArray *localIPAddresses() {
     }
 
     [[NSWorkspace sharedWorkspace] openFile:openPath];
-}
-
-- (BOOL) installStartupItem {
-	BOOL success = TRUE;
-
-	// In the future we may not always overwrite (look at Version # or something)
-    BOOL overwrite = TRUE;
-    NSMutableString *startupScript = nil;
-    NSRange lineRange;
-	NSString *startupPath = [[NSUserDefaults standardUserDefaults] stringForKey:@"startupItemLocation"];
-	NSString *startupResourcePath = [startupPath stringByAppendingPathComponent:@"Resources"];
-
-    // If StartupItems directory doesn't exist then create it
-    if (![[NSFileManager defaultManager] fileExistsAtPath:@"/Library/StartupItems"]) {
-		success &= [myAuthorization executeCommand:@"/bin/mkdir"
-										  withArgs:@[@"-p", @"/Library/StartupItems"]];
-        success &= [myAuthorization executeCommand:@"/usr/sbin/chown"
-										  withArgs:@[@"-R", @"root:wheel", @"/Library/StartupItems"]];
-
-        if (!success) {
-            [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to setup StartupItems folder")];
-			return FALSE;
-        }
-    }
-
-    // If we are overwriting or if the OSXvnc folder doesn't exist
-    if (overwrite || ![[NSFileManager defaultManager] fileExistsAtPath:startupPath]) {
-        NSMutableArray *copyArgsArray = [NSMutableArray array];
-        NSString *sourceFolder = [[NSBundle mainBundle] pathForResource:@"OSXvnc" ofType:nil];
-
-        [copyArgsArray addObject:@"-R"]; // Recursive
-        [copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
-        [copyArgsArray addObject:[[NSBundle mainBundle] pathForResource:@"OSXvnc" ofType:nil]];
-        [copyArgsArray addObject:@"/Library/StartupItems"];
-
-        if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
-            [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to copy OSXvnc folder")];
-            return FALSE;
-        }
-
-		// Copy Server Executable
-		[copyArgsArray removeAllObjects];
-		[copyArgsArray addObject:@"-R"]; // Recursive
-        [copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
-        [copyArgsArray addObject:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"OSXvnc-server"]];
-        [copyArgsArray addObject:startupPath];
-
-        if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
-            [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to copy OSXvnc-server executable")];
-            return FALSE;
-        }
-
-		// Copy All Bundles
-		{
-			NSEnumerator *bundleEnum = [[NSBundle pathsForResourcesOfType:@"bundle" inDirectory:[NSBundle mainBundle].resourcePath] objectEnumerator];
-			NSString *bundlePath = nil;
-
-			while (bundlePath = [bundleEnum nextObject]) {
-				[copyArgsArray removeAllObjects];
-				[copyArgsArray addObject:@"-R"]; // Recursive
-				[copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
-				[copyArgsArray addObject:bundlePath];
-				//[copyArgsArray addObject:[[NSBundle mainBundle] pathForResource:@"JaguarBundle" ofType:@"bundle"]];
-				[copyArgsArray addObject:startupResourcePath];
-
-		        if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
-					startupItemStatusMessageField.stringValue = [NSString stringWithFormat:@"Error: Unable to copy bundle:%@", bundlePath.lastPathComponent];
-					return FALSE;
-				}
-			}
-		}
-
-        startupScript = [NSMutableString stringWithContentsOfFile:[sourceFolder stringByAppendingPathComponent:@"OSXvnc"] encoding:NSUTF8StringEncoding error:NULL];
-    }
-    else {
-        // Would be nice to always use this but there is a timing issue with the AuthorizationExecuteWithPrivileges command
-        startupScript = [NSMutableString stringWithContentsOfFile:@"/Library/StartupItems/OSXvnc/OSXvnc" encoding:NSUTF8StringEncoding error:NULL];
-    }
-
-    // Now we will modify the script file
-    if (!startupScript.length) {
-        [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Read in OSXvnc script File")];
-		return FALSE;
-    }
-
-    // Replace the VNCPATH line
-    lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCPATH="]];
-    if (lineRange.location != NSNotFound) {
-        NSMutableString *replaceString = [NSMutableString stringWithFormat:@"VNCPATH=\"%@\"\n", startupPath];
-        [startupScript replaceCharactersInRange:lineRange withString:replaceString];
-    }
-
-	// Replace the VNCARGS line
-    lineRange = [startupScript lineRangeForRange:[startupScript rangeOfString:@"VNCARGS="]];
-    if (lineRange.location != NSNotFound) {
-		NSData *vncauth = [[NSUserDefaults standardUserDefaults] dataForKey:@"vncauthSystemServer"];
-		NSString *oldPasswordFile = passwordFile;
-		NSString *oldDesktopName = systemServerDisplayNameField.stringValue;
-
-		if (vncauth.length) {
-			NSArray *mvArguments = @[@"-f", @"/tmp/.vinevncauth", @"/Library/StartupItems/OSXvnc/.vinevncauth"];
-
-			[vncauth writeToFile:@"/tmp/.vinevncauth" atomically:YES];
-			if (![myAuthorization executeCommand:@"/bin/mv" withArgs:mvArguments]) {
-				[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Setup Password File")];
-				return FALSE;
-			}
-			passwordFile = @"/Library/StartupItems/OSXvnc/.vinevncauth";
-		}
-
-		// Coerce the CommandLine string with slight modifications
-		if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_1)) {
-			NSMutableString *newDesktopName = [[oldDesktopName mutableCopy] autorelease];
-			[newDesktopName replaceOccurrencesOfString:@" " withString:@"_" options:0 range:NSMakeRange(0,oldDesktopName.length)];
-			systemServerDisplayNameField.stringValue = newDesktopName;
-		}
-		NSMutableString *replaceString =
-            [NSMutableString stringWithFormat:@"VNCARGS=\"%@\"\n",
-             [[self formCommandLineForSystemServer: YES] componentsJoinedByString:@" "]];
-
-        [startupScript replaceCharactersInRange:lineRange withString:replaceString];
-
-		systemServerDisplayNameField.stringValue = oldDesktopName;
-		passwordFile = oldPasswordFile;
-	}
-    if ([startupScript writeToFile:@"/tmp/OSXvnc.script" atomically:YES encoding:NSUTF8StringEncoding error:NULL]) {
-		success &= [myAuthorization executeCommand:@"/bin/mv"
-										  withArgs:@[@"-f", @"/tmp/OSXvnc.script", @"/Library/StartupItems/OSXvnc/OSXvnc"]];
-        success &= [myAuthorization executeCommand:@"/usr/sbin/chown"
-										  withArgs:@[@"-R", @"root:wheel", startupPath]];
-        success &= [myAuthorization executeCommand:@"/bin/chmod"
-										  withArgs:@[@"-R", @"744", startupPath]];
-		success &= [myAuthorization executeCommand:@"/bin/chmod"
-										  withArgs:@[@"755", startupPath, startupResourcePath]];
-
-		if (!success) {
-			[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Replace OSXvnc Script File")];
-			return FALSE;
-		}
-
-		// For 10.4 and above we need to execute through the System Starter for it to follow the console properly
-		// Doesn't work
-		// SystemStarter needs to actually be run as root (and calling sudo requests a password again, so this doesn't work
-#if 0
-		if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_3)) {
-			[myAuthorization executeCommand:@"/usr/bin/su"
-								   withArgs:@[@"-l", @"root", @"-c", @"/sbin/SystemStarter", @"-d", @"start", @"VNC"]];
-		}
-#else
-        [myAuthorization executeCommand:@"/Library/StartupItems/OSXvnc/OSXvnc"
-								   withArgs:@[@"restart"]];
-#endif
-    }
-    else {
-        [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Write out Temporary Script File")];
-    }
-
-	return success;
 }
 
 - (BOOL) installLaunchd {
@@ -1705,9 +1528,7 @@ NSMutableArray *localIPAddresses() {
 		//[launchdDictionary setObject:[NSNumber numberWithInt:1] forKey:@"ExitTimeOut"]; // Send a KILL signal after 1 second
 		launchdDictionary[@"StandardOutPath"] = logLocation;
 		launchdDictionary[@"StandardErrorPath"] = logLocation;
-		if (floor(NSAppKitVersionNumber) > floor(NSAppKitVersionNumber10_4)) { // Leopard
-			launchdDictionary[@"LimitLoadToSessionType"] = @[@"Aqua",@"LoginWindow"];
-		}
+        launchdDictionary[@"LimitLoadToSessionType"] = @[@"Aqua",@"LoginWindow"];
 
 		// Write to file
 		NSString *tempPath = [@"/tmp" stringByAppendingPathComponent:launchdPath.lastPathComponent];
@@ -1730,15 +1551,8 @@ NSMutableArray *localIPAddresses() {
 
 
 		// Launch Using launchctl
-		if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_4)) {
-			[myAuthorization executeCommand:@"/bin/launchctl"
-											  withArgs:@[@"load", launchdPath]
-										   synchronous:NO];
-		}
-		else {
-			success &= [myAuthorization executeCommand:@"/bin/launchctl"
-											  withArgs:@[@"load", @"-S", @"Aqua", launchdPath]];
-		}
+        success &= [myAuthorization executeCommand:@"/bin/launchctl"
+                    withArgs:@[@"load", @"-S", @"Aqua", launchdPath]];
 
 		if (!success) {
 			[startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Setup Vine Server using launchd")];
@@ -1757,13 +1571,9 @@ NSMutableArray *localIPAddresses() {
         return;
     }
 
-	if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_4))
-		systemServerIsConfigured = [self installStartupItem];
-	else {
-		// Remove Old SystemServer
-		[self removeService: self];
-		systemServerIsConfigured = [self installLaunchd];
-	}
+    // Remove Old SystemServer
+    [self removeService: self];
+    systemServerIsConfigured = [self installLaunchd];
 
 	[self loadUIForSystemServer];
 
@@ -1814,14 +1624,8 @@ NSMutableArray *localIPAddresses() {
 										  withArgs:@[@"-r", @"-f", startupPath]];
 	}
 	if ([[NSFileManager defaultManager] fileExistsAtPath:launchdPath]) {
-		if (floor(NSAppKitVersionNumber) <= floor(NSAppKitVersionNumber10_4)) {
-			success &= [myAuthorization executeCommand:@"/bin/launchctl"
-											  withArgs:@[@"unload", launchdPath]];
-		}
-		else {
-			success &= [myAuthorization executeCommand:@"/bin/launchctl"
-											  withArgs:@[@"unload", @"-S", @"Aqua", launchdPath]];
-		}
+        success &= [myAuthorization executeCommand:@"/bin/launchctl"
+                    withArgs:@[@"unload", @"-S", @"Aqua", launchdPath]];
 		success &= [myAuthorization executeCommand:@"/bin/rm"
 										  withArgs:@[@"-r", @"-f", launchdPath]];
 	}

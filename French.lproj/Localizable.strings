@@ -17,11 +17,7 @@
 "Problem - Unable to store password to %@" = "Problème - Impossible d'enregistrer le mot de passe dans %@";
 "Option Change Requires a Restart" = "Redémarrer le serveur pour enregistrer les changements";
 "Error: No Authorization" = "Erreur: Pas d'autorisation";
-"Error: Unable to setup StartupItems folder" = "Erreur: Impossible de créer le dossier StartupItems";
-"Error: Unable to copy OSXvnc folder" = "Erreur: Impossible de copier le dossier OSXvnc";
-"Error: Unable To Read in OSXvnc script File" = "Erreur: Impossible de lire le script OSXvnc";
 "Error: Unable To Setup Password File" = "Erreur: Impossible d'initialiser le fichier de mot de passe";
-"Error: Unable To Replace OSXvnc Script File" = "Erreur: Impossible de remplacer le fichier script OSXvnc";
 "Error: Unable To Write out Temporary Script File" = "Erreur: Impossible d'écrire le fichier script temporaire";
 "Startup Item Configured (Started)" = "Service de démarrage configuré (Démarrer)";
 "Startup Item Disabled (Stopped)" = "Service de démarrage désactivé (Arrêté)";
