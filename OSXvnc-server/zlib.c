@@ -177,13 +177,12 @@ rfbSendOneRectEncodingZlib(cl, x, y, w, h)
     rect.r.h = Swap16IfLE(h);
     rect.encoding = Swap32IfLE(rfbEncodingZlib);
 
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&rect,
-	   sz_rfbFramebufferUpdateRectHeader);
+    memcpy(&cl->updateBuf[cl->ublen], &rect, sz_rfbFramebufferUpdateRectHeader);
     cl->ublen += sz_rfbFramebufferUpdateRectHeader;
 
     hdr.nBytes = Swap32IfLE(zlibAfterBufLen);
 
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&hdr, sz_rfbZlibHeader);
+    memcpy(&cl->updateBuf[cl->ublen], &hdr, sz_rfbZlibHeader);
     cl->ublen += sz_rfbZlibHeader;
 
     for (i = 0; i < zlibAfterBufLen;) {

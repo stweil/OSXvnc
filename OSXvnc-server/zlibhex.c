@@ -60,8 +60,7 @@ rfbSendRectEncodingZlibHex(cl, x, y, w, h)
     rect.r.h = Swap16IfLE(h);
     rect.encoding = Swap32IfLE(rfbEncodingZlibHex);
 
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&rect,
-	   sz_rfbFramebufferUpdateRectHeader);
+    memcpy(&cl->updateBuf[cl->ublen], &rect, sz_rfbFramebufferUpdateRectHeader);
     cl->ublen += sz_rfbFramebufferUpdateRectHeader;
 
     cl->rfbRectanglesSent[rfbEncodingZlibHex]++;
@@ -280,7 +279,7 @@ sendZlibHex##bpp(cl, rx, ry, rw, rh)					      \
 					cl->scalingPaddedWidthInBytes, w, h);  \
 									      \
 		    /* Extra copy protects against bus errors on RISC. */     \
-		    memcpy(&cl->updateBuf[cl->ublen], (char *)clientPixelData,	      \
+		    memcpy(&cl->updateBuf[cl->ublen], clientPixelData,	      \
 			    w * h * (bpp/8));				      \
 									      \
 		    cl->ublen += w * h * (bpp/8);				      \

@@ -128,13 +128,12 @@ rfbSendRectEncodingRRE(cl, x, y, w, h)
     rect.r.h = Swap16IfLE(h);
     rect.encoding = Swap32IfLE(rfbEncodingRRE);
 
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&rect,
-           sz_rfbFramebufferUpdateRectHeader);
+    memcpy(&cl->updateBuf[cl->ublen], &rect, sz_rfbFramebufferUpdateRectHeader);
     cl->ublen += sz_rfbFramebufferUpdateRectHeader;
 
     hdr.nSubrects = Swap32IfLE(nSubrects);
 
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&hdr, sz_rfbRREHeader);
+    memcpy(&cl->updateBuf[cl->ublen], &hdr, sz_rfbRREHeader);
     cl->ublen += sz_rfbRREHeader;
 
     for (i = 0; i < rreAfterBufLen;) {
@@ -249,7 +248,7 @@ subrectEncode##bpp(data,w,h)                                                  \
           numsubs += 1;                                                       \
           *((CARD##bpp*)(rreAfterBuf + rreAfterBufLen)) = cl;                 \
           rreAfterBufLen += (bpp/8);                                          \
-          memcpy(&rreAfterBuf[rreAfterBufLen],&subrect,sz_rfbRectangle);      \
+          memcpy(&rreAfterBuf[rreAfterBufLen], &subrect, sz_rfbRectangle);    \
           rreAfterBufLen += sz_rfbRectangle;                                  \
                                                                               \
           /*                                                                  \

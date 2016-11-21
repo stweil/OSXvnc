@@ -209,7 +209,7 @@ void rfbAuthNewClient(rfbClientPtr cl) {
             *(CARD32 *)buf = Swap32IfLE(rfbVncAuth);
             vncRandomBytes(cl->authChallenge);
 			len+=4;
-            memcpy(&buf[len], (char *)cl->authChallenge, CHALLENGESIZE);
+            memcpy(&buf[len], cl->authChallenge, CHALLENGESIZE);
             len+=CHALLENGESIZE;
 
             cl->state = RFB_AUTHENTICATION;
@@ -262,7 +262,7 @@ void rfbProcessAuthVersion(rfbClientPtr cl) {
             int len = 0;
 
             vncRandomBytes(cl->authChallenge);
-            memcpy(buf, (char *)cl->authChallenge, CHALLENGESIZE);
+            memcpy(buf, cl->authChallenge, CHALLENGESIZE);
             len = CHALLENGESIZE;
 
             if (WriteExact(cl, buf, len) < 0) {

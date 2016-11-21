@@ -290,7 +290,7 @@ Bool rfbSendCursorPos(rfbClientPtr cl) {
     rect.r.w = 0;
     rect.r.h = 0;
 
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&rect, sz_rfbFramebufferUpdateRectHeader);
+    memcpy(&cl->updateBuf[cl->ublen], &rect, sz_rfbFramebufferUpdateRectHeader);
     cl->ublen += sz_rfbFramebufferUpdateRectHeader;
 
     cl->rfbRectanglesSent[rfbStatsCursorPosition]++;
@@ -346,7 +346,7 @@ Bool rfbSendRichCursorUpdate(rfbClientPtr cl) {
 		rect.r.h = Swap16IfLE((short) cursorRect.size.height);
 		rect.encoding = Swap32IfLE(rfbEncodingRichCursor);
 
-		memcpy(&cl->updateBuf[cl->ublen], (char *)&rect,sz_rfbFramebufferUpdateRectHeader);
+		memcpy(&cl->updateBuf[cl->ublen], &rect, sz_rfbFramebufferUpdateRectHeader);
 		cl->ublen += sz_rfbFramebufferUpdateRectHeader;
 
 		// Temporarily set it to the cursor format

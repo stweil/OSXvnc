@@ -55,8 +55,7 @@ rfbSendRectEncodingHextile(cl, x, y, w, h)
     rect.r.h = Swap16IfLE(h);
     rect.encoding = Swap32IfLE(rfbEncodingHextile);
 
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&rect,
-           sz_rfbFramebufferUpdateRectHeader);
+    memcpy(&cl->updateBuf[cl->ublen], &rect, sz_rfbFramebufferUpdateRectHeader);
     cl->ublen += sz_rfbFramebufferUpdateRectHeader;
 
     cl->rfbRectanglesSent[rfbEncodingHextile]++;
@@ -177,9 +176,9 @@ sendHextiles##bpp(cl, rx, ry, rw, rh)                                           
                 (*cl->translateFn)(cl->translateLookupTable,                    \
                                    &rfbServerFormat, &cl->format, fbptr,        \
                                    (char *)clientPixelData,                     \
-                                   cl->scalingPaddedWidthInBytes, w, h);         \
+                                   cl->scalingPaddedWidthInBytes, w, h);        \
                                                                                 \
-                memcpy(&cl->updateBuf[cl->ublen], (char *)clientPixelData,      \
+                memcpy(&cl->updateBuf[cl->ublen], clientPixelData,              \
                        w * h * (bpp/8));                                        \
                                                                                 \
                 cl->ublen += w * h * (bpp/8);                                   \

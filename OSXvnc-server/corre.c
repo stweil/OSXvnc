@@ -155,13 +155,12 @@ rfbSendSmallRectEncodingCoRRE(rfbClientPtr cl, int x, int y, int w, int h)
     rect.r.h = Swap16IfLE(h);
     rect.encoding = Swap32IfLE(rfbEncodingCoRRE);
 
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&rect,
-           sz_rfbFramebufferUpdateRectHeader);
+    memcpy(&cl->updateBuf[cl->ublen], &rect, sz_rfbFramebufferUpdateRectHeader);
     cl->ublen += sz_rfbFramebufferUpdateRectHeader;
 
     hdr.nSubrects = Swap32IfLE(nSubrects);
 
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&hdr, sz_rfbRREHeader);
+    memcpy(&cl->updateBuf[cl->ublen], &hdr, sz_rfbRREHeader);
     cl->ublen += sz_rfbRREHeader;
 
     for (i = 0; i < rreAfterBufLen;) {

@@ -1177,7 +1177,7 @@ Bool rfbSendScreenUpdateEncoding(rfbClientPtr cl) {
     rect.r.h = Swap16IfLE((rfbScreen.height+cl->scalingFactor-1) / cl->scalingFactor);
     rect.encoding = Swap32IfLE(rfbEncodingDesktopResize);
 
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&rect,sz_rfbFramebufferUpdateRectHeader);
+    memcpy(&cl->updateBuf[cl->ublen], &rect, sz_rfbFramebufferUpdateRectHeader);
     cl->ublen += sz_rfbFramebufferUpdateRectHeader;
 
     cl->rfbRectanglesSent[rfbStatsDesktopResize]++;
@@ -1209,7 +1209,7 @@ Bool rfbSendRectEncodingRaw(rfbClientPtr cl, int x, int y, int w, int h) {
     rect.r.h = Swap16IfLE(h);
     rect.encoding = Swap32IfLE(rfbEncodingRaw);
 
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&rect,sz_rfbFramebufferUpdateRectHeader);
+    memcpy(&cl->updateBuf[cl->ublen], &rect, sz_rfbFramebufferUpdateRectHeader);
     cl->ublen += sz_rfbFramebufferUpdateRectHeader;
 
     cl->rfbRectanglesSent[rfbEncodingRaw]++;
@@ -1271,7 +1271,7 @@ Bool rfbSendLastRectMarker(rfbClientPtr cl) {
     rect.r.w = 0;
     rect.r.h = 0;
 
-    memcpy(&cl->updateBuf[cl->ublen], (char *)&rect,sz_rfbFramebufferUpdateRectHeader);
+    memcpy(&cl->updateBuf[cl->ublen], &rect, sz_rfbFramebufferUpdateRectHeader);
     cl->ublen += sz_rfbFramebufferUpdateRectHeader;
 
     cl->rfbLastRectMarkersSent++;
