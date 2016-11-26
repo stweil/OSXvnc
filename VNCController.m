@@ -838,7 +838,6 @@ NSMutableArray *localIPAddresses() {
     if ((argv = [self formCommandLineForSystemServer: NO])) {
         NSDictionary *infoDictionary = [NSBundle mainBundle].infoDictionary;
 
-        NSString *executionPath = [[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"OSXvnc-server"];
         NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting %@ %@(%@)\n", [NSDate date], [NSProcessInfo processInfo].processName, [infoDictionary valueForKey:@"CFBundleShortVersion"], [infoDictionary valueForKey:@"CFBundleVersion"]];
 
 		[self determineLogLocation];
@@ -856,7 +855,7 @@ NSMutableArray *localIPAddresses() {
         [serverOutput writeData:[@"\n\n" dataUsingEncoding: NSUTF8StringEncoding]];
 
         controller = [[NSTask alloc] init];
-        controller.launchPath = executionPath;
+        controller.launchPath = @"OSXvnc-server";
         controller.arguments = argv;
         controller.standardOutput = serverOutput;
         controller.standardError = serverOutput;
