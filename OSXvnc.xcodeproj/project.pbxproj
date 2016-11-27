@@ -288,20 +288,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		AB25D98E086876B80065843D /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		ABA7B52B094A053000CD7499 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -578,7 +564,6 @@
 			buildConfigurationList = ABECD3E208E46414009C84A0 /* Build configuration list for PBXNativeTarget "storepasswd" */;
 			buildPhases = (
 				AB25D98D086876B80065843D /* Sources */,
-				AB25D98E086876B80065843D /* Frameworks */,
 			);
 			buildRules = (
 			);
@@ -595,7 +580,6 @@
 			buildPhases = (
 				ABA7B529094A053000CD7499 /* Headers */,
 				ABA7B52A094A053000CD7499 /* Sources */,
-				ABA7B52B094A053000CD7499 /* Frameworks */,
 			);
 			buildRules = (
 			);
