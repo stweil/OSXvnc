@@ -319,17 +319,10 @@
 		29B97314FDCFA39411CA2CEA /* OSXvnc */ = {
 			isa = PBXGroup;
 			children = (
-				ABDBE34515BA2A9D00558229 /* MainMenu.xib */,
-				F5456A2902FAD08901A80117 /* VNCController.h */,
-				F5456A2802FAD08901A80117 /* VNCController.m */,
-				ABD8EC07058A0BD600C84739 /* NSAuthorization.h */,
-				ABD8EC08058A0BD600C84739 /* NSAuthorization.m */,
+				BCFF37981DEB1F6300D4F43D /* VineServer */,
 				F538E00B02F9812901A80186 /* OSXvnc-server */,
-				29B97315FDCFA39411CA2CEA /* Other Sources */,
-				29B97317FDCFA39411CA2CEA /* Resources */,
 				29B97323FDCFA39411CA2CEA /* Frameworks */,
 				19C28FACFE9D520D11CA2CBB /* Products */,
-				AB25D83708686B520065843D /* VineServer-Info.plist */,
 			);
 			name = OSXvnc;
 			sourceTree = "<group>";
@@ -375,6 +368,21 @@
 				AB41881F04C5986E00A80117 /* ApplicationServices.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		BCFF37981DEB1F6300D4F43D /* VineServer */ = {
+			isa = PBXGroup;
+			children = (
+				29B97315FDCFA39411CA2CEA /* Other Sources */,
+				29B97317FDCFA39411CA2CEA /* Resources */,
+				ABDBE34515BA2A9D00558229 /* MainMenu.xib */,
+				ABD8EC07058A0BD600C84739 /* NSAuthorization.h */,
+				ABD8EC08058A0BD600C84739 /* NSAuthorization.m */,
+				F5456A2902FAD08901A80117 /* VNCController.h */,
+				F5456A2802FAD08901A80117 /* VNCController.m */,
+				AB25D83708686B520065843D /* VineServer-Info.plist */,
+			);
+			name = VineServer;
 			sourceTree = "<group>";
 		};
 		F538E00B02F9812901A80186 /* OSXvnc-server */ = {
