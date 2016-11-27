@@ -37,15 +37,15 @@
 }
 
 - (BOOL) executeCommand:(NSString *) command withArgs: (NSArray *) argumentArray {
-	return [self executeCommand:(NSString *) command withArgs: (NSArray *) argumentArray synchronous:TRUE];
+    return [self executeCommand:(NSString *) command withArgs: (NSArray *) argumentArray synchronous:TRUE];
 }
 
 - (BOOL) executeCommand:(NSString *) command withArgs: (NSArray *) argumentArray synchronous: (BOOL) sync {
-	FILE *communicationStream = NULL;
+    FILE *communicationStream = NULL;
     int i;
     OSStatus myStatus;
-	char outputString[1024];
-	time_t startTime = time(NULL);
+    char outputString[1024];
+    time_t startTime = time(NULL);
 
     char **copyArguments = malloc(sizeof(char *) * (argumentArray.count + 1));
 
@@ -60,13 +60,13 @@
                                                   copyArguments,
                                                   (sync ? &communicationStream : NULL)); // FILE HANDLE for I/O
 
-	if (myStatus==errAuthorizationSuccess && sync) {
-		while (!myStatus && !feof(communicationStream) && fgets(outputString, 1024, communicationStream) && time(NULL)-startTime<10) {
-			if (strlen(outputString) > 1)
-				NSLog(@"NSAuthorization: %s",outputString);
-		}
-		fclose(communicationStream);
-	}
+    if (myStatus==errAuthorizationSuccess && sync) {
+        while (!myStatus && !feof(communicationStream) && fgets(outputString, 1024, communicationStream) && time(NULL)-startTime<10) {
+            if (strlen(outputString) > 1)
+                NSLog(@"NSAuthorization: %s",outputString);
+        }
+        fclose(communicationStream);
+    }
 
     free(copyArguments);
 

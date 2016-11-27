@@ -14,106 +14,106 @@
     IBOutlet NSMenuItem *startServerMenuItem;
     IBOutlet NSMenuItem *stopServerMenuItem;
 
-	IBOutlet NSMenuItem *serverMenuItem;
+    IBOutlet NSMenuItem *serverMenuItem;
 
-	IBOutlet NSWindow *statusWindow;
-	IBOutlet NSWindow *preferenceWindow;
-	IBOutlet NSWindow *reverseConnectionWindow;
+    IBOutlet NSWindow *statusWindow;
+    IBOutlet NSWindow *preferenceWindow;
+    IBOutlet NSWindow *reverseConnectionWindow;
 
-	// System Server UI
-	IBOutlet NSMenuItem *systemServerMenu;
-	IBOutlet NSWindow *systemServerWindow;
+    // System Server UI
+    IBOutlet NSMenuItem *systemServerMenu;
+    IBOutlet NSWindow *systemServerWindow;
 
-	IBOutlet NSTextField *systemServerDisplayNameField;
+    IBOutlet NSTextField *systemServerDisplayNameField;
     IBOutlet NSPopUpButton *systemServerDisplayNumberField;
     IBOutlet NSTextField *systemServerPortField;
 
-	IBOutlet NSMatrix *systemServerAuthenticationType;
+    IBOutlet NSMatrix *systemServerAuthenticationType;
     IBOutlet NSTextField *systemServerPasswordField;
-	IBOutlet NSButton *systemServerLimitToLocalConnections;
+    IBOutlet NSButton *systemServerLimitToLocalConnections;
 
     IBOutlet NSButton *disableStartupButton;
-	IBOutlet NSButton *setStartupButton;
+    IBOutlet NSButton *setStartupButton;
 
     IBOutlet NSTextField *startupItemStatusMessageField;
 
-	// Control Panel
-	IBOutlet NSBox *hostNamesBox;
+    // Control Panel
+    IBOutlet NSBox *hostNamesBox;
     IBOutlet NSTextField *hostNamesField;
     IBOutlet NSBox *ipAddressesBox;
-	IBOutlet NSMatrix *ipAddressesView;
+    IBOutlet NSMatrix *ipAddressesView;
     IBOutlet NSTextField *displayNumText;
     IBOutlet NSTextField *portNumText;
 
-	IBOutlet NSTextView *statusMessageField;
+    IBOutlet NSTextView *statusMessageField;
     IBOutlet NSButton *startServerButton;
     IBOutlet NSButton *stopServerButton;
 
-	// Preferences Interface
-	IBOutlet NSTabView *optionsTabView;
+    // Preferences Interface
+    IBOutlet NSTabView *optionsTabView;
     IBOutlet NSTextField *preferencesMessageTestField;
 
-	// Connection
+    // Connection
     IBOutlet NSTextField *displayNameField;
     IBOutlet NSPopUpButton *displayNumberField;
     IBOutlet NSTextField *portField;
 
-	IBOutlet NSMatrix *authenticationType;
+    IBOutlet NSMatrix *authenticationType;
     IBOutlet NSTextField *passwordField;
 
-	IBOutlet NSButton *limitToLocalConnections;
+    IBOutlet NSButton *limitToLocalConnections;
 
-	// Device
+    // Device
     IBOutlet NSButton *allowSleepCheckbox;
     IBOutlet NSButton *allowDimmingCheckbox;
     IBOutlet NSButton *allowScreenSaverCheckbox;
 
-	IBOutlet NSPopUpButton *keyboardLayout;
+    IBOutlet NSPopUpButton *keyboardLayout;
 
     IBOutlet NSButton *swapMouseButtonsCheckbox;
 
-	// Advanced
-	IBOutlet NSPopUpButton *protocolVersion;
+    // Advanced
+    IBOutlet NSPopUpButton *protocolVersion;
     IBOutlet NSTextField *otherArguments;
 
-	IBOutlet NSButton *openGLCheckbox;
-	IBOutlet NSPopUpButton *keyboardEvents;
-	IBOutlet NSPopUpButton *eventSourcePopup;
+    IBOutlet NSButton *openGLCheckbox;
+    IBOutlet NSPopUpButton *keyboardEvents;
+    IBOutlet NSPopUpButton *eventSourcePopup;
 
-	// Sharing
+    // Sharing
     IBOutlet NSMatrix *sharingMatrix;
     IBOutlet NSButton *dontDisconnectCheckbox;
     IBOutlet NSButton *disableRemoteEventsCheckbox;
     IBOutlet NSButton *disableRichClipboardCheckbox;
     IBOutlet NSButton *allowRendezvousCheckbox;
 
-	// Startup
+    // Startup
     IBOutlet NSButton *startServerOnLaunchCheckbox;
     IBOutlet NSButton *terminateOnFastUserSwitch;
     IBOutlet NSButton *serverKeepAliveCheckbox;
 
 
-	// Reverse Connections UI
-	IBOutlet NSTextField *connectHost;
+    // Reverse Connections UI
+    IBOutlet NSTextField *connectHost;
     IBOutlet NSTextField *connectPort;
-	IBOutlet NSTextField *reverseConnectionMessageField;
+    IBOutlet NSTextField *reverseConnectionMessageField;
 
-	// Initial Settings UI
-	IBOutlet NSWindow *initialWindow;
-	IBOutlet NSTextField *initialPasswordText;
-	IBOutlet NSMatrix *initialAuthenticationType;
-	IBOutlet NSButton *initialDoneButton;
+    // Initial Settings UI
+    IBOutlet NSWindow *initialWindow;
+    IBOutlet NSTextField *initialPasswordText;
+    IBOutlet NSMatrix *initialAuthenticationType;
+    IBOutlet NSButton *initialDoneButton;
 
     //int port;
-	BOOL systemServerIsConfigured;
+    BOOL systemServerIsConfigured;
 
     BOOL alwaysShared;
     BOOL neverShared;
     BOOL userStopped;
     BOOL relaunchServer;
-	BOOL doNotLoadProxy;
+    BOOL doNotLoadProxy;
 
-	BOOL waitingForHostInfo;
+    BOOL waitingForHostInfo;
 
     NSTask *controller;
     NSFileHandle *serverOutput;
@@ -124,14 +124,14 @@
     NSAuthorization *myAuthorization;
 
     NSDate *lastLaunchTime;
-	NSMutableArray *bundleArray;
+    NSMutableArray *bundleArray;
 
-	NSArray *clientList;
+    NSArray *clientList;
 
-	NSString *hostName;
+    NSString *hostName;
 
-	NSString *automaticReverseHost;
-	NSString *automaticReversePort;
+    NSString *automaticReverseHost;
+    NSString *automaticReversePort;
 }
 
 - (instancetype) init;
