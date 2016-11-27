@@ -644,10 +644,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB25D81F08686B520065843D /* Credits.rtf in Resources */,
-				AB25D82008686B520065843D /* Vine Server Release Notes.rtf in Resources */,
 				AB25D82108686B520065843D /* Copying.rtf in Resources */,
+				AB25D81F08686B520065843D /* Credits.rtf in Resources */,
 				AB25D82208686B520065843D /* Localizable.strings in Resources */,
+				AB25D82008686B520065843D /* Vine Server Release Notes.rtf in Resources */,
 				AB25D82608686B520065843D /* OSXvnc in Resources */,
 				ABFC222C0AF08CBA00BCE727 /* VineServer.icns in Resources */,
 				AB3E27F80AF947FB004AF567 /* Vine Server.pdf in Resources */,
