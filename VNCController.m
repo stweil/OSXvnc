@@ -294,9 +294,11 @@ NSMutableArray *localIPAddresses() {
 
 			if (controller && !limitToLocalConnections.state) { // Colorize and add tooltip
 
-				NSURL *testURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%d", anIP, self.runningPortNum]];
+				NSURL *testURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%d",
+                                                       anIP, self.runningPortNum]];
 				NSData *testData = [NSData dataWithContentsOfURL:testURL];
-				NSString *testString = (testData.length ? [NSString stringWithUTF8String: testData.bytes] : @"" );
+				NSString *testString = (testData.length
+                                        ? [NSString stringWithUTF8String: testData.bytes] : @"");
 
 				if ([testString hasPrefix:@"RFB"]) {
 					[ipString replaceCharactersInRange:NSMakeRange(ipString.length,0) withString:@"\tNetwork is configured to allow connections to this IP"];
@@ -464,7 +466,8 @@ NSMutableArray *localIPAddresses() {
 		[self saveUserDefaults: self];
 		oldPrefs = [oldPrefs mutableCopy];
 		((NSMutableDictionary *)oldPrefs)[@"Converted"] = [NSNumber numberWithBool:TRUE]; // Record that we've converted
-		[[NSUserDefaults standardUserDefaults] setPersistentDomain:oldPrefs forName:@"OSXvnc"]; // write it back
+		[[NSUserDefaults standardUserDefaults] setPersistentDomain:oldPrefs
+                                                           forName:@"OSXvnc"]; // write it back
 	}
 	else
 		[self loadUserDefaults: self];
@@ -504,7 +507,8 @@ NSMutableArray *localIPAddresses() {
 	[self updateHostInfo];
 }
 
-// This is sent when the server's screen params change, the server can't handle this right now so we'll restart
+// This is sent when the server's screen params change,
+// the server can't handle this right now so we'll restart.
 - (void)applicationDidChangeScreenParameters:(NSNotification *)aNotification {
 	[self addStatusMessage:@"\n"];
     [self addStatusMessage:LocalizedString(@"Screen Resolution changed - Server Reinitialized")];
@@ -519,7 +523,8 @@ NSMutableArray *localIPAddresses() {
 	NSUInteger activeConnectionsCount = clientList.count;
 
 	if (!passwordField.stringValue.length)
-		[statusMessage appendFormat:@"%@(%@)", LocalizedString(@"Server Running"), LocalizedString(@"No Authentication")];
+		[statusMessage appendFormat:@"%@(%@)", LocalizedString(@"Server Running"),
+         LocalizedString(@"No Authentication")];
 	else
 		[statusMessage appendString: LocalizedString(@"Server Running")];
 
@@ -535,7 +540,8 @@ NSMutableArray *localIPAddresses() {
 	else if (activeConnectionsCount > 1) {
 		[statusMessage appendFormat: @"%lu ", (unsigned long)activeConnectionsCount];
 		[statusMessage appendString: LocalizedString(@"Clients Connected: ")];
-		[statusMessage appendString: [[clientList valueForKey:@"clientIP"] componentsJoinedByString:@", "]];
+		[statusMessage appendString:
+         [[clientList valueForKey:@"clientIP"] componentsJoinedByString:@", "]];
 	}
 	[statusMessageField setStringValue: statusMessage];
 
@@ -698,7 +704,8 @@ NSMutableArray *localIPAddresses() {
         if (port < 5900 || port > 5909)
             [systemServerDisplayNumberField selectItemWithTitle:@"--"];
         else
-            [systemServerDisplayNumberField selectItemWithTitle:[NSString stringWithFormat:@"%d", (int)(port - 5900)]];
+            [systemServerDisplayNumberField selectItemWithTitle:[NSString stringWithFormat:@"%d",
+                                                                 (int)(port - 5900)]];
         systemServerPortField.stringValue = [NSString stringWithFormat:@"%u", (unsigned)port];
     }
 	else {
@@ -801,7 +808,8 @@ NSMutableArray *localIPAddresses() {
 	else
         [[NSUserDefaults standardUserDefaults] removeObjectForKey:@"protocolVersion"];
 
-	[[NSUserDefaults standardUserDefaults] setObject:otherArguments.stringValue forKey:@"otherArguments"];
+	[[NSUserDefaults standardUserDefaults] setObject:otherArguments.stringValue
+                                              forKey:@"otherArguments"];
 
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
@@ -840,7 +848,10 @@ NSMutableArray *localIPAddresses() {
 
         NSString *executionPath = [[NSBundle mainBundle].bundlePath
                                    stringByAppendingPathComponent: @"Contents/MacOS/OSXvnc-server"];
-        NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting %@ %@(%@)\n", [NSDate date], [NSProcessInfo processInfo].processName, [infoDictionary valueForKey:@"CFBundleShortVersion"], [infoDictionary valueForKey:@"CFBundleVersion"]];
+        NSString *noteStartup = [NSString stringWithFormat:@"%@\tStarting %@ %@(%@)\n",
+                                 [NSDate date], [NSProcessInfo processInfo].processName,
+                                 [infoDictionary valueForKey:@"CFBundleShortVersion"],
+                                 [infoDictionary valueForKey:@"CFBundleVersion"]];
 
 		[self determineLogLocation];
         if (![[NSFileManager defaultManager] fileExistsAtPath:logFile]) {
