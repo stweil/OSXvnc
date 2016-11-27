@@ -128,7 +128,7 @@
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 12;
 			dstPath = "";
-			dstSubfolderSpec = 7;
+			dstSubfolderSpec = 6;
 			files = (
 				AB82605A08689AC00010AB63 /* storepasswd in CopyFiles */,
 				AB82605E08689AC00010AB63 /* OSXvnc-server in CopyFiles */,
