@@ -601,6 +601,7 @@ char *rfbGetFramebuffer(void) {
                 CGContextDrawImage(context, CGRectMake(0, 0, width, height), image);
                 imageRef = CGBitmapContextCreateImage(context);
                 CGContextRelease(context);
+                CGImageRelease(image);
             } else {
                 imageRef = CGDisplayCreateImage(displayID);
             }
