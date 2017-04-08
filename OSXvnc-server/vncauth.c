@@ -110,25 +110,28 @@ vncDecryptPasswdFromFile(char *fname)
 {
     FILE *fp;
     int i, ch;
-    unsigned char *passwd = (unsigned char *)malloc(9);
+    unsigned char *passwd;
 
     if ((fp = fopen(fname,"r")) == NULL) return NULL;
 
-    for (i = 0; i < 8; i++) {
-	ch = getc(fp);
-	if (ch == EOF) {
-	    fclose(fp);
-	    return NULL;
-	}
-	passwd[i] = ch;
+    passwd = (unsigned char *)malloc(9);
+    if (passwd != NULL) {
+        for (i = 0; i < 8; i++) {
+            ch = getc(fp);
+            if (ch == EOF) {
+                fclose(fp);
+                return NULL;
+            }
+            passwd[i] = ch;
+        }
+
+        deskey(fixedkey, DE1);
+        des(passwd, passwd);
+
+        passwd[8] = 0;
     }
 
     fclose(fp);
-
-    deskey(fixedkey, DE1);
-    des(passwd, passwd);
-
-    passwd[8] = 0;
 
     return (char *)passwd;
 }
