@@ -33,21 +33,16 @@ int CEchoSrvDataChannel::Connect(const char* szServer, unsigned int nPort, const
 	if (!Connect(szServer, nPort))
 		return -1;
 
-	char *pBuff = NULL;
-	DWORD dwTotalLength = 0;
-	DWORD dwTemp = 0;
-
-	dwTotalLength = ID_STRING_SIZE;
+	DWORD dwTemp = ID_STRING_SIZE;
+	DWORD dwTotalLength = ID_STRING_SIZE;
 	dwTotalLength += CHANNEL_CODE_SIZE;//(DWORD)strlen(szChannelCode)+1;
-	pBuff = new char[dwTotalLength];
+	char *pBuff = new char[dwTotalLength];
 	g_globals.GetFormattedID(pBuff, dwTotalLength, szMyID);
-	dwTemp = ID_STRING_SIZE;
 	memcpy(pBuff+dwTemp, szChannelCode, strlen(szChannelCode)+1);
 
 	SendMessage(MSG_DATA_CHANNEL_CONNECT,pBuff,dwTotalLength);
 
-	if(pBuff)
-		delete pBuff;
+	delete[] pBuff;
 
 	m_dwOffLoadingTime = GetTickCount();
 
