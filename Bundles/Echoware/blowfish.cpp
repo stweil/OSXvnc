@@ -22,8 +22,8 @@ CBlowFish::CBlowFish ()
 
 CBlowFish::~CBlowFish ()
 {
-	delete PArray ;
-	delete [] SBoxes ;
+	delete [] PArray;
+	delete [] SBoxes;
 }
 
 	// the low level (private) encryption function
