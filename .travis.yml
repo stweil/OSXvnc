@@ -1,0 +1,25 @@
+# Travis CI for OSXvnc.
+
+os: osx
+
+addons:
+before_deploy:
+before_install:
+branches:
+compiler:
+deploy:
+dist:
+matrix:
+notification:
+sudo:
+  # TODO
+
+install:
+  # libjpeg is already installed.
+  # - brew install libjpeg
+  # Patch project configuration to use installed libjpeg.
+  - ruby -pi -e 'gsub("libturbojpeg", "libjpeg")' OSXvnc.xcodeproj/project.pbxproj
+  - ruby -pi -e 'gsub("/opt/libjpeg-turbo", "/usr/local")' OSXvnc.xcodeproj/project.pbxproj
+
+script:
+  - xcodebuild
