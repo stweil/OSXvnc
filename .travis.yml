@@ -1,0 +1,19 @@
+# Travis CI for OSXvnc.
+
+os: osx
+
+addons:
+before_deploy:
+before_install:
+branches:
+compiler:
+deploy:
+dist:
+install:
+matrix:
+notification:
+sudo:
+  # TODO
+
+script:
+  - xcodebuild
