@@ -875,7 +875,7 @@
 					libvncauth,
 					libjpeg,
 				);
-				"LIBRARY_SEARCH_PATHS[arch=*]" = "/opt/libjpeg-turbo/lib";
+				LIBRARY_SEARCH_PATHS = "/opt/libjpeg-turbo/lib";
 				PRODUCT_NAME = "OSXvnc-server";
 				PROVISIONING_PROFILE = "";
 			};
@@ -892,7 +892,7 @@
 					"OSXvnc-server/include",
 					libjpeg,
 				);
-				"LIBRARY_SEARCH_PATHS[arch=*]" = "/opt/libjpeg-turbo/lib";
+				LIBRARY_SEARCH_PATHS = "/opt/libjpeg-turbo/lib";
 				MACH_O_TYPE = mh_execute;
 				PRODUCT_NAME = "OSXvnc-server";
 				PROVISIONING_PROFILE = "";
