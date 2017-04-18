@@ -598,6 +598,12 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = NO;
 				LastUpgradeCheck = 0800;
+				TargetAttributes = {
+					AB25D81508686B520065843D = {
+						DevelopmentTeam = RQPA3FUCZR;
+						ProvisioningStyle = Automatic;
+					};
+				};
 			};
 			buildConfigurationList = ABECD3EE08E46414009C84A0 /* Build configuration list for PBXProject "OSXvnc" */;
 			compatibilityVersion = "Xcode 6.3";
@@ -919,11 +925,13 @@
 		ABECD3EB08E46414009C84A0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = RQPA3FUCZR;
 				DSTROOT = "";
 				INFOPLIST_FILE = "VineServer-Info.plist";
 				INSTALL_PATH = "";
-				PRODUCT_BUNDLE_IDENTIFIER = de.weilnetz.VineServer;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.uni-mannheim.VineServer";
 				PRODUCT_NAME = "Vine Server";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -933,13 +941,15 @@
 		ABECD3EC08E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
+				DEVELOPMENT_TEAM = RQPA3FUCZR;
 				DSTROOT = "";
 				INFOPLIST_FILE = "VineServer-Info.plist";
 				INSTALL_PATH = "";
-				PRODUCT_BUNDLE_IDENTIFIER = de.weilnetz.VineServer;
+				PRODUCT_BUNDLE_IDENTIFIER = "de.uni-mannheim.VineServer";
 				PRODUCT_NAME = "Vine Server";
 				PROVISIONING_PROFILE = "";
 				WRAPPER_EXTENSION = app;
@@ -971,7 +981,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INSTALL_PATH = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -1004,7 +1014,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INSTALL_PATH = "";
-				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
 				"USER_HEADER_SEARCH_PATHS[arch=*]" = "/opt/libjpeg-turbo/include";
