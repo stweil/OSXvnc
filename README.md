@@ -18,7 +18,8 @@ News
 
 2016-11-20
 
-Builds now require https://sourceforge.net/projects/libjpeg-turbo/.
+Builds now require https://sourceforge.net/projects/libjpeg-turbo/
+or a compatible libjpeg.
 
 2015-10-10
 
