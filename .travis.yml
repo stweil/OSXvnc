@@ -9,13 +9,11 @@ branches:
 compiler:
 deploy:
 dist:
+install:
 matrix:
 notification:
 sudo:
   # TODO
-
-install:
-  - brew install libjpeg
 
 script:
   - xcodebuild
