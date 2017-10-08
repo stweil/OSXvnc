@@ -123,36 +123,33 @@ register unsigned long *raw1;
 	return;
 	}
 
-void cpkey(into)
-register unsigned long *into;
+void cpkey(unsigned long *into)
 {
-	register unsigned long *from, *endp;
+    unsigned long *from = KnL;
+    unsigned long *endp = &KnL[32];
+    while (from < endp) {
+        *into++ = *from++;
+    }
+}
 
-	from = KnL, endp = &KnL[32];
-	while( from < endp ) *into++ = *from++;
-	return;
-	}
-
-void usekey(from)
-register unsigned long *from;
+void usekey(unsigned long *from)
 {
-	register unsigned long *to, *endp;
+    unsigned long *to = KnL;
+    unsigned long *endp = &KnL[32];
 
-	to = KnL, endp = &KnL[32];
-	while( to < endp ) *to++ = *from++;
-	return;
-	}
+    while (to < endp) {
+        *to++ = *from++;
+    }
+}
 
-void des(inblock, outblock)
-unsigned char *inblock, *outblock;
+void des(unsigned char *inblock, unsigned char *outblock)
 {
 	unsigned long work[2];
 
 	scrunch(inblock, work);
 	desfunc(work, KnL);
 	unscrun(work, outblock);
-	return;
-	}
+}
 
 static void scrunch(outof, into)
 register unsigned char *outof;

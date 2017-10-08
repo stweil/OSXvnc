@@ -27,7 +27,7 @@
 #include <stdlib.h>
 #include "rfb.h"
 
-static Bool rfbSetClientColourMapBGR233();
+static Bool rfbSetClientColourMapBGR233(rfbClientPtr cl);
 
 Bool rfbEconomicTranslate = FALSE;
 
@@ -268,9 +268,7 @@ Bool rfbSetTranslateFunctionUsingFormat(rfbClientPtr cl, rfbPixelFormat inFormat
  * just like an 8-bit BGR233 true colour client.
  */
 
-static Bool
-rfbSetClientColourMapBGR233(cl)
-    rfbClientPtr cl;
+static Bool rfbSetClientColourMapBGR233(rfbClientPtr cl)
 {
     char buf[sz_rfbSetColourMapEntriesMsg + 256 * 3 * 2];
     rfbSetColourMapEntriesMsg *scme = (rfbSetColourMapEntriesMsg *)buf;

@@ -38,10 +38,7 @@
  *                              rectangle encoding.
  */
 
-Bool
-rfbSendOneRectEncodingZlib(cl, x, y, w, h)
-    rfbClientPtr cl;
-    int x, y, w, h;
+Bool rfbSendOneRectEncodingZlib(rfbClientPtr cl, int x, int y, int w, int h)
 {
     rfbFramebufferUpdateRectHeader rect;
     rfbZlibHeader hdr;

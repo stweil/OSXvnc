@@ -372,7 +372,7 @@ extern unsigned rfbProtocolMinorVersion;
 
 extern unsigned rfbPort;
 
-extern char *rfbGetFramebuffer();
+extern char *rfbGetFramebuffer(void);
 extern void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h);
 
 extern void rfbStartClientWithFD(int client_fd);
@@ -399,7 +399,7 @@ extern void rfbLog(char *format, ...);
 extern void rfbDebugLog(char *format, ...);
 extern void rfbLogPerror(char *str);
 
-extern void rfbShutdown();
+extern void rfbShutdown(void);
 
 /* sockets.c */
 
@@ -411,12 +411,12 @@ extern int WriteExact(rfbClientPtr cl, const void *buf, size_t len);
 
 /* cutpaste.c */
 
-extern void initPasteboard();
+extern void initPasteboard(void);
 extern void initPasteboardForClient(rfbClientPtr cl);
 extern void freePasteboardForClient(rfbClientPtr cl);
 
 extern void rfbSetCutText(rfbClientPtr cl, char *str, int len);
-extern void rfbCheckForPasteboardChange();
+extern void rfbCheckForPasteboardChange(void);
 extern void rfbClientUpdatePasteboard(rfbClientPtr cl);
 
 extern void rfbReceiveRichClipboardAvailable(rfbClientPtr cl);
@@ -453,7 +453,7 @@ extern void rfbClientListInit(void);
 extern rfbClientIteratorPtr rfbGetClientIterator(void);
 extern rfbClientPtr rfbClientIteratorNext(rfbClientIteratorPtr iterator);
 extern void rfbReleaseClientIterator(rfbClientIteratorPtr iterator);
-extern Bool rfbClientsConnected();
+extern Bool rfbClientsConnected(void);
 
 extern void rfbNewClientConnection(int sock);
 extern rfbClientPtr rfbNewClient(int sock);
@@ -508,8 +508,8 @@ extern void PrintPixelFormat(rfbPixelFormat *pf);
 extern int httpPort;
 extern char *httpDir;
 
-extern void httpInitSockets();
-extern void httpCheckFds();
+extern void httpInitSockets(void);
+extern void httpCheckFds(void);
 
 
 
@@ -520,7 +520,7 @@ extern char *rfbAuthPasswdFile;
 extern Bool rfbAuthenticating;
 extern int rfbMaxLoginAttempts;
 
-extern void rfbAuthInit();
+extern void rfbAuthInit(void);
 extern void rfbAuthNewClient(rfbClientPtr cl);
 extern void rfbProcessAuthVersion(rfbClientPtr cl);
 extern void rfbAuthProcessClientMessage(rfbClientPtr cl);
@@ -609,8 +609,8 @@ extern int rfbDimmingShutdown(void);
 
 /* mousecursor.c */
 
-extern void GetCursorInfo();
-extern void rfbCheckForCursorChange();
+extern void GetCursorInfo(void);
+extern void rfbCheckForCursorChange(void);
 extern Bool rfbShouldSendNewCursor(rfbClientPtr cl);
 extern Bool rfbShouldSendNewPosition(rfbClientPtr cl);
 
@@ -619,7 +619,7 @@ extern Bool rfbSendCursorPos(rfbClientPtr cl);
 
 /* screencapture.c */
 
-screen_data_t *screen_InitCapture ();
+screen_data_t *screen_InitCapture(void);
 extern char *screen_Capture (screen_data_t *p_data);
 extern void screen_CloseCapture (screen_data_t *p_data);
 

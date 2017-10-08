@@ -1498,7 +1498,7 @@ DetectSmoothImage24 (cl, fmt, w, h)
     int w, h;
 {
     int off;
-    int x, y, d, dx, c;
+    int d, dx, c;
     int diffStat[256];
     int pixelCount = 0;
     int pix, left[3];
@@ -1510,7 +1510,8 @@ DetectSmoothImage24 (cl, fmt, w, h)
 
     memset(diffStat, 0, 256*sizeof(int));
 
-    y = 0, x = 0;
+    int x = 0;
+    int y = 0;
     while (y < h && x < w) {
         for (d = 0; d < h - y && d < w - x - DETECT_SUBROW_WIDTH; d++) {
             for (c = 0; c < 3; c++) {

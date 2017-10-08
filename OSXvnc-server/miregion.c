@@ -360,18 +360,13 @@ miRegionDestroy(pReg)
     xfree(pReg);
 }
 
-void
-miRegionUninit(pReg)
-    RegionPtr pReg;
+void miRegionUninit(RegionPtr pReg)
 {
     good(pReg);
     xfreeData(pReg);
 }
 
-Bool
-miRectAlloc(pRgn, n)
-    register RegionPtr pRgn;
-    int n;
+Bool miRectAlloc(RegionPtr pRgn, int n)
 {
     Must_have_memory = TRUE; /* XXX */
     if (!pRgn->data)
@@ -614,18 +609,20 @@ miAppendNonO (pReg, r, rEnd, y1, y2)
  *
  *-----------------------------------------------------------------------
  */
-static Bool
-miRegionOp(newReg, reg1, reg2, overlapFunc, appendNon1, appendNon2, pOverlap)
-    RegionPtr       newReg;                 /* Place to store result         */
-    RegionPtr       reg1;                   /* First region in operation     */
-    RegionPtr       reg2;                   /* 2d region in operation        */
-    Bool            (*overlapFunc)();       /* Function to call for over-
-                                             * lapping bands                 */
-    Bool            appendNon1;             /* Append non-overlapping bands  */
-                                            /* in region 1 ? */
-    Bool            appendNon2;             /* Append non-overlapping bands  */
-                                            /* in region 2 ? */
-    Bool            *pOverlap;
+static Bool miRegionOp(RegionPtr newReg,           /* Place to store result         */
+                       RegionPtr reg1,             /* First region in operation     */
+                       RegionPtr reg2,             /* 2d region in operation        */
+                       Bool (*overlapFunc)(RegionPtr pReg, BoxPtr r1, BoxPtr r1End,
+                                           BoxPtr r2, BoxPtr r2End,
+                                           short y1, short y2,
+                                           Bool *pOverlap),
+                                                   /* Function to call for over-
+                                                    * lapping bands                 */
+                       Bool appendNon1,            /* Append non-overlapping bands  */
+                                                   /* in region 1 ? */
+                       Bool appendNon2,            /* Append non-overlapping bands  */
+                                                   /* in region 2 ? */
+                       Bool *pOverlap)
 {
     register BoxPtr r1;                     /* Pointer into first region     */
     register BoxPtr r2;                     /* Pointer into 2d region        */
@@ -842,9 +839,7 @@ miRegionOp(newReg, reg1, reg2, overlapFunc, appendNon1, appendNon2, pOverlap)
  *
  *-----------------------------------------------------------------------
  */
-void
-miSetExtents (pReg)
-    register RegionPtr pReg;
+void miSetExtents(RegionPtr pReg)
 {
     register BoxPtr pBox, pBoxEnd;
 
@@ -901,16 +896,7 @@ miSetExtents (pReg)
  *-----------------------------------------------------------------------
  */
 /*ARGSUSED*/
-static Bool
-miIntersectO (pReg, r1, r1End, r2, r2End, y1, y2, pOverlap)
-    register RegionPtr  pReg;
-    register BoxPtr     r1;
-    BoxPtr              r1End;
-    register BoxPtr     r2;
-    BoxPtr              r2End;
-    short               y1;
-    short               y2;
-    Bool                *pOverlap;
+static Bool miIntersectO(RegionPtr pReg, BoxPtr r1, BoxPtr r1End, BoxPtr r2, BoxPtr r2End, short y1, short y2, Bool *pOverlap)
 {
     register int        x1;
     register int        x2;
@@ -1039,15 +1025,8 @@ miIntersect(newReg, reg1, reg2)
  *-----------------------------------------------------------------------
  */
 static Bool
-miUnionO (pReg, r1, r1End, r2, r2End, y1, y2, pOverlap)
-    register RegionPtr  pReg;
-    register BoxPtr     r1;
-             BoxPtr     r1End;
-    register BoxPtr     r2;
-             BoxPtr     r2End;
-             short      y1;
-             short      y2;
-             Bool       *pOverlap;
+miUnionO(RegionPtr pReg, BoxPtr r1, BoxPtr r1End,
+         BoxPtr r2, BoxPtr r2End, short y1, short y2, Bool *pOverlap)
 {
     register BoxPtr     pNextRect;
     register int        x1;     /* left and right side of current union */
@@ -1653,15 +1632,8 @@ miRectsToRegion(nrects, prect, ctype)
  */
 /*ARGSUSED*/
 static Bool
-miSubtractO (pReg, r1, r1End, r2, r2End, y1, y2, pOverlap)
-    register RegionPtr  pReg;
-    register BoxPtr     r1;
-    BoxPtr              r1End;
-    register BoxPtr     r2;
-    BoxPtr              r2End;
-    register int        y1;
-             int        y2;
-    Bool                *pOverlap;
+miSubtractO (RegionPtr pReg, BoxPtr r1, BoxPtr r1End,
+             BoxPtr r2, BoxPtr r2End, short y1, short y2, Bool *pOverlap)
 {
     register BoxPtr     pNextRect;
     register int        x1;
@@ -2271,15 +2243,9 @@ static void QuickSortSpans(spans, widths, numSpans)
     returns the number of new, clipped scanlines.
 */
 
-int
-miClipSpans(prgnDst, ppt, pwidth, nspans, pptNew, pwidthNew, fSorted)
-    RegionPtr               prgnDst;
-    register DDXPointPtr    ppt;
-    register int            *pwidth;
-    int                     nspans;
-    register DDXPointPtr    pptNew;
-    int                     *pwidthNew;
-    int                     fSorted;
+int miClipSpans(RegionPtr prgnDst, DDXPointPtr ppt,
+                int *pwidth, int nspans,
+                DDXPointPtr pptNew, int *pwidthNew, int fSorted)
 {
     register DDXPointPtr pptLast;
     int                 *pwidthNewStart;        /* the vengeance of Xerox! */
@@ -2388,9 +2354,7 @@ miClipSpans(prgnDst, ppt, pwidth, nspans, pptNew, pwidthNew, fSorted)
 }
 
 /* find the band in a region with the most rectangles */
-int
-miFindMaxBand(prgn)
-    RegionPtr prgn;
+int miFindMaxBand(RegionPtr prgn)
 {
     register int nbox;
     register BoxPtr pbox;

@@ -9,4 +9,4 @@
 
 #import <Foundation/NSString.h>
 
-extern NSString *getMACAddressString();
+extern NSString *getMACAddressString(void);

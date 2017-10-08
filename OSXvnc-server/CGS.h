@@ -29,7 +29,7 @@ extern CGError CGSGetGlobalCursorData(CGSConnectionRef connection,
 
 extern CGError CGSGetCurrentCursorLocation(CGSConnectionRef connection, CGPoint* point);
 extern int CGSCurrentCursorSeed(void);
-extern int CGSHardwareCursorActive(); // flaky? doesn't seem to work after DM is initialized
+extern int CGSHardwareCursorActive(void); // flaky? doesn't seem to work after DM is initialized
 
 #ifndef SAVECOLORS
 #define SAVECOLORS\
