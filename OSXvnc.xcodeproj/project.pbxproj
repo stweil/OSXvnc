@@ -598,12 +598,6 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = NO;
 				LastUpgradeCheck = 0900;
-				TargetAttributes = {
-					AB25D81508686B520065843D = {
-						DevelopmentTeam = RQPA3FUCZR;
-						ProvisioningStyle = Automatic;
-					};
-				};
 			};
 			buildConfigurationList = ABECD3EE08E46414009C84A0 /* Build configuration list for PBXProject "OSXvnc" */;
 			compatibilityVersion = "Xcode 6.3";
@@ -925,9 +919,7 @@
 		ABECD3EB08E46414009C84A0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = RQPA3FUCZR;
 				DSTROOT = "";
 				INFOPLIST_FILE = "VineServer-Info.plist";
 				INSTALL_PATH = "";
@@ -941,11 +933,9 @@
 		ABECD3EC08E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
-				DEVELOPMENT_TEAM = RQPA3FUCZR;
 				DSTROOT = "";
 				INFOPLIST_FILE = "VineServer-Info.plist";
 				INSTALL_PATH = "";
