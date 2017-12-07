@@ -38,8 +38,7 @@ Other Git clones of the CVS code:
 * https://github.com/eventials/OSXVnc
 * https://github.com/wingify/vnc
 
-Documentation and downloads at TestPlant.com:
-* http://www2.testplant.com/support/downloads/vine/
+Documentation at TestPlant.com:
 * http://docs.testplant.com/?q=content/installing-vnc-server
 
 RFB Standard:
