@@ -1914,9 +1914,9 @@ miRectIn(region, prect)
 
         if (pbox->y1 > y)
         {
-           partOut = TRUE;      /* missed part of rectangle above */
            if (partIn || (pbox->y1 >= prect->y2))
               break;
+           partOut = TRUE;      /* missed part of rectangle above */
            y = pbox->y1;        /* x guaranteed to be == prect->x1 */
         }
 
@@ -1925,9 +1925,9 @@ miRectIn(region, prect)
 
         if (pbox->x1 > x)
         {
-           partOut = TRUE;      /* missed part of rectangle to left */
            if (partIn)
               break;
+           partOut = TRUE;      /* missed part of rectangle to left */
         }
 
         if (pbox->x1 < prect->x2)
@@ -1953,7 +1953,6 @@ miRectIn(region, prect)
              * will be uncovered in that band. partIn will have been set true
              * by now...
              */
-            partOut = TRUE;
             break;
         }
     }
