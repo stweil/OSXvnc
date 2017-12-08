@@ -107,10 +107,11 @@ void rfbSendClientList() {
 		myClient = myClient->next;
 	}
 
-	[[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"VNCConnections"
-																   object:[NSString stringWithFormat:@"OSXvnc%d",rfbPort]
-																 userInfo:@{@"clientList": clientList}];
+    [[NSDistributedNotificationCenter defaultCenter] postNotificationName:@"VNCConnections"
+                                                                    object:[NSString stringWithFormat:@"OSXvnc%d",rfbPort]
+                                                                  userInfo:@{@"clientList": clientList}];
 
+    [clientList dealloc];
 	[pool release];
 
     pthread_mutex_unlock(&rfbClientListMutex);
