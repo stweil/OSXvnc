@@ -1058,7 +1058,7 @@ void rfbShutdown(void) {
         pthread_join(listener_thread,NULL);
     }
 
-    rfbDebugLog("RFB Shudown Complete");
+    rfbDebugLog("RFB shutdown complete");
 }
 
 static void executeEventLoop (int signal) {
