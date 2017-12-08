@@ -753,6 +753,7 @@ bool isConsoleSession() {
         CGEventRef event = CGEventCreateKeyboardEvent(NULL, keyCode, down);
         CGEventPost(vncTapLocation, event);
         //CGPostKeyboardEvent(0, keyCode, down);
+        CFRelease(event);
     }
     else {
         CGEventRef event = CGEventCreateKeyboardEvent(vncSourceRef, keyCode, down);
