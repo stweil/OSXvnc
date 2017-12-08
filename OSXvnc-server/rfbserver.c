@@ -1360,7 +1360,6 @@ static void CopyScalingRect(rfbClientPtr cl,
                             bool bDoScaling)
 {
     uint32_t cx, cy, cw, ch;
-    uint32_t rx, ry, rw, rh;
     unsigned char* srcptr;
     unsigned char* dstptr;
     unsigned char* tmpptr;
@@ -1389,10 +1388,12 @@ static void CopyScalingRect(rfbClientPtr cl,
     }
 
     if( bDoScaling ){
-        ry = cy * cl->scalingFactor;
-        rh = ch * cl->scalingFactor;
-        rx = cx * cl->scalingFactor;
-        rw = cw * cl->scalingFactor;
+        uint32_t rx = cx * cl->scalingFactor;
+        uint32_t ry = cy * cl->scalingFactor;
+#if 0
+        uint32_t rh = ch * cl->scalingFactor;
+        uint32_t rw = cw * cl->scalingFactor;
+#endif
 
         /* Copy and scale data from screen buffer to scaling buffer */
         srcptr = (unsigned char*)cl->screenBuffer + (ry * rfbScreen.paddedWidthInBytes ) + (rx * bytesPerPixel);
