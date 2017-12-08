@@ -543,7 +543,6 @@ bool isConsoleSession() {
     if (buttonMask & rfbWheelMask) {
         NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
         NSUserDefaults *currentUserDefs = [[NSUserDefaults alloc] initWithUser:NSUserName()];
-        CGEventRef scrollEvent;
         int mouseWheelDistance;
 
         // I would rather cache this data than look it up each time but I don't know how to get notification of a change
@@ -551,16 +550,22 @@ bool isConsoleSession() {
         // B - Running OSXvnc as root and user swiches
 
         mouseWheelDistance = 8 * [currentUserDefs floatForKey:@"com.apple.scrollwheel.scaling"];
+        [currentUserDefs dealloc];
         if (!mouseWheelDistance)
             mouseWheelDistance = 10;
 
-        if (buttonMask & rfbWheelUpMask)
-            scrollEvent = CGEventCreateScrollWheelEvent(NULL, kCGScrollEventUnitPixel,  1,  mouseWheelDistance);
+        if (buttonMask & rfbWheelUpMask) {
+            CGEventRef scrollEvent = CGEventCreateScrollWheelEvent(NULL, kCGScrollEventUnitPixel,  1,  mouseWheelDistance);
+            CGEventPost(vncTapLocation, scrollEvent);
+            CFRelease(scrollEvent);
+        }
 
-        if (buttonMask & rfbWheelDownMask)
-            scrollEvent = CGEventCreateScrollWheelEvent(NULL, kCGScrollEventUnitPixel,  1, -mouseWheelDistance);
+        if (buttonMask & rfbWheelDownMask) {
+            CGEventRef scrollEvent = CGEventCreateScrollWheelEvent(NULL, kCGScrollEventUnitPixel,  1, -mouseWheelDistance);
+            CGEventPost(vncTapLocation, scrollEvent);
+            CFRelease(scrollEvent);
+        }
 
-        CGEventPost(vncTapLocation, scrollEvent);
         [pool release];
     }
     else {
