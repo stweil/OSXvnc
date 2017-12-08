@@ -43,3 +43,8 @@ Documentation at TestPlant.com:
 
 RFB Standard:
 * https://tools.ietf.org/html/rfc6143
+
+Use
+-----
+To build, install a local copy of libjpeg/libjpeg-turbo,
+Open OSXvnc.xcodeproj in Xcode, build "Vine Server Package", you'll find a distributable at /tmp/VineServer.dmg
