@@ -919,7 +919,7 @@ void rfbReceiveRichClipboardRequest(rfbClientPtr cl) {
 	char *newClipboardName=NULL;
 	char *newClipboardType=NULL;
 	NSData *newClipboardNSData=nil;
-	int newClipboardDataChangeCount=0;
+	NSInteger newClipboardDataChangeCount = 0;
 
 	ReadExact(cl, ((char *)&pbChangeCount), 3);
 	ReadExact(cl, ((char *)&pbChangeCount), 4);
@@ -1066,7 +1066,6 @@ void rfbReceiveRichClipboardData(rfbClientPtr cl) {
 	int returnCheck;
 	int changeCount;
 	char *readString;
-	NSMutableData *data = nil;
 
 	ReadExact(cl, ((char *)&changeCount), 3); // Padding
 	ReadExact(cl, ((char *)&changeCount), 4); // Change Count
@@ -1089,7 +1088,7 @@ void rfbReceiveRichClipboardData(rfbClientPtr cl) {
 	// Read Data
 	ReadExact(cl, ((char *)&readLength), sizeof(readLength));
 	readLength = Swap32IfLE(readLength);
-	data = [[NSMutableData alloc] initWithLength:readLength];
+	NSMutableData *data = [[NSMutableData alloc] initWithLength:readLength];
 	returnCheck = ReadExact(cl, data.mutableBytes, readLength);
 
 	if (returnCheck > 0) {
