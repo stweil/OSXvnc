@@ -26,6 +26,15 @@ or a compatible libjpeg.
 Vine VNC server now also works with high resolution (retina) displays
 (thanks to Tom Sealy who wrote the new code).
 
+Building
+--------
+
+Vine VNC server requires Xcode to build a distributable packet from sources:
+- install a local copy of libjpeg/libjpeg-turbo
+- open OSXvnc.xcodeproj in Xcode and build "Vine Server Package"
+
+You will find the distributable at /tmp/VineServer.dmg
+
 Links
 -----
 
@@ -43,8 +52,3 @@ Documentation at TestPlant.com:
 
 RFB Standard:
 * https://tools.ietf.org/html/rfc6143
-
-Use
------
-To build, install a local copy of libjpeg/libjpeg-turbo,
-Open OSXvnc.xcodeproj in Xcode, build "Vine Server Package", you'll find a distributable at /tmp/VineServer.dmg
