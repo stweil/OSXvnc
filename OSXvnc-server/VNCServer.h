@@ -52,7 +52,7 @@
     CGKeyCode keyCodeControl;
     CGKeyCode keyCodeCommand;
 
-    int modifierDelay;
+    NSInteger modifierDelay;
 }
 
 + sharedServer;
