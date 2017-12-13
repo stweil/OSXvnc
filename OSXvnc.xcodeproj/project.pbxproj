@@ -77,7 +77,6 @@
 		ABA7B6D6094A171A00CD7499 /* d3des.c in Sources */ = {isa = PBXBuildFile; fileRef = ABA7B3D10948CB5D00CD7499 /* d3des.c */; };
 		ABDBE34715BA2A9D00558229 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = ABDBE34515BA2A9D00558229 /* MainMenu.xib */; };
 		ABFC222C0AF08CBA00BCE727 /* VineServer.icns in Resources */ = {isa = PBXBuildFile; fileRef = ABFC222B0AF08CBA00BCE727 /* VineServer.icns */; };
-		BC82B48B1DDE38E1001AEF16 /* libturbojpeg.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BC82B48A1DDE38E1001AEF16 /* libturbojpeg.a */; };
 		CA00814E121CA18D008B29B7 /* FdInStream.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B031038DA99401A80117 /* FdInStream.h */; };
 		CA008151121CA1C5008B29B7 /* Exception.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B02F038DA99401A80117 /* Exception.h */; };
 		CA008152121CA1D8008B29B7 /* FdOutStream.h in Headers */ = {isa = PBXBuildFile; fileRef = F5C9B033038DA99401A80117 /* FdOutStream.h */; };
@@ -178,8 +177,6 @@
 		ABEE28F804C8745B00A80117 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		ABF191B704E447A400A80117 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		ABFC222B0AF08CBA00BCE727 /* VineServer.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = VineServer.icns; sourceTree = "<group>"; };
-		BC82B4881DDE3871001AEF16 /* lib */ = {isa = PBXFileReference; lastKnownFileType = folder; name = lib; path = "../../../../../../opt/libjpeg-turbo/lib"; sourceTree = "<group>"; };
-		BC82B48A1DDE38E1001AEF16 /* libturbojpeg.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libturbojpeg.a; path = "../../../../../../opt/libjpeg-turbo/lib/libturbojpeg.a"; sourceTree = "<group>"; };
 		F538E01002F9812901A80186 /* auth.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 30; path = auth.c; sourceTree = "<group>"; };
 		F538E01302F9812901A80186 /* corre.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = corre.c; sourceTree = "<group>"; };
 		F538E01402F9812901A80186 /* cutpaste.c */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.objc; fileEncoding = 30; path = cutpaste.c; sourceTree = "<group>"; };
@@ -283,7 +280,6 @@
 				AB25DA3B0868842E0065843D /* IOKit.framework in Frameworks */,
 				AB95E3EE0FD4AA3800D063EC /* OpenGL.framework in Frameworks */,
 				ABA7B560094A080200CD7499 /* librdr.a in Frameworks */,
-				BC82B48B1DDE38E1001AEF16 /* libturbojpeg.a in Frameworks */,
 				AB25DA3D086884420065843D /* libz.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -343,8 +339,6 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				BC82B48A1DDE38E1001AEF16 /* libturbojpeg.a */,
-				BC82B4881DDE3871001AEF16 /* lib */,
 				AB25DA3C086884420065843D /* libz.dylib */,
 				AB25DA3A0868842E0065843D /* IOKit.framework */,
 				ABF191B704E447A400A80117 /* Carbon.framework */,
@@ -871,11 +865,10 @@
 				HEADER_SEARCH_PATHS = (
 					"OSXvnc-server",
 					"OSXvnc-server/include",
-					include/Xserver,
-					libvncauth,
-					libjpeg,
+					"/opt/libjpeg-turbo/include",
 				);
-				LIBRARY_SEARCH_PATHS = "/opt/libjpeg-turbo/lib";
+				LIBRARY_SEARCH_PATHS = "";
+				"OTHER_LDFLAGS[arch=*]" = "/opt/libjpeg-turbo/lib/libturbojpeg.a";
 				PRODUCT_NAME = "OSXvnc-server";
 				PROVISIONING_PROFILE = "";
 			};
@@ -890,10 +883,11 @@
 				HEADER_SEARCH_PATHS = (
 					"OSXvnc-server",
 					"OSXvnc-server/include",
-					libjpeg,
+					"/opt/libjpeg-turbo/include",
 				);
-				LIBRARY_SEARCH_PATHS = "/opt/libjpeg-turbo/lib";
+				LIBRARY_SEARCH_PATHS = "";
 				MACH_O_TYPE = mh_execute;
+				"OTHER_LDFLAGS[arch=*]" = "/opt/libjpeg-turbo/lib/libturbojpeg.a";
 				PRODUCT_NAME = "OSXvnc-server";
 				PROVISIONING_PROFILE = "";
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -981,7 +975,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
-				"USER_HEADER_SEARCH_PATHS[arch=*]" = "/opt/libjpeg-turbo/include";
+				"USER_HEADER_SEARCH_PATHS[arch=*]" = "";
 			};
 			name = Development;
 		};
@@ -1019,7 +1013,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				SDKROOT = macosx;
 				STRIP_INSTALLED_PRODUCT = NO;
-				"USER_HEADER_SEARCH_PATHS[arch=*]" = "/opt/libjpeg-turbo/include";
+				"USER_HEADER_SEARCH_PATHS[arch=*]" = "";
 			};
 			name = Deployment;
 		};
