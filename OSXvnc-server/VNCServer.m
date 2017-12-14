@@ -195,10 +195,10 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
                         }
                     }
                     else {
-                        NSLog(@"Error Translating %d (%04x): %s - %s",
+                        NSLog(@"Error Translating %d (%04x): %@ - %d",
                               keyCode, modifierKeyState,
-                              GetMacOSStatusErrorString(resultCode),
-                              GetMacOSStatusCommentString(resultCode));
+                              [NSError errorWithDomain:NSOSStatusErrorDomain code:resultCode userInfo:nil],
+                              (int)resultCode);
                     }
                 }
             }
