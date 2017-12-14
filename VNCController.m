@@ -1498,12 +1498,14 @@ NSMutableArray *localIPAddresses() {
 
     if (success && argv) {
         NSMutableArray *copyArgsArray = [NSMutableArray array];
+        NSString *executionPath = [[NSBundle mainBundle].bundlePath
+                                   stringByAppendingPathComponent: @"Contents/MacOS/OSXvnc-server"];
 
         // Copy Server Executable
         [copyArgsArray removeAllObjects];
         [copyArgsArray addObject:@"-R"]; // Recursive
         [copyArgsArray addObject:@"-f"]; // Force Copy (overwrite existing)
-        [copyArgsArray addObject:[[NSBundle mainBundle].resourcePath stringByAppendingPathComponent:@"OSXvnc-server"]];
+        [copyArgsArray addObject:executionPath];
         [copyArgsArray addObject:launchdResources];
 
         if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
