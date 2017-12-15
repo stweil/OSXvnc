@@ -16,6 +16,13 @@ This is a modified private copy of the original software.
 News
 ----
 
+2017-12-15
+
+libjpeg-turbo now is only needed for building.
+It is no longer required for running the server.
+
+The software license was updated from GPL 2 to GPL 3.
+
 2016-11-20
 
 Builds now require https://sourceforge.net/projects/libjpeg-turbo/
@@ -29,11 +36,43 @@ Vine VNC server now also works with high resolution (retina) displays
 Building
 --------
 
-Vine VNC server requires Xcode to build a distributable packet from sources:
-- install a local copy of libjpeg/libjpeg-turbo
-- open OSXvnc.xcodeproj in Xcode and build "Vine Server Package"
+Vine VNC server requires Xcode to build a distributable packet from sources.
+
+In addition, it expects the JPEG library [libjpeg-turbo](https://libjpeg-turbo.org/)
+installed in directory `/opt/libjpeg-turbo`.
+A suitable binary package for macOS is available at
+[SourceForge](https://sourceforge.net/projects/libjpeg-turbo/files/).
+
+### Building from Xcode
+
+Open `OSXvnc.xcodeproj` in Xcode and build the "Vine Server Package".
 
 You will find the distributable at /tmp/VineServer.dmg
+
+### Building from the command line
+
+Run this command from the command line:
+
+    xcodebuild --configuration Deployment
+
+Again you will find the distributable at /tmp/VineServer.dmg
+
+License
+-------
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>
+or the file LICENSE in the distribution.
 
 Links
 -----
