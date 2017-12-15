@@ -11,6 +11,7 @@
 
 Bool rfbNoDimming = FALSE;
 Bool rfbNoSleep   = TRUE;
+IOPMAssertionID userActivityLastAssertionId;
 
 static pthread_mutex_t  dimming_mutex;
 static unsigned long    dim_time;
@@ -25,10 +26,12 @@ static Bool sleep_time_saved       = FALSE;
 void rfbScreensaverTimer(EventLoopTimerRef timer, void *userData)
 {
 #pragma unused (timer, userData)
-    if (rfbNoSleep && rfbClientsConnected())
+    if (rfbNoSleep && rfbClientsConnected()) {
         UpdateSystemActivity(IdleActivity);
+        // UpdateSystemActivity's seeming replacement:
+        IOPMAssertionDeclareUserActivity(CFSTR("VNC user is logged in"), kIOPMUserActiveLocal, &userActivityLastAssertionId);
+    }
 }
-
 
 static int
 saveDimSettings(void)
