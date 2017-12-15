@@ -1047,7 +1047,7 @@ void rfbShutdown(void) {
     [[NSNotificationCenter defaultCenter] removeObserver:vncServerObject];
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:vncServerObject];
 
-    if (rfbDisableScreenSaver) {
+    if (rfbDisableScreenSaver || rfbNoSleep) {
         /* remove the screensaver timer */
         RemoveEventLoopTimer(screensaverTimer);
         DisposeEventLoopTimerUPP(screensaverTimerUPP);
