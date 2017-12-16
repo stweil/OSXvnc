@@ -662,7 +662,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Create a UDIF DMG\nset -e\nset -x\nPACKAGE_FOLDER=\"/tmp/VineServer\"\nrm -rf \"$PACKAGE_FOLDER\"\nmkdir -p \"$PACKAGE_FOLDER\"\ncp -r \"$BUILT_PRODUCTS_DIR/Vine Server.app\" \"$PACKAGE_FOLDER\"\nhdiutil create -ov -format UDZO -imagekey zlib-level=9 -srcfolder \"$PACKAGE_FOLDER\" \"/tmp/VineServer.dmg\"";
+			shellScript = "# Create a UDIF DMG\nset -e\nset -x\nPACKAGE_FOLDER=\"/tmp/VineServer\"\nrm -rf \"$PACKAGE_FOLDER\"\nmkdir -p \"$PACKAGE_FOLDER\"\ncp -r \"$BUILT_PRODUCTS_DIR/Vine Server.app\" \"$PACKAGE_FOLDER\"\nhdiutil create -fs HFS+ -ov -format UDZO -imagekey zlib-level=9 -srcfolder \"$PACKAGE_FOLDER\" \"/tmp/VineServer.dmg\"";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
