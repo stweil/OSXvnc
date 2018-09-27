@@ -26,9 +26,9 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <vncauth.h>
-#include <d3des.h>
 #include <time.h>
+#include "vncauth.h"
+#include "d3des.h"
 
 
 
