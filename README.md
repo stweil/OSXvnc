@@ -53,7 +53,7 @@ You will find the distributable at /tmp/VineServer.dmg
 
 Run this command from the command line:
 
-    xcodebuild --configuration Deployment
+    xcodebuild -configuration Deployment
 
 Again you will find the distributable at /tmp/VineServer.dmg
 
