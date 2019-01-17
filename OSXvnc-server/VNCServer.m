@@ -87,9 +87,9 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
     if (1) {
         // Find the right keycodes base on the loaded keyboard
         keyCodeShift = keyTable[XK_Shift_L];
-        keyCodeOption = keyTable[XK_Meta_L];
+        keyCodeOption = keyTable[XK_Alt_L];
         keyCodeControl = keyTable[XK_Control_L];
-        keyCodeCommand = keyTable[XK_Alt_L];
+        keyCodeCommand = keyTable[XK_Meta_L];
     }
 
 
@@ -220,9 +220,9 @@ static int unicodeNumbersToKeyCodes[16] = { 29, 18, 19, 20, 21, 23, 22, 26, 28, 
     }
 
     keyCodeShift = keyTable[XK_Shift_L];
-    keyCodeOption = keyTable[XK_Meta_L];
+    keyCodeOption = keyTable[XK_Alt_L];
     keyCodeControl = keyTable[XK_Control_L];
-    keyCodeCommand = keyTable[XK_Alt_L];
+    keyCodeCommand = keyTable[XK_Meta_L];
 }
 
 void SyncSetKeyboardLayout (TISInputSourceRef inputSource) {
@@ -652,16 +652,16 @@ bool isConsoleSession() {
                 case XK_Meta_L:
                 case XK_Meta_R:
                     if (down)
-                        currentModifiers |= kCGEventFlagMaskAlternate;
+                        currentModifiers |= kCGEventFlagMaskCommand;
                     else
-                        currentModifiers &= ~kCGEventFlagMaskAlternate;
+                        currentModifiers &= ~kCGEventFlagMaskCommand;
                     break;
                 case XK_Alt_L:
                 case XK_Alt_R:
                     if (down)
-                        currentModifiers |= kCGEventFlagMaskCommand;
+                        currentModifiers |= kCGEventFlagMaskAlternate;
                     else
-                        currentModifiers &= ~kCGEventFlagMaskCommand;
+                        currentModifiers &= ~kCGEventFlagMaskAlternate;
                     break;
             }
 
