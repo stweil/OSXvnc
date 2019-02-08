@@ -4,10 +4,18 @@ sudo: required
 env:
   global:
   - PACKAGE="/tmp/VineServer.zip"
+addons:
+  # https://docs.travis-ci.com/user/uploading-artifacts/
+  artifacts: 
+    s3_region: "us-west-1"
+    paths: 
+    - $PACKAGE
+  homebrew:
+    packages:
+    - libjpeg-turbo
 
 install:
-  - brew install libjpeg-turbo
   - sudo ln -s "/usr/local/opt/libjpeg-turbo" "/opt/libjpeg-turbo"
 
 script:
-  - xcodebuild -configuration Deployment -scheme "Vine Server Package" clean build
+  - xcodebuild -configuration Deployment -scheme "Vine Server Package" build
