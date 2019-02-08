@@ -1,25 +1,13 @@
-# Travis CI for OSXvnc.
-
 os: osx
-
-addons:
-before_deploy:
-before_install:
-branches:
-compiler:
-deploy:
-dist:
-matrix:
-notification:
-sudo:
-  # TODO
+osx_image: xcode10.1
+sudo: required
+env:
+  global:
+  - PACKAGE="/tmp/VineServer.zip"
 
 install:
-  # libjpeg is already installed.
-  # - brew install libjpeg
-  # Patch project configuration to use installed libjpeg.
-  - ruby -pi -e 'gsub("libturbojpeg", "libjpeg")' OSXvnc.xcodeproj/project.pbxproj
-  - ruby -pi -e 'gsub("/opt/libjpeg-turbo", "/usr/local")' OSXvnc.xcodeproj/project.pbxproj
+  - brew install libjpeg-turbo
+  - sudo ln -s "/usr/local/opt/libjpeg-turbo" "/opt/libjpeg-turbo"
 
 script:
-  - xcodebuild
+  - xcodebuild -configuration Deployment -scheme "Vine Server Package" clean build

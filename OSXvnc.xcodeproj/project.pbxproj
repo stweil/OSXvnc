@@ -11,7 +11,7 @@
 			isa = PBXAggregateTarget;
 			buildConfigurationList = ABA30D4215BEE7670001BAE5 /* Build configuration list for PBXAggregateTarget "Vine Server Package" */;
 			buildPhases = (
-				ABA30D3C15BEE7310001BAE5 /* Build DMG */,
+				ABA30D3C15BEE7310001BAE5 /* Build Distributables */,
 			);
 			dependencies = (
 				ABA30D4115BEE7490001BAE5 /* PBXTargetDependency */,
@@ -650,19 +650,19 @@
 			shellPath = /bin/sh;
 			shellScript = "#Write our current AGV version number into the Info.plist\ntypeset CURRENT_PRODUCT_VERSION=`cat Version.txt`\ntypeset CURRENT_BUILD_VERSION=`date +%y%m%d%H%M`\ntypeset CURRENT_YEAR=`date +%Y`\necho Version: $CURRENT_PRODUCT_VERSION Build Number: $CURRENT_BUILD_VERSION\npushd \"$TARGET_BUILD_DIR/$PRODUCT_NAME.$WRAPPER_EXTENSION/Contents\"\nsed -i \"\" s/__PRODUCT_VERSION__/$CURRENT_PRODUCT_VERSION/ ./Info.plist\nsed -i \"\" s/__BUILD_VERSION__/$CURRENT_BUILD_VERSION/ ./Info.plist\nsed -i \"\" s/__YEAR__/$CURRENT_YEAR/ ./Info.plist\npopd\n";
 		};
-		ABA30D3C15BEE7310001BAE5 /* Build DMG */ = {
+		ABA30D3C15BEE7310001BAE5 /* Build Distributables */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
 			);
 			inputPaths = (
 			);
-			name = "Build DMG";
+			name = "Build Distributables";
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Create a UDIF DMG\nset -e\nset -x\nPACKAGE_FOLDER=\"/tmp/VineServer\"\nrm -rf \"$PACKAGE_FOLDER\"\nmkdir -p \"$PACKAGE_FOLDER\"\ncp -r \"$BUILT_PRODUCTS_DIR/Vine Server.app\" \"$PACKAGE_FOLDER\"\nhdiutil create -fs HFS+ -ov -format UDZO -imagekey zlib-level=9 -srcfolder \"$PACKAGE_FOLDER\" \"/tmp/VineServer.dmg\"";
+			shellScript = "set -e\nset -x\n# PACKAGE_FOLDER=\"/tmp/VineServer\"\n# rm -rf \"$PACKAGE_FOLDER\"\n# mkdir -p \"$PACKAGE_FOLDER\"\n# cp -r \"$BUILT_PRODUCTS_DIR/Vine Server.app\" \"$PACKAGE_FOLDER\"\n# Create a UDIF DMG\n# hdiutil create -fs HFS+ -ov -format UDZO -imagekey zlib-level=9 -srcfolder \"$PACKAGE_FOLDER\" \"/tmp/VineServer.dmg\"\nDIST_PATH=\"/tmp/VineServer.zip\"\nrm -f \"$DIST_PATH\"\ncwd=`pwd`\ncd \"$BUILT_PRODUCTS_DIR\"\nzip -9 -r \"$DIST_PATH\" \"Vine Server.app\"\ncd $cwd\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
