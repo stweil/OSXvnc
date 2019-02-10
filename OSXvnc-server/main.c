@@ -889,12 +889,12 @@ static void checkForUsage(int argc, char *argv[]) {
 }
 
 static void processArguments(int argc, char *argv[]) {
-    char argString[1024] = "Arguments: ";
+    char argString[1024] = "Arguments:";
     int i, j;
 
     for (i = 1; i < argc; i++) {
-        strcat(argString, argv[i]);
         strcat(argString, " ");
+        strcat(argString, argv[i]);
     }
     rfbLog(argString);
 
