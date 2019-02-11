@@ -292,10 +292,17 @@ NSMutableArray *localIPAddresses() {
                 [ipString replaceCharactersInRange:NSMakeRange(ipString.length,0) withString:@"\tInternal"];
             }
 
-            if (controller && !limitToLocalConnections.state) { // Colorize and add tooltip
-
+            __block BOOL isLimitToLocalConnectionsEnabled;
+            __block int runningPortNum;
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                isLimitToLocalConnectionsEnabled = limitToLocalConnections.state;
+                runningPortNum = self.runningPortNum;
+            });
+            
+            if (controller && !isLimitToLocalConnectionsEnabled) { // Colorize and add tooltip
+                
                 NSURL *testURL = [NSURL URLWithString:[NSString stringWithFormat:@"http://%@:%d",
-                                                       anIP, self.runningPortNum]];
+                                                       anIP, runningPortNum]];
                 NSData *testData = [NSData dataWithContentsOfURL:testURL];
                 NSString *testString = (testData.length
                                         ? [NSString stringWithUTF8String: testData.bytes] : @"");
