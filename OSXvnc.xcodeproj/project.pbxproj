@@ -868,7 +868,13 @@
 					"/opt/libjpeg-turbo/include",
 				);
 				LIBRARY_SEARCH_PATHS = "";
-				"OTHER_LDFLAGS[arch=*]" = "/opt/libjpeg-turbo/lib/libturbojpeg.a";
+				"OTHER_LDFLAGS[arch=*]" = (
+						"-sectcreate",
+						__CGPreLoginApp,
+						__cgpreloginapp,
+						/dev/null,
+						"/opt/libjpeg-turbo/lib/libturbojpeg.a"
+				);
 				PRODUCT_NAME = "OSXvnc-server";
 				PROVISIONING_PROFILE = "";
 			};
@@ -887,7 +893,13 @@
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				MACH_O_TYPE = mh_execute;
-				"OTHER_LDFLAGS[arch=*]" = "/opt/libjpeg-turbo/lib/libturbojpeg.a";
+				"OTHER_LDFLAGS[arch=*]" = (
+						"-sectcreate",
+						__CGPreLoginApp,
+						__cgpreloginapp,
+						/dev/null,
+						"/opt/libjpeg-turbo/lib/libturbojpeg.a"
+				);
 				PRODUCT_NAME = "OSXvnc-server";
 				PROVISIONING_PROFILE = "";
 				STRIP_INSTALLED_PRODUCT = NO;
