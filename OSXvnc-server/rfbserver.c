@@ -365,6 +365,10 @@ rfbClientPtr rfbNewClient(int sock) {
         rfbCloseClient(cl);
         return NULL;
     }
+    
+    // wake up screen in case monitor off (avoid blank VNC screen):
+    IOPMAssertionDeclareUserActivity(CFSTR("VNC user is logged in"),
+        kIOPMUserActiveLocal, &userActivityLastAssertionId);
 
     return cl;
 }
