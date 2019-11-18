@@ -654,9 +654,10 @@ void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
                 return;
             }
             CGContextDrawImage(context, CGRectMake(0, 0, w, h), image);
+            CGImageRelease(image);
             imageRef = CGBitmapContextCreateImage(context);
             CGContextRelease(context);
-            CGImageRelease(image);
+            
         } else {
             imageRef = CGDisplayCreateImageForRect(displayID, rect);
         }
@@ -732,9 +733,10 @@ static bool rfbScreenInit(void) {
                 return nil;
             }
             CGContextDrawImage(context, CGRectMake(0, 0, width, height), image);
+            CGImageRelease(image);
             imageRef = CGBitmapContextCreateImage(context);
             CGContextRelease(context);
-            CGImageRelease(image);
+            
         } else {
             imageRef = CGDisplayCreateImage(displayID);
         }
