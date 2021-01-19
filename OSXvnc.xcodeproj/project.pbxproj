@@ -146,8 +146,6 @@
 		AB25D83808686B520065843D /* Vine Server.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Vine Server.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB25DA3A0868842E0065843D /* IOKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOKit.framework; path = /System/Library/Frameworks/IOKit.framework; sourceTree = "<absolute>"; };
 		AB25DA3C086884420065843D /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = /usr/lib/libz.dylib; sourceTree = "<absolute>"; };
-		AB25DA93086897440065843D /* Japanese */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = Japanese; path = Japanese.lproj/Copying.rtf; sourceTree = "<group>"; };
-		AB25DA9C0868987B0065843D /* French */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = French; path = French.lproj/Copying.rtf; sourceTree = "<group>"; };
 		AB3E27F70AF947FB004AF567 /* Vine Server.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "Vine Server.pdf"; sourceTree = "<group>"; };
 		AB41881F04C5986E00A80117 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
 		AB82605708689AC00010AB63 /* storepasswd */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = storepasswd; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -164,16 +162,9 @@
 		ABA7B3D40948CB5D00CD7499 /* vncauth.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = vncauth.h; sourceTree = "<group>"; };
 		ABA7B3D50948CB5D00CD7499 /* zrleEncode.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = zrleEncode.h; sourceTree = "<group>"; };
 		ABA7B52D094A053000CD7499 /* librdr.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = librdr.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		ABB834A40CFE73BF006EF1B6 /* German */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = German; path = German.lproj/Localizable.strings; sourceTree = "<group>"; };
-		ABB834BD0CFE7464006EF1B6 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/Localizable.strings; sourceTree = "<group>"; };
-		ABC7279D08439A0400F755B3 /* Japanese */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Japanese; path = Japanese.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABCCC8B203D9C60A00A80117 /* OSXvnc */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder; path = OSXvnc; sourceTree = "<group>"; };
-		ABD7FE7F07AFF8B4004D0B81 /* French */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = French; path = French.lproj/Localizable.strings; sourceTree = "<group>"; };
 		ABD8EC07058A0BD600C84739 /* NSAuthorization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSAuthorization.h; sourceTree = "<group>"; };
 		ABD8EC08058A0BD600C84739 /* NSAuthorization.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSAuthorization.m; sourceTree = "<group>"; };
-		ABDBE34615BA2A9D00558229 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		ABE1EFD20AC9F2E400143E2B /* Italian */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.strings; name = Italian; path = Italian.lproj/Localizable.strings; sourceTree = "<group>"; };
-		ABE1EFD50AC9F4B900143E2B /* German */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = German; path = German.lproj/Copying.rtf; sourceTree = "<group>"; };
 		ABEE28F804C8745B00A80117 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = /System/Library/Frameworks/Security.framework; sourceTree = "<absolute>"; };
 		ABF191B704E447A400A80117 /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		ABFC222B0AF08CBA00BCE727 /* VineServer.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = VineServer.icns; sourceTree = "<group>"; };
@@ -231,10 +222,7 @@
 		F5456A2802FAD08901A80117 /* VNCController.m */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.objc; path = VNCController.m; sourceTree = "<group>"; };
 		F5456A2902FAD08901A80117 /* VNCController.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = VNCController.h; sourceTree = "<group>"; };
 		F54B48D8038C32FA01A80117 /* OSXvnc.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = OSXvnc.tiff; sourceTree = "<group>"; };
-		F55FDAB502FB44CE01A80117 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = "English.lproj/Vine Server Release Notes.rtf"; sourceTree = "<group>"; };
 		F570ED1002F9DA7601A80186 /* OSXvnc.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = OSXvnc.icns; sourceTree = SOURCE_ROOT; };
-		F5753F450343ACD501A80186 /* English */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = English; path = English.lproj/Copying.rtf; sourceTree = "<group>"; };
-		F57BB468027E036F014B5D3F /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; name = English; path = English.lproj/Credits.rtf; sourceTree = "<group>"; };
 		F58DDDE7056A861001A8015E /* VNCServer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VNCServer.h; sourceTree = "<group>"; };
 		F58DDDE8056A861001A8015E /* VNCServer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VNCServer.m; sourceTree = "<group>"; };
 		F5C9A8F1038C6F5D01A80117 /* mousecursor.c */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.c; path = mousecursor.c; sourceTree = "<group>"; };
@@ -259,6 +247,18 @@
 		F5C9B041038DA99401A80117 /* ZlibOutStream.cxx */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = ZlibOutStream.cxx; sourceTree = "<group>"; };
 		F5C9B042038DA99401A80117 /* ZlibOutStream.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = ZlibOutStream.h; sourceTree = "<group>"; };
 		F5F3A78903B395AA01A80117 /* OSXvnc.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = OSXvnc.jpg; sourceTree = "<group>"; };
+		F89837A525B78CE3003BFE25 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = fr; path = fr.lproj/Copying.rtf; sourceTree = "<group>"; };
+		F89837A625B78CE3003BFE25 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F89837A825B78CFB003BFE25 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Copying.rtf; sourceTree = "<group>"; };
+		F89837A925B78CFB003BFE25 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		F89837AA25B78CFB003BFE25 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F89837AB25B78CFB003BFE25 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = "en.lproj/Vine Server Release Notes.rtf"; sourceTree = "<group>"; };
+		F89837AC25B78D00003BFE25 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = de; path = de.lproj/Copying.rtf; sourceTree = "<group>"; };
+		F89837AD25B78D00003BFE25 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F89837AE25B78D05003BFE25 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = ja; path = ja.lproj/Copying.rtf; sourceTree = "<group>"; };
+		F89837AF25B78D05003BFE25 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F89837B025B78D09003BFE25 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
+		F89837B125B78D15003BFE25 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -590,19 +590,19 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				BuildIndependentTargetsInParallel = NO;
-				LastUpgradeCheck = 0900;
+				LastUpgradeCheck = 1230;
 			};
 			buildConfigurationList = ABECD3EE08E46414009C84A0 /* Build configuration list for PBXProject "OSXvnc" */;
 			compatibilityVersion = "Xcode 6.3";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 1;
 			knownRegions = (
-				English,
-				Japanese,
-				French,
-				German,
-				Italian,
+				fr,
+				en,
+				de,
+				ja,
+				it,
+				Base,
 			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* OSXvnc */;
 			projectDirPath = "";
@@ -762,7 +762,7 @@
 		AB541C2907A0264F00B63668 /* Vine Server Release Notes.rtf */ = {
 			isa = PBXVariantGroup;
 			children = (
-				F55FDAB502FB44CE01A80117 /* English */,
+				F89837AB25B78CFB003BFE25 /* en */,
 			);
 			name = "Vine Server Release Notes.rtf";
 			sourceTree = "<group>";
@@ -770,10 +770,10 @@
 		AB541C3B07A0273500B63668 /* Copying.rtf */ = {
 			isa = PBXVariantGroup;
 			children = (
-				F5753F450343ACD501A80186 /* English */,
-				AB25DA9C0868987B0065843D /* French */,
-				AB25DA93086897440065843D /* Japanese */,
-				ABE1EFD50AC9F4B900143E2B /* German */,
+				F89837A525B78CE3003BFE25 /* fr */,
+				F89837A825B78CFB003BFE25 /* en */,
+				F89837AC25B78D00003BFE25 /* de */,
+				F89837AE25B78D05003BFE25 /* ja */,
 			);
 			name = Copying.rtf;
 			sourceTree = "<group>";
@@ -781,11 +781,11 @@
 		ABD7FE7E07AFF8B4004D0B81 /* Localizable.strings */ = {
 			isa = PBXVariantGroup;
 			children = (
-				ABB834BD0CFE7464006EF1B6 /* English */,
-				ABB834A40CFE73BF006EF1B6 /* German */,
-				ABD7FE7F07AFF8B4004D0B81 /* French */,
-				ABE1EFD20AC9F2E400143E2B /* Italian */,
-				ABC7279D08439A0400F755B3 /* Japanese */,
+				F89837A625B78CE3003BFE25 /* fr */,
+				F89837AA25B78CFB003BFE25 /* en */,
+				F89837AD25B78D00003BFE25 /* de */,
+				F89837AF25B78D05003BFE25 /* ja */,
+				F89837B025B78D09003BFE25 /* it */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -793,7 +793,7 @@
 		ABDBE34515BA2A9D00558229 /* MainMenu.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
-				ABDBE34615BA2A9D00558229 /* English */,
+				F89837B125B78D15003BFE25 /* Base */,
 			);
 			name = MainMenu.xib;
 			sourceTree = "<group>";
@@ -801,7 +801,7 @@
 		F57BB467027E036F014B5D3F /* Credits.rtf */ = {
 			isa = PBXVariantGroup;
 			children = (
-				F57BB468027E036F014B5D3F /* English */,
+				F89837A925B78CFB003BFE25 /* en */,
 			);
 			name = Credits.rtf;
 			sourceTree = "<group>";
@@ -812,6 +812,7 @@
 		ABA30D3E15BEE7310001BAE5 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -823,9 +824,9 @@
 		ABA30D3F15BEE7310001BAE5 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				PRODUCT_NAME = "Vine Server Package";
 				SDKROOT = macosx;
 			};
@@ -834,6 +835,7 @@
 		ABA7B538094A054A00CD7499 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
@@ -847,6 +849,7 @@
 		ABA7B539094A054A00CD7499 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				CXX = "g++-3.3 ";
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -861,6 +864,8 @@
 		ABECD3DF08E46414009C84A0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				HEADER_SEARCH_PATHS = (
 					"OSXvnc-server",
@@ -869,11 +874,11 @@
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				"OTHER_LDFLAGS[arch=*]" = (
-						"-sectcreate",
-						__CGPreLoginApp,
-						__cgpreloginapp,
-						/dev/null,
-						"/opt/libjpeg-turbo/lib/libturbojpeg.a"
+					"-sectcreate",
+					__CGPreLoginApp,
+					__cgpreloginapp,
+					/dev/null,
+					"/opt/libjpeg-turbo/lib/libturbojpeg.a",
 				);
 				PRODUCT_NAME = "OSXvnc-server";
 				PROVISIONING_PROFILE = "";
@@ -883,6 +888,8 @@
 		ABECD3E008E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				GCC_OPTIMIZATION_LEVEL = 3;
@@ -894,11 +901,11 @@
 				LIBRARY_SEARCH_PATHS = "";
 				MACH_O_TYPE = mh_execute;
 				"OTHER_LDFLAGS[arch=*]" = (
-						"-sectcreate",
-						__CGPreLoginApp,
-						__cgpreloginapp,
-						/dev/null,
-						"/opt/libjpeg-turbo/lib/libturbojpeg.a"
+					"-sectcreate",
+					__CGPreLoginApp,
+					__cgpreloginapp,
+					/dev/null,
+					"/opt/libjpeg-turbo/lib/libturbojpeg.a",
 				);
 				PRODUCT_NAME = "OSXvnc-server";
 				PROVISIONING_PROFILE = "";
@@ -909,6 +916,8 @@
 		ABECD3E308E46414009C84A0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				PRODUCT_NAME = storepasswd;
 				PROVISIONING_PROFILE = "";
 			};
@@ -917,6 +926,8 @@
 		ABECD3E408E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				PRODUCT_NAME = storepasswd;
 				PROVISIONING_PROFILE = "";
 			};
@@ -925,6 +936,8 @@
 		ABECD3EB08E46414009C84A0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				DSTROOT = "";
 				INFOPLIST_FILE = "VineServer-Info.plist";
@@ -939,6 +952,8 @@
 		ABECD3EC08E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEPLOYMENT_LOCATION = YES;
 				DEPLOYMENT_POSTPROCESSING = YES;
@@ -960,12 +975,15 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -999,12 +1017,15 @@
 				CLANG_WARN_BOOL_CONVERSION = YES;
 				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
 				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
