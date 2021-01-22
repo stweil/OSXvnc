@@ -220,7 +220,7 @@ NSMutableArray *localIPAddresses() {
                           LocalizedString(@"Cancel"),
                           LocalizedString(@"Quit"),
                           nil, statusWindow, self, @selector(terminateSheetDidEnd:returnCode:contextInfo:), NULL, NULL,
-                          LocalizedString(@"Disconnect %d clients and quit Vine Server?"), clientList.count);
+                          LocalizedString(@"Disconnect %lu clients and quit Vine Server?"), (unsigned long)clientList.count);
     else
         [NSApp terminate: self];
 }
