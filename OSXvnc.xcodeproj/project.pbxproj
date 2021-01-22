@@ -812,6 +812,7 @@
 		ABA30D3E15BEE7310001BAE5 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "";
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -824,6 +825,7 @@
 		ABA30D3F15BEE7310001BAE5 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -835,6 +837,7 @@
 		ABA7B538094A054A00CD7499 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -849,6 +852,7 @@
 		ABA7B539094A054A00CD7499 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				CXX = "g++-3.3 ";
@@ -864,21 +868,23 @@
 		ABECD3DF08E46414009C84A0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
 				HEADER_SEARCH_PATHS = (
 					"OSXvnc-server",
 					"OSXvnc-server/include",
-					"/opt/libjpeg-turbo/include",
+					"libjpeg-turbo",
 				);
 				LIBRARY_SEARCH_PATHS = "";
-				"OTHER_LDFLAGS[arch=*]" = (
+				"OTHER_LDFLAGS[arch=arm64]" = "libjpeg-turbo/build/armv8/libturbojpeg.a";
+				"OTHER_LDFLAGS[arch=x86_64]" = (
 					"-sectcreate",
 					__CGPreLoginApp,
 					__cgpreloginapp,
 					/dev/null,
-					"/opt/libjpeg-turbo/lib/libturbojpeg.a",
+					"libjpeg-turbo/build/x86_64/libturbojpeg.a",
 				);
 				PRODUCT_NAME = "OSXvnc-server";
 				PROVISIONING_PROFILE = "";
@@ -888,6 +894,7 @@
 		ABECD3E008E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COPY_PHASE_STRIP = NO;
@@ -896,16 +903,17 @@
 				HEADER_SEARCH_PATHS = (
 					"OSXvnc-server",
 					"OSXvnc-server/include",
-					"/opt/libjpeg-turbo/include",
+					"libjpeg-turbo",
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				MACH_O_TYPE = mh_execute;
-				"OTHER_LDFLAGS[arch=*]" = (
+				"OTHER_LDFLAGS[arch=arm64]" = "libjpeg-turbo/build/armv8/libturbojpeg.a";
+				"OTHER_LDFLAGS[arch=x86_64]" = (
 					"-sectcreate",
 					__CGPreLoginApp,
 					__cgpreloginapp,
 					/dev/null,
-					"/opt/libjpeg-turbo/lib/libturbojpeg.a",
+					"libjpeg-turbo/build/x86_64/libturbojpeg.a",
 				);
 				PRODUCT_NAME = "OSXvnc-server";
 				PROVISIONING_PROFILE = "";
@@ -916,6 +924,7 @@
 		ABECD3E308E46414009C84A0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "-";
 				PRODUCT_NAME = storepasswd;
@@ -926,6 +935,7 @@
 		ABECD3E408E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "-";
 				PRODUCT_NAME = storepasswd;
@@ -936,6 +946,7 @@
 		ABECD3EB08E46414009C84A0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -952,6 +963,7 @@
 		ABECD3EC08E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ENABLE_OBJC_WEAK = YES;
 				CODE_SIGN_IDENTITY = "-";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -970,6 +982,7 @@
 		ABECD3EF08E46414009C84A0 /* Development */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -1012,6 +1025,7 @@
 		ABECD3F008E46414009C84A0 /* Deployment */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
@@ -1060,7 +1074,7 @@
 				ABA30D3F15BEE7310001BAE5 /* Deployment */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Development;
+			defaultConfigurationName = Deployment;
 		};
 		ABA7B537094A054A00CD7499 /* Build configuration list for PBXNativeTarget "rdr" */ = {
 			isa = XCConfigurationList;
@@ -1069,7 +1083,7 @@
 				ABA7B539094A054A00CD7499 /* Deployment */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Development;
+			defaultConfigurationName = Deployment;
 		};
 		ABECD3DE08E46414009C84A0 /* Build configuration list for PBXNativeTarget "OSXvnc-server" */ = {
 			isa = XCConfigurationList;
@@ -1078,7 +1092,7 @@
 				ABECD3E008E46414009C84A0 /* Deployment */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Development;
+			defaultConfigurationName = Deployment;
 		};
 		ABECD3E208E46414009C84A0 /* Build configuration list for PBXNativeTarget "storepasswd" */ = {
 			isa = XCConfigurationList;
@@ -1087,7 +1101,7 @@
 				ABECD3E408E46414009C84A0 /* Deployment */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Development;
+			defaultConfigurationName = Deployment;
 		};
 		ABECD3EA08E46414009C84A0 /* Build configuration list for PBXNativeTarget "Vine Server" */ = {
 			isa = XCConfigurationList;
@@ -1096,7 +1110,7 @@
 				ABECD3EC08E46414009C84A0 /* Deployment */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Development;
+			defaultConfigurationName = Deployment;
 		};
 		ABECD3EE08E46414009C84A0 /* Build configuration list for PBXProject "OSXvnc" */ = {
 			isa = XCConfigurationList;
@@ -1105,7 +1119,7 @@
 				ABECD3F008E46414009C84A0 /* Deployment */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Development;
+			defaultConfigurationName = Deployment;
 		};
 /* End XCConfigurationList section */
 	};
