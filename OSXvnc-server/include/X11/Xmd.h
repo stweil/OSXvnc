@@ -55,7 +55,9 @@ SOFTWARE.
 typedef int8_t INT8;
 typedef int16_t INT16;
 typedef int32_t INT32;
+#if !defined(OBJC_BOOL_IS_BOOL)
 typedef int8_t BOOL;
+#endif
 #ifndef __EMX__
 #endif
 typedef uint32_t BITS32;
