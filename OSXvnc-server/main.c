@@ -595,6 +595,7 @@ char *rfbGetFramebuffer(void) {
 
                 CGColorSpaceRelease(colorspace);
                 if (context == NULL) {
+                    CGImageRelease(image);
                     rfbLog("There was an error getting screen shot");
                     return nil;
                 }
@@ -650,6 +651,7 @@ void rfbGetFramebufferUpdateInRect(int x, int y, int w, int h) {
             CGContextRef context = CGBitmapContextCreate(NULL, w, h, 8, w * 4,colorspace, bitmapInfo);
             CGColorSpaceRelease(colorspace);
             if (context == NULL) {
+                CGImageRelease(image);
                 rfbLog("There was an error getting scaled images");
                 return;
             }
@@ -729,6 +731,7 @@ static bool rfbScreenInit(void) {
 
             CGColorSpaceRelease(colorspace);
             if (context == NULL) {
+                CGImageRelease(image);
                 rfbLog("There was an error getting screen shot");
                 return nil;
             }
