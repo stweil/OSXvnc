@@ -158,20 +158,11 @@ typedef struct _xReq *xReqPtr;
 
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
-#if !defined(AMOEBA) && !defined(__EMX__) && !defined(_STDLIB_H_)
-#ifndef abs
-#define abs(a) ((a) > 0 ? (a) : -(a))
-#endif
-#else /* AMOEBA || __EMX__ */
 /* abs() is a function, not a macro; include the file declaring
  * it in case we haven't done that yet.
  */
 #include <stdlib.h>
-#endif /* AMOEBA */
 
-#ifndef Fabs
-#define Fabs(a) ((a) > 0.0 ? (a) : -(a))	/* floating absolute value */
-#endif
 #define sign(x) ((x) < 0 ? -1 : ((x) > 0 ? 1 : 0))
 /* this assumes b > 0 */
 #define modulus(a, b, d)    if (((d) = (a) % (b)) < 0) (d) += (b)
