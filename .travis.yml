@@ -22,4 +22,5 @@ install:
   - ruby -pi -e 'gsub("/opt/libjpeg-turbo", "/usr/local")' OSXvnc.xcodeproj/project.pbxproj
 
 script:
+  - ./build-libjpeg-turbo.sh
   - xcodebuild

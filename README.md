@@ -16,19 +16,27 @@ This is a modified private copy of the original software.
 News
 ----
 
-2017-12-15
+### 2021-01-29
+
+libjpeg-turbo is now included as a git submodule
+and built using local build rules.
+
+The build rules build now a universal app which
+supports both Intel and Arm64 Macs.
+
+### 2017-12-15
 
 libjpeg-turbo now is only needed for building.
 It is no longer required for running the server.
 
 The software license was updated from GPL 2 to GPL 3.
 
-2016-11-20
+### 2016-11-20
 
 Builds now require https://sourceforge.net/projects/libjpeg-turbo/
 or a compatible libjpeg.
 
-2015-10-10
+### 2015-10-10
 
 Vine VNC server now also works with high resolution (retina) displays
 (thanks to Tom Sealy who wrote the new code).
@@ -38,21 +46,21 @@ Building
 
 Vine VNC server requires Xcode to build a distributable packet from sources.
 
-In addition, it expects the JPEG library [libjpeg-turbo](https://libjpeg-turbo.org/)
-installed in directory `/opt/libjpeg-turbo`.
-A suitable binary package for macOS is available at
-[SourceForge](https://sourceforge.net/projects/libjpeg-turbo/files/).
+In addition, it uses the JPEG library [libjpeg-turbo](https://libjpeg-turbo.org/).
+The source code for that library is included as a Git submodule.
 
 ### Building from Xcode
 
-Open `OSXvnc.xcodeproj` in Xcode and build the "Vine Server Package".
+Build the libjpeg-turbo library first by runnning `./build-libjpeg-turbo.sh`.
+Then open `OSXvnc.xcodeproj` in Xcode and build the "Vine Server Package".
 
 You will find the distributable at /tmp/VineServer.dmg
 
 ### Building from the command line
 
-Run this command from the command line:
+Run these commands from the command line:
 
+    ./build-libjpeg-turbo.sh
     xcodebuild -configuration Deployment
 
 Again you will find the distributable at /tmp/VineServer.dmg
