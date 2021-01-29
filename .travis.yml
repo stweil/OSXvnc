@@ -1,6 +1,7 @@
 # Travis CI for OSXvnc.
 
 os: osx
+osx_image: xcode12.2
 
 addons:
 before_deploy:
