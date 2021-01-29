@@ -878,13 +878,19 @@
 					"libjpeg-turbo",
 				);
 				LIBRARY_SEARCH_PATHS = "";
-				"OTHER_LDFLAGS[arch=arm64]" = "libjpeg-turbo/build/armv8/libturbojpeg.a";
+				"OTHER_LDFLAGS[arch=arm64]" = (
+					"-sectcreate",
+					__CGPreLoginApp,
+					__cgpreloginapp,
+					/dev/null,
+					"libjpeg-turbo/macosarmv8/libturbojpeg.a",
+				);
 				"OTHER_LDFLAGS[arch=x86_64]" = (
 					"-sectcreate",
 					__CGPreLoginApp,
 					__cgpreloginapp,
 					/dev/null,
-					"libjpeg-turbo/build/x86_64/libturbojpeg.a",
+					"libjpeg-turbo/macosx8664/libturbojpeg.a",
 				);
 				PRODUCT_NAME = "OSXvnc-server";
 				PROVISIONING_PROFILE = "";
@@ -907,13 +913,19 @@
 				);
 				LIBRARY_SEARCH_PATHS = "";
 				MACH_O_TYPE = mh_execute;
-				"OTHER_LDFLAGS[arch=arm64]" = "libjpeg-turbo/build/armv8/libturbojpeg.a";
+				"OTHER_LDFLAGS[arch=arm64]" = (
+					"-sectcreate",
+					__CGPreLoginApp,
+					__cgpreloginapp,
+					/dev/null,
+					"libjpeg-turbo/macosarmv8/libturbojpeg.a",
+				);
 				"OTHER_LDFLAGS[arch=x86_64]" = (
 					"-sectcreate",
 					__CGPreLoginApp,
 					__cgpreloginapp,
 					/dev/null,
-					"libjpeg-turbo/build/x86_64/libturbojpeg.a",
+					"libjpeg-turbo/macosx8664/libturbojpeg.a",
 				);
 				PRODUCT_NAME = "OSXvnc-server";
 				PROVISIONING_PROFILE = "";
