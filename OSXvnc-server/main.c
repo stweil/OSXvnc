@@ -227,7 +227,7 @@ static int bitsPerPixelForDisplay(CGDirectDisplayID dispID) {
     return bitsPerPixel;
 }
 
-static CGFloat scalingFactor()
+static CGFloat scalingFactor(void)
 {
     CGFloat scale = 1.0;
     NSScreen *myScreen = [NSScreen mainScreen];
@@ -237,7 +237,7 @@ static CGFloat scalingFactor()
     return scale;
 }
 
-void rfbCheckForScreenResolutionChange() {
+static void rfbCheckForScreenResolutionChange(void) {
     BOOL sizeChange = (rfbScreen.width != CGDisplayPixelsWide(displayID) ||
                        rfbScreen.height != CGDisplayPixelsHigh(displayID));
     BOOL colorChange = (bitsPerPixelForDisplay(displayID) > 0 && rfbScreen.bitsPerPixel != bitsPerPixelForDisplay(displayID));
@@ -1114,7 +1114,7 @@ void daemonize( void ) {
     /* from this point on we should only send output to server log or syslog */
 }
 
-int scanForOpenPort() {
+static int scanForOpenPort(void) {
     int tryPort = 5900;
     int listen_fd4=0;
     int value=1;

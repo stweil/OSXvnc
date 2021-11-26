@@ -232,7 +232,7 @@ void SyncSetKeyboardLayout (TISInputSourceRef inputSource) {
     }
 }
 
-bool isConsoleSession() {
+static bool isConsoleSession(void) {
     BOOL returnValue = FALSE;
     CFDictionaryRef sessionInfoDict = CGSessionCopyCurrentDictionary();
 

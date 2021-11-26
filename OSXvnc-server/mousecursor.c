@@ -56,7 +56,7 @@ inline CGSConnectionRef getConnection() {
 	return sharedConnection;
 }
 
-CGPoint currentCursorLoc() {
+static CGPoint currentCursorLoc(void) {
     CGPoint cursorLoc={0.0, 0.0};
 	CGSConnectionRef connection = getConnection();
 
@@ -68,7 +68,7 @@ CGPoint currentCursorLoc() {
     return cursorLoc;
 }
 
-void loadCurrentCursorData() {
+static void loadCurrentCursorData(void) {
     CGError err;
     CGSConnectionRef connection = getConnection();
 
@@ -166,7 +166,7 @@ void loadCurrentCursorData() {
 }
 
 // Just for logging
-void GetCursorInfo() {
+void GetCursorInfo(void) {
 	CGSConnectionRef connection = getConnection();
     CGError err = noErr;
     int cursorDataSize, depth, components, bitsPerComponent, cursorRowSize;
@@ -224,7 +224,7 @@ void GetCursorInfo() {
 
 // We call this to see if we have a new cursor and should notify clients to do an update
 // Or if cursor has moved
-void rfbCheckForCursorChange() {
+void rfbCheckForCursorChange(void) {
 	Bool sendNotice = FALSE;
     CGPoint cursorLoc = currentCursorLoc();
 	int currentSeed = CGSCurrentCursorSeed();

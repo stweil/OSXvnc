@@ -90,12 +90,12 @@ rfbReleaseClientIterator(rfbClientIteratorPtr iterator)
     pthread_mutex_unlock(&rfbClientListMutex);
 }
 
-Bool rfbClientsConnected()
+Bool rfbClientsConnected(void)
 {
     return (rfbClientHead != NULL);
 }
 
-void rfbSendClientList() {
+static void rfbSendClientList(void) {
     pthread_mutex_lock(&rfbClientListMutex);
 
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];

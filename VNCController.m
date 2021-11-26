@@ -98,7 +98,7 @@ static void terminateOnSignal(int signal) {
     [NSApp terminate:NSApp];
 }
 
-NSMutableString *hostNameString() {
+static NSMutableString *hostNameString(void) {
     char hostName[256];
     gethostname(hostName, 256);
 
@@ -109,7 +109,7 @@ NSMutableString *hostNameString() {
     return hostNameString;
 }
 
-NSMutableArray *localIPAddresses() {
+static NSMutableArray *localIPAddresses(void) {
     NSMutableArray *returnArray = [NSMutableArray array];
     struct ifaddrs *ifa = NULL, *ifp = NULL;
 
