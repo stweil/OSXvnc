@@ -166,6 +166,7 @@ static void loadCurrentCursorData(void) {
 }
 
 // Just for logging
+#if 0 // unused
 void GetCursorInfo(void) {
 	CGSConnectionRef connection = getConnection();
     CGError err = noErr;
@@ -221,6 +222,7 @@ void GetCursorInfo(void) {
 
     printf("released connection (err %d)\n", CGSReleaseConnection(connection));
 }
+#endif
 
 // We call this to see if we have a new cursor and should notify clients to do an update
 // Or if cursor has moved
