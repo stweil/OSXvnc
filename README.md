@@ -51,7 +51,7 @@ The source code for that library is included as a Git submodule.
 
 ### Building from Xcode
 
-Build the libjpeg-turbo library first by runnning `./build-libjpeg-turbo.sh`.
+Build the libjpeg-turbo library first by running `./build-libjpeg-turbo.sh`.
 Then open `OSXvnc.xcodeproj` in Xcode and build the "Vine Server Package".
 
 You will find the distributable at /tmp/VineServer.dmg

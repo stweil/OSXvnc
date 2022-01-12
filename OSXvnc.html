@@ -96,7 +96,7 @@ If you've ever thought that it would be convenient to generate scripts that coul
 
 <p><b><A id=External>Q: How can I connect to my home machine from outside my home/across the internet?</a></b></p>
 
-<p><b>A: </b>First, if your machine is behind a device that does NAT like a Firewall, Router or Cable/DSL modem then please read the following FAQ.  If not, then you need to get the IP address of your computer.  It will be shown in the System Prefernces application under Network and will consist of four numbers with dots between them.  In your VNC client just use this number to connect to your computer from an external network.  You can also go to this handy link from the machine running OSXvnc to verify the IP address: <a href=http://www.gotomyvnc.com/ target=_blank>http://www.gotomyvnc.com</a><BR>
+<p><b>A: </b>First, if your machine is behind a device that does NAT like a Firewall, Router or Cable/DSL modem then please read the following FAQ.  If not, then you need to get the IP address of your computer.  It will be shown in the System Preferences application under Network and will consist of four numbers with dots between them.  In your VNC client just use this number to connect to your computer from an external network.  You can also go to this handy link from the machine running OSXvnc to verify the IP address: <a href=http://www.gotomyvnc.com/ target=_blank>http://www.gotomyvnc.com</a><BR>
 </p>
 
 <p><b><A id=NAT>Q: How can I connect to a machine that is behind a Cable/DSL Modem or NAT Firewall?</a></b></p>
@@ -200,7 +200,7 @@ NOTE: At this time closing the OS9vnc log window will shutdown the server - plea
 
 <p><b><A id=NoDisplay>Q: When trying to launch OSXvnc command line it fails with the error "kCGErrorIllegalArgument : initCGDisplayState: cannot map display interlocks" (MacOS 10.1 and 10.2) or it fails with the error "kCGErrorRangeCheck : Window Server communications from outside of session allowed for root and console user only" (MacOS 10.3 and MacOS 10.4)</A>.</b></p>
 
-<p><b>A: </b>This happens if you try to launch as an unpriviledged user. A priviledged user is either the user who is currently logged into the GUI or the ROOT user.  Try launching the server using the sudo command (or configuring the application to autostart using the system startup item).</p>
+<p><b>A: </b>This happens if you try to launch as an unprivileged user. A privileged user is either the user who is currently logged into the GUI or the ROOT user.  Try launching the server using the sudo command (or configuring the application to autostart using the system startup item).</p>
 
 <p><b><A id=Browser_WebServer>Q: How can I connect to OSXvnc using a web browser?<BR>Q: Is there a Web Server with OSXvnc or a Java applet integrated into OSXvnc?</A></b></p>
 
@@ -240,7 +240,7 @@ NOTE: In MacOS 10.3 (Panther) and above localhost is defined as it's IPv6 versio
 
 <p><b><A id=MultipleMonitors>Q: Does OSXvnc support multiple displays?</A></b></p>
 
-<p><b>A: </b>Officially OSXvnc does not support multiple monitors at this time, it is on our list of future enhancements.<BR>We do have a BETA feature for view only on displays besides the primary display.   This feature is available only from command line.  If you launch OSXvnc with the arguments<BR><code>"-disableRemoteEvents -display" #displayNumber#<BR></code> then that VNC server will serve the display associated with that number, starting at 0 for the primary display.  Unfortunately you must disable events becaue the event translation logic has not yet been added.</p>
+<p><b>A: </b>Officially OSXvnc does not support multiple monitors at this time, it is on our list of future enhancements.<BR>We do have a BETA feature for view only on displays besides the primary display.   This feature is available only from command line.  If you launch OSXvnc with the arguments<BR><code>"-disableRemoteEvents -display" #displayNumber#<BR></code> then that VNC server will serve the display associated with that number, starting at 0 for the primary display.  Unfortunately you must disable events because the event translation logic has not yet been added.</p>
 
 <p><b><A id=Headless>Q: I'm running a headless MacOS X machine and OSXvnc doesn't work.</A></b></p>
 
