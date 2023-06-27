@@ -156,7 +156,7 @@ rdr::MemOutStream* mos = (rdr::MemOutStream*)cl->mosData;
 
   for (int i = 0; i < mos->length();) {
 
-    int bytesToCopy = UPDATE_BUF_SIZE - ublen;
+    size_t bytesToCopy = UPDATE_BUF_SIZE - ublen;
 
     if (i + bytesToCopy > mos->length()) {
       bytesToCopy = mos->length() - i;

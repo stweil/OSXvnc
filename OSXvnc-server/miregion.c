@@ -641,8 +641,6 @@ static Bool miRegionOp(RegionPtr newReg,           /* Place to store result     
     short           bot;                    /* Bottom of non-overlapping band*/
     register int    r1y1;                   /* Temps for r1->y1 and r2->y1   */
     register int    r2y1;
-    int             newSize;
-    int             numRects;
 
     /*
      * Initialization:
@@ -653,9 +651,9 @@ static Bool miRegionOp(RegionPtr newReg,           /* Place to store result     
      */
 
     r1 = REGION_RECTS(reg1);
-    newSize = REGION_NUM_RECTS(reg1);
+    int newSize = REGION_NUM_RECTS(reg1);
     r1End = r1 + newSize;
-    numRects = REGION_NUM_RECTS(reg2);
+    int numRects = REGION_NUM_RECTS(reg2);
     r2 = REGION_RECTS(reg2);
     r2End = r2 + numRects;
     assert(r1 != r1End);

@@ -43,7 +43,6 @@ Bool rfbSendOneRectEncodingZlib(rfbClientPtr cl, int x, int y, int w, int h)
     rfbFramebufferUpdateRectHeader rect;
     rfbZlibHeader hdr;
     int deflateResult;
-    int previousOut;
     int i;
     char *fbptr = (cl->scalingFrameBuffer + (cl->scalingPaddedWidthInBytes * y)
     	   + (x * (rfbScreen.bitsPerPixel / 8)));
@@ -136,7 +135,7 @@ Bool rfbSendOneRectEncodingZlib(rfbClientPtr cl, int x, int y, int w, int h)
 
     }
 
-    previousOut = cl->compStream.total_out;
+    size_t previousOut = cl->compStream.total_out;
 
     /* Perform the compression here. */
     deflateResult = deflate( &(cl->compStream), Z_SYNC_FLUSH );
