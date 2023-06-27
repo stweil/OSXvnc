@@ -87,7 +87,6 @@ zlibCompress( BYTE *from_buf,
               rfbClientPtr cl,
               struct z_stream_s *compressor )
 {
-    int previousTotalOut;
     int deflateResult;
 
     /* Initialize input/output buffer assignment for compressor state. */
@@ -124,7 +123,7 @@ zlibCompress( BYTE *from_buf,
     }
 
     /* Record previous total output size. */
-    previousTotalOut = compressor->total_out;
+    size_t previousTotalOut = compressor->total_out;
 
     /* Compress the raw data into the result buffer. */
     deflateResult = deflate( compressor, Z_SYNC_FLUSH );
