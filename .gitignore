@@ -1,2 +1,5 @@
 /OSXvnc.xcodeproj/project.xcworkspace
 /OSXvnc.xcodeproj/xcuserdata/
+
+# xcodebuild -configuration Deployment
+/build
