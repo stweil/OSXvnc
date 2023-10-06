@@ -83,14 +83,6 @@ extern unsigned long serverGeneration;
 #include <X11/Xmd.h>
 #include <X11/X.h>
 
-#ifndef NULL
-#ifndef X_NOT_STDC_ENV
-#include <stddef.h>
-#else
-#define NULL            0
-#endif
-#endif
-
 #ifndef MAXSCREENS
 #define MAXSCREENS	3
 #endif
@@ -100,15 +92,10 @@ extern unsigned long serverGeneration;
 #define MAXFORMATS	8
 #define MAXVISUALS_PER_SCREEN 50
 
-#if NeedFunctionPrototypes
 typedef void *pointer;
-#else
-typedef unsigned char *pointer;
-#endif
 typedef int Bool;
 typedef unsigned long PIXEL;
 typedef unsigned long ATOM;
-
 
 #ifndef TRUE
 #define TRUE 1
@@ -228,29 +215,21 @@ typedef struct _xReq *xReqPtr;
 		 ((char *) &(dst))[1] = ((char *) &(src))[0]; }
 
 extern void SwapLongs(
-#if NeedFunctionPrototypes
     CARD32 *list,
     unsigned long count
-#endif
 );
 
 extern void SwapShorts(
-#if NeedFunctionPrototypes
     short *list,
     unsigned long count
-#endif
 );
 
 extern void MakePredeclaredAtoms(
-#if NeedFunctionPrototypes
     void
-#endif
 );
 
 extern int Ones(
-#if NeedFunctionPrototypes
     unsigned long /*mask*/
-#endif
 );
 
 typedef struct _xPoint *DDXPointPtr;

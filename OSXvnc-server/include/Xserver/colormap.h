@@ -83,79 +83,60 @@ typedef struct _CMEntry *EntryPtr;
 typedef struct _colorResource *colorResourcePtr;
 
 extern int CreateColormap(
-#if NeedFunctionPrototypes
     Colormap /*mid*/,
     ScreenPtr /*pScreen*/,
     VisualPtr /*pVisual*/,
     ColormapPtr* /*ppcmap*/,
     int /*alloc*/,
     int /*client*/
-#endif
 );
 
 extern int FreeColormap(
-#if NeedFunctionPrototypes
     pointer /*pmap*/,
     XID /*mid*/
-#endif
 );
 
 extern int TellLostMap(
-#if NeedFunctionPrototypes
     X11WindowPtr /*pwin*/,
     pointer /* Colormap *pmid */
-#endif
 );
 
 extern int TellGainedMap(
-#if NeedFunctionPrototypes
     X11WindowPtr /*pwin*/,
     pointer /* Colormap *pmid */
-#endif
 );
 
 extern int CopyColormapAndFree(
-#if NeedFunctionPrototypes
     Colormap /*mid*/,
     ColormapPtr /*pSrc*/,
     int /*client*/
-#endif
 );
 
 extern int AllocColor(
-#if NeedFunctionPrototypes
     ColormapPtr /*pmap*/,
     unsigned short* /*pred*/,
     unsigned short* /*pgreen*/,
     unsigned short* /*pblue*/,
     Pixel* /*pPix*/,
     int /*client*/
-#endif
 );
 
 extern void FakeAllocColor(
-#if NeedFunctionPrototypes
     ColormapPtr /*pmap*/,
     xColorItem * /*item*/
-#endif
 );
 
 extern void FakeFreeColor(
-#if NeedFunctionPrototypes
     ColormapPtr /*pmap*/,
     Pixel /*pixel*/
-#endif
 );
 
 typedef int (*ColorCompareProcPtr)(
-#if NeedNestedPrototypes
     EntryPtr /*pent*/,
     xrgb * /*prgb*/
-#endif
 );
 
 extern int FindColor(
-#if NeedFunctionPrototypes
     ColormapPtr /*pmap*/,
     EntryPtr /*pentFirst*/,
     int /*size*/,
@@ -164,27 +145,21 @@ extern int FindColor(
     int /*channel*/,
     int /*client*/,
     ColorCompareProcPtr /*comp*/
-#endif
 );
 
 extern int QueryColors(
-#if NeedFunctionPrototypes
     ColormapPtr /*pmap*/,
     int /*count*/,
     Pixel* /*ppixIn*/,
     xrgb* /*prgbList*/
-#endif
 );
 
 extern int FreeClientPixels(
-#if NeedFunctionPrototypes
     pointer /*pcr*/,
     XID /*fakeid*/
-#endif
 );
 
 extern int AllocColorCells(
-#if NeedFunctionPrototypes
     int /*client*/,
     ColormapPtr /*pmap*/,
     int /*colors*/,
@@ -192,11 +167,9 @@ extern int AllocColorCells(
     Bool /*contig*/,
     Pixel* /*ppix*/,
     Pixel* /*masks*/
-#endif
 );
 
 extern int AllocColorPlanes(
-#if NeedFunctionPrototypes
     int /*client*/,
     ColormapPtr /*pmap*/,
     int /*colors*/,
@@ -208,32 +181,25 @@ extern int AllocColorPlanes(
     Pixel* /*prmask*/,
     Pixel* /*pgmask*/,
     Pixel* /*pbmask*/
-#endif
 );
 
 extern int FreeColors(
-#if NeedFunctionPrototypes
     ColormapPtr /*pmap*/,
     int /*client*/,
     int /*count*/,
     Pixel* /*pixels*/,
     Pixel /*mask*/
-#endif
 );
 
 extern int StoreColors(
-#if NeedFunctionPrototypes
     ColormapPtr /*pmap*/,
     int /*count*/,
     xColorItem* /*defs*/
-#endif
 );
 
 extern int IsMapInstalled(
-#if NeedFunctionPrototypes
     Colormap /*map*/,
     X11WindowPtr /*pWin*/
-#endif
 );
 
 #endif /* CMAP_H */

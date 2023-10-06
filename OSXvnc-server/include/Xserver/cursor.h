@@ -61,14 +61,11 @@ typedef struct _CursorMetric *CursorMetricPtr;
 extern CursorPtr rootCursor;
 
 extern int FreeCursor(
-#if NeedFunctionPrototypes
     pointer /*pCurs*/,
     XID /*cid*/
-#endif
 );
 
 extern CursorPtr X11AllocCursor(
-#if NeedFunctionPrototypes
     unsigned char* /*psrcbits*/,
     unsigned char* /*pmaskbits*/,
     CursorMetricPtr /*cm*/,
@@ -78,11 +75,9 @@ extern CursorPtr X11AllocCursor(
     unsigned /*backRed*/,
     unsigned /*backGreen*/,
     unsigned /*backBlue*/
-#endif
 );
 
 extern int AllocGlyphCursor(
-#if NeedFunctionPrototypes
     Font /*source*/,
     unsigned int /*sourceChar*/,
     Font /*mask*/,
@@ -95,58 +90,43 @@ extern int AllocGlyphCursor(
     unsigned /*backBlue*/,
     CursorPtr* /*ppCurs*/,
     ClientPtr /*client*/
-#endif
 );
 
 extern CursorPtr CreateRootCursor(
-#if NeedFunctionPrototypes
     char* /*pfilename*/,
     unsigned int /*glyph*/
-#endif
 );
 
 extern int ServerBitsFromGlyph(
-#if NeedFunctionPrototypes
     FontPtr /*pfont*/,
     unsigned int /*ch*/,
     register CursorMetricPtr /*cm*/,
     unsigned char ** /*ppbits*/
-#endif
 );
 
 extern Bool CursorMetricsFromGlyph(
-#if NeedFunctionPrototypes
     FontPtr /*pfont*/,
     unsigned /*ch*/,
     CursorMetricPtr /*cm*/
-#endif
 );
 
 extern void CheckCursorConfinement(
-#if NeedFunctionPrototypes
     X11WindowPtr /*pWin*/
-#endif
 );
 
 extern void NewCurrentScreen(
-#if NeedFunctionPrototypes
     ScreenPtr /*newScreen*/,
     int /*x*/,
     int /*y*/
-#endif
 );
 
 extern Bool PointerConfinedToScreen(
-#if NeedFunctionPrototypes
     void
-#endif
 );
 
 extern void GetSpritePosition(
-#if NeedFunctionPrototypes
     int * /*px*/,
     int * /*py*/
-#endif
 );
 
 #endif /* CURSOR_H */

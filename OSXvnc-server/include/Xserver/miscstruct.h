@@ -64,9 +64,7 @@ typedef union _DevUnion {
     long		val;
     unsigned long	uval;
     pointer		(*fptr)(
-#if NeedFunctionPrototypes
                         void
-#endif
                         );
 } DevUnion;
 
