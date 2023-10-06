@@ -48,7 +48,7 @@ namespace rdr {
       strncat(str_, strerror(err), len-1-strlen(str_));
       strncat(str_, " (", len-1-strlen(str_));
       char buf[20];
-      sprintf(buf,"%d",err);
+      snprintf(buf, sizeof(buf), "%d", err);
       strncat(str_, buf, len-1-strlen(str_));
       strncat(str_, ")", len-1-strlen(str_));
     }

@@ -357,7 +357,7 @@ rfbClientPtr rfbNewClient(int sock) {
     cl->client_zlibAfterBuf = NULL;
     cl->client_zlibAfterBufLen = 0;
 
-    sprintf(pv, rfbProtocolVersionFormat, rfbProtocolMajorVersion, rfbProtocolMinorVersion);
+    snprintf(pv, sizeof(pv), rfbProtocolVersionFormat, rfbProtocolMajorVersion, rfbProtocolMinorVersion);
 
     if (WriteExact(cl, pv, sz_rfbProtocolVersionMsg) < 0) {
         rfbLogPerror("rfbNewClient: write");
@@ -498,7 +498,7 @@ void rfbProcessClientProtocolVersion(rfbClientPtr cl) {
     if (cl->major != rfbProtocolMajorVersion) {
         /* Major version mismatch - send a ConnFailed message */
         rfbLog("Major version mismatch");
-        sprintf(failureReason,
+        snprintf(failureReason, sizeof(failureReason),
                 "RFB protocol version mismatch - server %d.%d, client %d.%d",
                 rfbProtocolMajorVersion,rfbProtocolMinorVersion,cl->major,cl->minor);
         rfbClientConnFailed(cl, failureReason);
