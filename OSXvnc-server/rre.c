@@ -55,9 +55,7 @@ static CARD32 getBgColour(char *data, int size, int bpp);
  */
 
 Bool
-rfbSendRectEncodingRRE(cl, x, y, w, h)
-    rfbClientPtr cl;
-    int x, y, w, h;
+rfbSendRectEncodingRRE(rfbClientPtr cl, int x, int y, int w, int h)
 {
     rfbFramebufferUpdateRectHeader rect;
     rfbRREHeader hdr;
@@ -175,10 +173,7 @@ rfbSendRectEncodingRRE(cl, x, y, w, h)
 
 #define DEFINE_SUBRECT_ENCODE(bpp)                                            \
 static int                                                                    \
-subrectEncode##bpp(data,w,h)                                                  \
-    CARD##bpp *data;                                                          \
-    int w;                                                                    \
-    int h;                                                                    \
+subrectEncode##bpp(CARD##bpp *data, int w,int h)                              \
 {                                                                             \
     CARD##bpp cl;                                                             \
     rfbRectangle subrect;                                                     \
@@ -275,10 +270,7 @@ DEFINE_SUBRECT_ENCODE(32)
  * getBgColour() gets the most prevalent colour in a byte array.
  */
 static CARD32
-getBgColour(data,size,bpp)
-    char *data;
-    int size;
-    int bpp;
+getBgColour(char *data, int size, int bpp)
 {
 
 #define NUMCLRS 256

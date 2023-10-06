@@ -42,7 +42,7 @@ static pthread_mutex_t cursorMutex;
 // We are only going to access cursor data from the main thread now
 static CGSConnectionRef sharedConnection = 0;
 
-inline CGSConnectionRef getConnection() {
+inline CGSConnectionRef getConnection(void) {
     if (!sharedConnection && maxFailsRemaining > 0) {
 		CGError result = CGSNewConnection(NULL, &sharedConnection);
         if (result != kCGErrorSuccess)

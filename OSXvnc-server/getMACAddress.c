@@ -18,7 +18,7 @@
  finding the parent Ethernet controller, and retrieving properties from the
  controller's I/O Registry entry.
 
- Copyright:    © Copyright 2001-2005 Apple Computer, Inc. All rights reserved.
+ Copyright:    Copyright 2001-2005 Apple Computer, Inc. All rights reserved.
 
  Disclaimer:    IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
  ("Apple") in consideration of your agreement to the following terms, and your
@@ -211,7 +211,7 @@ static kern_return_t GetMACAddress(io_iterator_t intfIterator, UInt8 *MACAddress
     return kernResult;
 }
 
-NSString *getMACAddressString()
+NSString *getMACAddressString(void)
 {
 	static NSString *addressString = nil;
 

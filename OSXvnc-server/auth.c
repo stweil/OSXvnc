@@ -41,7 +41,7 @@ static bool suppliedPass;
 int rfbMaxLoginAttempts=5;
 char *rfbAuthPasswdFile = NULL;
 
-void rfbAuthInit() {
+void rfbAuthInit(void) {
 	authClientLock=[[NSLock alloc] init];
 	authClientFailures=[[NSMutableDictionary alloc] init];
 }

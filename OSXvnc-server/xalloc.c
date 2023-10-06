@@ -48,8 +48,7 @@
 Bool Must_have_memory = FALSE;
 
 unsigned long *
-Xalloc (amount)
-    unsigned long amount;
+Xalloc (unsigned long amount)
 {
 #if !defined(__STDC__) && !defined(AMOEBA)
     char                *malloc();
@@ -80,8 +79,7 @@ Xalloc (amount)
  *****************/
 
 unsigned long *
-XNFalloc (amount)
-    unsigned long amount;
+XNFalloc (unsigned long amount)
 {
 #if !defined(__STDC__) && !defined(AMOEBA)
     char             *malloc();
@@ -107,8 +105,7 @@ XNFalloc (amount)
  *****************/
 
 unsigned long *
-Xcalloc (amount)
-    unsigned long   amount;
+Xcalloc (unsigned long amount)
 {
     unsigned long   *ret;
 
@@ -123,9 +120,7 @@ Xcalloc (amount)
  *****************/
 
 unsigned long *
-Xrealloc (ptr, amount)
-    register pointer ptr;
-    unsigned long amount;
+Xrealloc (pointer ptr, unsigned long amount)
 {
 #if !defined(__STDC__) && !defined(AMOEBA)
     char *malloc();
@@ -161,9 +156,7 @@ Xrealloc (ptr, amount)
  *****************/
 
 unsigned long *
-XNFrealloc (ptr, amount)
-    register pointer ptr;
-    unsigned long amount;
+XNFrealloc (pointer ptr, unsigned long amount)
 {
     if (( ptr = (pointer)Xrealloc( ptr, amount ) ) == NULL)
     {
@@ -178,8 +171,7 @@ XNFrealloc (ptr, amount)
  *****************/
 
 void
-Xfree(ptr)
-    register pointer ptr;
+Xfree(pointer ptr)
 {
     if (ptr)
         free((char *)ptr);

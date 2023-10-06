@@ -326,7 +326,7 @@ unsigned long long maxTransferSize = 0x10000000;
 static int generalPBLastChangeCount=-1;
 NSStringEncoding pasteboardStringEncoding = NSWindowsCP1252StringEncoding; // RFBProto 003.008
 
-void initPasteboard() {
+void initPasteboard(void) {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	pasteboardLock = [[NSRecursiveLock alloc] init];
 	pasteboardVariablesLock = [[NSRecursiveLock alloc] init];
@@ -488,7 +488,7 @@ static NSArray *getListOfFilenamesFromPasteboard(NSPasteboard *thePasteboard) {
 }
 
 // We call this in the main thread to see if we have a new pasteboard change and should notify clients to do an update
-void rfbCheckForPasteboardChange() {
+void rfbCheckForPasteboardChange(void) {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
 	NSEnumerator *pasteboardsEnum = [pasteboards keyEnumerator];
 	NSString *pasteboardName = nil;

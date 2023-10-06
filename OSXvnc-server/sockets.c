@@ -59,8 +59,7 @@ int rfbMaxClientWait = 20000;   /* time (ms) after which we decide client has
 
 
 void
-rfbCloseClient(cl)
-     rfbClientPtr cl;
+rfbCloseClient(rfbClientPtr cl)
 {
     close(cl->sock);
     cl->sock = -1;

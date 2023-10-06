@@ -43,9 +43,7 @@ static Bool sendZlibHex32(rfbClientPtr cl, int x, int y, int w, int h);
  */
 
 Bool
-rfbSendRectEncodingZlibHex(cl, x, y, w, h)
-    rfbClientPtr cl;
-    int x, y, w, h;
+rfbSendRectEncodingZlibHex(rfbClientPtr cl, int x, int y, int w, int h)
 {
     rfbFramebufferUpdateRectHeader rect;
 
@@ -165,9 +163,7 @@ static void testColours##bpp(CARD##bpp *data, int size, Bool *mono,	      \
  */									      \
 									      \
 static Bool								      \
-sendZlibHex##bpp(cl, rx, ry, rw, rh)					      \
-    rfbClientPtr cl;							      \
-    int rx, ry, rw, rh;							      \
+sendZlibHex##bpp(rfbClientPtr cl, int rx, int ry, int rw, int rh) \
 {									      \
     int x, y, w, h;							      \
     int startUblen;							      \
@@ -419,14 +415,7 @@ subrectEncode##bpp(CARD##bpp *data, int w, int h, CARD##bpp bg,		      \
  */									      \
 									      \
 static void								      \
-testColours##bpp(data,size,mono,solid,bg,fg,cl)				      \
-    CARD##bpp *data;							      \
-    int size;								      \
-    Bool *mono;								      \
-    Bool *solid;							      \
-    CARD##bpp *bg;							      \
-    CARD##bpp *fg;							      \
-    rfbClientPtr cl;   							      \
+testColours##bpp(CARD##bpp *data, int size, Bool *mono, Bool *solid, CARD##bpp *bg, CARD##bpp *fg, rfbClientPtr cl) \
 {									      \
     CARD##bpp colour1 = 0, colour2 = 0;				              \
     int n1 = 0, n2 = 0;							      \

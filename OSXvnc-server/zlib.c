@@ -211,9 +211,7 @@ Bool rfbSendOneRectEncodingZlib(rfbClientPtr cl, int x, int y, int w, int h)
  */
 
 Bool
-rfbSendRectEncodingZlib(cl, x, y, w, h)
-    rfbClientPtr cl;
-    int x, y, w, h;
+rfbSendRectEncodingZlib(rfbClientPtr cl, int x, int y, int w, int h)
 {
     int  maxLines;
     int  linesRemaining;
