@@ -167,7 +167,7 @@ static void gettimeofday(struct timeval* tv, void*)
 
 ssize_t FdInStream::readWithTimeoutOrCallback(void* buf, size_t len)
 {
-  struct timeval before, after;
+  struct timeval before = {0, 0};
   if (timing)
     gettimeofday(&before, 0);
 
@@ -190,7 +190,8 @@ ssize_t FdInStream::readWithTimeoutOrCallback(void* buf, size_t len)
   if (n < 0) throw SystemException("read",errno);
   if (n == 0) throw EndOfStream();
 
-  if (timing) {
+  if (before.tv_sec != 0) {
+    struct timeval after;
     gettimeofday(&after, 0);
 //      fprintf(stderr,"%d.%06d\n",(after.tv_sec - before.tv_sec),
 //              (after.tv_usec - before.tv_usec));
