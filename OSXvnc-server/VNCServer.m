@@ -763,10 +763,10 @@ static bool isConsoleSession(void) {
     }
     else {
         CGEventRef event;
-		int specialKeysStartingFrom = 96;
+        int specialKeysStartingFrom = 96;
         if (specialKeysVncSourceRef != NULL && keyCode >= specialKeysStartingFrom){
             event = CGEventCreateKeyboardEvent(specialKeysVncSourceRef, keyCode, down);
-		}else {
+        }else {
             event = CGEventCreateKeyboardEvent(vncSourceRef, keyCode, down);
         }
 
