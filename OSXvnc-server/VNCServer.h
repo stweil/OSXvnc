@@ -33,6 +33,7 @@
     // This flag will try to change the modifier key state to the required set for the unicode key that came in
     BOOL pressModsForKeys;
 	CGEventSourceRef vncSourceRef;
+	CGEventSourceRef specialKeysVncSourceRef;
 	CGEventTapLocation vncTapLocation;
 
 	TISInputSourceRef unicodeInputSource;
