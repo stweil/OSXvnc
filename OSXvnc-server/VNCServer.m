@@ -375,6 +375,7 @@ static bool isConsoleSession(void) {
             // Doesn't combine with any other sources
             NSLog(@"Using Private Event Source");
             vncSourceRef = CGEventSourceCreate(kCGEventSourceStatePrivate);
+            specialKeysVncSourceRef = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
             break;
         case 1:
             // Combines only with other User Session Events
@@ -761,7 +762,13 @@ static bool isConsoleSession(void) {
         CFRelease(event);
     }
     else {
-        CGEventRef event = CGEventCreateKeyboardEvent(vncSourceRef, keyCode, down);
+        CGEventRef event;
+        int specialKeysStartingFrom = 96;
+        if (specialKeysVncSourceRef != NULL && keyCode >= specialKeysStartingFrom){
+            event = CGEventCreateKeyboardEvent(specialKeysVncSourceRef, keyCode, down);
+        }else {
+            event = CGEventCreateKeyboardEvent(vncSourceRef, keyCode, down);
+        }
 
         // The value of this function escapes me (since you still need to specify the keyCode for it to work
         // CGEventKeyboardSetUnicodeString (event, 1, (const UniChar *) &keySym);
