@@ -37,8 +37,6 @@
 
 #define PasswordProxy @"********"
 
-#define LocalizedString(X)      [[NSBundle mainBundle] localizedStringForKey:(X) value:nil table:nil]
-
 @interface NSString (VNCExtensions)
 @property (NS_NONATOMIC_IOSONLY, readonly, copy) NSString *string;
 @end
@@ -58,7 +56,7 @@
 
 @interface NSFileManager (VNCExtensions)
 - (BOOL) directoryExistsAtPath: (NSString *) path;
-- (BOOL) createFullDirectoryAtPath:(NSString *)path attributes:(NSDictionary *)attributes;
+- (BOOL) createFullDirectoryAtPath:(NSString *)path attributes:(NSDictionary<NSFileAttributeKey, id> *)attributes;
 - (BOOL) canWriteToFile: (NSString *) path;
 @end
 
@@ -216,11 +214,11 @@ static NSMutableArray *localIPAddresses(void) {
 
 - (IBAction) terminateRequest: sender {
     if (clientList.count && !shutdownSignal)
-        NSBeginAlertSheet(LocalizedString(@"Quit Vine Server"),
-                          LocalizedString(@"Cancel"),
-                          LocalizedString(@"Quit"),
+        NSBeginAlertSheet(NSLocalizedString(@"Quit Vine Server", nil),
+                          NSLocalizedString(@"Cancel", nil),
+                          NSLocalizedString(@"Quit", nil),
                           nil, statusWindow, self, @selector(terminateSheetDidEnd:returnCode:contextInfo:), NULL, NULL,
-                          LocalizedString(@"Disconnect %lu clients and quit Vine Server?"), (unsigned long)clientList.count);
+                          NSLocalizedString(@"Disconnect %lu clients and quit Vine Server?", nil), (unsigned long)clientList.count);
     else
         [NSApp terminate: self];
 }
@@ -336,15 +334,15 @@ static NSMutableArray *localIPAddresses(void) {
     [commonHostNames removeObject:@"localhost"];
 
     if (commonHostNames.count > 1) {
-        [hostNamesBox setTitle:LocalizedString(@"Host Names")];
+        [hostNamesBox setTitle:NSLocalizedString(@"Host Names", nil)];
         hostNamesField.stringValue = [commonHostNames componentsJoinedByString:@"\n"];
     }
     else if (commonHostNames.count == 1) {
-        [hostNamesBox setTitle:LocalizedString(@"Host Name")];
+        [hostNamesBox setTitle:NSLocalizedString(@"Host Name", nil)];
         hostNamesField.stringValue = [commonHostNames componentsJoinedByString:@"\n"];
     }
     else {
-        [hostNamesBox setTitle:LocalizedString(@"Host Name")];
+        [hostNamesBox setTitle:NSLocalizedString(@"Host Name", nil)];
         hostNamesField.stringValue = @"";
     }
 }
@@ -389,11 +387,11 @@ static NSMutableArray *localIPAddresses(void) {
     [ipAddressesView sizeToCells];
 
     if (commonIPAddresses.count > 1) {
-        [ipAddressesBox setTitle:LocalizedString(@"IP Addresses")];
+        [ipAddressesBox setTitle:NSLocalizedString(@"IP Addresses", nil)];
         //[ipAddressesField setStringValue:[commonIPAddresses componentsJoinedByString:@"\n"]];
     }
     else {
-        [ipAddressesBox setTitle:LocalizedString(@"IP Address")];
+        [ipAddressesBox setTitle:NSLocalizedString(@"IP Address", nil)];
         //[ipAddressesField setStringValue:@""];
     }
 }
@@ -511,7 +509,7 @@ static NSMutableArray *localIPAddresses(void) {
 // the server can't handle this right now so we'll restart.
 - (void)applicationDidChangeScreenParameters:(NSNotification *)aNotification {
     [self addStatusMessage:@"\n"];
-    [self addStatusMessage:LocalizedString(@"Screen Resolution changed - Server Reinitialized")];
+    [self addStatusMessage:NSLocalizedString(@"Screen Resolution changed - Server Reinitialized", nil)];
 }
 
 - (void) updateUIForConnectionList: (NSArray *) connectionList {
@@ -523,23 +521,23 @@ static NSMutableArray *localIPAddresses(void) {
     NSUInteger activeConnectionsCount = clientList.count;
 
     if (!passwordField.stringValue.length)
-        [statusMessage appendFormat:@"%@(%@)", LocalizedString(@"Server Running"),
-         LocalizedString(@"No Authentication")];
+        [statusMessage appendFormat:@"%@(%@)", NSLocalizedString(@"Server Running", nil),
+         NSLocalizedString(@"No Authentication", nil)];
     else
-        [statusMessage appendString: LocalizedString(@"Server Running")];
+        [statusMessage appendString: NSLocalizedString(@"Server Running", nil)];
 
     [statusMessage appendString:@"\n"];
 
     if (activeConnectionsCount == 0)
-        [statusMessage appendString: LocalizedString(@"No Clients Connected")];
+        [statusMessage appendString: NSLocalizedString(@"No Clients Connected", nil)];
     else if (activeConnectionsCount == 1) {
         [statusMessage appendFormat: @"%d ", 1];
-        [statusMessage appendString: LocalizedString(@"Client Connected: ")];
+        [statusMessage appendString: NSLocalizedString(@"Client Connected: ", nil)];
         [statusMessage appendString: [clientList[0] valueForKey:@"clientIP"]];
     }
     else if (activeConnectionsCount > 1) {
         [statusMessage appendFormat: @"%lu ", (unsigned long)activeConnectionsCount];
-        [statusMessage appendString: LocalizedString(@"Clients Connected: ")];
+        [statusMessage appendString: NSLocalizedString(@"Clients Connected: ", nil)];
         [statusMessage appendString:
          [[clientList valueForKey:@"clientIP"] componentsJoinedByString:@", "]];
     }
@@ -625,7 +623,7 @@ static NSMutableArray *localIPAddresses(void) {
         tryPort++;
     }
 
-    [statusMessageField setStringValue:LocalizedString(@"Unable to find open port 5900-5909")];
+    [statusMessageField setStringValue:NSLocalizedString(@"Unable to find open port 5900-5909", nil)];
 
     return 0;
 }
@@ -638,16 +636,16 @@ static NSMutableArray *localIPAddresses(void) {
 - (void) loadUIForSystemServer {
     if (systemServerIsConfigured) {
         startupItemStatusMessageField.textColor = successColor;
-        [startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Configured (Started)")];
+        [startupItemStatusMessageField setStringValue:NSLocalizedString(@"Startup Item Configured (Started)", nil)];
     }
     else {
         startupItemStatusMessageField.textColor = failureColor;
-        [startupItemStatusMessageField setStringValue:LocalizedString(@"Startup Item Disabled (Stopped)")];
+        [startupItemStatusMessageField setStringValue:NSLocalizedString(@"Startup Item Disabled (Stopped)", nil)];
     }
 
     disableStartupButton.enabled = systemServerIsConfigured;
-    systemServerMenu.state = (systemServerIsConfigured ? NSOnState : NSOffState);
-    setStartupButton.title = (systemServerIsConfigured ? LocalizedString(@"Restart System Server") : LocalizedString(@"Start System Server"));
+    systemServerMenu.state = (systemServerIsConfigured ? NSControlStateValueOn : NSControlStateValueOff);
+    setStartupButton.title = (systemServerIsConfigured ? NSLocalizedString(@"Restart System Server", nil) : NSLocalizedString(@"Start System Server", nil));
 }
 
 - (void) loadAuthenticationUI {
@@ -885,17 +883,17 @@ static NSMutableArray *localIPAddresses(void) {
         lastLaunchTime = [[NSDate date] retain];
 
         [[NSNotificationCenter defaultCenter] addObserver: self
-                                                 selector: NSSelectorFromString(@"serverStopped:")
+                                                 selector: @selector(serverStopped:)
                                                      name: NSTaskDidTerminateNotification
                                                    object: controller];
 
         if (!passwordField.stringValue.length)
-            [statusMessageField setStringValue:[NSString stringWithFormat:@"%@ - %@", LocalizedString(@"Server Running"), LocalizedString(@"No Authentication")]];
+            [statusMessageField setStringValue:[NSString stringWithFormat:@"%@ - %@", NSLocalizedString(@"Server Running", nil), NSLocalizedString(@"No Authentication", nil)]];
         else
-            [statusMessageField setStringValue:LocalizedString(@"Server Running")];
+            [statusMessageField setStringValue:NSLocalizedString(@"Server Running", nil)];
         //[startServerButton setEnabled:FALSE];
-        [startServerButton setTitle:LocalizedString(@"Restart Server")];
-        [startServerMenuItem setTitle:LocalizedString(@"Restart Server")];
+        [startServerButton setTitle:NSLocalizedString(@"Restart Server", nil)];
+        [startServerMenuItem setTitle:NSLocalizedString(@"Restart Server", nil)];
         [stopServerButton setEnabled:TRUE];
         serverMenuItem.state = NSOnState;
         // We really don't want people to accidentally stop the server
@@ -905,7 +903,7 @@ static NSMutableArray *localIPAddresses(void) {
 
         /* Only auto-connect the very first time ??; */
         if (automaticReverseHost.length) {
-            [self addStatusMessage:[NSString stringWithFormat:@"\n%@: %@", LocalizedString(@"Initiating Reverse Connection To Host"), automaticReverseHost]];
+            [self addStatusMessage:[NSString stringWithFormat:@"\n%@: %@", NSLocalizedString(@"Initiating Reverse Connection To Host", nil), automaticReverseHost]];
             //  [automaticReverseHost release];
             //  automaticReverseHost = nil;
             //  [automaticReversePort release];
@@ -925,7 +923,7 @@ static NSMutableArray *localIPAddresses(void) {
         [controller terminate];
     }
     else {
-        [statusMessageField setStringValue:LocalizedString(@"The server is stopped.")];
+        [statusMessageField setStringValue:NSLocalizedString(@"The server is stopped.", nil)];
     }
 }
 
@@ -946,30 +944,30 @@ static NSMutableArray *localIPAddresses(void) {
     [self updateUIForConnectionList:[NSArray array]];
 
     preferencesMessageTestField.stringValue = @"";
-    [startServerButton setTitle:LocalizedString(@"Start Server")];
-    [startServerMenuItem setTitle:LocalizedString(@"Start Server")];
+    [startServerButton setTitle:NSLocalizedString(@"Start Server", nil)];
+    [startServerMenuItem setTitle:NSLocalizedString(@"Start Server", nil)];
     //[startServerButton setEnabled:TRUE];
     [stopServerButton setEnabled:FALSE];
-    serverMenuItem.state = NSOffState;
+    serverMenuItem.state = NSControlStateValueOff;
     //[stopServerButton setKeyEquivalent:@""];
     //[startServerButton setKeyEquivalent:@"\r"];
 
     if (userStopped)
-        [statusMessageField setStringValue:LocalizedString(@"The server is stopped.")];
+        [statusMessageField setStringValue:NSLocalizedString(@"The server is stopped.", nil)];
     else if (controller.terminationStatus==250) {
-        NSMutableString *messageString = [NSMutableString stringWithFormat: LocalizedString(@"Vine Server can't listen on the specified port (%d)."), self.runningPortNum];
+        NSMutableString *messageString = [NSMutableString stringWithFormat: NSLocalizedString(@"Vine Server can't listen on the specified port (%d).", nil), self.runningPortNum];
         [messageString appendString:@"\n"];
         if (systemServerIsConfigured)
-            [messageString appendString:LocalizedString(@"Probably because the VNC server is already running as a Startup Item.")];
+            [messageString appendString:NSLocalizedString(@"Probably because the VNC server is already running as a Startup Item.", nil)];
         else
-            [messageString appendString:LocalizedString(@"Probably because another VNC is already using this port.")];
+            [messageString appendString:NSLocalizedString(@"Probably because another VNC is already using this port.", nil)];
         [statusMessageField setStringValue:messageString];
     }
     else if (controller.terminationStatus) {
-        [statusMessageField setStringValue:[NSString stringWithFormat:LocalizedString(@"The server has stopped running. See Log (%d)\n"), controller.terminationStatus]];
+        [statusMessageField setStringValue:[NSString stringWithFormat:NSLocalizedString(@"The server has stopped running. See Log (%d)\n", nil), controller.terminationStatus]];
     }
     else
-        [statusMessageField setStringValue:LocalizedString(@"The server has stopped running")];
+        [statusMessageField setStringValue:NSLocalizedString(@"The server has stopped running.", nil)];
 
     if (!userStopped &&
         serverKeepAliveCheckbox.state &&
@@ -1017,7 +1015,7 @@ static NSMutableArray *localIPAddresses(void) {
                     [argv addObject:passwordFile];
                 }
                 else {
-                    [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Valid VNC password required to start server")];
+                    [startupItemStatusMessageField setStringValue:NSLocalizedString(@"Error: Valid VNC password required to start server", nil)];
                     return nil;
                 }
                 break;
@@ -1054,7 +1052,7 @@ static NSMutableArray *localIPAddresses(void) {
                     [argv addObject:passwordFile];
                 }
                 else {
-                    [self addStatusMessage:[NSString stringWithFormat:@"\n%@", LocalizedString(@"Valid VNC password required to start server")]];
+                    [self addStatusMessage:[NSString stringWithFormat:@"\n%@", NSLocalizedString(@"Valid VNC password required to start server", nil)]];
                     return nil;
                 }
                 break;
@@ -1360,7 +1358,7 @@ static NSMutableArray *localIPAddresses(void) {
     NSMutableDictionary *argumentsDict = [NSMutableDictionary dictionaryWithObjectsAndKeys:connectHost.stringValue,@"ConnectHost",connectPort.stringValue,@"ConnectPort",nil];
 
     if (!connectHost.stringValue.length) {
-        [reverseConnectionMessageField setStringValue:LocalizedString(@"Please specify a Connect Host to establish a connection")];
+        [reverseConnectionMessageField setStringValue:NSLocalizedString(@"Please specify a Connect Host to establish a connection", nil)];
         return;
     }
     if (!connectPort.intValue) {
@@ -1381,11 +1379,11 @@ static NSMutableArray *localIPAddresses(void) {
 
     if (kill(controller.processIdentifier, SIGCONT) == 0) {
         [self addStatusMessage: @"\n"];
-        [self addStatusMessage: LocalizedString(@"Connection invitation sent to Connect Host")];
+        [self addStatusMessage: NSLocalizedString(@"Connection invitation sent to Connect Host", nil)];
     }
     else {
         [self addStatusMessage: @"\n"];
-        [self addStatusMessage:[NSString stringWithFormat:LocalizedString(@"Error sending invitation: %s"), strerror(errno)]];
+        [self addStatusMessage:[NSString stringWithFormat:NSLocalizedString(@"Error sending invitation: %s", nil), strerror(errno)]];
     }
 
     if (statusWindow.attachedSheet == reverseConnectionWindow) {
@@ -1396,12 +1394,12 @@ static NSMutableArray *localIPAddresses(void) {
 
 - (void) checkForRestart {
     if (controller) {
-        if (![statusMessageField.textStorage.string hasSuffix: LocalizedString(@"Option Change Requires a Restart")]) {
+        if (![statusMessageField.textStorage.string hasSuffix: NSLocalizedString(@"Option Change Requires a Restart", nil)]) {
             [self addStatusMessage: @"\n"];
-            [self addStatusMessage: LocalizedString(@"Option Change Requires a Restart")];
+            [self addStatusMessage: NSLocalizedString(@"Option Change Requires a Restart", nil)];
         }
 
-        [preferencesMessageTestField setStringValue:LocalizedString(@"Option Change Requires a Restart")];
+        [preferencesMessageTestField setStringValue:NSLocalizedString(@"Option Change Requires a Restart", nil)];
     }
 }
 
@@ -1427,7 +1425,8 @@ static NSMutableArray *localIPAddresses(void) {
 }
 
 - (IBAction) openFirewall:(id) sender {
-    [[NSWorkspace sharedWorkspace] openFile: @"/System/Library/PreferencePanes/Security.prefPane"];
+    NSURL *aURL = [NSURL fileURLWithPath:@"/System/Library/PreferencePanes/Security.prefPane"];
+    [[NSWorkspace sharedWorkspace] openURL: aURL];
 }
 
 - (IBAction) openLog:(id) sender {
@@ -1435,31 +1434,31 @@ static NSMutableArray *localIPAddresses(void) {
 }
 
 - (IBAction) openGPL:(id) sender {
-    NSString *openPath = [[NSBundle mainBundle] pathForResource:@"Copying" ofType:@"rtf"];
+    NSURL *openPath = [[NSBundle mainBundle] URLForResource:@"Copying" withExtension:@"rtf"];
 
-    [[NSWorkspace sharedWorkspace] openFile:openPath];
+    [[NSWorkspace sharedWorkspace] openURL:openPath];
 }
 
 - (IBAction) openReleaseNotes:(id) sender {
-    NSString *openPath = [[NSBundle mainBundle] pathForResource:@"Vine Server Release Notes" ofType:@"rtf"];
+    NSURL *openPath = [[NSBundle mainBundle] URLForResource:@"Vine Server Release Notes" withExtension:@"rtf"];
 
-    [[NSWorkspace sharedWorkspace] openFile:openPath];
+    [[NSWorkspace sharedWorkspace] openURL:openPath];
 }
 
 - (IBAction) openFile:(id) sender {
-    NSString *openPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:@"rtf"];
+    NSURL *openPath = [[NSBundle mainBundle] URLForResource:[sender title] withExtension:@"rtf"];
 
     if (!openPath) {
-        openPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:@"pdf"];
+        openPath = [[NSBundle mainBundle] URLForResource:[sender title] withExtension:@"pdf"];
     }
     if (!openPath) {
-        openPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:@"txt"];
+        openPath = [[NSBundle mainBundle] URLForResource:[sender title] withExtension:@"txt"];
     }
     if (!openPath) {
-        openPath = [[NSBundle mainBundle] pathForResource:[sender title] ofType:nil];
+        openPath = [[NSBundle mainBundle] URLForResource:[sender title] withExtension:nil];
     }
 
-    [[NSWorkspace sharedWorkspace] openFile:openPath];
+    [[NSWorkspace sharedWorkspace] openURL:openPath];
 }
 
 - (BOOL) installLaunchd {
@@ -1479,7 +1478,7 @@ static NSMutableArray *localIPAddresses(void) {
         success &= [myAuthorization executeCommand:@"/usr/sbin/chown"
                                           withArgs:@[@"-R", @"root:wheel", launchdResources]];
         if (!success) {
-            [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to setup VineServer folder")];
+            [startupItemStatusMessageField setStringValue:NSLocalizedString(@"Error: Unable to setup VineServer folder", nil)];
             success = FALSE;
         }
     }
@@ -1489,7 +1488,7 @@ static NSMutableArray *localIPAddresses(void) {
         [vncauth writeToFile:@"/tmp/.vinevncauth" atomically:YES];
         if (![myAuthorization executeCommand:@"/bin/mv"
                                     withArgs:@[@"-f", @"/tmp/.vinevncauth", passwordFile]]) {
-            [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Setup Password File")];
+            [startupItemStatusMessageField setStringValue:NSLocalizedString(@"Error: Unable To Setup Password File", nil)];
             success = FALSE;
         }
     }
@@ -1509,7 +1508,7 @@ static NSMutableArray *localIPAddresses(void) {
         [copyArgsArray addObject:launchdResources];
 
         if (![myAuthorization executeCommand:@"/bin/cp" withArgs:copyArgsArray]) {
-            [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable to copy OSXvnc-server executable")];
+            [startupItemStatusMessageField setStringValue:NSLocalizedString(@"Error: Unable to copy OSXvnc-server executable", nil)];
             return FALSE;
         }
 
@@ -1569,7 +1568,7 @@ static NSMutableArray *localIPAddresses(void) {
                                           withArgs:@[@"load", @"-S", @"Aqua", launchdPath]];
 
         if (!success) {
-            [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unable To Setup Vine Server using launchd")];
+            [startupItemStatusMessageField setStringValue:NSLocalizedString(@"Error: Unable To Setup Vine Server using launchd", nil)];
         }
     }
 
@@ -1581,7 +1580,7 @@ static NSMutableArray *localIPAddresses(void) {
         myAuthorization = [[NSAuthorization alloc] init];
 
     if (!myAuthorization) {
-        [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: No Authorization")];
+        [startupItemStatusMessageField setStringValue:NSLocalizedString(@"Error: No Authorization", nil)];
         return;
     }
 
@@ -1598,12 +1597,12 @@ static NSMutableArray *localIPAddresses(void) {
 - (IBAction) installAsService: sender {
     // No password, so double check
     if (!passwordField.stringValue.length) {
-        NSBeginAlertSheet(LocalizedString(@"System Server"),
-                          LocalizedString(@"Cancel"),
-                          LocalizedString(@"Start Server"),
+        NSBeginAlertSheet(NSLocalizedString(@"System Server", nil),
+                          NSLocalizedString(@"Cancel", nil),
+                          NSLocalizedString(@"Start Server", nil),
                           nil, systemServerWindow, self, @selector(serviceSheetDidEnd:returnCode:contextInfo:),
                           NULL, NULL, @"%@",
-                          LocalizedString(@"No password has been specified for the System Server.  The System Server will automatic launch every time your machine is restarted.  Are you sure that you want to install a System Server with no password"));
+                          NSLocalizedString(@"No password has been specified for the System Server.  The System Server will automatically launch every time your machine is restarted.  Are you sure that you want to install a System Server with no password", nil));
     }
     else {
         [self installAsService];
@@ -1626,7 +1625,7 @@ static NSMutableArray *localIPAddresses(void) {
         myAuthorization = [[NSAuthorization alloc] init];
 
     if (!myAuthorization) {
-        [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: No Authorization")];
+        [startupItemStatusMessageField setStringValue:NSLocalizedString(@"Error: No Authorization", nil)];
         return;
     }
 
@@ -1649,7 +1648,7 @@ static NSMutableArray *localIPAddresses(void) {
         [self loadUIForSystemServer];
     }
     else {
-        [startupItemStatusMessageField setStringValue:LocalizedString(@"Error: Unabled to remove startup item")];
+        [startupItemStatusMessageField setStringValue:NSLocalizedString(@"Error: Unabled to remove startup item", nil)];
     }
 
     if (sender != self) {

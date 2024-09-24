@@ -55,7 +55,7 @@
     NSInteger modifierDelay;
 }
 
-+ sharedServer;
++ (instancetype)sharedServer;
 
 - (void) loadKeyboard: (TISInputSourceRef) keyboardLayoutRef;
 - (void) registerRendezvous;

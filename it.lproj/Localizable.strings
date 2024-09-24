@@ -1,4 +1,3 @@
-{
 "Host Name" = "Nome dell'Host";
 "Host Names" = "Nomi degli Host";
 "IP Address" = "Indirizzo IP";
@@ -24,5 +23,3 @@
 "Error: Unabled to remove startup item" = "Errore: Impossibile rimuovere l'elemento di avvio";
 "Please specify a Connect Host to establish a connection" = "Per favore specifica un'host di connessione per stabilire un collegamento";
 "Connection invitation sent to Connect Host" = "Invito alla connessione inviato all'host";
-}
-

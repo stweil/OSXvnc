@@ -1,4 +1,3 @@
-{
 "Host Name" = "ホスト名";
 "Host Names" = "ホスト名";
 "IP Address" = "IP アドレス";
@@ -24,5 +23,3 @@
 //"Error: Unabled to remove startup item" = "エラー：起動項目を削除できない";
 "Please specify a Connect Host to establish a connection" = "「接続ホスト」を指定して下さい。";
 "Connection invitation sent to Connect Host" = "接続依頼を「接続ホスト」へ送信しました。";
-}
-

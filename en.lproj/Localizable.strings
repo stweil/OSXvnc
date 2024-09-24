@@ -1,4 +1,3 @@
-{
 "The server is stopped."="The server is not running.";
 "No Authentication"="no password protection";
 "Startup Item Configured (Started)"="The System Server is running";
@@ -8,4 +7,4 @@
 "Probably because another VNC is already using this port." = "(There is already a VNC server running on this port)";
 "Option Change Requires a Restart" = "Restart Server to Affect Changes";
 "No password has been specified for the System Server.  The System Server will automatically launch every time your machine is restarted.  Are you sure that you want to install a System Server with no password"="This server is not password-protected, and will start automatically whenever your computer is turned on. Do you want to proceed with no password protection?";
-}
+"Error: Unabled to remove startup item" = "Error: Unable to remove startup item";
