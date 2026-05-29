@@ -1054,7 +1054,7 @@ void rfbShutdown(void) {
     [[NSNotificationCenter defaultCenter] removeObserver:vncServerObject];
     [[NSDistributedNotificationCenter defaultCenter] removeObserver:vncServerObject];
 
-    if (rfbDisableScreenSaver) {
+    if (rfbDisableScreenSaver || rfbNoSleep) {
         /* remove the screensaver timer */
         RemoveEventLoopTimer(screensaverTimer);
         DisposeEventLoopTimerUPP(screensaverTimerUPP);
@@ -1262,7 +1262,7 @@ int main(int argc, char *argv[]) {
     // Better to handle this at the event level, see kbdptr.c
     //CGEnableEventStateCombining(FALSE);
 
-    if (rfbDisableScreenSaver) {
+    if (rfbDisableScreenSaver || rfbNoSleep) {
         /* setup screen saver disabling timer */
         screensaverTimerUPP = NewEventLoopTimerUPP(rfbScreensaverTimer);
         InstallEventLoopTimer(GetMainEventLoop(),
